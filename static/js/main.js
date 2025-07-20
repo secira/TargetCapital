@@ -581,7 +581,7 @@
     const style = document.createElement('style');
     style.textContent = `
         .navbar.scrolled {
-            background: rgba(0, 102, 204, 0.95) !important;
+            background: rgba(0, 9, 26, 0.95) !important;
             backdrop-filter: blur(10px);
         }
         

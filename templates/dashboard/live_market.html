@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}Live Market Data - tCapital{% endblock %}
+
+{% block content %}
+<section class="bg-white text-dark" style="padding-top: 120px; min-height: 100vh;">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-6 fw-bold text-dark mb-2">Live Market Data</h1>
+                        <p class="text-muted mb-0">Real-time stock prices and market indices</p>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">Last Updated: <span id="lastUpdated">{{ last_updated or 'Loading...' }}</span></small>
+                        <br>
+                        <button class="btn btn-outline-primary btn-sm mt-1" onclick="refreshMarketData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Indices -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Market Indices</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="indicesContainer">
+                            <!-- Indices will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Tabs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <ul class="nav nav-tabs card-header-tabs" id="marketTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="us-tab" data-bs-toggle="tab" data-bs-target="#us-stocks" type="button" role="tab">
+                                    <i class="fas fa-flag-usa me-2"></i>US Stocks
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="india-tab" data-bs-toggle="tab" data-bs-target="#india-stocks" type="button" role="tab">
+                                    <i class="fas fa-flag me-2"></i>Indian Stocks
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-stocks" type="button" role="tab">
+                                    <i class="fas fa-search me-2"></i>Search Stocks
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="marketTabContent">
+                            <!-- US Stocks Tab -->
+                            <div class="tab-pane fade show active" id="us-stocks" role="tabpanel">
+                                <div class="row" id="usStocksContainer">
+                                    <!-- US stocks will be loaded here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Indian Stocks Tab -->
+                            <div class="tab-pane fade" id="india-stocks" role="tabpanel">
+                                <div class="row" id="indiaStocksContainer">
+                                    <!-- Indian stocks will be loaded here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Search Stocks Tab -->
+                            <div class="tab-pane fade" id="search-stocks" role="tabpanel">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="stockSearch" placeholder="Search stocks by symbol or company name...">
+                                            <button class="btn btn-primary" type="button" onclick="searchStocks()">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="searchResultsContainer">
+                                    <!-- Search results will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stock Detail Modal -->
+<div class="modal fade" id="stockDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockModalTitle">Stock Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="stockModalBody">
+                <!-- Stock details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="addToWatchlist()">
+                    <i class="fas fa-plus me-1"></i>Add to Watchlist
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStock = null;
+
+// Load market data on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadMarketIndices();
+    loadUSStocks();
+    loadIndianStocks();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(refreshMarketData, 30000);
+});
+
+// Load market indices
+async function loadMarketIndices() {
+    try {
+        const response = await fetch('/api/market/indices');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayIndices(data.data);
+            document.getElementById('lastUpdated').textContent = new Date(data.last_updated).toLocaleString();
+        }
+    } catch (error) {
+        console.error('Error loading indices:', error);
+    }
+}
+
+// Load US stocks
+async function loadUSStocks() {
+    try {
+        const response = await fetch('/api/market/trending?market=US&limit=12');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayStocks(data.data, 'usStocksContainer');
+        }
+    } catch (error) {
+        console.error('Error loading US stocks:', error);
+    }
+}
+
+// Load Indian stocks
+async function loadIndianStocks() {
+    try {
+        const response = await fetch('/api/market/trending?market=INDIA&limit=12');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayStocks(data.data, 'indiaStocksContainer');
+        }
+    } catch (error) {
+        console.error('Error loading Indian stocks:', error);
+    }
+}
+
+// Display indices
+function displayIndices(indices) {
+    const container = document.getElementById('indicesContainer');
+    container.innerHTML = '';
+    
+    indices.forEach(index => {
+        const changeClass = parseFloat(index.change) >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon = parseFloat(index.change) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        const html = `
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center">
+                        <h6 class="card-title mb-1">${index.index_name || index.symbol}</h6>
+                        <h5 class="text-dark mb-1">${parseFloat(index.current_price).toLocaleString()}</h5>
+                        <p class="mb-0 ${changeClass}">
+                            <i class="fas ${changeIcon} me-1"></i>
+                            ${parseFloat(index.change).toFixed(2)} (${parseFloat(index.change_percent).toFixed(2)}%)
+                        </p>
+                        <small class="text-muted">${index.source}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
+    });
+}
+
+// Display stocks
+function displayStocks(stocks, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    
+    if (stocks.length === 0) {
+        container.innerHTML = '<div class="col-12"><p class="text-muted text-center">No stock data available</p></div>';
+        return;
+    }
+    
+    stocks.forEach(stock => {
+        const changeClass = parseFloat(stock.change) >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon = parseFloat(stock.change) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        
+        const html = `
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card border-0 bg-light stock-card" onclick="showStockDetail('${stock.symbol}', '${stock.exchange}')">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="card-title mb-1">${stock.symbol}</h6>
+                                <p class="card-text text-muted small mb-0">${stock.company_name || stock.symbol}</p>
+                            </div>
+                            <span class="badge bg-secondary">${stock.exchange}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <h5 class="text-dark mb-0">${stock.currency} ${parseFloat(stock.current_price).toFixed(2)}</h5>
+                                <p class="mb-0 ${changeClass}">
+                                    <i class="fas ${changeIcon} me-1"></i>
+                                    ${parseFloat(stock.change).toFixed(2)} (${parseFloat(stock.change_percent).toFixed(2)}%)
+                                </p>
+                            </div>
+                            <small class="text-muted">${stock.source}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += html;
+    });
+}
+
+// Search stocks
+async function searchStocks() {
+    const query = document.getElementById('stockSearch').value.trim();
+    if (!query) return;
+    
+    try {
+        const response = await fetch(`/api/search/stocks?q=${encodeURIComponent(query)}&limit=20`);
+        const data = await response.json();
+        
+        if (data.success) {
+            displayStocks(data.data, 'searchResultsContainer');
+        }
+    } catch (error) {
+        console.error('Error searching stocks:', error);
+    }
+}
+
+// Show stock detail modal
+async function showStockDetail(symbol, exchange) {
+    try {
+        const response = await fetch(`/api/stock/${symbol}?exchange=${exchange}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentStock = data.data;
+            document.getElementById('stockModalTitle').textContent = `${symbol} - ${data.data.company_name}`;
+            
+            const changeClass = parseFloat(data.data.change) >= 0 ? 'text-success' : 'text-danger';
+            const changeIcon = parseFloat(data.data.change) >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+            
+            document.getElementById('stockModalBody').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4 class="text-dark">${data.data.currency} ${parseFloat(data.data.current_price).toFixed(2)}</h4>
+                        <p class="${changeClass}">
+                            <i class="fas ${changeIcon} me-1"></i>
+                            ${parseFloat(data.data.change).toFixed(2)} (${parseFloat(data.data.change_percent).toFixed(2)}%)
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Exchange:</strong> ${data.data.exchange}</p>
+                        <p><strong>Source:</strong> ${data.data.source}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <small class="text-muted">Open</small>
+                        <p class="mb-0">${parseFloat(data.data.open).toFixed(2)}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">High</small>
+                        <p class="mb-0">${parseFloat(data.data.high).toFixed(2)}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Low</small>
+                        <p class="mb-0">${parseFloat(data.data.low).toFixed(2)}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Volume</small>
+                        <p class="mb-0">${parseInt(data.data.volume).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+            
+            new bootstrap.Modal(document.getElementById('stockDetailModal')).show();
+        }
+    } catch (error) {
+        console.error('Error loading stock details:', error);
+    }
+}
+
+// Add to watchlist
+function addToWatchlist() {
+    if (!currentStock) return;
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/dashboard/add-to-watchlist';
+    
+    const symbolInput = document.createElement('input');
+    symbolInput.type = 'hidden';
+    symbolInput.name = 'symbol';
+    symbolInput.value = currentStock.symbol;
+    
+    const nameInput = document.createElement('input');
+    nameInput.type = 'hidden';
+    nameInput.name = 'company_name';
+    nameInput.value = currentStock.company_name;
+    
+    form.appendChild(symbolInput);
+    form.appendChild(nameInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Refresh market data
+function refreshMarketData() {
+    loadMarketIndices();
+    loadUSStocks();
+    loadIndianStocks();
+}
+
+// Enable search on Enter key
+document.getElementById('stockSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchStocks();
+    }
+});
+</script>
+
+<style>
+.stock-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stock-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom-color: #0066cc;
+    color: #0066cc;
+}
+</style>
+{% endblock %}

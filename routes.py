@@ -3,6 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis
 from services.nse_service import nse_service
+from services.market_data_service import market_data_service
 import logging
 import random
 from datetime import datetime, timedelta
@@ -281,13 +282,30 @@ def dashboard():
         user_level = "New User"
         level_progress = 10
     
-    # Generate mock market data for demo
-    mock_market_data = generate_mock_market_data()
+    # Get real market data
+    try:
+        # Get major market indices
+        market_indices = market_data_service.get_market_indices()
+        
+        # Get trending stocks
+        trending_us = market_data_service.get_trending_stocks('US', 5)
+        trending_india = market_data_service.get_trending_stocks('INDIA', 5)
+        
+        market_data = {
+            'indices': market_indices,
+            'trending_us': trending_us,
+            'trending_india': trending_india,
+            'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+    except Exception as e:
+        logging.error(f"Error fetching market data: {str(e)}")
+        # Fallback to mock data if API fails
+        market_data = generate_mock_market_data()
     
     return render_template('dashboard/dashboard.html', 
                          watchlist=watchlist, 
                          recent_analyses=recent_analyses,
-                         market_data=mock_market_data,
+                         market_data=market_data,
                          days_active=days_active,
                          user_level=user_level,
                          level_progress=level_progress)
@@ -507,28 +525,46 @@ def get_market_overview():
 @app.route('/dashboard/nse-stocks')
 @login_required
 def nse_stocks():
-    """NSE India stocks dashboard"""
+    """NSE India stocks dashboard with real-time data"""
     try:
-        # Get popular Indian stocks for display
-        popular_symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN']
-        popular_stocks = nse_service.get_multiple_quotes(popular_symbols)
+        # Get Indian market data using enhanced market data service
+        trending_indian_stocks = market_data_service.get_trending_stocks('INDIA', 15)
+        market_indices = market_data_service.get_market_indices()
         
-        # Get market overview
+        # Filter Indian indices
+        indian_indices = [idx for idx in market_indices if idx.get('exchange') == 'NSE']
+        
+        # Get market status and additional data from NSE service
         market_status = nse_service.get_market_status()
-        indices = nse_service.get_market_indices()
         top_gainers = nse_service.get_top_gainers(10)
         top_losers = nse_service.get_top_losers(10)
         
+        # If no data from enhanced service, fallback to original NSE service
+        if not trending_indian_stocks:
+            popular_symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN']
+            trending_indian_stocks = nse_service.get_multiple_quotes(popular_symbols)
+        
+        if not indian_indices:
+            indian_indices = nse_service.get_market_indices()
+        
         return render_template('dashboard/nse_stocks.html',
-                             popular_stocks=popular_stocks,
+                             popular_stocks=trending_indian_stocks,
                              market_status=market_status,
-                             indices=indices,
+                             indices=indian_indices,
                              top_gainers=top_gainers,
-                             top_losers=top_losers)
+                             top_losers=top_losers,
+                             last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     except Exception as e:
         logging.error(f"Error loading NSE stocks dashboard: {str(e)}")
         flash('Unable to load NSE market data. Please try again later.', 'error')
         return redirect(url_for('dashboard'))
+
+@app.route('/dashboard/live-market')
+@login_required
+def live_market():
+    """Live market data dashboard"""
+    return render_template('dashboard/live_market.html',
+                          last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 @app.route('/dashboard/add-nse-stock', methods=['POST'])
 @login_required
@@ -854,3 +890,91 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return render_template('500.html'), 500
+
+# Real-time Market Data API Endpoints
+
+@app.route('/api/stock/<symbol>')
+def api_get_stock(symbol):
+    """Get real-time stock data"""
+    exchange = request.args.get('exchange', 'US')
+    try:
+        stock_data = market_data_service.get_stock_quote(symbol, exchange)
+        if stock_data:
+            return jsonify({
+                'success': True,
+                'data': stock_data
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Stock not found'
+            }), 404
+    except Exception as e:
+        logging.error(f"API error for stock {symbol}: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Internal server error'
+        }), 500
+
+@app.route('/api/market/indices')
+def api_market_indices():
+    """Get market indices"""
+    try:
+        indices = market_data_service.get_market_indices()
+        return jsonify({
+            'success': True,
+            'data': indices,
+            'last_updated': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logging.error(f"API error for market indices: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Unable to fetch market indices'
+        }), 500
+
+@app.route('/api/market/trending')
+def api_trending_stocks():
+    """Get trending stocks"""
+    market = request.args.get('market', 'US')
+    limit = int(request.args.get('limit', 10))
+    try:
+        trending = market_data_service.get_trending_stocks(market, limit)
+        return jsonify({
+            'success': True,
+            'data': trending,
+            'market': market,
+            'last_updated': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logging.error(f"API error for trending stocks: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Unable to fetch trending stocks'
+        }), 500
+
+@app.route('/api/search/stocks')
+def api_search_stocks():
+    """Search stocks by symbol or company name"""
+    query = request.args.get('q', '')
+    limit = int(request.args.get('limit', 10))
+    
+    if not query:
+        return jsonify({
+            'success': False,
+            'error': 'Query parameter required'
+        }), 400
+    
+    try:
+        results = market_data_service.search_stocks(query, limit)
+        return jsonify({
+            'success': True,
+            'data': results,
+            'query': query
+        })
+    except Exception as e:
+        logging.error(f"API error for stock search: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Search failed'
+        }), 500
