@@ -44,7 +44,7 @@
                 {% if post.featured_image %}
                 <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="img-fluid rounded shadow-sm mb-4">
                 {% else %}
-                <div class="featured-image-placeholder bg-gradient-primary text-white rounded d-flex align-items-center justify-content-center mb-4" style="height: 300px;">
+                <div class="featured-image-placeholder bg-light text-white rounded d-flex align-items-center justify-content-center mb-4" style="height: 300px;">
                     <div class="text-center">
                         <i class="fas fa-chart-line fa-4x mb-3"></i>
                         <h4>{{ post.title }}</h4>
@@ -223,7 +223,7 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="bg-gradient-primary text-white py-5">
+<section class="bg-light text-dark py-5">
     <div class="container text-center">
         <h2 class="fw-bold mb-4">Ready to Transform Your Trading?</h2>
         <p class="lead mb-4">
@@ -234,7 +234,7 @@
             <a href="#trial" class="btn btn-warning btn-lg px-4">
                 <i class="fas fa-rocket me-2"></i>Start Free Trial
             </a>
-            <a href="{{ url_for('blog') }}" class="btn btn-outline-light btn-lg px-4">
+            <a href="{{ url_for('blog') }}" class="btn btn-outline-primary btn-lg px-4">
                 <i class="fas fa-newspaper me-2"></i>Read More Articles
             </a>
         </div>

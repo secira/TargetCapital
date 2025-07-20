@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Page Header -->
-<div class="bg-gradient-primary text-white py-4">
+<div class="bg-white text-dark border-bottom py-4">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8">
@@ -13,7 +13,7 @@
             </div>
             <div class="col-md-4 text-md-end">
                 <div class="d-flex gap-2 justify-content-md-end">
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-arrow-left me-1"></i>Dashboard
                     </a>
                     <button class="btn btn-light btn-sm" onclick="refreshMarketData()">
@@ -260,7 +260,7 @@
 </div>
 
 <style>
-.bg-gradient-primary {
+.bg-light {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 </style>
