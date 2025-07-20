@@ -1,12 +1,13 @@
-# AI TradeBot - Flask Web Application
+# tCapital - Flask Web Application
 
 ## Overview
 
-AI TradeBot is a Flask-based web application that provides an AI-powered stock trading platform with portfolio analysis and algorithmic trading services. The application features a modern, responsive frontend with multiple service pages and a blog system for sharing trading insights.
+tCapital is a Flask-based web application that provides an AI-powered stock trading platform with portfolio analysis and algorithmic trading services. The application features a modern, responsive frontend with multiple service pages and a blog system for sharing trading insights.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Brand name: tCapital (changed from AI TradeBot on 2025-07-20)
 
 ## System Architecture
 

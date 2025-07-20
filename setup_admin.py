@@ -22,7 +22,7 @@ def setup_admin_user():
         # Create admin user
         admin = User(
             username='admin',
-            email='admin@aitradebot.com',
+            email='admin@tcapital.com',
             first_name='Admin',
             last_name='User',
             is_admin=True

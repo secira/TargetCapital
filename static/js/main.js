@@ -1,5 +1,5 @@
 /**
- * AI TradeBot - Main JavaScript File
+ * tCapital - Main JavaScript File
  * Handles client-side interactions and enhancements
  */
 
