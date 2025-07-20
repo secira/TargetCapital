@@ -10,7 +10,15 @@ from typing import Dict, List, Optional, Any
 import pandas as pd
 
 try:
-    from nsepython import *
+    from nsepython import (
+        nse_quote, 
+        nse_eq, 
+        indices,
+        nse_get_index_quote,
+        nse_get_top_gainers,
+        nse_get_top_losers,
+        nse_most_active
+    )
 except ImportError:
     logging.error("NSEPython library not installed. Please install with: pip install nsepython")
     raise
@@ -87,16 +95,30 @@ class NSEService:
             Dictionary with index data or fallback data
         """
         try:
-            indices = nse_indices()
-            return {
-                'nifty_50': indices.get('NIFTY 50'),
-                'sensex': indices.get('BSE SENSEX'),
-                'nifty_bank': indices.get('NIFTY BANK'),
-                'nifty_it': indices.get('NIFTY IT'),
-                'nifty_pharma': indices.get('NIFTY PHARMA'),
-                'nifty_auto': indices.get('NIFTY AUTO'),
-                'timestamp': dt.datetime.now()
-            }
+            result = {}
+            # Get individual index quotes
+            nifty_data = nse_get_index_quote('NIFTY')
+            bank_nifty_data = nse_get_index_quote('BANKNIFTY')
+            
+            if nifty_data:
+                result['nifty_50'] = {
+                    'name': 'NIFTY 50',
+                    'value': float(nifty_data.get('lastPrice', 0)),
+                    'change': float(nifty_data.get('change', 0)),
+                    'change_percent': float(nifty_data.get('pChange', 0))
+                }
+            
+            if bank_nifty_data:
+                result['nifty_bank'] = {
+                    'name': 'BANK NIFTY',
+                    'value': float(bank_nifty_data.get('lastPrice', 0)),
+                    'change': float(bank_nifty_data.get('change', 0)),
+                    'change_percent': float(bank_nifty_data.get('pChange', 0))
+                }
+                
+            result['timestamp'] = dt.datetime.now()
+            return result
+            
         except Exception as e:
             self.logger.warning(f"NSE indices API error: {str(e)}. Using fallback data.")
             fallback_data = self._get_fallback_market_data()
