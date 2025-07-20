@@ -8,6 +8,7 @@ tCapital is a Flask-based web application that provides an AI-powered stock trad
 
 Preferred communication style: Simple, everyday language.
 Brand name: tCapital (changed from AI TradeBot on 2025-07-20)
+Design preference: Clean white backgrounds instead of blue gradients (updated on 2025-07-20)
 
 ## System Architecture
 
