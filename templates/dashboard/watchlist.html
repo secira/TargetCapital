@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}My Watchlist - AI TradeBot{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gradient-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h3 mb-1">My Watchlist</h1>
+                <p class="mb-0 opacity-75">Track your favorite stocks and set price targets</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Add Stock Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-plus text-success me-2"></i>Add Stock to Watchlist
+            </h5>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('add_to_watchlist') }}">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="symbol" class="form-label">Stock Symbol <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="symbol" name="symbol" placeholder="e.g., AAPL" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="company_name" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name" placeholder="e.g., Apple Inc.">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="target_price" class="form-label">Target Price</label>
+                        <input type="number" step="0.01" class="form-control" id="target_price" name="target_price" placeholder="0.00">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-plus me-1"></i>Add
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <label for="notes" class="form-label">Notes</label>
+                        <input type="text" class="form-control" id="notes" name="notes" placeholder="Optional notes about this stock">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Watchlist Items -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-eye text-primary me-2"></i>Your Stocks ({{ watchlist_items|length }})
+            </h5>
+            {% if watchlist_items %}
+                <small class="text-muted">Last updated: {{ moment().format('MMM DD, YYYY HH:mm') if moment else 'now' }}</small>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if watchlist_items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Company</th>
+                                <th>Target Price</th>
+                                <th>Added Date</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in watchlist_items %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary fs-6">{{ item.symbol }}</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ item.company_name or 'Unknown Company' }}</div>
+                                </td>
+                                <td>
+                                    {% if item.target_price %}
+                                        <span class="text-success fw-bold">${{ "%.2f"|format(item.target_price) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ item.added_at.strftime('%m/%d/%Y') }}</small>
+                                </td>
+                                <td>
+                                    {% if item.notes %}
+                                        <small class="text-muted">{{ item.notes[:50] }}{% if item.notes|length > 50 %}...{% endif %}</small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="#" class="btn btn-outline-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('remove_from_watchlist', item_id=item.id) }}" 
+                                           class="btn btn-outline-danger" 
+                                           title="Remove from Watchlist"
+                                           onclick="return confirm('Are you sure you want to remove {{ item.symbol }} from your watchlist?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Watchlist Stats -->
+                <div class="row mt-4 pt-3 border-top">
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <h4 class="text-primary">{{ watchlist_items|length }}</h4>
+                            <small class="text-muted">Total Stocks</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <h4 class="text-success">{{ watchlist_items|selectattr('target_price')|list|length }}</h4>
+                            <small class="text-muted">With Target Price</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="p-3">
+                            <h4 class="text-info">{{ (watchlist_items|map(attribute='added_at')|map('string')|unique|list)|length }}</h4>
+                            <small class="text-muted">Tracking Days</small>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-eye-slash fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted">Your watchlist is empty</h4>
+                    <p class="text-muted mb-4">Start tracking stocks by adding them to your watchlist above.</p>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h6 class="fw-bold mb-3">Popular Stocks to Track:</h6>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <span class="badge bg-outline-primary p-2">AAPL - Apple</span>
+                                <span class="badge bg-outline-primary p-2">GOOGL - Alphabet</span>
+                                <span class="badge bg-outline-primary p-2">MSFT - Microsoft</span>
+                                <span class="badge bg-outline-primary p-2">TSLA - Tesla</span>
+                                <span class="badge bg-outline-primary p-2">NVDA - NVIDIA</span>
+                                <span class="badge bg-outline-primary p-2">AMZN - Amazon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.badge.bg-outline-primary {
+    background-color: transparent !important;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+}
+</style>
+{% endblock %}

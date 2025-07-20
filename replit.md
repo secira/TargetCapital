@@ -40,7 +40,9 @@ Preferred communication style: Simple, everyday language.
 1. **BlogPost**: Blog articles with title, content, author, featured images, and publishing metadata
 2. **TeamMember**: Team profiles with roles, bio, images, and social links
 3. **Testimonial**: Client testimonials with ratings and company information
-4. **Newsletter**: Email subscription management
+4. **User**: User authentication with Flask-Login, password hashing, profile information
+5. **WatchlistItem**: User stock watchlists with target prices and notes
+6. **StockAnalysis**: AI-powered stock analysis with recommendations and confidence scores
 
 ### Page Structure
 1. **Home Page** (`/`): Hero section, features, services overview, stats, testimonials
@@ -49,15 +51,21 @@ Preferred communication style: Simple, everyday language.
 4. **ALGO Trading Page** (`/algo-trading`): Specialized algorithmic trading features
 5. **Blog** (`/blog`): Article listings with pagination and featured posts
 6. **Blog Posts** (`/blog/<id>`): Individual article pages with related content
+7. **Authentication** (`/login`, `/register`, `/logout`): User authentication system
+8. **Dashboard** (`/dashboard`): User dashboard with market overview and watchlist
+9. **Stock Analysis** (`/dashboard/stock-analysis`): AI-powered stock analysis tools
+10. **Watchlist** (`/dashboard/watchlist`): Personal stock tracking and management
 
 ### Frontend Features
-- Responsive navigation with dropdown menus
+- Responsive navigation with dropdown menus and user authentication
 - Gradient backgrounds and modern UI components
 - Interactive elements with smooth scrolling
 - Form validation and user feedback
 - Animation and counter effects
 - Modal dialogs and tooltips
-- Newsletter subscription functionality
+- User dashboard with stock tracking and analysis tools
+- Real-time market data display (demo mode)
+- Stock watchlist management interface
 
 ## Data Flow
 
