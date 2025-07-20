@@ -27,7 +27,4 @@ class Testimonial(db.Model):
     rating = db.Column(db.Integer, nullable=False, default=5)
     image_url = db.Column(db.String(500), nullable=True)
 
-class Newsletter(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    subscribed_at = db.Column(db.DateTime, default=datetime.utcnow)
+

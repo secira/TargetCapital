@@ -123,20 +123,19 @@
             <!-- Sidebar -->
             <div class="col-lg-4">
                 <div class="sidebar">
-                    <!-- Newsletter Signup -->
+                    <!-- Trading CTA -->
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-3">Get Trading Insights</h5>
-                            <p class="text-muted mb-3">Subscribe to receive weekly market analysis and AI trading tips.</p>
-                            <form action="{{ url_for('subscribe_newsletter') }}" method="POST">
-                                <div class="input-group mb-3">
-                                    <input type="email" name="email" class="form-control" placeholder="Your email" required>
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </form>
-                            <small class="text-muted">No spam, unsubscribe anytime.</small>
+                            <p class="text-muted mb-3">Start your journey with AI-powered trading strategies and expert market analysis.</p>
+                            <div class="d-flex gap-2">
+                                <a href="#trial" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-rocket me-1"></i>Free Trial
+                                </a>
+                                <a href="#demo" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-play me-1"></i>Demo
+                                </a>
+                            </div>
                         </div>
                     </div>
                     

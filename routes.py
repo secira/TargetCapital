@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, Newsletter
+from models import BlogPost, TeamMember, Testimonial
 import logging
 
 @app.route('/')
@@ -52,32 +52,7 @@ def blog_post(post_id):
     testimonials = Testimonial.query.limit(2).all()
     return render_template('blog_post.html', post=post, related_posts=related_posts, testimonials=testimonials)
 
-@app.route('/newsletter', methods=['POST'])
-def subscribe_newsletter():
-    """Newsletter subscription route"""
-    email = request.form.get('email')
-    if not email:
-        flash('Please enter a valid email address.', 'error')
-        return redirect(request.referrer or url_for('index'))
-    
-    # Check if email already exists
-    existing = Newsletter.query.filter_by(email=email).first()
-    if existing:
-        flash('You are already subscribed to our newsletter!', 'info')
-        return redirect(request.referrer or url_for('index'))
-    
-    # Add new subscriber
-    subscriber = Newsletter(email=email)
-    try:
-        db.session.add(subscriber)
-        db.session.commit()
-        flash('Thank you for subscribing to our newsletter!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        logging.error(f"Newsletter subscription error: {e}")
-        flash('An error occurred. Please try again.', 'error')
-    
-    return redirect(request.referrer or url_for('index'))
+
 
 @app.route('/contact', methods=['POST'])
 def contact():
