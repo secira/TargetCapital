@@ -1,0 +1,73 @@
+Page: **Home**
+ - Navbar
+ - Hero Header Section: Introduction to AI-based stock portfolio analysis and ALGO trading with a compelling headline and CTA.
+ - Feature Section: Highlight the key features and benefits of using AI for stock portfolio analysis.
+ - Features List Section: List of 3 main features: AI-driven insights, Real-time market data, and Personalized trading strategies.
+ - Services Section: Overview of the services offered including ALGO trading, portfolio analysis, and trading recommendations.
+ - Benefits Section: Description of the benefits of using AI for stock trading, such as increased efficiency, reduced risk, and better returns.
+ - Stats Section: Showcase relevant statistics and metrics that highlight success stories, user growth, or trading volume.
+ - Testimonial Section: Client testimonials and success stories to build credibility and trust with potential users.
+ - CTA Section: Encourage visitors to sign up for a trial or book a demo to experience the platform firsthand.
+ - Newsletter Section: Invitation to join the newsletter for updates, insights, and exclusive offers.
+ - Footer
+
+Sub-pages: About Us, Services, Blog
+
+
+Page: **About Us**
+ - Navbar
+ - Header Section: Introduction to the company, its mission, and vision.
+ - About Section: Detailed description of the company's history, core values, and goals.
+ - Team Section: Profiles of the key team members including their roles and expertise.
+ - Timeline Section: Chronological timeline of the company's major milestones and achievements.
+ - Client Logos List Section: Showcase of notable clients who have used the platform.
+ - Testimonial Section: Additional client testimonials and success stories to build credibility.
+ - CTA Section: Encourage visitors to contact the company for more information or partnership opportunities.
+ - Footer
+
+Page: **Services**
+ - Navbar
+ - Header Section: Overview of the services offered with a compelling headline and brief introduction.
+ - Features List Section: Highlight three main services:
+ - Feature Section: Detailed description of AI-Driven Portfolio Analysis, including how the AI analyzes market trends and optimizes portfolios.
+ - Feature Section: Detailed description of ALGO Trading Solutions, explaining the algorithms used and how they can automate trading strategies.
+ - Feature Section: Detailed description of Real-Time Market Data and Insights, showcasing the importance of up-to-date information for making informed trading decisions.
+ - How It Works Section: Step-by-step guide on how users can start using the services, from signing up to executing trades using the platform.
+ - Benefits Section: List of benefits for each service, such as improved trading accuracy, time-saving automation, and access to expert insights.
+ - Testimonial Section: Client testimonials specifically related to each service to highlight user satisfaction and success stories.
+ - CTA Section: Encourage visitors to sign up for a free trial or book a consultation to explore the services in detail.
+ - Footer
+
+Sub-pages: ALGO Trading
+
+
+Page: **ALGO Trading**
+ - Navbar
+ - Header Section: Introduction to ALGO trading and its advantages for users.
+ - Feature Section: Explanation of how ALGO trading works and its core components.
+ - Features List Section: List of 3 main features: Automated trading strategies, Backtesting capabilities, and Real-time adjustments.
+ - Benefits Section: Overview of the benefits of using ALGO trading such as increased accuracy, speed, and emotion-free trading.
+ - How It Works Section: Step-by-step guide on how users can start using ALGO trading on the platform.
+ - Testimonial Section: User testimonials highlighting the success and satisfaction with the ALGO trading feature.
+ - CTA Section: Encourage visitors to start a free trial or schedule a demo to experience ALGO trading.
+ - FAQ Section: Frequently asked questions about ALGO trading to address common queries and concerns.
+ - Footer
+
+Page: **Blog**
+ - Navbar
+ - Featured Blog List Header Section: Introduction to the blog with a headline and brief description encouraging visitors to explore articles.
+ - Blog List Section: Listing of recent and popular blog posts with titles, excerpts, and links to full articles.
+ - CTA Form Section: Encourage readers to subscribe to the blog or receive updates via email.
+ - FAQ Section: Common questions and answers related to the blog content, article submissions, and subscriptions.
+ - Footer
+
+Sub-pages: Blog Post
+
+
+Page: **Blog Post**
+ - Navbar
+ - Blog Post Header Section: Title and introduction of the blog post, including featured image and author information.
+ - Blog Post Body Section: Main content of the blog post with text, images, and any other multimedia elements.
+ - Testimonial Section: Relevant testimonials or user stories related to the blog post's content to provide social proof.
+ - CTA Section: Call-to-action encouraging readers to subscribe to the newsletter, read related posts, or try the service.
+ - Footer
