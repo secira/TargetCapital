@@ -31,6 +31,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Navigation */
+.bg-custom-dark {
+    background-color: #00091a !important;
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: 700;
