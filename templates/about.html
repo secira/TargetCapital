@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - AI TradeBot{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-gradient-primary text-white" style="padding-top: 100px;">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">About AI TradeBot</h1>
+                <p class="lead">
+                    We're revolutionizing the financial industry with cutting-edge AI technology, 
+                    making sophisticated trading strategies accessible to everyone.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Our Mission & Vision</h2>
+                <p class="mb-4">
+                    At AI TradeBot, we believe that advanced trading technology should be accessible to all investors, 
+                    not just institutional traders. Our mission is to democratize sophisticated trading strategies 
+                    through artificial intelligence and machine learning.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h5 class="fw-bold text-primary">Our Mission</h5>
+                        <p class="text-muted">Empower individual investors with institutional-grade trading technology and AI-driven insights.</p>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h5 class="fw-bold text-success">Our Vision</h5>
+                        <p class="text-muted">To become the leading AI-powered trading platform, making financial markets more efficient and accessible.</p>
+                    </div>
+                </div>
+                
+                <div class="core-values">
+                    <h5 class="fw-bold mb-3">Core Values</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Transparency in all operations</li>
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Innovation through technology</li>
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Client-centric approach</li>
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Risk management excellence</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <img src="https://pixabay.com/get/g65aefb5fe265d1344a894e8d8539f2be09dc6b87d97bf310ed15ce32c005e8f49c8e568d4868467bb7c28848fa40a93c745b2f18ba40a1d9a850bca6c9fd5fd1_1280.jpg" 
+                     alt="Professional Team" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Meet Our Expert Team</h2>
+            <p class="lead text-muted">Experienced professionals from finance, technology, and AI research</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Team members will be populated from database if available -->
+            {% if team_members %}
+                {% for member in team_members %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="team-card card border-0 shadow-sm text-center">
+                        <div class="card-body p-4">
+                            <div class="team-avatar bg-primary text-white rounded-circle mx-auto mb-3">
+                                {{ member.name[0] }}
+                            </div>
+                            <h5 class="fw-bold">{{ member.name }}</h5>
+                            <p class="text-primary mb-3">{{ member.role }}</p>
+                            {% if member.bio %}
+                            <p class="text-muted small">{{ member.bio }}</p>
+                            {% endif %}
+                            {% if member.linkedin_url %}
+                            <a href="{{ member.linkedin_url }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-linkedin"></i> LinkedIn
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <!-- Default team display when no data is available -->
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar bg-primary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h5 class="fw-bold">Dr. Sarah Chen</h5>
+                        <p class="text-primary mb-3">CEO & Co-Founder</p>
+                        <p class="text-muted small">Former Goldman Sachs quantitative analyst with 15+ years in algorithmic trading and AI research.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar bg-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h5 class="fw-bold">Michael Rodriguez</h5>
+                        <p class="text-success mb-3">CTO & Co-Founder</p>
+                        <p class="text-muted small">Former tech lead at Google with expertise in machine learning infrastructure and financial modeling.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="team-card card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <div class="team-avatar bg-warning text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h5 class="fw-bold">Dr. James Liu</h5>
+                        <p class="text-warning mb-3">Head of AI Research</p>
+                        <p class="text-muted small">PhD in Computer Science from MIT, specializing in deep learning and financial time series analysis.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Timeline Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Our Journey</h2>
+            <p class="lead text-muted">Key milestones in our mission to revolutionize trading</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker bg-primary"></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">2020 - Company Founded</h5>
+                    <p class="text-muted">AI TradeBot was founded by a team of finance and AI experts with a vision to democratize advanced trading technology.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker bg-success"></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">2021 - Platform Launch</h5>
+                    <p class="text-muted">Launched our first AI-powered trading platform with basic algorithmic trading capabilities and portfolio analysis.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker bg-warning"></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">2022 - Series A Funding</h5>
+                    <p class="text-muted">Raised $15M in Series A funding to expand our AI research team and enhance platform capabilities.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker bg-info"></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">2023 - Advanced AI Features</h5>
+                    <p class="text-muted">Introduced advanced machine learning models for market prediction and risk management.</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker bg-danger"></div>
+                <div class="timeline-content">
+                    <h5 class="fw-bold">2024 - Global Expansion</h5>
+                    <p class="text-muted">Expanded to international markets and reached 50,000+ active users managing over $2B in assets.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Client Logos Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Trusted by Leading Organizations</h2>
+            <p class="text-muted">Financial institutions and investment firms worldwide trust our platform</p>
+        </div>
+        
+        <div class="client-logos row align-items-center justify-content-center">
+            <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="client-logo bg-white p-3 rounded shadow-sm text-center">
+                    <h6 class="mb-0 text-muted">FinanceCorr</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="client-logo bg-white p-3 rounded shadow-sm text-center">
+                    <h6 class="mb-0 text-muted">InvestPro</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="client-logo bg-white p-3 rounded shadow-sm text-center">
+                    <h6 class="mb-0 text-muted">TradeTech</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="client-logo bg-white p-3 rounded shadow-sm text-center">
+                    <h6 class="mb-0 text-muted">AlphaFund</h6>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-3 col-6 mb-4">
+                <div class="client-logo bg-white p-3 rounded shadow-sm text-center">
+                    <h6 class="mb-0 text-muted">QuantCapital</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial Section -->
+{% if testimonials %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Client Success Stories</h2>
+            <p class="lead text-muted">Hear from our satisfied clients</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-lg-6">
+                <div class="testimonial-card card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="stars mb-3">
+                            {% for i in range(testimonial.rating) %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="mb-3">"{{ testimonial.content }}"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar bg-primary text-white rounded-circle me-3">
+                                {{ testimonial.name[0] }}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ testimonial.name }}</h6>
+                                {% if testimonial.company %}
+                                <small class="text-muted">{{ testimonial.company }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="bg-gradient-primary text-white py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Ready to Partner with Us?</h2>
+        <p class="lead mb-4">Contact us to learn more about partnership opportunities or enterprise solutions.</p>
+        
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="#contact" class="btn btn-warning btn-lg px-4">
+                <i class="fas fa-envelope me-2"></i>Contact Us
+            </a>
+            <a href="#partnership" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-handshake me-2"></i>Partnership Opportunities
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

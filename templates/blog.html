@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Trading Blog - AI TradeBot{% endblock %}
+
+{% block content %}
+<!-- Featured Blog Header Section -->
+<section class="bg-gradient-primary text-white" style="padding-top: 100px;">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">Trading Insights & Market Analysis</h1>
+                <p class="lead">
+                    Stay informed with expert insights, market analysis, and trading strategies from our team of 
+                    AI researchers and financial experts. Discover the latest trends in algorithmic trading and portfolio management.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Posts -->
+{% if featured_posts %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Featured Articles</h2>
+            <p class="lead text-muted">Our most popular and insightful content</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for post in featured_posts %}
+            <div class="col-lg-4">
+                <div class="featured-post card border-0 shadow-sm h-100">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-chart-line fa-3x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body p-4">
+                        <div class="badge bg-primary mb-2">Featured</div>
+                        <h5 class="card-title fw-bold">
+                            <a href="{{ url_for('blog_post', post_id=post.id) }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        {% if post.excerpt %}
+                        <p class="card-text text-muted">{{ post.excerpt[:150] }}...</p>
+                        {% endif %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ post.author }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ post.created_at.strftime('%B %d, %Y') }}
+                            </small>
+                        </div>
+                        <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-outline-primary mt-3">
+                            Read More <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Blog List Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Latest Articles</h2>
+            <p class="lead text-muted">Fresh insights and analysis from our experts</p>
+        </div>
+        
+        {% if posts.items %}
+        <div class="row g-4">
+            {% for post in posts.items %}
+            <div class="col-lg-6">
+                <div class="blog-post-card card border-0 shadow-sm h-100">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            {% if post.featured_image %}
+                            <img src="{{ post.featured_image }}" class="img-fluid rounded-start h-100 object-cover" alt="{{ post.title }}">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start">
+                                <i class="fas fa-newspaper fa-2x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body p-4">
+                                <h5 class="card-title fw-bold">
+                                    <a href="{{ url_for('blog_post', post_id=post.id) }}" class="text-decoration-none text-dark">
+                                        {{ post.title }}
+                                    </a>
+                                </h5>
+                                {% if post.excerpt %}
+                                <p class="card-text text-muted">{{ post.excerpt[:120] }}...</p>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ post.author }}
+                                    </small>
+                                    <small class="text-muted">
+                                        {{ post.created_at.strftime('%b %d, %Y') }}
+                                    </small>
+                                </div>
+                                <a href="{{ url_for('blog_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary mt-2">
+                                    Read Article
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if posts.pages > 1 %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if posts.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('blog', page=posts.prev_num) }}">Previous</a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in posts.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != posts.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('blog', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if posts.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('blog', page=posts.next_num) }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <!-- Empty state when no blog posts are available -->
+        <div class="text-center py-5">
+            <i class="fas fa-newspaper fa-5x text-muted mb-4"></i>
+            <h3 class="fw-bold text-muted">No Blog Posts Available</h3>
+            <p class="text-muted">We're working on bringing you fresh content. Check back soon for the latest trading insights and market analysis.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Form Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h3 class="fw-bold mb-3">Stay Updated with Our Newsletter</h3>
+                <p class="text-muted mb-4">
+                    Get the latest trading insights, market analysis, and platform updates delivered directly to your inbox. 
+                    Join over 50,000 traders who trust our expert analysis.
+                </p>
+                
+                <form action="{{ url_for('subscribe_newsletter') }}" method="POST" class="newsletter-form">
+                    <div class="input-group input-group-lg mb-3">
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="row text-center mt-4">
+                    <div class="col-md-4">
+                        <i class="fas fa-clock text-primary mb-2"></i>
+                        <h6 class="fw-bold">Weekly Updates</h6>
+                        <small class="text-muted">Market analysis every Monday</small>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-star text-warning mb-2"></i>
+                        <h6 class="fw-bold">Exclusive Content</h6>
+                        <small class="text-muted">Subscriber-only insights</small>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-chart-line text-success mb-2"></i>
+                        <h6 class="fw-bold">Trading Signals</h6>
+                        <small class="text-muted">AI-powered recommendations</small>
+                    </div>
+                </div>
+                
+                <p class="small text-muted mt-3">
+                    By subscribing, you agree to our privacy policy. Unsubscribe at any time.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Blog FAQ</h2>
+            <p class="lead text-muted">Common questions about our content and subscriptions</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="accordion" id="blogFaqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#blogFaq1">
+                                How often do you publish new articles?
+                            </button>
+                        </h2>
+                        <div id="blogFaq1" class="accordion-collapse collapse show" data-bs-parent="#blogFaqAccordion">
+                            <div class="accordion-body">
+                                We publish new articles 2-3 times per week, including market analysis, trading strategies, 
+                                and AI technology insights. Featured articles are published every Monday with comprehensive market analysis.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blogFaq2">
+                                Are the trading strategies in your blog actionable?
+                            </button>
+                        </h2>
+                        <div id="blogFaq2" class="accordion-collapse collapse" data-bs-parent="#blogFaqAccordion">
+                            <div class="accordion-body">
+                                Yes, all our trading strategies are tested and actionable. We provide detailed implementation guides, 
+                                risk parameters, and backtesting results. However, always consider your risk tolerance and consult with 
+                                a financial advisor before implementing any strategy.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blogFaq3">
+                                Can I submit guest articles or trading ideas?
+                            </button>
+                        </h2>
+                        <div id="blogFaq3" class="accordion-collapse collapse" data-bs-parent="#blogFaqAccordion">
+                            <div class="accordion-body">
+                                We welcome high-quality guest contributions from experienced traders and AI researchers. 
+                                Please contact our editorial team with your article proposal, including your background and 
+                                a detailed outline of your proposed content.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#blogFaq4">
+                                Is the newsletter subscription free?
+                            </button>
+                        </h2>
+                        <div id="blogFaq4" class="accordion-collapse collapse" data-bs-parent="#blogFaqAccordion">
+                            <div class="accordion-body">
+                                Yes, our newsletter subscription is completely free. Subscribers get access to exclusive content, 
+                                early access to new articles, and special trading insights not available on the public blog. 
+                                You can unsubscribe at any time.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

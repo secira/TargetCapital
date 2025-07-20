@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Our Services - AI TradeBot{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-gradient-primary text-white" style="padding-top: 100px;">
+    <div class="container py-5">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">Our Trading Services</h1>
+                <p class="lead">
+                    Comprehensive AI-powered trading solutions designed to maximize your investment potential 
+                    and minimize risk through advanced technology.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features List Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Our Core Services</h2>
+            <p class="lead text-muted">Three pillars of our advanced trading platform</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="service-highlight card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <div class="service-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-chart-pie fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">AI-Driven Portfolio Analysis</h4>
+                        <p class="text-muted">Advanced machine learning algorithms analyze your portfolio composition, risk factors, and market trends to provide optimization recommendations.</p>
+                        <a href="#portfolio-analysis" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="service-highlight card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <div class="service-icon bg-success text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-cogs fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">ALGO Trading Solutions</h4>
+                        <p class="text-muted">Sophisticated algorithmic trading strategies that execute trades automatically based on market conditions and predefined parameters.</p>
+                        <a href="{{ url_for('algo_trading') }}" class="btn btn-outline-success">Learn More</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="service-highlight card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <div class="service-icon bg-warning text-white rounded-circle mx-auto mb-3">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h4 class="fw-bold">Real-Time Market Data</h4>
+                        <p class="text-muted">Live market feeds, real-time analytics, and instant market insights to help you make informed trading decisions quickly.</p>
+                        <a href="#market-data" class="btn btn-outline-warning">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Portfolio Analysis Section -->
+<section id="portfolio-analysis" class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="https://pixabay.com/get/g8bd5b12f455799d260409559ae1034ae6833c04e84ae9b91be19d9ac5d832ec336db8f513df1254162ffa8688c561f68297c7396173fb838735792bf6095b1ce_1280.jpg" 
+                     alt="Portfolio Analysis" class="img-fluid rounded shadow">
+            </div>
+            
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">AI-Driven Portfolio Analysis</h2>
+                <p class="mb-4">
+                    Our advanced AI algorithms continuously analyze your portfolio to identify optimization opportunities, 
+                    assess risk factors, and provide actionable insights for better investment decisions.
+                </p>
+                
+                <div class="feature-list">
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-brain text-primary me-2"></i>Smart Asset Allocation</h5>
+                        <p class="text-muted">AI-powered recommendations for optimal asset distribution based on your risk profile and market conditions.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-shield-alt text-primary me-2"></i>Risk Assessment</h5>
+                        <p class="text-muted">Comprehensive risk analysis including correlation analysis, volatility assessment, and downside protection strategies.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-chart-bar text-primary me-2"></i>Performance Tracking</h5>
+                        <p class="text-muted">Real-time portfolio performance monitoring with benchmark comparisons and attribution analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ALGO Trading Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Advanced ALGO Trading Solutions</h2>
+                <p class="mb-4">
+                    Leverage sophisticated trading algorithms that execute strategies with precision and speed, 
+                    removing emotional bias and maximizing efficiency in your trading operations.
+                </p>
+                
+                <div class="feature-list">
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-robot text-success me-2"></i>Automated Execution</h5>
+                        <p class="text-muted">Execute trades automatically based on predefined strategies and market signals without manual intervention.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-history text-success me-2"></i>Backtesting Engine</h5>
+                        <p class="text-muted">Test your trading strategies against historical data to validate performance before live deployment.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-sync text-success me-2"></i>Real-time Adjustments</h5>
+                        <p class="text-muted">Dynamic strategy adjustments based on changing market conditions and performance metrics.</p>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('algo_trading') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-arrow-right me-2"></i>Explore ALGO Trading
+                </a>
+            </div>
+            
+            <div class="col-lg-6">
+                <img src="https://pixabay.com/get/g32e86d2dacf11add30103965804c3e56dd7ad27481eb1ea69728867c6358fc0cd12bba346a2448de15247bcb0f005bdf12f50bc203fe768b375d73fb5d8405a1_1280.jpg" 
+                     alt="Algorithmic Trading" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Real-Time Market Data Section -->
+<section id="market-data" class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <img src="https://pixabay.com/get/ga84da98ef5d54c5408e060ad0f09d998359d82c0f1c3529a28284f11ed23080fe10875fa997b0de76d75ce40be36d39d39a1d0c871ab0ba1897e1fff87cd7dde_1280.jpg" 
+                     alt="Real-time Market Data" class="img-fluid rounded shadow">
+            </div>
+            
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Real-Time Market Data & Insights</h2>
+                <p class="mb-4">
+                    Access comprehensive market data feeds and AI-powered insights that help you stay ahead 
+                    of market movements and make informed trading decisions.
+                </p>
+                
+                <div class="feature-list">
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-clock text-warning me-2"></i>Live Market Feeds</h5>
+                        <p class="text-muted">Real-time price data, volume analysis, and market depth information across global exchanges.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-bell text-warning me-2"></i>Smart Alerts</h5>
+                        <p class="text-muted">Customizable alerts for price movements, technical indicators, and market events based on your criteria.</p>
+                    </div>
+                    
+                    <div class="feature-item mb-3">
+                        <h5><i class="fas fa-newspaper text-warning me-2"></i>Market Sentiment</h5>
+                        <p class="text-muted">AI-powered sentiment analysis from news, social media, and market data to gauge market mood.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="lead text-muted">Get started with AI TradeBot in four simple steps</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">1</div>
+                    <h5 class="fw-bold">Sign Up</h5>
+                    <p class="text-muted">Create your account and complete the verification process to access our platform.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number bg-success text-white rounded-circle mx-auto mb-3">2</div>
+                    <h5 class="fw-bold">Connect Portfolio</h5>
+                    <p class="text-muted">Link your existing brokerage accounts or fund your AI TradeBot account to get started.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number bg-warning text-white rounded-circle mx-auto mb-3">3</div>
+                    <h5 class="fw-bold">Configure Strategy</h5>
+                    <p class="text-muted">Set your risk preferences, investment goals, and select from our pre-built trading strategies.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number bg-info text-white rounded-circle mx-auto mb-3">4</div>
+                    <h5 class="fw-bold">Start Trading</h5>
+                    <p class="text-muted">Monitor your AI-powered trades and receive insights to optimize your investment performance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Benefits of Our Services</h2>
+            <p class="lead">Why choose AI TradeBot for your trading needs</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-bullseye fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold">Improved Accuracy</h5>
+                    <p>AI algorithms process vast amounts of data to identify profitable opportunities with higher precision than manual analysis.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-clock fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold">Time-Saving Automation</h5>
+                    <p>Automated trading and portfolio management save you hours of research and execution time while maintaining 24/7 market monitoring.</p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="benefit-card text-center">
+                    <div class="benefit-icon mb-3">
+                        <i class="fas fa-graduation-cap fa-3x"></i>
+                    </div>
+                    <h5 class="fw-bold">Expert Insights</h5>
+                    <p>Access institutional-grade research and analysis previously available only to professional traders and large financial institutions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+{% if testimonials %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">What Our Clients Say</h2>
+            <p class="lead text-muted">Success stories from traders using our services</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-lg-4">
+                <div class="testimonial-card card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="stars mb-3">
+                            {% for i in range(testimonial.rating) %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="mb-3">"{{ testimonial.content }}"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar bg-primary text-white rounded-circle me-3">
+                                {{ testimonial.name[0] }}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ testimonial.name }}</h6>
+                                {% if testimonial.company %}
+                                <small class="text-muted">{{ testimonial.company }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="bg-gradient-primary text-white py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Ready to Experience AI-Powered Trading?</h2>
+        <p class="lead mb-4">Start your free trial today and discover how our services can transform your trading performance.</p>
+        
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="#trial" class="btn btn-warning btn-lg px-4">
+                <i class="fas fa-rocket me-2"></i>Start Free Trial
+            </a>
+            <a href="#consultation" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-calendar me-2"></i>Book Consultation
+            </a>
+        </div>
+        
+        <p class="mt-4 mb-0">
+            <small>
+                <i class="fas fa-shield-alt me-1"></i>
+                30-day free trial • No setup fees • Cancel anytime
+            </small>
+        </p>
+    </div>
+</section>
+{% endblock %}

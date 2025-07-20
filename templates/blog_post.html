@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - AI TradeBot Blog{% endblock %}
+
+{% block content %}
+<!-- Blog Post Header Section -->
+<section class="bg-light" style="padding-top: 100px;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('blog') }}">Blog</a></li>
+                        <li class="breadcrumb-item active">{{ post.title[:50] }}...</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="display-5 fw-bold mb-4">{{ post.title }}</h1>
+                
+                <!-- Post Meta -->
+                <div class="d-flex align-items-center mb-4">
+                    <div class="author-info d-flex align-items-center me-4">
+                        <div class="author-avatar bg-primary text-white rounded-circle me-2">
+                            {{ post.author[0] }}
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ post.author }}</h6>
+                            <small class="text-muted">AI Trading Expert</small>
+                        </div>
+                    </div>
+                    
+                    <div class="post-meta text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ post.created_at.strftime('%B %d, %Y') }}
+                        <span class="mx-2">•</span>
+                        <i class="fas fa-clock me-1"></i>
+                        5 min read
+                    </div>
+                </div>
+                
+                <!-- Featured Image -->
+                {% if post.featured_image %}
+                <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="img-fluid rounded shadow-sm mb-4">
+                {% else %}
+                <div class="featured-image-placeholder bg-gradient-primary text-white rounded d-flex align-items-center justify-content-center mb-4" style="height: 300px;">
+                    <div class="text-center">
+                        <i class="fas fa-chart-line fa-4x mb-3"></i>
+                        <h4>{{ post.title }}</h4>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Post Body Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <article class="blog-content">
+                    {% if post.excerpt %}
+                    <div class="lead mb-4 p-4 bg-light rounded">
+                        {{ post.excerpt }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="content">
+                        {% if post.content %}
+                            {{ post.content | safe }}
+                        {% else %}
+                            <!-- Default content when no blog post content is available -->
+                            <p>This is a comprehensive guide to understanding the latest trends in AI-powered trading and how algorithmic strategies are reshaping the financial markets.</p>
+                            
+                            <h3>Understanding AI in Trading</h3>
+                            <p>Artificial Intelligence has revolutionized the way we approach financial markets. By processing vast amounts of data in real-time, AI algorithms can identify patterns and opportunities that human traders might miss.</p>
+                            
+                            <h3>Key Benefits of Algorithmic Trading</h3>
+                            <ul>
+                                <li><strong>Speed:</strong> Execute trades in milliseconds</li>
+                                <li><strong>Accuracy:</strong> Eliminate human errors and emotional decisions</li>
+                                <li><strong>Consistency:</strong> Maintain disciplined trading strategies</li>
+                                <li><strong>24/7 Monitoring:</strong> Never miss market opportunities</li>
+                            </ul>
+                            
+                            <h3>Risk Management with AI</h3>
+                            <p>One of the most significant advantages of AI trading systems is their ability to manage risk dynamically. These systems can adjust position sizes, implement stop-losses, and rebalance portfolios based on changing market conditions.</p>
+                            
+                            <blockquote class="blockquote bg-light p-4 rounded">
+                                <p>"The future of trading lies in the seamless integration of human insight and artificial intelligence."</p>
+                                <footer class="blockquote-footer">AI TradeBot Research Team</footer>
+                            </blockquote>
+                            
+                            <h3>Getting Started</h3>
+                            <p>If you're interested in exploring AI-powered trading, start with a thorough understanding of your risk tolerance and investment goals. Our platform offers comprehensive backtesting tools to help you validate strategies before deploying them with real capital.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Social Share Buttons -->
+                    <div class="social-share mt-5 pt-4 border-top">
+                        <h5 class="fw-bold mb-3">Share this article</h5>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-twitter me-1"></i>Twitter
+                            </a>
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-linkedin me-1"></i>LinkedIn
+                            </a>
+                            <a href="#" class="btn btn-outline-primary btn-sm">
+                                <i class="fab fa-facebook me-1"></i>Facebook
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-link me-1"></i>Copy Link
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="sidebar">
+                    <!-- Newsletter Signup -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Get Trading Insights</h5>
+                            <p class="text-muted mb-3">Subscribe to receive weekly market analysis and AI trading tips.</p>
+                            <form action="{{ url_for('subscribe_newsletter') }}" method="POST">
+                                <div class="input-group mb-3">
+                                    <input type="email" name="email" class="form-control" placeholder="Your email" required>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+                            <small class="text-muted">No spam, unsubscribe anytime.</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Related Posts -->
+                    {% if related_posts %}
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Related Articles</h5>
+                            {% for related_post in related_posts %}
+                            <div class="related-post mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                <h6 class="mb-1">
+                                    <a href="{{ url_for('blog_post', post_id=related_post.id) }}" class="text-decoration-none text-dark">
+                                        {{ related_post.title }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">
+                                    {{ related_post.created_at.strftime('%B %d, %Y') }}
+                                </small>
+                            </div>
+                            {% endfor %}
+                            <a href="{{ url_for('blog') }}" class="btn btn-outline-primary btn-sm">
+                                View All Articles
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Contact CTA -->
+                    <div class="card border-0 bg-primary text-white mb-4">
+                        <div class="card-body p-4 text-center">
+                            <h5 class="fw-bold mb-3">Ready to Start Trading?</h5>
+                            <p class="mb-3">Experience the power of AI-driven trading strategies.</p>
+                            <a href="#trial" class="btn btn-warning btn-sm me-2">
+                                <i class="fas fa-rocket me-1"></i>Free Trial
+                            </a>
+                            <a href="#demo" class="btn btn-outline-light btn-sm">
+                                <i class="fas fa-play me-1"></i>Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial Section -->
+{% if testimonials %}
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">What Our Users Say</h2>
+            <p class="lead text-muted">Success stories from AI TradeBot users</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-lg-6">
+                <div class="testimonial-card card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="stars mb-3">
+                            {% for i in range(testimonial.rating) %}
+                            <i class="fas fa-star text-warning"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="mb-3">"{{ testimonial.content }}"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar bg-primary text-white rounded-circle me-3">
+                                {{ testimonial.name[0] }}
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ testimonial.name }}</h6>
+                                {% if testimonial.company %}
+                                <small class="text-muted">{{ testimonial.company }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="bg-gradient-primary text-white py-5">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Ready to Transform Your Trading?</h2>
+        <p class="lead mb-4">
+            Join thousands of successful traders using AI TradeBot to maximize their investment returns.
+        </p>
+        
+        <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+            <a href="#trial" class="btn btn-warning btn-lg px-4">
+                <i class="fas fa-rocket me-2"></i>Start Free Trial
+            </a>
+            <a href="{{ url_for('blog') }}" class="btn btn-outline-light btn-lg px-4">
+                <i class="fas fa-newspaper me-2"></i>Read More Articles
+            </a>
+        </div>
+        
+        <p class="mb-0">
+            <small>
+                <i class="fas fa-shield-alt me-1"></i>
+                No credit card required • 30-day free trial • Expert support included
+            </small>
+        </p>
+    </div>
+</section>
+{% endblock %}
