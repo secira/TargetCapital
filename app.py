@@ -46,5 +46,10 @@ with app.app_context():
     import models
     db.create_all()
 
+# Import OAuth blueprints and register them
+from oauth_auth import google_bp, facebook_bp
+app.register_blueprint(google_bp, url_prefix="/auth")
+app.register_blueprint(facebook_bp, url_prefix="/auth")
+
 # Import routes
 import routes

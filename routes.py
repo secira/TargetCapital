@@ -230,6 +230,25 @@ def profile():
                          watchlist_count=watchlist_count,
                          analyses_count=analyses_count)
 
+# OAuth success redirect routes
+@app.route('/auth/google/callback')
+def google_oauth_success():
+    """Handle successful Google OAuth login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    else:
+        flash('Google authentication failed. Please try again.', 'error')
+        return redirect(url_for('login'))
+
+@app.route('/auth/facebook/callback')
+def facebook_oauth_success():
+    """Handle successful Facebook OAuth login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    else:
+        flash('Facebook authentication failed. Please try again.', 'error')
+        return redirect(url_for('login'))
+
 # Dashboard routes
 @app.route('/dashboard')
 @login_required

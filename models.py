@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -74,7 +75,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
+    active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
@@ -124,5 +125,10 @@ class StockAnalysis(db.Model):
     ai_recommendation = db.Column(db.String(20), nullable=True)  # BUY, SELL, HOLD
     ai_confidence = db.Column(db.Float, nullable=True)  # 0-100
     ai_notes = db.Column(db.Text, nullable=True)
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user = db.relationship("User")
 
 
