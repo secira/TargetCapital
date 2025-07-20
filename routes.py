@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis
+from services.nse_service import nse_service
 import logging
 import random
 from datetime import datetime, timedelta
@@ -342,15 +343,221 @@ def seed_demo_data():
     
     return redirect(url_for('index'))
 
+# NSE India API routes
+@app.route('/api/nse/quote/<symbol>')
+@login_required
+def get_nse_quote(symbol):
+    """Get real-time NSE stock quote"""
+    try:
+        quote = nse_service.get_stock_quote(symbol.upper())
+        if quote:
+            return jsonify({'success': True, 'data': quote})
+        else:
+            return jsonify({'success': False, 'error': 'Stock not found'})
+    except Exception as e:
+        logging.error(f"Error fetching NSE quote for {symbol}: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to fetch stock data'})
+
+@app.route('/api/nse/search/<query>')
+@login_required
+def search_nse_stocks(query):
+    """Search NSE stocks by symbol or name"""
+    try:
+        results = nse_service.search_stocks(query)
+        return jsonify({'success': True, 'data': results})
+    except Exception as e:
+        logging.error(f"Error searching NSE stocks: {str(e)}")
+        return jsonify({'success': False, 'error': 'Search failed'})
+
+@app.route('/api/nse/market-overview')
+@login_required
+def get_market_overview():
+    """Get NSE market overview with indices and top movers"""
+    try:
+        overview = {
+            'indices': nse_service.get_market_indices(),
+            'top_gainers': nse_service.get_top_gainers(5),
+            'top_losers': nse_service.get_top_losers(5),
+            'most_active': nse_service.get_most_active(5),
+            'market_status': nse_service.get_market_status()
+        }
+        return jsonify({'success': True, 'data': overview})
+    except Exception as e:
+        logging.error(f"Error fetching market overview: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to fetch market data'})
+
+@app.route('/dashboard/nse-stocks')
+@login_required
+def nse_stocks():
+    """NSE India stocks dashboard"""
+    try:
+        # Get popular Indian stocks for display
+        popular_symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN']
+        popular_stocks = nse_service.get_multiple_quotes(popular_symbols)
+        
+        # Get market overview
+        market_status = nse_service.get_market_status()
+        indices = nse_service.get_market_indices()
+        top_gainers = nse_service.get_top_gainers(10)
+        top_losers = nse_service.get_top_losers(10)
+        
+        return render_template('dashboard/nse_stocks.html',
+                             popular_stocks=popular_stocks,
+                             market_status=market_status,
+                             indices=indices,
+                             top_gainers=top_gainers,
+                             top_losers=top_losers)
+    except Exception as e:
+        logging.error(f"Error loading NSE stocks dashboard: {str(e)}")
+        flash('Unable to load NSE market data. Please try again later.', 'error')
+        return redirect(url_for('dashboard'))
+
+@app.route('/dashboard/add-nse-stock', methods=['POST'])
+@login_required
+def add_nse_stock_to_watchlist():
+    """Add NSE stock to watchlist with real-time data"""
+    try:
+        symbol = request.form.get('symbol', '').upper()
+        target_price = request.form.get('target_price')
+        notes = request.form.get('notes', '')
+        
+        if not symbol:
+            flash('Stock symbol is required.', 'error')
+            return redirect(url_for('watchlist'))
+        
+        # Get real-time data from NSE
+        stock_data = nse_service.get_stock_quote(symbol)
+        if not stock_data:
+            flash(f'Unable to find stock {symbol} on NSE. Please check the symbol.', 'error')
+            return redirect(url_for('watchlist'))
+        
+        # Check if already in watchlist
+        existing = WatchlistItem.query.filter_by(user_id=current_user.id, symbol=symbol).first()
+        if existing:
+            flash(f'{symbol} is already in your watchlist.', 'warning')
+            return redirect(url_for('watchlist'))
+        
+        # Create new watchlist item with NSE data
+        watchlist_item = WatchlistItem(
+            user_id=current_user.id,
+            symbol=symbol,
+            company_name=stock_data['company_name'],
+            target_price=float(target_price) if target_price else None,
+            notes=notes
+        )
+        
+        db.session.add(watchlist_item)
+        db.session.commit()
+        
+        flash(f'{symbol} ({stock_data["company_name"]}) added to your watchlist!', 'success')
+        return redirect(url_for('watchlist'))
+        
+    except Exception as e:
+        logging.error(f"Error adding NSE stock to watchlist: {str(e)}")
+        flash('Error adding stock to watchlist. Please try again.', 'error')
+        return redirect(url_for('watchlist'))
+
+@app.route('/dashboard/analyze-nse-stock', methods=['POST'])
+@login_required
+def analyze_nse_stock():
+    """Analyze NSE stock and save to database"""
+    try:
+        symbol = request.form.get('symbol', '').upper()
+        
+        if not symbol:
+            return jsonify({'success': False, 'error': 'Stock symbol is required'})
+        
+        # Get real-time data from NSE
+        stock_data = nse_service.get_stock_quote(symbol)
+        if not stock_data:
+            return jsonify({'success': False, 'error': f'Stock {symbol} not found on NSE'})
+        
+        # Create or update stock analysis
+        analysis = StockAnalysis.query.filter_by(symbol=symbol).first()
+        if not analysis:
+            analysis = StockAnalysis()
+        
+        # Update analysis with NSE data
+        analysis.symbol = symbol
+        analysis.company_name = stock_data['company_name']
+        analysis.current_price = stock_data['current_price']
+        analysis.previous_close = stock_data['previous_close']
+        analysis.change_amount = stock_data['change_amount']
+        analysis.change_percent = stock_data['change_percent']
+        analysis.volume = stock_data['volume']
+        analysis.day_high = stock_data['day_high']
+        analysis.day_low = stock_data['day_low']
+        analysis.week_52_high = stock_data['week_52_high']
+        analysis.week_52_low = stock_data['week_52_low']
+        analysis.pe_ratio = stock_data['pe_ratio']
+        analysis.analysis_date = datetime.utcnow()
+        
+        # Generate AI recommendation based on price movement
+        if stock_data['change_percent'] > 2:
+            analysis.ai_recommendation = 'BUY'
+            analysis.ai_confidence = min(85.0, 70 + abs(stock_data['change_percent']))
+            analysis.ai_notes = f"Strong upward momentum with {stock_data['change_percent']:.2f}% gain"
+        elif stock_data['change_percent'] < -2:
+            analysis.ai_recommendation = 'SELL'
+            analysis.ai_confidence = min(85.0, 70 + abs(stock_data['change_percent']))
+            analysis.ai_notes = f"Significant decline of {stock_data['change_percent']:.2f}% - consider risk"
+        else:
+            analysis.ai_recommendation = 'HOLD'
+            analysis.ai_confidence = 65.0
+            analysis.ai_notes = "Stable price movement - monitor for trends"
+        
+        if analysis.id is None:
+            db.session.add(analysis)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'data': {
+                'symbol': symbol,
+                'company_name': analysis.company_name,
+                'current_price': analysis.current_price,
+                'change_percent': analysis.change_percent,
+                'recommendation': analysis.ai_recommendation,
+                'confidence': analysis.ai_confidence,
+                'notes': analysis.ai_notes
+            }
+        })
+        
+    except Exception as e:
+        logging.error(f"Error analyzing NSE stock: {str(e)}")
+        return jsonify({'success': False, 'error': 'Analysis failed. Please try again.'})
+
 def generate_mock_market_data():
-    """Generate mock market data for demonstration"""
+    """Generate mock market data for demonstration - now using NSE data when available"""
+    try:
+        # Try to get real NSE data for popular stocks
+        popular_symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN']
+        real_data = nse_service.get_multiple_quotes(popular_symbols)
+        
+        if real_data:
+            # Convert NSE data to match expected format
+            market_data = []
+            for stock in real_data:
+                market_data.append({
+                    'symbol': stock['symbol'],
+                    'name': stock['company_name'],
+                    'price': stock['current_price'],
+                    'change': stock['change_amount'],
+                    'change_percent': stock['change_percent'],
+                    'trend': 'up' if stock['change_amount'] > 0 else 'down'
+                })
+            return market_data
+    except Exception as e:
+        logging.warning(f"Failed to fetch real NSE data, using fallback: {str(e)}")
+    
+    # Fallback to demo data if NSE service fails
     stocks = [
-        {'symbol': 'AAPL', 'name': 'Apple Inc.', 'price': 175.50, 'change': 2.15},
-        {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'price': 2845.20, 'change': -12.50},
-        {'symbol': 'MSFT', 'name': 'Microsoft Corp.', 'price': 378.90, 'change': 5.80},
-        {'symbol': 'TSLA', 'name': 'Tesla Inc.', 'price': 245.30, 'change': -8.20},
-        {'symbol': 'NVDA', 'name': 'NVIDIA Corp.', 'price': 495.75, 'change': 15.60},
-        {'symbol': 'AMZN', 'name': 'Amazon.com Inc.', 'price': 142.85, 'change': 3.25}
+        {'symbol': 'RELIANCE', 'name': 'Reliance Industries Ltd.', 'price': 2450.75, 'change': 15.20},
+        {'symbol': 'TCS', 'name': 'Tata Consultancy Services', 'price': 3890.40, 'change': -22.50},
+        {'symbol': 'HDFCBANK', 'name': 'HDFC Bank Limited', 'price': 1678.90, 'change': 8.80},
+        {'symbol': 'INFY', 'name': 'Infosys Limited', 'price': 1456.30, 'change': -12.20},
+        {'symbol': 'ICICIBANK', 'name': 'ICICI Bank Limited', 'price': 1089.75, 'change': 18.60},
+        {'symbol': 'SBIN', 'name': 'State Bank of India', 'price': 542.85, 'change': 5.25}
     ]
     
     for stock in stocks:

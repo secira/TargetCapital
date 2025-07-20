@@ -31,6 +31,8 @@ Preferred communication style: Simple, everyday language.
 - **Application Factory**: `app.py` - Flask app initialization and configuration
 - **Models**: `models.py` - SQLAlchemy database models
 - **Routes**: `routes.py` - URL routing and view functions
+- **Services**: `/services/` - External API integrations and business logic
+  - `nse_service.py` - NSE India stock market data integration
 - **Templates**: `/templates/` - Jinja2 HTML templates
 - **Static Assets**: `/static/` - CSS, JavaScript, and media files
 
@@ -55,6 +57,7 @@ Preferred communication style: Simple, everyday language.
 8. **Dashboard** (`/dashboard`): User dashboard with market overview and watchlist
 9. **Stock Analysis** (`/dashboard/stock-analysis`): AI-powered stock analysis tools
 10. **Watchlist** (`/dashboard/watchlist`): Personal stock tracking and management
+11. **NSE India Stocks** (`/dashboard/nse-stocks`): Real-time Indian stock market data and trading interface
 
 ### Frontend Features
 - Responsive navigation with dropdown menus and user authentication
@@ -91,6 +94,9 @@ Preferred communication style: Simple, everyday language.
 - Flask: Web framework
 - Flask-SQLAlchemy: Database ORM integration
 - Werkzeug: WSGI utilities and middleware
+- NSEPython: Real-time NSE India stock market data API
+- Pandas: Data manipulation and analysis
+- Requests: HTTP requests for API integration
 
 ### Frontend Libraries
 - Bootstrap 5.3.0: CSS framework and components

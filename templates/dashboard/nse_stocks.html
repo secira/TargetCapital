@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block title %}NSE India Stocks - AI TradeBot{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gradient-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h3 mb-1">NSE India Stock Market</h1>
+                <p class="mb-0 opacity-75">Real-time Indian stock market data and analysis</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Dashboard
+                    </a>
+                    <button class="btn btn-light btn-sm" onclick="refreshMarketData()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Market Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="card-title mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>Market Status
+                            </h5>
+                            {% if market_status %}
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-{{ 'success' if market_status.status == 'OPEN' else 'warning' if market_status.status == 'PRE_MARKET' else 'secondary' }} me-2">
+                                        {{ market_status.status }}
+                                    </span>
+                                    <span class="text-muted">{{ market_status.message }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>NSE India
+                                <span class="ms-3">
+                                    <i class="fas fa-clock me-1"></i>{{ moment().format('DD MMM YYYY, HH:mm') if moment else 'Live Data' }}
+                                </span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Indices -->
+    {% if indices %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar text-success me-2"></i>Market Indices
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for index_name, index_data in indices.items() %}
+                            {% if index_data and index_name != 'timestamp' %}
+                            <div class="col-md-4 col-lg-2 mb-3">
+                                <div class="text-center p-3 border rounded">
+                                    <h6 class="fw-bold mb-1">{{ index_name.replace('_', ' ').title() }}</h6>
+                                    <div class="h5 mb-1">{{ "%.2f"|format(index_data.get('lastPrice', 0)) if index_data.get('lastPrice') else 'N/A' }}</div>
+                                    {% if index_data.get('change') %}
+                                        <small class="text-{{ 'success' if index_data.get('change', 0) > 0 else 'danger' }}">
+                                            <i class="fas fa-arrow-{{ 'up' if index_data.get('change', 0) > 0 else 'down' }} me-1"></i>
+                                            {{ "%.2f"|format(index_data.get('pChange', 0)) }}%
+                                        </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Popular Stocks -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>Popular Indian Stocks
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="analyzeMultipleStocks()">
+                        <i class="fas fa-chart-line me-1"></i>Analyze All
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if popular_stocks %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Company</th>
+                                        <th>Price (₹)</th>
+                                        <th>Change</th>
+                                        <th>Volume</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stock in popular_stocks %}
+                                    <tr>
+                                        <td><span class="badge bg-primary">{{ stock.symbol }}</span></td>
+                                        <td>
+                                            <div class="fw-bold">{{ stock.company_name }}</div>
+                                        </td>
+                                        <td class="fw-bold">₹{{ "%.2f"|format(stock.current_price) }}</td>
+                                        <td>
+                                            <span class="text-{{ 'success' if stock.change_amount > 0 else 'danger' }}">
+                                                <i class="fas fa-arrow-{{ 'up' if stock.change_amount > 0 else 'down' }} me-1"></i>
+                                                {{ "%.2f"|format(stock.change_percent) }}%
+                                            </span>
+                                            <br>
+                                            <small class="text-muted">₹{{ "%.2f"|format(stock.change_amount) }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ "{:,}".format(stock.volume) if stock.volume else 'N/A' }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-outline-success" onclick="addToWatchlist('{{ stock.symbol }}', '{{ stock.company_name }}')">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary" onclick="analyzeStock('{{ stock.symbol }}')">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                                <button class="btn btn-outline-info" onclick="showStockDetails('{{ stock.symbol }}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Unable to load stock data</h6>
+                            <p class="text-muted">Please check your internet connection and try refreshing.</p>
+                            <button class="btn btn-primary" onclick="refreshMarketData()">
+                                <i class="fas fa-sync-alt me-1"></i>Try Again
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Movers -->
+        <div class="col-lg-4">
+            <!-- Top Gainers -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-arrow-up text-success me-2"></i>Top Gainers
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if top_gainers %}
+                        {% for stock in top_gainers[:5] %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div>
+                                <div class="fw-bold">{{ stock.symbol }}</div>
+                                <small class="text-muted">₹{{ "%.2f"|format(stock.current_price) }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-success fw-bold">+{{ "%.2f"|format(stock.change_percent) }}%</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No data available</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Top Losers -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-arrow-down text-danger me-2"></i>Top Losers
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if top_losers %}
+                        {% for stock in top_losers[:5] %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                            <div>
+                                <div class="fw-bold">{{ stock.symbol }}</div>
+                                <small class="text-muted">₹{{ "%.2f"|format(stock.current_price) }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-danger fw-bold">{{ "%.2f"|format(stock.change_percent) }}%</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No data available</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Stock Search -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-search text-info me-2"></i>Stock Search
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form onsubmit="searchStocks(event)">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="stockSearch" placeholder="Search stocks..." required>
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="searchResults"></div>
+                    
+                    <!-- Quick Add Popular Stocks -->
+                    <div class="mt-3">
+                        <h6 class="fw-bold mb-2">Quick Add:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <button class="btn btn-outline-primary btn-sm" onclick="quickAdd('RELIANCE')">RELIANCE</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="quickAdd('TCS')">TCS</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="quickAdd('HDFCBANK')">HDFC</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="quickAdd('INFY')">INFY</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+
+<script>
+function refreshMarketData() {
+    window.location.reload();
+}
+
+function addToWatchlist(symbol, companyName) {
+    if (confirm(`Add ${symbol} (${companyName}) to your watchlist?`)) {
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/dashboard/add-nse-stock';
+        
+        const symbolInput = document.createElement('input');
+        symbolInput.type = 'hidden';
+        symbolInput.name = 'symbol';
+        symbolInput.value = symbol;
+        
+        form.appendChild(symbolInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function analyzeStock(symbol) {
+    const form = new FormData();
+    form.append('symbol', symbol);
+    
+    fetch('/dashboard/analyze-nse-stock', {
+        method: 'POST',
+        body: form
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const result = data.data;
+            alert(`Analysis for ${result.symbol}:\n\n` +
+                  `Company: ${result.company_name}\n` +
+                  `Current Price: ₹${result.current_price.toFixed(2)}\n` +
+                  `Change: ${result.change_percent.toFixed(2)}%\n` +
+                  `AI Recommendation: ${result.recommendation}\n` +
+                  `Confidence: ${result.confidence.toFixed(1)}%\n\n` +
+                  `Notes: ${result.notes}`);
+        } else {
+            alert('Analysis failed: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error analyzing stock: ' + error.message);
+    });
+}
+
+function analyzeMultipleStocks() {
+    const symbols = {{ popular_stocks|map(attribute='symbol')|list|tojson if popular_stocks else '[]' }};
+    
+    if (symbols.length === 0) {
+        alert('No stocks available for analysis.');
+        return;
+    }
+    
+    alert(`Analyzing ${symbols.length} stocks. This may take a moment...`);
+    
+    let completed = 0;
+    const total = symbols.length;
+    
+    symbols.forEach(symbol => {
+        const form = new FormData();
+        form.append('symbol', symbol);
+        
+        fetch('/dashboard/analyze-nse-stock', {
+            method: 'POST',
+            body: form
+        })
+        .then(response => response.json())
+        .then(data => {
+            completed++;
+            if (completed === total) {
+                alert(`Analysis completed for ${total} stocks. Check the Stock Analysis page for detailed results.`);
+            }
+        })
+        .catch(error => {
+            completed++;
+            console.error(`Error analyzing ${symbol}:`, error);
+        });
+    });
+}
+
+function showStockDetails(symbol) {
+    fetch(`/api/nse/quote/${symbol}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const stock = data.data;
+            alert(`${stock.symbol} - ${stock.company_name}\n\n` +
+                  `Current Price: ₹${stock.current_price.toFixed(2)}\n` +
+                  `Previous Close: ₹${stock.previous_close.toFixed(2)}\n` +
+                  `Day High: ₹${stock.day_high.toFixed(2)}\n` +
+                  `Day Low: ₹${stock.day_low.toFixed(2)}\n` +
+                  `52W High: ₹${stock.week_52_high.toFixed(2)}\n` +
+                  `52W Low: ₹${stock.week_52_low.toFixed(2)}\n` +
+                  `Volume: ${stock.volume.toLocaleString()}\n` +
+                  `PE Ratio: ${stock.pe_ratio || 'N/A'}`);
+        } else {
+            alert('Unable to fetch stock details: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error fetching stock details: ' + error.message);
+    });
+}
+
+function searchStocks(event) {
+    event.preventDefault();
+    const query = document.getElementById('stockSearch').value.trim();
+    
+    if (!query) {
+        alert('Please enter a search term.');
+        return;
+    }
+    
+    fetch(`/api/nse/search/${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+        const resultsDiv = document.getElementById('searchResults');
+        
+        if (data.success && data.data.length > 0) {
+            resultsDiv.innerHTML = '<h6 class="mt-3 mb-2">Search Results:</h6>';
+            data.data.forEach(stock => {
+                resultsDiv.innerHTML += `
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                        <div>
+                            <div class="fw-bold">${stock.symbol}</div>
+                            <small class="text-muted">${stock.name}</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="quickAdd('${stock.symbol}')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        } else {
+            resultsDiv.innerHTML = '<p class="text-muted mt-3">No stocks found matching your search.</p>';
+        }
+    })
+    .catch(error => {
+        document.getElementById('searchResults').innerHTML = '<p class="text-danger mt-3">Search failed. Please try again.</p>';
+    });
+}
+
+function quickAdd(symbol) {
+    addToWatchlist(symbol, symbol);
+}
+</script>
+{% endblock %}
