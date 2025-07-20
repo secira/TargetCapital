@@ -256,7 +256,7 @@ def seed_demo_data():
         if not demo_user:
             demo_user = User(
                 username='demo',
-                email='demo@aitradebot.com',
+                email='demo@tcapital.com',
                 first_name='Demo',
                 last_name='User'
             )
