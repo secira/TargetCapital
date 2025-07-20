@@ -6,12 +6,50 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(200), unique=True, nullable=False)
     content = db.Column(db.Text, nullable=False)
     excerpt = db.Column(db.String(300), nullable=True)
-    author = db.Column(db.String(100), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    author_name = db.Column(db.String(100), nullable=False)  # For backward compatibility
     featured_image = db.Column(db.String(500), nullable=True)
+    category = db.Column(db.String(50), nullable=True)
+    tags = db.Column(db.String(200), nullable=True)  # Comma-separated tags
+    status = db.Column(db.String(20), default='draft')  # draft, published, archived
+    meta_description = db.Column(db.String(160), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    published_at = db.Column(db.DateTime, nullable=True)
     is_featured = db.Column(db.Boolean, default=False)
+    view_count = db.Column(db.Integer, default=0)
+    
+    # Relationship to author
+    author = db.relationship('User', backref='blog_posts', foreign_keys=[author_id])
+    
+    def get_tags_list(self):
+        """Return tags as a list"""
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(',')]
+        return []
+    
+    def set_tags_from_list(self, tags_list):
+        """Set tags from a list"""
+        if tags_list:
+            self.tags = ', '.join(tags_list)
+        else:
+            self.tags = None
+    
+    def generate_slug(self):
+        """Generate URL-friendly slug from title"""
+        import re
+        slug = re.sub(r'[^\w\s-]', '', self.title.lower())
+        slug = re.sub(r'[-\s]+', '-', slug)
+        return slug.strip('-')
+    
+    @property
+    def reading_time(self):
+        """Estimate reading time in minutes"""
+        word_count = len(self.content.split())
+        return max(1, round(word_count / 200))  # Average 200 words per minute
 
 class TeamMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,6 +75,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
     

@@ -69,6 +69,12 @@
                                 <li><a class="dropdown-item" href="{{ url_for('nse_stocks') }}">
                                     <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
                                 </a></li>
+                                {% if current_user.is_admin %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">
+                                    <i class="fas fa-cog me-2"></i>Admin Panel
+                                </a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ url_for('logout') }}">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout

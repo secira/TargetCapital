@@ -6,6 +6,17 @@ from services.nse_service import nse_service
 import logging
 import random
 from datetime import datetime, timedelta
+from functools import wraps
+
+def admin_required(f):
+    """Decorator to require admin access"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash('Admin access required.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def index():
@@ -38,10 +49,10 @@ def algo_trading():
 def blog():
     """Blog listing page route"""
     page = request.args.get('page', 1, type=int)
-    posts = BlogPost.query.order_by(BlogPost.created_at.desc()).paginate(
+    posts = BlogPost.query.filter_by(status='published').order_by(BlogPost.created_at.desc()).paginate(
         page=page, per_page=10, error_out=False
     )
-    featured_posts = BlogPost.query.filter_by(is_featured=True).limit(3).all()
+    featured_posts = BlogPost.query.filter_by(is_featured=True, status='published').limit(3).all()
     return render_template('blog.html', posts=posts, featured_posts=featured_posts)
 
 @app.route('/blog/<int:post_id>')
@@ -565,6 +576,168 @@ def generate_mock_market_data():
         stock['trend'] = 'up' if stock['change'] > 0 else 'down'
     
     return stocks
+
+# Admin Blog Management Routes
+@app.route('/admin')
+@admin_required
+def admin_dashboard():
+    """Admin dashboard"""
+    total_posts = BlogPost.query.count()
+    published_posts = BlogPost.query.filter_by(status='published').count()
+    draft_posts = BlogPost.query.filter_by(status='draft').count()
+    recent_posts = BlogPost.query.order_by(BlogPost.created_at.desc()).limit(5).all()
+    
+    return render_template('admin/dashboard.html',
+                         total_posts=total_posts,
+                         published_posts=published_posts,
+                         draft_posts=draft_posts,
+                         recent_posts=recent_posts)
+
+@app.route('/admin/blog')
+@admin_required
+def admin_blog_list():
+    """Admin blog post list"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'all')
+    
+    query = BlogPost.query
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+    
+    posts = query.order_by(BlogPost.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    return render_template('admin/blog_list.html', posts=posts, status_filter=status_filter)
+
+@app.route('/admin/blog/new', methods=['GET', 'POST'])
+@admin_required
+def admin_blog_new():
+    """Create new blog post"""
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        excerpt = request.form.get('excerpt')
+        category = request.form.get('category')
+        tags = request.form.get('tags')
+        featured_image = request.form.get('featured_image')
+        meta_description = request.form.get('meta_description')
+        status = request.form.get('status', 'draft')
+        is_featured = request.form.get('is_featured') == 'on'
+        
+        if not title or not content:
+            flash('Title and content are required.', 'error')
+            return render_template('admin/blog_form.html')
+        
+        # Create new blog post
+        post = BlogPost(
+            title=title,
+            content=content,
+            excerpt=excerpt,
+            author_id=current_user.id,
+            author_name=current_user.get_full_name(),
+            category=category,
+            tags=tags,
+            featured_image=featured_image,
+            meta_description=meta_description,
+            status=status,
+            is_featured=is_featured
+        )
+        
+        # Generate slug
+        post.slug = post.generate_slug()
+        
+        # Set published date if publishing
+        if status == 'published':
+            post.published_at = datetime.utcnow()
+        
+        db.session.add(post)
+        db.session.commit()
+        
+        flash('Blog post created successfully!', 'success')
+        return redirect(url_for('admin_blog_list'))
+    
+    return render_template('admin/blog_form.html', post=None)
+
+@app.route('/admin/blog/<int:post_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def admin_blog_edit(post_id):
+    """Edit blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+    
+    if request.method == 'POST':
+        post.title = request.form.get('title')
+        post.content = request.form.get('content')
+        post.excerpt = request.form.get('excerpt')
+        post.category = request.form.get('category')
+        post.tags = request.form.get('tags')
+        post.featured_image = request.form.get('featured_image')
+        post.meta_description = request.form.get('meta_description')
+        
+        old_status = post.status
+        post.status = request.form.get('status', 'draft')
+        post.is_featured = request.form.get('is_featured') == 'on'
+        
+        # Update slug if title changed
+        new_slug = post.generate_slug()
+        if new_slug != post.slug:
+            post.slug = new_slug
+        
+        # Set published date if publishing for the first time
+        if old_status != 'published' and post.status == 'published':
+            post.published_at = datetime.utcnow()
+        
+        post.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        flash('Blog post updated successfully!', 'success')
+        return redirect(url_for('admin_blog_list'))
+    
+    return render_template('admin/blog_form.html', post=post)
+
+@app.route('/admin/blog/<int:post_id>/delete', methods=['POST'])
+@admin_required
+def admin_blog_delete(post_id):
+    """Delete blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+    
+    db.session.delete(post)
+    db.session.commit()
+    
+    flash('Blog post deleted successfully!', 'success')
+    return redirect(url_for('admin_blog_list'))
+
+@app.route('/admin/blog/<int:post_id>/toggle-featured', methods=['POST'])
+@admin_required
+def admin_blog_toggle_featured(post_id):
+    """Toggle featured status of blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+    post.is_featured = not post.is_featured
+    db.session.commit()
+    
+    status = 'featured' if post.is_featured else 'unfeatured'
+    flash(f'Post "{post.title}" has been {status}.', 'success')
+    return redirect(url_for('admin_blog_list'))
+
+# Update blog routes to handle slug-based URLs
+@app.route('/blog/<slug>')
+def blog_post_by_slug(slug):
+    """Individual blog post page route by slug"""
+    post = BlogPost.query.filter_by(slug=slug, status='published').first_or_404()
+    
+    # Increment view count
+    post.view_count += 1
+    db.session.commit()
+    
+    # Get related posts (same category or recent posts)
+    related_posts = BlogPost.query.filter(
+        BlogPost.id != post.id,
+        BlogPost.status == 'published'
+    ).order_by(BlogPost.created_at.desc()).limit(3).all()
+    
+    testimonials = Testimonial.query.limit(2).all()
+    return render_template('blog_post.html', post=post, related_posts=related_posts, testimonials=testimonials)
 
 @app.errorhandler(404)
 def not_found_error(error):

@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}{% if post %}Edit{% else %}New{% endif %} Blog Post | Admin | AI TradeBot{% endblock %}
+
+{% block extra_head %}
+<!-- TinyMCE Editor -->
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    tinymce.init({
+        selector: '#content',
+        height: 400,
+        menubar: false,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="bg-light rounded p-3">
+                <h5 class="mb-3">Admin Panel</h5>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin_blog_list') }}">
+                        <i class="fas fa-blog me-2"></i>Blog Posts
+                    </a>
+                    <a class="nav-link active" href="{{ url_for('admin_blog_new') }}">
+                        <i class="fas fa-plus me-2"></i>New Post
+                    </a>
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Site
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>{% if post %}Edit{% else %}New{% endif %} Blog Post</h2>
+                <a href="{{ url_for('admin_blog_list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Posts
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <!-- Title -->
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Title *</label>
+                                    <input type="text" class="form-control" id="title" name="title" 
+                                           value="{{ post.title if post else '' }}" required>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Content *</label>
+                                    <textarea class="form-control" id="content" name="content" required>{{ post.content if post else '' }}</textarea>
+                                </div>
+
+                                <!-- Excerpt -->
+                                <div class="mb-3">
+                                    <label for="excerpt" class="form-label">Excerpt</label>
+                                    <textarea class="form-control" id="excerpt" name="excerpt" rows="3" 
+                                              placeholder="Brief summary of the post...">{{ post.excerpt if post else '' }}</textarea>
+                                    <div class="form-text">Optional short description for post previews</div>
+                                </div>
+
+                                <!-- Meta Description -->
+                                <div class="mb-3">
+                                    <label for="meta_description" class="form-label">Meta Description</label>
+                                    <textarea class="form-control" id="meta_description" name="meta_description" rows="2" 
+                                              maxlength="160" placeholder="SEO meta description...">{{ post.meta_description if post else '' }}</textarea>
+                                    <div class="form-text">For search engines (max 160 characters)</div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <!-- Status -->
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="draft" {% if not post or post.status == 'draft' %}selected{% endif %}>Draft</option>
+                                        <option value="published" {% if post and post.status == 'published' %}selected{% endif %}>Published</option>
+                                        <option value="archived" {% if post and post.status == 'archived' %}selected{% endif %}>Archived</option>
+                                    </select>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <input type="text" class="form-control" id="category" name="category" 
+                                           value="{{ post.category if post else '' }}" 
+                                           placeholder="e.g., Trading Tips, Market Analysis">
+                                </div>
+
+                                <!-- Tags -->
+                                <div class="mb-3">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input type="text" class="form-control" id="tags" name="tags" 
+                                           value="{{ post.tags if post else '' }}" 
+                                           placeholder="trading, stocks, AI">
+                                    <div class="form-text">Comma-separated tags</div>
+                                </div>
+
+                                <!-- Featured Image -->
+                                <div class="mb-3">
+                                    <label for="featured_image" class="form-label">Featured Image URL</label>
+                                    <input type="url" class="form-control" id="featured_image" name="featured_image" 
+                                           value="{{ post.featured_image if post else '' }}" 
+                                           placeholder="https://example.com/image.jpg">
+                                </div>
+
+                                <!-- Featured Post -->
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" 
+                                               {% if post and post.is_featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_featured">
+                                            Featured Post
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Display prominently on the blog page</div>
+                                </div>
+
+                                {% if post %}
+                                <div class="mb-3">
+                                    <label class="form-label">Post Info</label>
+                                    <div class="small text-muted">
+                                        <div>Created: {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                                        {% if post.updated_at != post.created_at %}
+                                        <div>Updated: {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                                        {% endif %}
+                                        {% if post.published_at %}
+                                        <div>Published: {{ post.published_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                                        {% endif %}
+                                        <div>Views: {{ post.view_count }}</div>
+                                        {% if post.slug %}
+                                        <div>Slug: <code>{{ post.slug }}</code></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>{% if post %}Update{% else %}Create{% endif %} Post
+                                    </button>
+                                    {% if post and post.status == 'published' %}
+                                    <a href="{{ url_for('blog_post_by_slug', slug=post.slug) }}" 
+                                       class="btn btn-outline-info" target="_blank">
+                                        <i class="fas fa-eye me-2"></i>View Post
+                                    </a>
+                                    {% endif %}
+                                    {% if post %}
+                                    <a href="{{ url_for('admin_blog_list') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate excerpt from content
+document.getElementById('content').addEventListener('input', function() {
+    const content = this.value;
+    const excerptField = document.getElementById('excerpt');
+    
+    if (!excerptField.value && content) {
+        // Strip HTML tags and get first 200 characters
+        const textContent = content.replace(/<[^>]*>/g, '');
+        const excerpt = textContent.substring(0, 200).trim();
+        if (excerpt) {
+            excerptField.value = excerpt + (textContent.length > 200 ? '...' : '');
+        }
+    }
+});
+
+// Character counter for meta description
+document.getElementById('meta_description').addEventListener('input', function() {
+    const length = this.value.length;
+    const maxLength = 160;
+    const formText = this.parentElement.querySelector('.form-text');
+    
+    if (length > maxLength * 0.8) {
+        formText.innerHTML = `For search engines (${length}/${maxLength} characters)`;
+        if (length > maxLength) {
+            formText.classList.add('text-danger');
+        } else {
+            formText.classList.remove('text-danger');
+            formText.classList.add('text-warning');
+        }
+    } else {
+        formText.innerHTML = 'For search engines (max 160 characters)';
+        formText.classList.remove('text-danger', 'text-warning');
+    }
+});
+</script>
+{% endblock %}
