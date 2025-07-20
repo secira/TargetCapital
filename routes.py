@@ -7,6 +7,7 @@ import logging
 import random
 from datetime import datetime, timedelta
 from functools import wraps
+from werkzeug.security import generate_password_hash
 
 def admin_required(f):
     """Decorator to require admin access"""
@@ -101,7 +102,10 @@ def login():
             flash('Please fill in all fields.', 'error')
             return render_template('auth/login.html')
         
-        user = User.query.filter_by(username=username).first()
+        # Support login with username or email
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).first()
         
         if user and user.check_password(password):
             login_user(user)
@@ -166,6 +170,66 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """User profile management"""
+    if request.method == 'POST':
+        # Update profile information
+        current_user.first_name = request.form.get('first_name', '').strip()
+        current_user.last_name = request.form.get('last_name', '').strip()
+        current_user.username = request.form.get('username', '').strip()
+        current_user.email = request.form.get('email', '').strip()
+        
+        # Handle password change
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        if new_password:
+            if new_password != confirm_password:
+                flash('Passwords do not match.', 'error')
+                return render_template('auth/profile.html')
+            
+            if len(new_password) < 6:
+                flash('Password must be at least 6 characters long.', 'error')
+                return render_template('auth/profile.html')
+            
+            current_user.set_password(new_password)
+        
+        # Validate required fields
+        if not current_user.username or not current_user.email:
+            flash('Username and email are required.', 'error')
+            return render_template('auth/profile.html')
+        
+        # Check for duplicate username/email (excluding current user)
+        existing_username = User.query.filter(
+            User.username == current_user.username, 
+            User.id != current_user.id
+        ).first()
+        if existing_username:
+            flash('Username already exists.', 'error')
+            return render_template('auth/profile.html')
+        
+        existing_email = User.query.filter(
+            User.email == current_user.email, 
+            User.id != current_user.id
+        ).first()
+        if existing_email:
+            flash('Email already registered.', 'error')
+            return render_template('auth/profile.html')
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('profile'))
+    
+    # Get user statistics
+    watchlist_count = WatchlistItem.query.filter_by(user_id=current_user.id).count()
+    analyses_count = StockAnalysis.query.count()  # Could be user-specific in future
+    
+    return render_template('auth/profile.html', 
+                         watchlist_count=watchlist_count,
+                         analyses_count=analyses_count)
+
 # Dashboard routes
 @app.route('/dashboard')
 @login_required
@@ -177,13 +241,37 @@ def dashboard():
     # Get recent stock analyses
     recent_analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).limit(10).all()
     
+    # Calculate user statistics
+    days_active = (datetime.utcnow() - current_user.created_at).days
+    watchlist_count = len(watchlist)
+    
+    # Calculate user level based on activity
+    if watchlist_count >= 20:
+        user_level = "Expert Trader"
+        level_progress = 100
+    elif watchlist_count >= 10:
+        user_level = "Advanced Trader"
+        level_progress = 75
+    elif watchlist_count >= 5:
+        user_level = "Intermediate"
+        level_progress = 50
+    elif watchlist_count >= 1:
+        user_level = "Beginner"
+        level_progress = 25
+    else:
+        user_level = "New User"
+        level_progress = 10
+    
     # Generate mock market data for demo
     mock_market_data = generate_mock_market_data()
     
     return render_template('dashboard/dashboard.html', 
                          watchlist=watchlist, 
                          recent_analyses=recent_analyses,
-                         market_data=mock_market_data)
+                         market_data=mock_market_data,
+                         days_active=days_active,
+                         user_level=user_level,
+                         level_progress=level_progress)
 
 @app.route('/dashboard/stock-analysis')
 @login_required

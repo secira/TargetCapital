@@ -3,17 +3,17 @@
 {% block title %}Login - tCapital{% endblock %}
 
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+<section class="bg-white text-dark" style="padding-top: 120px; min-height: 100vh;">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
+            <div class="col-md-6 col-lg-5">
                 <div class="card shadow-lg border-0">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <h2 class="fw-bold text-primary">Login</h2>
-                            <p class="text-muted">Access your trading dashboard</p>
+                            <h2 class="fw-bold text-primary">Welcome Back</h2>
+                            <p class="text-muted">Sign in to your tCapital account</p>
                         </div>
-                        
+
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
                                 {% for category, message in messages %}
@@ -24,42 +24,52 @@
                                 {% endfor %}
                             {% endif %}
                         {% endwith %}
-                        
-                        <form method="POST">
+
+                        <form method="POST" action="{{ url_for('login') }}">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" required>
+                                <label for="username" class="form-label">Username or Email</label>
+                                <input type="text" class="form-control" id="username" name="username" required 
+                                       placeholder="Enter your username or email">
                             </div>
                             
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <input type="password" class="form-control" id="password" name="password" required 
+                                       placeholder="Enter your password">
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                                <label class="form-check-label" for="remember_me">
+                                    Remember me
+                                </label>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 mb-3">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
                             </button>
-                            
-                            <div class="text-center">
-                                <p class="mb-0">Don't have an account? 
-                                    <a href="{{ url_for('register') }}" class="text-primary text-decoration-none">Sign up here</a>
-                                </p>
-                            </div>
                         </form>
                         
-                        <hr class="my-4">
-                        
                         <div class="text-center">
-                            <small class="text-muted">
-                                <a href="{{ url_for('index') }}" class="text-decoration-none">
-                                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                            <p class="mb-0">Don't have an account? 
+                                <a href="{{ url_for('register') }}" class="text-primary text-decoration-none fw-bold">
+                                    Sign up here
                                 </a>
-                            </small>
+                            </p>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Demo Account Info -->
+                <div class="card border-0 bg-light mt-4">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="fw-bold mb-3">Try Demo Account</h6>
+                        <p class="mb-2"><strong>Username:</strong> demo</p>
+                        <p class="mb-0"><strong>Password:</strong> demo123</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
