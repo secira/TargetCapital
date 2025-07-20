@@ -214,7 +214,12 @@ class NSEService:
             
             # Note: NSEPython historical data might need different approach
             # This is a placeholder - actual implementation may vary
-            historical = nse_historical(symbol, start_date.strftime('%d-%m-%Y'), end_date.strftime('%d-%m-%Y'))
+            try:
+                from nsepython import nse_historical
+                historical = nse_historical(symbol, start_date.strftime('%d-%m-%Y'), end_date.strftime('%d-%m-%Y'))
+            except ImportError:
+                self.logger.warning("nse_historical function not available in current NSEPython version")
+                return None
             if historical:
                 return pd.DataFrame(historical)
         except Exception as e:
