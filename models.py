@@ -75,7 +75,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
+    active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
@@ -124,6 +124,7 @@ class StockAnalysis(db.Model):
     analysis_date = db.Column(db.DateTime, default=datetime.utcnow)
     ai_recommendation = db.Column(db.String(20), nullable=True)  # BUY, SELL, HOLD
     ai_confidence = db.Column(db.Float, nullable=True)  # Confidence score 0-1
+    ai_notes = db.Column(db.Text, nullable=True)  # AI analysis notes
     risk_level = db.Column(db.String(10), nullable=True)  # LOW, MEDIUM, HIGH
 
 class AIAnalysis(db.Model):
@@ -183,7 +184,7 @@ class PortfolioOptimization(db.Model):
 
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship("User")
 
 
