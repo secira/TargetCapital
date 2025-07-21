@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="bg-white text-dark border-bottom py-4">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h3 mb-1">{% block dashboard_title %}Dashboard{% endblock %}</h1>
+                <p class="mb-0 opacity-75">{% block dashboard_subtitle %}Your personalized AI-powered trading dashboard{% endblock %}</p>
+                {% if current_user.last_login %}
+                <small class="text-muted">Last login: {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Sidebar Navigation -->
+        <div class="col-lg-3 col-xl-2 bg-light border-end" style="min-height: calc(100vh - 200px);">
+            <div class="p-3">
+                <h6 class="text-muted fw-bold mb-3">TRADING TOOLS</h6>
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
+                        <i class="fas fa-robot me-2"></i>AI Advisor
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'stock_analysis' else '' }}" href="{{ url_for('stock_analysis') }}">
+                        <i class="fas fa-chart-line me-2"></i>Stock Analysis
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'watchlist' else '' }}" href="{{ url_for('watchlist') }}">
+                        <i class="fas fa-eye me-2"></i>My Watchlist
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'nse_stocks' else '' }}" href="{{ url_for('nse_stocks') }}">
+                        <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'live_market' else '' }}" href="{{ url_for('live_market') }}">
+                        <i class="fas fa-broadcast-tower me-2"></i>Live Market Data
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-9 col-xl-10 py-4">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<style>
+.nav-pills .nav-link {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+    border-radius: 0.375rem;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #007bff;
+    color: white;
+}
+</style>
+{% endblock %}

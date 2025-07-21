@@ -5,7 +5,7 @@
 {% block content %}
 <!-- Dashboard Header -->
 <div class="bg-white text-dark border-bottom py-4">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="h3 mb-1">Welcome back, {{ current_user.get_full_name() }}!</h1>
@@ -14,27 +14,44 @@
                 <small class="text-muted">Last login: {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}</small>
                 {% endif %}
             </div>
-            <div class="col-md-4 text-md-end">
-                <div class="d-flex gap-2 justify-content-md-end">
-                    <a href="{{ url_for('watchlist') }}" class="btn btn-light btn-sm">
-                        <i class="fas fa-eye me-1"></i>Watchlist
-                    </a>
-                    <a href="{{ url_for('stock_analysis') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-chart-line me-1"></i>Analysis
-                    </a>
-                    <a href="{{ url_for('ai_advisor') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-robot me-1"></i>AI Advisor
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
-<div class="container-fluid py-4">
+<div class="container-fluid">
     <div class="row">
-        <!-- Main Dashboard Content -->
-        <div class="col-lg-8">
+        <!-- Left Sidebar Navigation -->
+        <div class="col-lg-3 col-xl-2 bg-light border-end" style="min-height: calc(100vh - 200px);">
+            <div class="p-3">
+                <h6 class="text-muted fw-bold mb-3">TRADING TOOLS</h6>
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
+                        <i class="fas fa-robot me-2"></i>AI Advisor
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'stock_analysis' else '' }}" href="{{ url_for('stock_analysis') }}">
+                        <i class="fas fa-chart-line me-2"></i>Stock Analysis
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'watchlist' else '' }}" href="{{ url_for('watchlist') }}">
+                        <i class="fas fa-eye me-2"></i>My Watchlist
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'nse_stocks' else '' }}" href="{{ url_for('nse_stocks') }}">
+                        <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'live_market' else '' }}" href="{{ url_for('live_market') }}">
+                        <i class="fas fa-broadcast-tower me-2"></i>Live Market Data
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-9 col-xl-10 py-4">
+            <div class="row">
+                <!-- Primary Content Column -->
+                <div class="col-lg-8">
             <!-- Market Overview -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -118,10 +135,10 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
+                </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
+                <!-- Right Sidebar -->
+                <div class="col-lg-4">
             <!-- Personal Stats -->
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white">
@@ -239,13 +256,25 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-.bg-light {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.nav-pills .nav-link {
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #007bff;
+    color: white;
 }
 </style>
 {% endblock %}

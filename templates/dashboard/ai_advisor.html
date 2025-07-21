@@ -1,8 +1,11 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}AI Advisor - tCapital{% endblock %}
 
-{% block content %}
+{% block dashboard_title %}AI Advisor{% endblock %}
+{% block dashboard_subtitle %}Advanced multi-agent AI system for intelligent trading decisions and portfolio optimization{% endblock %}
+
+{% block dashboard_content %}
 <div class="container-fluid">
     <!-- AI Advisor Header -->
     <div class="row mb-4">
@@ -303,7 +306,6 @@
         </div>
     </div>
     {% endif %}
-</div>
 
 <!-- Analysis Details Modal -->
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
