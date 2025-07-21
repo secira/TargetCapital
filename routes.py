@@ -1,9 +1,10 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis
+from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
+from services.ai_agent_service import AgenticAICoordinator
 import logging
 import random
 from datetime import datetime, timedelta
@@ -977,4 +978,186 @@ def api_search_stocks():
         return jsonify({
             'success': False,
             'error': 'Search failed'
+        }), 500
+
+# Agentic AI Routes
+@app.route('/dashboard/ai-advisor')
+@login_required
+def ai_advisor():
+    """AI Advisor Dashboard - Main agentic AI interface"""
+    # Get recent AI analyses for the user
+    recent_analyses = AIAnalysis.query.filter_by(user_id=current_user.id).order_by(
+        AIAnalysis.created_at.desc()
+    ).limit(10).all()
+    
+    # Get portfolio optimization history
+    portfolio_optimizations = PortfolioOptimization.query.filter_by(
+        user_id=current_user.id
+    ).order_by(PortfolioOptimization.created_at.desc()).limit(5).all()
+    
+    return render_template('dashboard/ai_advisor.html', 
+                         recent_analyses=recent_analyses,
+                         portfolio_optimizations=portfolio_optimizations)
+
+@app.route('/api/ai/analyze-stock', methods=['POST'])
+@login_required
+def api_ai_analyze_stock():
+    """Comprehensive AI stock analysis using all agents"""
+    try:
+        data = request.get_json()
+        symbol = data.get('symbol', '').upper().strip()
+        
+        if not symbol:
+            return jsonify({'success': False, 'error': 'Symbol is required'}), 400
+        
+        # Initialize AI coordinator
+        ai_coordinator = AgenticAICoordinator()
+        
+        # Get user's portfolio for context
+        watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
+        portfolio = {
+            'total_value': 100000,  # Default portfolio value
+            'positions': [{'symbol': item.symbol, 'value': 10000} for item in watchlist_items]
+        }
+        
+        # Perform comprehensive analysis
+        analysis_result = ai_coordinator.analyze_stock_comprehensive(symbol, portfolio)
+        
+        if 'error' in analysis_result:
+            return jsonify({'success': False, 'error': analysis_result['error']}), 500
+        
+        # Store analysis in database
+        ai_analysis = AIAnalysis(
+            user_id=current_user.id,
+            symbol=symbol,
+            analysis_type='STOCK',
+            trading_recommendation=analysis_result['agents_analysis']['trading'].get('recommendation'),
+            trading_confidence=analysis_result['agents_analysis']['trading'].get('confidence'),
+            trading_reasoning=', '.join(analysis_result['agents_analysis']['trading'].get('reasoning', [])),
+            sentiment_score=analysis_result['agents_analysis']['sentiment'].get('sentiment_score'),
+            sentiment_label=analysis_result['agents_analysis']['sentiment'].get('overall_sentiment'),
+            news_sentiment=analysis_result['agents_analysis']['sentiment'].get('news_sentiment'),
+            risk_level=analysis_result['agents_analysis']['risk'].get('risk_level'),
+            suggested_position_size=analysis_result['agents_analysis']['risk'].get('suggested_position_size'),
+            final_recommendation=analysis_result['final_recommendation']['action'],
+            overall_confidence=analysis_result['final_recommendation']['confidence'],
+            technical_indicators=str(analysis_result['agents_analysis']['trading'].get('signals', {}))
+        )
+        
+        db.session.add(ai_analysis)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'data': analysis_result,
+            'analysis_id': ai_analysis.id
+        })
+        
+    except Exception as e:
+        logging.error(f"AI stock analysis error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to analyze stock'
+        }), 500
+
+@app.route('/api/ai/optimize-portfolio', methods=['POST'])
+@login_required
+def api_ai_optimize_portfolio():
+    """AI-powered portfolio optimization"""
+    try:
+        # Get user's current portfolio
+        watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
+        
+        portfolio = {
+            'total_value': 100000,  # This could be calculated from actual holdings
+            'positions': [
+                {
+                    'symbol': item.symbol,
+                    'value': 10000,  # This should be actual position value
+                    'target_price': item.target_price
+                } for item in watchlist_items
+            ]
+        }
+        
+        # Initialize AI coordinator
+        ai_coordinator = AgenticAICoordinator()
+        
+        # Perform portfolio optimization
+        optimization_result = ai_coordinator.optimize_portfolio_comprehensive(portfolio)
+        
+        if 'error' in optimization_result:
+            return jsonify({'success': False, 'error': optimization_result['error']}), 500
+        
+        # Store optimization results
+        portfolio_opt = PortfolioOptimization(
+            user_id=current_user.id,
+            total_value=portfolio['total_value'],
+            num_positions=len(portfolio['positions']),
+            rebalance_needed=optimization_result['optimization'].get('rebalance_needed', False),
+            efficiency_score=optimization_result['optimization'].get('efficiency_score'),
+            diversification_score=optimization_result['optimization'].get('diversification_score'),
+            suggested_actions=str(optimization_result['optimization'].get('suggested_actions', [])),
+            allocation_recommendations=str(optimization_result['optimization'].get('risk_adjusted_allocation', {}))
+        )
+        
+        db.session.add(portfolio_opt)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'data': optimization_result,
+            'optimization_id': portfolio_opt.id
+        })
+        
+    except Exception as e:
+        logging.error(f"Portfolio optimization error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to optimize portfolio'
+        }), 500
+
+@app.route('/api/ai/sentiment-analysis/<symbol>')
+@login_required
+def api_ai_sentiment_analysis(symbol):
+    """Get AI sentiment analysis for a specific stock"""
+    try:
+        ai_coordinator = AgenticAICoordinator()
+        sentiment_result = ai_coordinator.sentiment_agent.analyze_sentiment(symbol.upper())
+        
+        if 'error' in sentiment_result:
+            return jsonify({'success': False, 'error': sentiment_result['error']}), 500
+        
+        return jsonify({
+            'success': True,
+            'data': sentiment_result
+        })
+        
+    except Exception as e:
+        logging.error(f"Sentiment analysis error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to analyze sentiment'
+        }), 500
+
+@app.route('/api/ai/trading-signals/<symbol>')
+@login_required
+def api_ai_trading_signals(symbol):
+    """Get AI trading signals for a specific stock"""
+    try:
+        ai_coordinator = AgenticAICoordinator()
+        trading_result = ai_coordinator.trading_agent.analyze_stock(symbol.upper())
+        
+        if 'error' in trading_result:
+            return jsonify({'success': False, 'error': trading_result['error']}), 500
+        
+        return jsonify({
+            'success': True,
+            'data': trading_result
+        })
+        
+    except Exception as e:
+        logging.error(f"Trading signals error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to get trading signals'
         }), 500

@@ -123,8 +123,63 @@ class StockAnalysis(db.Model):
     week_52_low = db.Column(db.Float, nullable=True)
     analysis_date = db.Column(db.DateTime, default=datetime.utcnow)
     ai_recommendation = db.Column(db.String(20), nullable=True)  # BUY, SELL, HOLD
-    ai_confidence = db.Column(db.Float, nullable=True)  # 0-100
-    ai_notes = db.Column(db.Text, nullable=True)
+    ai_confidence = db.Column(db.Float, nullable=True)  # Confidence score 0-1
+    risk_level = db.Column(db.String(10), nullable=True)  # LOW, MEDIUM, HIGH
+
+class AIAnalysis(db.Model):
+    """Store comprehensive AI agent analysis results"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    symbol = db.Column(db.String(10), nullable=False)
+    analysis_type = db.Column(db.String(50), nullable=False)  # STOCK, PORTFOLIO, SENTIMENT
+    
+    # Trading Agent Results
+    trading_recommendation = db.Column(db.String(20), nullable=True)
+    trading_confidence = db.Column(db.Float, nullable=True)
+    trading_reasoning = db.Column(db.Text, nullable=True)
+    
+    # Sentiment Agent Results
+    sentiment_score = db.Column(db.Float, nullable=True)
+    sentiment_label = db.Column(db.String(20), nullable=True)
+    news_sentiment = db.Column(db.String(20), nullable=True)
+    
+    # Risk Agent Results
+    risk_level = db.Column(db.String(10), nullable=True)
+    suggested_position_size = db.Column(db.Float, nullable=True)
+    risk_warnings = db.Column(db.Text, nullable=True)
+    
+    # Final Recommendation
+    final_recommendation = db.Column(db.String(20), nullable=False)
+    overall_confidence = db.Column(db.Float, nullable=False)
+    
+    # Technical Indicators (JSON stored as text)
+    technical_indicators = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class PortfolioOptimization(db.Model):
+    """Store portfolio optimization recommendations"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Current portfolio state
+    total_value = db.Column(db.Float, nullable=False)
+    num_positions = db.Column(db.Integer, nullable=False)
+    
+    # Optimization results
+    rebalance_needed = db.Column(db.Boolean, default=False)
+    efficiency_score = db.Column(db.Float, nullable=True)
+    diversification_score = db.Column(db.Float, nullable=True)
+    
+    # Recommendations (JSON stored as text)
+    suggested_actions = db.Column(db.Text, nullable=True)
+    allocation_recommendations = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to user
+    user = db.relationship('User', backref='portfolio_optimizations')
 
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)

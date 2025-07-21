@@ -10,6 +10,8 @@ Preferred communication style: Simple, everyday language.
 Brand name: tCapital (changed from AI TradeBot on 2025-07-20)
 Design preference: Clean white backgrounds instead of blue gradients (updated on 2025-07-20)
 Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20)
+Typography: Modern Poppins font throughout the website (updated on 2025-07-21)
+New Feature: Agentic AI system with multi-agent architecture (added on 2025-07-21)
 
 ## System Architecture
 
@@ -36,6 +38,8 @@ Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20
 - **Routes**: `routes.py` - URL routing and view functions
 - **Services**: `/services/` - External API integrations and business logic
   - `nse_service.py` - NSE India stock market data integration
+  - `market_data_service.py` - Multi-source market data with Alpha Vantage integration
+  - `ai_agent_service.py` - Agentic AI system with 4 specialized agents
 - **Templates**: `/templates/` - Jinja2 HTML templates
 - **Static Assets**: `/static/` - CSS, JavaScript, and media files
 
@@ -48,6 +52,8 @@ Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20
 4. **User**: User authentication with Flask-Login, password hashing, profile information
 5. **WatchlistItem**: User stock watchlists with target prices and notes
 6. **StockAnalysis**: AI-powered stock analysis with recommendations and confidence scores
+7. **AIAnalysis**: Comprehensive AI agent analysis results with trading, sentiment, and risk data
+8. **PortfolioOptimization**: Portfolio optimization recommendations and rebalancing suggestions
 
 ### Page Structure
 1. **Home Page** (`/`): Hero section, features, services overview, stats, testimonials
@@ -61,6 +67,7 @@ Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20
 9. **Stock Analysis** (`/dashboard/stock-analysis`): AI-powered stock analysis tools
 10. **Watchlist** (`/dashboard/watchlist`): Personal stock tracking and management
 11. **NSE India Stocks** (`/dashboard/nse-stocks`): Real-time Indian stock market data and trading interface
+12. **AI Advisor** (`/dashboard/ai-advisor`): Multi-agent AI system for comprehensive stock analysis and portfolio optimization
 
 ### Frontend Features
 - Responsive navigation with dropdown menus and user authentication
