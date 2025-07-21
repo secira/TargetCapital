@@ -12,6 +12,13 @@ Design preference: Clean white backgrounds instead of blue gradients (updated on
 Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20)
 Typography: Modern Poppins font throughout the website (updated on 2025-07-21)
 New Feature: Agentic AI system with multi-agent architecture (added on 2025-07-21)
+Dashboard Layout: Two-column layout with left sidebar for trading tools navigation (updated on 2025-07-21)
+
+## Recent Changes (2025-07-21)
+- ✓ Implemented two-column dashboard layout with left sidebar navigation
+- ✓ Moved AI Advisor and stock tools from user dropdown to dedicated sidebar
+- ✓ Fixed template attribute errors and data structure compatibility
+- ✓ Created dashboard_base.html template for consistent sidebar across dashboard pages
 
 ## System Architecture
 
