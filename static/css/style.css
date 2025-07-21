@@ -16,18 +16,23 @@
 
 /* Typography */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Poppins', 'Inter', sans-serif;
     line-height: 1.6;
     color: var(--dark-color);
+    font-weight: 400;
 }
 
 h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
     line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
-.display-4 {
+.display-4, .display-5, .display-6 {
+    font-family: 'Poppins', sans-serif;
     font-weight: 700;
+    letter-spacing: -0.03em;
 }
 
 /* Navigation */
@@ -36,14 +41,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar-brand {
+    font-family: 'Poppins', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .navbar-nav .nav-link {
+    font-family: 'Poppins', sans-serif;
     font-weight: 500;
     padding: 0.5rem 1rem;
     transition: color 0.3s ease;
+    letter-spacing: -0.01em;
 }
 
 .navbar-nav .nav-link:hover {
@@ -54,10 +63,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Buttons */
 .btn {
+    font-family: 'Poppins', sans-serif;
     border-radius: 0.5rem;
     font-weight: 500;
     padding: 0.75rem 1.5rem;
     transition: all 0.3s ease;
+    letter-spacing: -0.01em;
 }
 
 .btn-lg {
@@ -443,4 +454,115 @@ footer a {
 
 footer a:hover {
     color: var(--warning-color) !important;
+}
+
+/* Modern Typography Enhancements */
+.form-control, .form-select {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    border-radius: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.form-label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+.card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.card-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.dropdown-item {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.badge {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+.lead {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.fw-bold {
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+/* Table styling */
+.table th {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.table td {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+/* Modern text classes */
+.text-modern {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.text-modern-bold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.text-modern-light {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+}
+
+/* Blog content modern styling */
+.blog-content {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+/* Flash messages modern styling */
+.flash-messages .alert {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+/* Testimonial modern styling */
+.testimonial-card {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Team member modern styling */
+.team-card {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Step number modern styling */
+.step-number {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
