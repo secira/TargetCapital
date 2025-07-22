@@ -1,31 +1,20 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}NSE India Stocks - tCapital{% endblock %}
 
-{% block content %}
-<!-- Page Header -->
-<div class="bg-white text-dark border-bottom py-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="h3 mb-1">NSE India Stock Market</h1>
-                <p class="mb-0 opacity-75">Real-time Indian stock market data and analysis</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="d-flex gap-2 justify-content-md-end">
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-arrow-left me-1"></i>Dashboard
-                    </a>
+{% block dashboard_content %}
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">NSE India Stock Market</h1>
+                    <p class="mb-0 text-muted">Real-time Indian stock market data and analysis</p>
+                </div>
+                <div>
                     <button class="btn btn-light btn-sm" onclick="refreshMarketData()">
                         <i class="fas fa-sync-alt me-1"></i>Refresh
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="container py-4">
     <!-- Market Status -->
     <div class="row mb-4">
         <div class="col-12">

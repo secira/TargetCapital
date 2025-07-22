@@ -1,28 +1,22 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}Live Market Data - tCapital{% endblock %}
 
-{% block content %}
-<section class="bg-white text-dark" style="padding-top: 120px; min-height: 100vh;">
-    <div class="container">
-        <!-- Page Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="display-6 fw-bold text-dark mb-2">Live Market Data</h1>
-                        <p class="text-muted mb-0">Real-time stock prices and market indices</p>
-                    </div>
-                    <div class="text-end">
-                        <small class="text-muted">Last Updated: <span id="lastUpdated">{{ last_updated or 'Loading...' }}</span></small>
-                        <br>
-                        <button class="btn btn-outline-primary btn-sm mt-1" onclick="refreshMarketData()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
+{% block dashboard_content %}
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-2">Live Market Data</h1>
+                    <p class="text-muted mb-0">Real-time stock prices and market indices</p>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted">Last Updated: <span id="lastUpdated">{{ last_updated or 'Loading...' }}</span></small>
+                    <br>
+                    <button class="btn btn-outline-primary btn-sm mt-1" onclick="refreshMarketData()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
                 </div>
             </div>
-        </div>
 
         <!-- Market Indices -->
         <div class="row mb-4">

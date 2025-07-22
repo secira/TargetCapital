@@ -1,26 +1,8 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}My Watchlist - tCapital{% endblock %}
 
-{% block content %}
-<!-- Page Header -->
-<div class="bg-white text-dark border-bottom py-4">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h1 class="h3 mb-1">My Watchlist</h1>
-                <p class="mb-0 opacity-75">Track your favorite stocks and set price targets</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container py-4">
+{% block dashboard_content %}
     <!-- Add Stock Form -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
