@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}AI-Powered Stock Trading Platform | tCapital{% endblock %}
+{% block title %}AI-Powered Stock Analysis Platform | tCapital{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -11,7 +11,7 @@
                 <h1 class="display-4 fw-bold mb-4">
                     Trade Smarter with 
                     <span class="text-primary">AI-Powered</span> 
-                    Portfolio Analysis
+                     Analysis
                 </h1>
                 <p class="lead mb-4">
                     Leverage advanced artificial intelligence and algorithmic trading to optimize your investment portfolio. 
@@ -19,7 +19,7 @@
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <a href="#trial" class="btn btn-primary btn-lg px-4">
-                        <i class="fas fa-rocket me-2"></i>Start Free Trial
+                        <i class="fas fa-rocket me-2"></i>Start Now
                     </a>
                     <a href="#demo" class="btn btn-outline-dark btn-lg px-4">
                         <i class="fas fa-play me-2"></i>Watch Demo
@@ -33,18 +33,18 @@
                         <small class="text-muted">Uptime</small>
                     </div>
                     <div class="col-4">
-                        <h4 class="fw-bold">$2.1B+</h4>
-                        <small class="text-muted">Assets Managed</small>
+                        <h4 class="fw-bold">10+</h4>
+                        <small class="text-muted">Trading Strategies</small>
                     </div>
                     <div class="col-4">
-                        <h4 class="fw-bold">50K+</h4>
+                        <h4 class="fw-bold">1000+</h4>
                         <small class="text-muted">Active Traders</small>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-6">
-                <img src="https://pixabay.com/get/g7ccedb0c266d6c3f24e0f30dcfd5a0f044aaa5a079ff6954bfdf9c16db573f26b9ea295bec35c3b33d25658bc95e811a725d9446f0687886e0b3d2eacfa8cb29_1280.jpg" 
+                <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
                      alt="AI Trading Dashboard" class="img-fluid rounded shadow-lg">
             </div>
         </div>
