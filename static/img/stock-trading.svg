@@ -1,0 +1,96 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#1a1a2e" rx="8"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="500" height="50" fill="#16213e" rx="8 8 0 0"/>
+  <text x="20" y="30" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff">Trading Terminal</text>
+  
+  <!-- Side Panel -->
+  <rect x="10" y="60" width="120" height="320" fill="#0f3460" rx="4"/>
+  <text x="20" y="80" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#a0a0a0">WATCHLIST</text>
+  
+  <!-- Watchlist Items -->
+  <g font-family="Arial, sans-serif" font-size="9" fill="#ffffff">
+    <text x="20" y="100">AAPL</text>
+    <text x="80" y="100" fill="#00ff88">+2.1%</text>
+    
+    <text x="20" y="120">GOOGL</text>
+    <text x="80" y="120" fill="#ff4757">-1.3%</text>
+    
+    <text x="20" y="140">MSFT</text>
+    <text x="80" y="140" fill="#00ff88">+0.8%</text>
+    
+    <text x="20" y="160">TSLA</text>
+    <text x="80" y="160" fill="#00ff88">+4.2%</text>
+  </g>
+  
+  <!-- Main Chart Area -->
+  <rect x="140" y="60" width="340" height="200" fill="#0f3460" rx="4"/>
+  <text x="150" y="80" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff">AAPL - Apple Inc.</text>
+  
+  <!-- Candlestick Chart -->
+  <g stroke-width="2">
+    <!-- Green candles (bullish) -->
+    <g stroke="#00ff88" fill="#00ff88">
+      <rect x="160" y="140" width="8" height="40"/>
+      <line x1="164" y1="130" x2="164" y2="190"/>
+      
+      <rect x="200" y="120" width="8" height="50"/>
+      <line x1="204" y1="110" x2="204" y2="180"/>
+      
+      <rect x="240" y="110" width="8" height="45"/>
+      <line x1="244" y1="100" x2="244" y2="170"/>
+      
+      <rect x="320" y="100" width="8" height="40"/>
+      <line x1="324" y1="95" x2="324" y2="150"/>
+      
+      <rect x="400" y="95" width="8" height="35"/>
+      <line x1="404" y1="85" x2="404" y2="140"/>
+    </g>
+    
+    <!-- Red candles (bearish) -->
+    <g stroke="#ff4757" fill="#ff4757">
+      <rect x="180" y="160" width="8" height="30"/>
+      <line x1="184" y1="150" x2="184" y2="200"/>
+      
+      <rect x="280" y="125" width="8" height="35"/>
+      <line x1="284" y1="115" x2="284" y2="170"/>
+      
+      <rect x="360" y="105" width="8" height="25"/>
+      <line x1="364" y1="100" x2="364" y2="135"/>
+    </g>
+  </g>
+  
+  <!-- Order Panel -->
+  <rect x="140" y="270" width="160" height="100" fill="#0f3460" rx="4"/>
+  <text x="150" y="290" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">Order Entry</text>
+  
+  <!-- Buy/Sell Buttons -->
+  <rect x="150" y="300" width="60" height="25" fill="#00ff88" rx="4"/>
+  <text x="175" y="317" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">BUY</text>
+  
+  <rect x="220" y="300" width="60" height="25" fill="#ff4757" rx="4"/>
+  <text x="250" y="317" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">SELL</text>
+  
+  <!-- Order details -->
+  <g font-family="Arial, sans-serif" font-size="9" fill="#a0a0a0">
+    <text x="150" y="345">Qty: 100</text>
+    <text x="150" y="360">Price: $175.43</text>
+  </g>
+  
+  <!-- Market Data Panel -->
+  <rect x="320" y="270" width="160" height="100" fill="#0f3460" rx="4"/>
+  <text x="330" y="290" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#ffffff">Market Data</text>
+  
+  <g font-family="Arial, sans-serif" font-size="9" fill="#ffffff">
+    <text x="330" y="310">Bid: $175.41</text>
+    <text x="330" y="325">Ask: $175.45</text>
+    <text x="330" y="340">Volume: 2.1M</text>
+    <text x="330" y="355">Change: +2.1%</text>
+  </g>
+  
+  <!-- Status indicators -->
+  <circle cx="460" cy="30" r="4" fill="#00ff88"/>
+  <text x="470" y="35" font-family="Arial, sans-serif" font-size="9" fill="#ffffff">Connected</text>
+</svg>
