@@ -4,47 +4,47 @@
   
   <!-- Header -->
   <rect x="0" y="0" width="600" height="60" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5"/>
-  <text x="20" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#212529">tCapital AI Trading Dashboard</text>
-  <text x="20" y="45" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">Real-time Market Analysis &amp; AI Insights</text>
+  <text x="20" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#212529">AI Analytics Dashboard</text>
+  <text x="20" y="45" font-family="Arial, sans-serif" font-size="12" fill="#6c757d">Smart Investment Analysis &amp; Portfolio Management</text>
   
   <!-- Sidebar -->
   <rect x="0" y="60" width="120" height="340" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5"/>
-  <text x="10" y="85" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#6c757d">TRADING TOOLS</text>
+  <text x="10" y="85" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#6c757d">ANALYTICS</text>
   
   <!-- Menu Items -->
   <rect x="10" y="95" width="100" height="25" fill="#007bff" rx="4"/>
-  <text x="15" y="110" font-family="Arial, sans-serif" font-size="10" fill="white">Dashboard</text>
+  <text x="15" y="110" font-family="Arial, sans-serif" font-size="10" fill="white">Overview</text>
   
   <rect x="10" y="125" width="100" height="25" fill="#f8f9fa" stroke="#dee2e6" stroke-width="0.5" rx="4"/>
-  <text x="15" y="140" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">AI Advisor</text>
+  <text x="15" y="140" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">AI Insights</text>
   
   <rect x="10" y="155" width="100" height="25" fill="#f8f9fa" stroke="#dee2e6" stroke-width="0.5" rx="4"/>
-  <text x="15" y="170" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Stock Analysis</text>
+  <text x="15" y="170" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Analytics</text>
   
   <rect x="10" y="185" width="100" height="25" fill="#f8f9fa" stroke="#dee2e6" stroke-width="0.5" rx="4"/>
-  <text x="15" y="200" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Watchlist</text>
+  <text x="15" y="200" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Reports</text>
   
   <!-- Main Content Area -->
   
-  <!-- Market Overview Cards -->
+  <!-- Key Metrics Cards -->
   <rect x="140" y="80" width="140" height="80" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
-  <text x="150" y="100" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">S&amp;P 500</text>
-  <text x="150" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#28a745">$4,445.23</text>
-  <text x="150" y="140" font-family="Arial, sans-serif" font-size="11" fill="#28a745">+1.2%</text>
+  <text x="150" y="100" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">Total Portfolio</text>
+  <text x="150" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#28a745">$125,430</text>
+  <text x="150" y="140" font-family="Arial, sans-serif" font-size="11" fill="#28a745">+5.2%</text>
   
   <rect x="300" y="80" width="140" height="80" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
-  <text x="310" y="100" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">NASDAQ</text>
-  <text x="310" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#dc3545">$378.45</text>
-  <text x="310" y="140" font-family="Arial, sans-serif" font-size="11" fill="#dc3545">-0.8%</text>
+  <text x="310" y="100" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">Daily P&amp;L</text>
+  <text x="310" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#dc3545">-$432</text>
+  <text x="310" y="140" font-family="Arial, sans-serif" font-size="11" fill="#dc3545">-0.35%</text>
   
   <rect x="460" y="80" width="120" height="80" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
   <text x="470" y="100" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">AI Score</text>
-  <text x="470" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#007bff">85/100</text>
-  <text x="470" y="140" font-family="Arial, sans-serif" font-size="11" fill="#28a745">Bullish</text>
+  <text x="470" y="120" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#007bff">8.5/10</text>
+  <text x="470" y="140" font-family="Arial, sans-serif" font-size="11" fill="#28a745">Strong</text>
   
   <!-- Chart Area -->
   <rect x="140" y="180" width="440" height="140" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
-  <text x="150" y="200" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">Portfolio Performance</text>
+  <text x="150" y="200" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">Performance Analytics</text>
   
   <!-- Simple Chart Line -->
   <polyline points="160,280 200,260 240,240 280,250 320,220 360,200 400,210 440,190 480,180 520,170 560,160" 
@@ -54,14 +54,14 @@
   <line x1="160" y1="210" x2="160" y2="300" stroke="#e9ecef" stroke-width="0.5"/>
   <line x1="160" y1="300" x2="560" y2="300" stroke="#e9ecef" stroke-width="0.5"/>
   
-  <!-- Watchlist Section -->
+  <!-- Top Holdings Section -->
   <rect x="140" y="340" width="200" height="50" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
-  <text x="150" y="360" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#212529">Top Watchlist</text>
-  <text x="150" y="375" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">AAPL: $175.43 (+2.1%)</text>
+  <text x="150" y="360" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#212529">Top Holdings</text>
+  <text x="150" y="375" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Technology: 35% | Finance: 22%</text>
   
   <!-- AI Insights -->
   <rect x="360" y="340" width="220" height="50" fill="#ffffff" stroke="#dee2e6" stroke-width="0.5" rx="8"/>
-  <text x="370" y="360" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#212529">AI Recommendation</text>
-  <text x="370" y="375" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Buy NVDA - 89% confidence</text>
+  <text x="370" y="360" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#212529">Smart Insights</text>
+  <text x="370" y="375" font-family="Arial, sans-serif" font-size="10" fill="#6c757d">Diversification opportunity detected</text>
   
 </svg>
