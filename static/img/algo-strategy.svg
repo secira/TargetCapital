@@ -1,0 +1,72 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#f8f9fa" rx="8"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="500" height="50" fill="#ffffff" stroke="#dee2e6" rx="8 8 0 0"/>
+  <text x="20" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#212529">Algorithmic Trading Strategy</text>
+  
+  <!-- Strategy flow diagram -->
+  <g>
+    <!-- Data Input -->
+    <rect x="50" y="80" width="80" height="50" fill="#e3f2fd" stroke="#2196f3" rx="4"/>
+    <text x="90" y="100" font-family="Arial, sans-serif" font-size="10" fill="#1976d2" text-anchor="middle">Market Data</text>
+    <text x="90" y="115" font-family="Arial, sans-serif" font-size="10" fill="#1976d2" text-anchor="middle">Input</text>
+    
+    <!-- Arrow -->
+    <path d="M 130,105 L 160,105" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Analysis -->
+    <rect x="170" y="80" width="80" height="50" fill="#e8f5e8" stroke="#4caf50" rx="4"/>
+    <text x="210" y="100" font-family="Arial, sans-serif" font-size="10" fill="#388e3c" text-anchor="middle">AI Analysis</text>
+    <text x="210" y="115" font-family="Arial, sans-serif" font-size="10" fill="#388e3c" text-anchor="middle">Engine</text>
+    
+    <!-- Arrow -->
+    <path d="M 250,105 L 280,105" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Strategy -->
+    <rect x="290" y="80" width="80" height="50" fill="#fff3e0" stroke="#ff9800" rx="4"/>
+    <text x="330" y="100" font-family="Arial, sans-serif" font-size="10" fill="#f57c00" text-anchor="middle">Strategy</text>
+    <text x="330" y="115" font-family="Arial, sans-serif" font-size="10" fill="#f57c00" text-anchor="middle">Generation</text>
+    
+    <!-- Arrow -->
+    <path d="M 370,105 L 400,105" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Execution -->
+    <rect x="410" y="80" width="80" height="50" fill="#fce4ec" stroke="#e91e63" rx="4"/>
+    <text x="450" y="100" font-family="Arial, sans-serif" font-size="10" fill="#c2185b" text-anchor="middle">Trade</text>
+    <text x="450" y="115" font-family="Arial, sans-serif" font-size="10" fill="#c2185b" text-anchor="middle">Execution</text>
+  </g>
+  
+  <!-- Strategy performance chart -->
+  <rect x="50" y="160" width="400" height="150" fill="#ffffff" stroke="#dee2e6" rx="4"/>
+  <text x="70" y="180" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#212529">Strategy Performance</text>
+  
+  <!-- Performance line -->
+  <polyline points="70,270 100,260 130,250 160,240 190,245 220,235 250,225 280,220 310,210 340,200 370,195 400,190 430,185" 
+            fill="none" stroke="#28a745" stroke-width="3"/>
+  
+  <!-- Benchmark line -->
+  <polyline points="70,270 100,268 130,265 160,262 190,260 220,257 250,254 280,251 310,248 340,245 370,242 400,239 430,236" 
+            fill="none" stroke="#6c757d" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Performance metrics -->
+  <rect x="50" y="330" width="400" height="50" fill="#ffffff" stroke="#dee2e6" rx="4"/>
+  <text x="70" y="350" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#212529">Algorithm Performance:</text>
+  <text x="70" y="365" font-family="Arial, sans-serif" font-size="10" fill="#28a745">+24.7% Annual Return | 78% Win Rate | 1.8 Sharpe Ratio</text>
+  
+  <!-- Legend -->
+  <line x1="300" y1="350" x2="320" y2="350" stroke="#28a745" stroke-width="3"/>
+  <text x="325" y="354" font-family="Arial, sans-serif" font-size="10" fill="#212529">Algorithm</text>
+  
+  <line x1="300" y1="365" x2="320" y2="365" stroke="#6c757d" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="325" y="369" font-family="Arial, sans-serif" font-size="10" fill="#212529">Benchmark</text>
+  
+  <!-- Define arrowhead marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/>
+    </marker>
+  </defs>
+</svg>
