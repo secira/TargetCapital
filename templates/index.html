@@ -1,120 +1,217 @@
 {% extends "base.html" %}
 
-{% block title %}AI-Powered Stock Analysis Platform | tCapital{% endblock %}
+{% block title %}Scale Smarter, Trade Faster | tCapital AI{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero bg-white text-dark" style="padding-top: 100px;">
-    <div class="container py-5">
-        <div class="row align-items-center min-vh-75">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">
-                    Trade Smarter with 
-                    <span class="text-primary">AI-Powered</span> 
-                     Analysis
-                </h1>
-                <p class="lead mb-4">
-                    Leverage advanced artificial intelligence and algorithmic trading to optimize your investment portfolio. 
-                    Get real-time insights, automated strategies, and personalized recommendations.
-                </p>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="#trial" class="btn btn-primary btn-lg px-4">
-                        <i class="fas fa-rocket me-2"></i>Start Now
-                    </a>
-                    <a href="#demo" class="btn btn-outline-dark btn-lg px-4">
-                        <i class="fas fa-play me-2"></i>Watch Demo
-                    </a>
-                </div>
-                
-                <!-- Trust Indicators -->
-                <div class="row mt-5">
-                    <div class="col-4">
-                        <h4 class="fw-bold">99.9%</h4>
-                        <small class="text-muted">Uptime</small>
-                    </div>
-                    <div class="col-4">
-                        <h4 class="fw-bold">10+</h4>
-                        <small class="text-muted">Trading Strategies</small>
-                    </div>
-                    <div class="col-4">
-                        <h4 class="fw-bold">1000+</h4>
-                        <small class="text-muted">Active Traders</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
-                     alt="AI Trading Dashboard" class="img-fluid rounded shadow-lg">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Features Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Why Choose tCapital?</h2>
-            <p class="lead text-muted">Experience the future of trading with our cutting-edge AI technology</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-brain fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">AI-Driven Insights</h5>
-                        <p class="text-muted">Advanced machine learning algorithms to analyze your portfolio patterns and provide intelligent recommendations.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">Algorithmic Trading</h5>
-                        <p class="text-muted">Pre-defined, tested strategies to choose from and execute the trade with favourite broker.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-user-cog fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">Personalized Strategies</h5>
-                        <p class="text-muted">Customized trading strategies tailored to your risk tolerance, goals, and investment preferences.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Features List Section -->
-<section class="bg-light py-5">
+<section class="bg-white" style="padding-top: 120px; padding-bottom: 80px;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/financial-charts.svg') }}" 
-                     alt="Financial Charts" class="img-fluid rounded">
+                <div class="mb-4">
+                    <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
+                         alt="AI Trading Platform" width="80" height="80" class="mb-4">
+                </div>
+                
+                <h1 class="display-3 fw-bold text-dark mb-4" style="line-height: 1.1;">
+                    Scale Smarter, Trade Faster
+                </h1>
+                
+                <h2 class="display-5 fw-bold text-primary mb-4">
+                    With AI Intelligence
+                </h2>
+                
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    Your AI trading assistant automates analysis, personalizes strategies, and identifies opportunities around the clock. 
+                    From market research to portfolio optimization, it ensures no profitable trade slips through the cracks — 
+                    helping you scale effortlessly and close positions faster, without the overhead.
+                </p>
+                
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Get Started
+                    </a>
+                    <a href="#demo" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                        Book a Demo
+                    </a>
+                </div>
             </div>
             
             <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Powerful Features for Modern Traders</h2>
-                
-                <div class="feature-item mb-4">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='img/financial-charts.svg') }}" 
+                         alt="AI Trading Dashboard Preview" class="img-fluid rounded-4 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Logos Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-2 text-center opacity-75">
+                <span class="fw-bold text-muted">NSE</span>
+            </div>
+            <div class="col-2 text-center opacity-75">
+                <span class="fw-bold text-muted">NASDAQ</span>
+            </div>
+            <div class="col-2 text-center opacity-75">
+                <span class="fw-bold text-muted">BSE</span>
+            </div>
+            <div class="col-2 text-center opacity-75">
+                <span class="fw-bold text-muted">ALPHA VANTAGE</span>
+            </div>
+            <div class="col-2 text-center opacity-75">
+                <span class="fw-bold text-muted">YAHOO FINANCE</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Trading Benefits Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row align-items-center mb-5">
+            <div class="col-lg-6">
+                <img src="{{ url_for('static', filename='img/stock-trading.svg') }}" 
+                     alt="AI Trading Platform" class="img-fluid">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="display-5 fw-bold text-dark mb-4">
+                    Amplify your Trading with AI Intelligence
+                </h2>
+                <p class="lead text-muted mb-4">
+                    Transform your investment strategy with intelligent AI agents that act as your 24/7 trading assistants, 
+                    delivering personalized, multi-market analysis at scale.
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/market-research.svg') }}" 
+                             alt="AI Analysis" width="120" height="120">
+                    </div>
+                    <h5 class="fw-bold mb-3">AI Market Analysis</h5>
+                    <p class="text-muted">
+                        Curate your Investment Profile with AI-powered market research and trend analysis
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/portfolio-management.svg') }}" 
+                             alt="Personalized Trading" width="120" height="120">
+                    </div>
+                    <h5 class="fw-bold mb-3">Personalized Strategies</h5>
+                    <p class="text-muted">
+                        Strategic and hyper-personalized trading recommendations at scale, powered by AI
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/risk-analysis.svg') }}" 
+                             alt="Track Performance" width="120" height="120">
+                    </div>
+                    <h5 class="fw-bold mb-3">Track and Optimize</h5>
+                    <p class="text-muted">
+                        AI-powered context-specific portfolio optimization and risk management tracking
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- AI Assistant Introduction -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-4">
+                "Meet Your AI Trading Assistant"
+            </h2>
+            <p class="lead text-muted mx-auto" style="max-width: 800px;">
+                Our AI assistant simplifies your trading process with intelligent automation and personalized insights.
+            </p>
+        </div>
+        
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="list-unstyled">
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Multi-market analysis across stocks, crypto, and forex</h5>
+                            <p class="text-muted mb-0">Comprehensive market coverage with real-time data integration</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Hyper-personalized recommendations tailored to your portfolio</h5>
+                            <p class="text-muted mb-0">AI-powered suggestions based on your risk profile and goals</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Seamless portfolio optimization and risk management</h5>
+                            <p class="text-muted mb-0">Automated rebalancing and continuous risk monitoring</p>
+                        </div>
+                    </div>
+                    
                     <div class="d-flex">
-                        <div class="feature-icon-sm bg-primary text-white rounded me-3">
-                            <i class="fas fa-robot"></i>
+                        <div class="me-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Experience the future of algorithmic trading with tCapital</h5>
+                            <p class="text-muted mb-0">Advanced AI agents working 24/7 for optimal trading decisions</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-5">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
+                         alt="AI Trading Assistant" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
                         </div>
                         <div>
                             <h5 class="fw-bold">AI-Driven</h5>
@@ -151,180 +248,312 @@
     </div>
 </section>
 
-<!-- Services Section -->
-<section class="py-5">
+<!-- Problem/Solution Section -->
+<section class="py-5 bg-white">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Our Services</h2>
-            <p class="lead text-muted">Comprehensive trading solutions for every investor</p>
+            <img src="{{ url_for('static', filename='img/algo-strategy.svg') }}" 
+                 alt="Trading Solutions" width="100" height="100" class="mb-4">
+            <h2 class="display-5 fw-bold text-dark mb-4">
+                What Can You Dream Up With tCapital?
+            </h2>
+            <p class="lead text-muted mx-auto" style="max-width: 800px;">
+                tCapital eliminates the roadblocks that hold traders back. We empower you with accurate data, 
+                AI-powered insights, and automation tools to find the right opportunities, personalize your strategy, 
+                and close more profitable trades, faster.
+            </p>
         </div>
         
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="service-card text-center p-4">
-                    <div class="service-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-cogs fa-2x"></i>
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/market-research.svg') }}" 
+                             alt="Manual Processes" width="80" height="80">
                     </div>
-                    <h4 class="fw-bold">ALGO Trading</h4>
-                    <p class="text-muted">Automated trading algorithms that execute trades based on predefined strategies and market conditions.</p>
-                    <a href="{{ url_for('algo_trading') }}" class="btn btn-outline-primary">Learn More</a>
+                    <h5 class="fw-bold mb-3">Manual Analysis</h5>
+                    <p class="text-muted">
+                        Automate repetitive research tasks to save time and resources
+                    </p>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="service-card text-center p-4">
-                    <div class="service-icon bg-success text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-chart-pie fa-2x"></i>
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/team-collaboration.svg') }}" 
+                             alt="Siloed Efforts" width="80" height="80">
                     </div>
-                    <h4 class="fw-bold">Portfolio Analysis</h4>
-                    <p class="text-muted">Comprehensive portfolio analysis with risk assessment, performance tracking, and optimization recommendations.</p>
-                    <a href="{{ url_for('services') }}" class="btn btn-outline-success">Learn More</a>
+                    <h5 class="fw-bold mb-3">Siloed Information</h5>
+                    <p class="text-muted">
+                        Align your research and trading decisions for maximum impact
+                    </p>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="service-card text-center p-4">
-                    <div class="service-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-lightbulb fa-2x"></i>
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/portfolio-management.svg') }}" 
+                             alt="Generic Strategies" width="80" height="80">
                     </div>
-                    <h4 class="fw-bold">Trading Recommendations</h4>
-                    <p class="text-muted">AI-powered trading recommendations based on market analysis, sentiment, and technical indicators.</p>
-                    <a href="{{ url_for('services') }}" class="btn btn-outline-warning">Learn More</a>
+                    <h5 class="fw-bold mb-3">Generic Strategies</h5>
+                    <p class="text-muted">
+                        Break through the noise with personalized trading approaches
+                    </p>
                 </div>
             </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/risk-analysis.svg') }}" 
+                             alt="Limited Insights" width="80" height="80">
+                    </div>
+                    <h5 class="fw-bold mb-3">Limited Insights</h5>
+                    <p class="text-muted">
+                        Get clear visibility into portfolio performance and market trends
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/financial-charts.svg') }}" 
+                             alt="Emotional Trading" width="80" height="80">
+                    </div>
+                    <h5 class="fw-bold mb-3">Emotional Trading</h5>
+                    <p class="text-muted">
+                        Remove emotion from decisions with data-driven strategies
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='img/trading-automation.svg') }}" 
+                             alt="Slow Execution" width="80" height="80">
+                    </div>
+                    <h5 class="fw-bold mb-3">Slow Execution</h5>
+                    <p class="text-muted">
+                        Accelerate your trading pipeline and execute faster
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                Get Started
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Benefits Section -->
-<section class="bg-primary text-white py-5">
+<!-- Detailed AI Features Section -->
+<section class="py-5 bg-light">
     <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold text-dark mb-4">
+                Hyper Personalized Trading
+            </h2>
+            <p class="lead text-muted mx-auto" style="max-width: 800px;">
+                Say goodbye to generic investment advice. tCapital harnesses the power of AI to craft 
+                hundreds of hyper-personalized trading strategies in seconds.
+            </p>
+        </div>
+        
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Why AI Trading is the Future</h2>
-                
-                <div class="benefit-item mb-4">
-                    <h5><i class="fas fa-tachometer-alt me-2"></i>Increased Efficiency</h5>
-                    <p>Process thousands of market data points in seconds, making faster and more informed trading decisions.</p>
-                </div>
-                
-                <div class="benefit-item mb-4">
-                    <h5><i class="fas fa-shield-alt me-2"></i>Reduced Risk</h5>
-                    <p>Advanced risk management algorithms help minimize losses and protect your investment capital.</p>
-                </div>
-                
-                <div class="benefit-item mb-4">
-                    <h5><i class="fas fa-chart-line me-2"></i>Better Returns</h5>
-                    <p>Optimize your portfolio performance with data-driven insights and proven trading strategies.</p>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item border-0 bg-transparent px-0 py-3">
+                        <h6 class="fw-bold text-primary mb-2">Dashboard Overview</h6>
+                        <p class="text-muted mb-0">
+                            AI identifying opportunities with a sleek dashboard showcasing multi-market capabilities 
+                            like stocks, crypto, and forex analysis
+                        </p>
+                    </div>
+                    
+                    <div class="list-group-item border-0 bg-transparent px-0 py-3">
+                        <h6 class="fw-bold text-primary mb-2">Personalize Strategy</h6>
+                        <p class="text-muted mb-0">
+                            AI personalizing trading strategies based on portfolio data and market activity
+                        </p>
+                    </div>
+                    
+                    <div class="list-group-item border-0 bg-transparent px-0 py-3">
+                        <h6 class="fw-bold text-primary mb-2">Performance Insights</h6>
+                        <p class="text-muted mb-0">
+                            Real-time notifications for trading opportunities with visualized performance insights
+                        </p>
+                    </div>
                 </div>
             </div>
             
             <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/stock-trading.svg') }}" 
-                     alt="Stock Trading" class="img-fluid rounded">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Stats Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-item">
-                    <h2 class="display-4 fw-bold text-primary">1000+</h2>
-                    <p class="lead">Active Traders</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-item">
-                    <h2 class="display-4 fw-bold text-success">10+</h2>
-                    <p class="lead">Active Strategies</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-item">
-                    <h2 class="display-4 fw-bold text-warning">99.9%</h2>
-                    <p class="lead">Platform Uptime</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat-item">
-                    <h2 class="display-4 fw-bold text-info">Over 15%</h2>
-                    <p class="lead">Average Annual Return</p>
-                </div>
+                <img src="{{ url_for('static', filename='img/trading-automation.svg') }}" 
+                     alt="AI Trading Features" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
     </div>
 </section>
 
 <!-- Testimonials Section -->
-{% if testimonials %}
-<section class="bg-light py-5">
+<section class="py-5 bg-white">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">What Our Clients Say</h2>
-            <p class="lead text-muted">Success stories from traders who trust tCapital</p>
+            <img src="{{ url_for('static', filename='img/portfolio-management.svg') }}" 
+                 alt="Customer Success" width="100" height="100" class="mb-4">
+            <h2 class="display-5 fw-bold text-dark mb-4">
+                What our customers say about us
+            </h2>
+            <p class="lead text-muted">
+                Don't take our word — look at what our clients are saying about us!
+            </p>
         </div>
         
         <div class="row g-4">
-            {% for testimonial in testimonials %}
-            <div class="col-lg-4">
-                <div class="testimonial-card card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="stars mb-3">
-                            {% for i in range(testimonial.rating) %}
-                            <i class="fas fa-star text-warning"></i>
-                            {% endfor %}
-                        </div>
-                        <p class="mb-3">"{{ testimonial.content }}"</p>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-5">
+                        <p class="mb-4 fs-5">
+                            "Identifying profitable trades for our portfolio used to be a time-consuming process. 
+                            tCapital's AI has been a revelation. It analyzes vast amounts of market data to pinpoint 
+                            the ideal opportunities for each specific strategy. Very accurate signals and great automation!"
+                        </p>
                         <div class="d-flex align-items-center">
-                            <div class="avatar bg-primary text-white rounded-circle me-3">
-                                {{ testimonial.name[0] }}
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 48px; height: 48px;">
+                                <span class="fw-bold">AS</span>
                             </div>
                             <div>
-                                <h6 class="mb-0 fw-bold">{{ testimonial.name }}</h6>
-                                {% if testimonial.company %}
-                                <small class="text-muted">{{ testimonial.company }}</small>
-                                {% endif %}
+                                <h6 class="fw-bold mb-0">Abhinav Soni</h6>
+                                <small class="text-muted">Portfolio Manager</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-5">
+                        <p class="mb-4 fs-5">
+                            "We save 40% of our time on research and strategy development with tCapital. 
+                            The entire process - from identifying ideal opportunities to executing personalized 
+                            strategies - is automated. We've seen a 20% increase in our trading performance!"
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 48px; height: 48px;">
+                                <span class="fw-bold">SC</span>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Sindhu Chakraborty</h6>
+                                <small class="text-muted">Founder - Investment Consultants</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-5">
+                        <p class="mb-4 fs-5">
+                            "I was skeptical about AI handling personalization, but tCapital has completely changed my mind. 
+                            The platform drafts personalized trading strategies to match my risk profile. 
+                            It's like having a team of financial wizards working for me! My returns have improved by 45%."
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 48px; height: 48px;">
+                                <span class="fw-bold">MP</span>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Muralidhara Prasad</h6>
+                                <small class="text-muted">Independent Trader</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-5">
+                        <p class="mb-4 fs-5">
+                            "As a software engineering director, I'm always seeking ways to optimize processes. 
+                            tCapital's AI has been a revelation, delivering accurate market analysis and streamlining 
+                            our investment workflow. It's an invaluable tool for building a world-class portfolio."
+                        </p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 48px; height: 48px;">
+                                <span class="fw-bold">V</span>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Vidya</h6>
+                                <small class="text-muted">CTO - Technology Solutions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- CTA Section -->
-<section class="bg-white text-dark border-bottom py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Ready to Transform Your Trading?</h2>
-        <p class="lead mb-4">Join thousands of successful traders using tCapital to maximize their investment returns.</p>
-        
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-                    <a href="#trial" class="btn btn-warning btn-lg px-4">
-                        <i class="fas fa-rocket me-2"></i>Start Free Trial
-                    </a>
-                    <a href="#demo" class="btn btn-outline-primary btn-lg px-4">
-                        <i class="fas fa-calendar me-2"></i>Book Demo
-                    </a>
+<!-- Final CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-5 fw-bold text-dark mb-4">
+                Your Trading Revolution Starts Here
+            </h2>
+            <p class="lead text-muted mb-5" style="max-width: 600px; margin: 0 auto;">
+                Ready to transform your investment strategy? Our AI assistant is designed to simplify workflows, 
+                boost profitability, and execute smarter trades through seamless automation.
+            </p>
+            
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                    Get Started
+                </a>
+                <a href="#demo" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                    Book a Demo
+                </a>
+            </div>
+            
+            <!-- Integration Icons -->
+            <div class="row justify-content-center align-items-center opacity-75">
+                <div class="col-auto">
+                    <span class="badge bg-light text-dark p-3 me-3">
+                        <i class="fas fa-chart-line me-1"></i> ALPHA VANTAGE
+                    </span>
                 </div>
-                
-                <p class="mb-0">
-                    <small>
-                        <i class="fas fa-shield-alt me-1"></i>
-                        No credit card required • 30-day free trial • Cancel anytime
-                    </small>
-                </p>
+                <div class="col-auto">
+                    <span class="badge bg-light text-dark p-3 me-3">
+                        <i class="fas fa-database me-1"></i> NSE
+                    </span>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-light text-dark p-3 me-3">
+                        <i class="fas fa-robot me-1"></i> AI POWERED
+                    </span>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-light text-dark p-3 me-3">
+                        <i class="fas fa-shield-alt me-1"></i> SECURE
+                    </span>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-light text-dark p-3">
+                        <i class="fas fa-clock me-1"></i> 24/7
+                    </span>
+                </div>
             </div>
         </div>
     </div>
