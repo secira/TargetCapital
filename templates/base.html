@@ -6,6 +6,10 @@
     <title>{% block title %}tCapital - AI Stock Trading Platform{% endblock %}</title>
     <meta name="description" content="{% block description %}Professional AI-powered stock trading and portfolio analysis platform with advanced algorithms and real-time market insights.{% endblock %}">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="alternate icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -21,8 +25,9 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-custom-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                <i class="fas fa-chart-line me-2"></i>tCapital
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='img/tcapital-logo.svg') }}" 
+                     alt="tCapital Logo" height="35" class="me-2">
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -40,8 +45,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Services</a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('services') }}">All Services</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('services') }}">Portfolio Analysis</a></li>
                             <li><a class="dropdown-item" href="{{ url_for('algo_trading') }}">ALGO Trading</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('algo_trading') }}">Account Handling</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
