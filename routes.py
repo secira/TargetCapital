@@ -72,8 +72,28 @@ def blog_post(post_id):
 
 
 
-@app.route('/contact', methods=['POST'])
+@app.route('/pricing')
+def pricing():
+    """Pricing page route"""
+    return render_template('pricing.html')
+
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    """Contact page route"""
+    if request.method == 'POST':
+        # Handle contact form submission
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        
+        # Here you would typically send an email or save to database
+        flash('Thank you for your message. We will get back to you soon!', 'success')
+        return redirect(url_for('contact'))
+    
+    return render_template('contact.html')
+
+@app.route('/contact-submit', methods=['POST'])
+def contact_submit():
     """Contact form submission route"""
     name = request.form.get('name')
     email = request.form.get('email')

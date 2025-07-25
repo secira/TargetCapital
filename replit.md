@@ -34,10 +34,15 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
 - ✓ Updated navigation to TargetGrid.ai-inspired style:
   - Clean white background with subtle border
   - Inter font family matching TargetGrid design
-  - Maintained all navigation items (Home, About, Services, Blog)
+  - Restructured menu items following TargetGrid model (Products, Pricing, Contact, Blog)
+  - Products dropdown with AI trading sub-items (AI Stock Analysis, Algorithmic Trading, Portfolio Dashboard, Risk Management, Market Intelligence)
   - Gradient "Book a Demo" button styling
   - Professional dropdown menus with clean shadows
   - Fixed menu visibility issue
+- ✓ Created new pages with TargetGrid-inspired design:
+  - Pricing page with tiered plans (Starter Free, Professional $49/mo, Enterprise Custom)
+  - Contact page with comprehensive contact forms and multiple contact methods
+  - Both pages follow clean, modern design principles
 
 ## System Architecture
 
