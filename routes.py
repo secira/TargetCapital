@@ -92,22 +92,7 @@ def contact():
     
     return render_template('contact.html')
 
-@app.route('/contact-submit', methods=['POST'])
-def contact_submit():
-    """Contact form submission route"""
-    name = request.form.get('name')
-    email = request.form.get('email')
-    message = request.form.get('message')
-    
-    if not all([name, email, message]):
-        flash('Please fill in all required fields.', 'error')
-        return redirect(request.referrer or url_for('index'))
-    
-    # In a real application, you would send an email or save to database
-    logging.info(f"Contact form submission: {name} ({email}) - {message}")
-    flash('Thank you for your message. We will get back to you soon!', 'success')
-    
-    return redirect(request.referrer or url_for('index'))
+
 
 # Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
