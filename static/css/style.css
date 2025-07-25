@@ -35,30 +35,82 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.03em;
 }
 
-/* Navigation */
-.bg-custom-dark {
-    background-color: #00091a !important;
+/* Navigation - TargetGrid Style */
+.navbar {
+    font-family: 'Inter', 'Poppins', sans-serif;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .navbar-brand {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
+    color: #1a1a1a !important;
 }
 
-.navbar-nav .nav-link {
-    font-family: 'Poppins', sans-serif;
+.navbar-light .navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-light .navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* TargetGrid-style Navigation Links */
+.navbar-nav .nav-link, 
+.navbar .text-decoration-none {
+    font-family: 'Inter', sans-serif;
     font-weight: 500;
-    padding: 0.5rem 1rem;
-    transition: color 0.3s ease;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    transition: all 0.2s ease;
+    color: #374151 !important;
+}
+
+.navbar .text-decoration-none:hover {
+    color: #1f2937 !important;
+}
+
+/* TargetGrid-style Button */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    border-radius: 8px;
+    padding: 12px 24px;
+    transition: all 0.2s ease;
     letter-spacing: -0.01em;
 }
 
-.navbar-nav .nav-link:hover {
-    color: #00091a !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 0.25rem;
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Dropdown Styling */
+.dropdown-menu {
+    font-family: 'Inter', sans-serif;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.dropdown-item {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f9fafb;
+    color: #1f2937;
 }
 
 /* Buttons */
