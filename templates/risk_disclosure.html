@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Risk Disclosure | tCapital{% endblock %}
+
+{% block description %}Important risk disclosures for trading and investing through tCapital's AI-powered platform.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 60px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold text-dark mb-4">Risk Disclosure</h1>
+                <p class="lead text-muted mb-4">
+                    Important Information About Trading Risks
+                </p>
+                <div class="alert alert-warning d-inline-block" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Please read carefully before trading</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content -->
+<section class="bg-light" style="padding: 60px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-5">
+                        
+                        <!-- General Risk -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">General Investment Risks</h3>
+                            <div class="alert alert-danger" role="alert">
+                                <strong>All trading involves risk of loss.</strong> You can lose some or all of your invested capital. 
+                                Never invest money you cannot afford to lose.
+                            </div>
+                            <ul class="text-muted">
+                                <li>Market volatility can result in rapid price changes</li>
+                                <li>Past performance does not guarantee future results</li>
+                                <li>Economic conditions affect all investments</li>
+                                <li>Individual securities may become worthless</li>
+                            </ul>
+                        </div>
+
+                        <!-- AI Risks -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">AI and Algorithmic Trading Risks</h3>
+                            <p class="text-muted mb-3">Our AI-powered recommendations carry additional risks:</p>
+                            <ul class="text-muted">
+                                <li>AI models may produce inaccurate predictions</li>
+                                <li>Market conditions can change faster than models adapt</li>
+                                <li>Technical failures may interrupt automated trading</li>
+                                <li>Model performance varies across market cycles</li>
+                                <li>Black swan events may not be anticipated by AI</li>
+                            </ul>
+                        </div>
+
+                        <!-- Market Risks -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">Market-Specific Risks</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5 class="fw-semibold mb-2">Equity Markets</h5>
+                                    <ul class="text-muted small">
+                                        <li>Company-specific risks</li>
+                                        <li>Sector concentration risk</li>
+                                        <li>Dividend cuts or suspensions</li>
+                                        <li>Bankruptcy or delisting</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 class="fw-semibold mb-2">Options Trading</h5>
+                                    <ul class="text-muted small">
+                                        <li>Time decay (theta risk)</li>
+                                        <li>Unlimited loss potential</li>
+                                        <li>Complex strategies require experience</li>
+                                        <li>Assignment and exercise risks</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technology Risks -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">Technology and Platform Risks</h3>
+                            <ul class="text-muted">
+                                <li>System outages may prevent trading</li>
+                                <li>Internet connectivity issues</li>
+                                <li>Data feed delays or inaccuracies</li>
+                                <li>Cybersecurity threats</li>
+                                <li>Software bugs or glitches</li>
+                            </ul>
+                        </div>
+
+                        <!-- Leverage Risks -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">Leverage and Margin Risks</h3>
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Leverage amplifies both gains and losses.</strong>
+                            </div>
+                            <ul class="text-muted">
+                                <li>Margin calls may force liquidation at unfavorable prices</li>
+                                <li>Interest charges on borrowed funds</li>
+                                <li>Potential for losses exceeding initial investment</li>
+                                <li>Forced selling during market stress</li>
+                            </ul>
+                        </div>
+
+                        <!-- Regulatory Risks -->
+                        <div class="mb-5">
+                            <h3 class="fw-bold text-dark mb-3">Regulatory and Tax Risks</h3>
+                            <ul class="text-muted">
+                                <li>Changes in regulations may affect trading</li>
+                                <li>Tax implications of trading activities</li>
+                                <li>Pattern day trader rules and restrictions</li>
+                                <li>International regulatory differences</li>
+                            </ul>
+                        </div>
+
+                        <!-- Risk Management -->
+                        <div class="mb-4">
+                            <h3 class="fw-bold text-dark mb-3">Risk Management Recommendations</h3>
+                            <div class="bg-success bg-opacity-10 p-3 rounded mb-3">
+                                <h5 class="text-success mb-2">Best Practices</h5>
+                                <ul class="text-muted mb-0">
+                                    <li>Diversify your portfolio across assets and sectors</li>
+                                    <li>Use stop-loss orders to limit downside risk</li>
+                                    <li>Never invest more than you can afford to lose</li>
+                                    <li>Regularly review and rebalance your portfolio</li>
+                                    <li>Understand all investments before committing capital</li>
+                                    <li>Consider your time horizon and risk tolerance</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="bg-light p-3 rounded">
+                            <p class="mb-1"><strong>Questions about risks?</strong></p>
+                            <p class="mb-0">Contact our risk management team at <a href="mailto:risk@tcapital.com">risk@tcapital.com</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

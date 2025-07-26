@@ -122,6 +122,32 @@ def account_handling():
     """Account Handling service page route"""
     return render_template('account_handling.html')
 
+# Support and Legal Pages
+@app.route('/help-center')
+def help_center():
+    """Help Center support page route"""
+    return render_template('help_center.html')
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Privacy Policy page route"""
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    """Terms of Service page route"""
+    return render_template('terms_of_service.html')
+
+@app.route('/risk-disclosure')
+def risk_disclosure():
+    """Risk Disclosure page route"""
+    return render_template('risk_disclosure.html')
+
+@app.route('/compliance')
+def compliance():
+    """Compliance page route"""
+    return render_template('compliance.html')
+
 
 
 @app.route('/contact', methods=['GET', 'POST'])

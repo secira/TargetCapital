@@ -167,20 +167,20 @@
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="fw-bold">Support</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Help Center</a></li>
-                        <li><a href="#" class="text-white">Contact Us</a></li>
+                        <li><a href="{{ url_for('help_center') }}" class="text-white">Help Center</a></li>
+                        <li><a href="{{ url_for('contact') }}" class="text-white">Contact Us</a></li>
                         <li><a href="#" class="text-white">Documentation</a></li>
-                        <li><a href="#" class="text-white">Blogs</a></li>
+                        <li><a href="{{ url_for('blog') }}" class="text-white">Blogs</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="fw-bold">Legal</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Privacy Policy</a></li>
-                        <li><a href="#" class="text-white">Terms of Service</a></li>
-                        <li><a href="#" class="text-white">Risk Disclosure</a></li>
-                        <li><a href="#" class="text-white">Compliance</a></li>
+                        <li><a href="{{ url_for('privacy_policy') }}" class="text-white">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms_of_service') }}" class="text-white">Terms of Service</a></li>
+                        <li><a href="{{ url_for('risk_disclosure') }}" class="text-white">Risk Disclosure</a></li>
+                        <li><a href="{{ url_for('compliance') }}" class="text-white">Compliance</a></li>
                     </ul>
                 </div>
             </div>
