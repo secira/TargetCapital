@@ -39,10 +39,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Navigation - TargetGrid Style */
 .navbar {
     font-family: 'Inter', 'Poppins', sans-serif;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    background-color: rgba(255, 255, 255, 0.95) !important;
+    background-color: #ffffff !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .navbar.fixed-top {
