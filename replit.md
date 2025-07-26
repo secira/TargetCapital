@@ -14,7 +14,18 @@ Typography: Modern Poppins font throughout the website (updated on 2025-07-21)
 New Feature: Agentic AI system with multi-agent architecture (added on 2025-07-21)
 Dashboard Layout: Two-column layout with left sidebar for trading tools navigation (updated on 2025-07-21)
 
-## Recent Changes (2025-07-25)
+## Recent Changes (2025-07-26)
+- ✓ Enhanced navigation menu structure with improved organization:
+  - Converted single "About" link to "Company" dropdown menu
+  - Added Company sub-items: About Us, Careers, News
+  - Maintained existing Services dropdown with trading-focused items
+  - Improved professional website navigation following industry standards
+- ✓ Fixed logo text visibility by changing from white to dark blue font (#1a365d)
+- ✓ Enhanced navigation background to maintain solid white color when scrolling
+- ✓ Spread menu items evenly across header with better spacing and distribution
+- ✓ Increased image sizes for better visibility (portfolio-management.svg and other icons)
+
+## Previous Changes (2025-07-25)
 - ✓ Added professional tCapital logo to navigation menu with circular design
 - ✓ Created matching favicon for browser tab branding
 - ✓ Completely redesigned homepage layout using TargetGrid.ai-inspired modern design:

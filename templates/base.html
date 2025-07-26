@@ -37,19 +37,27 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Main Navigation Items -->
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('about') }}" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">About</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Company</a>
+                        <ul class="dropdown-menu shadow border-0" style="border-radius: 8px; padding: 8px 0;">
+                            <li><a class="dropdown-item py-2" href="{{ url_for('about') }}" style="font-size: 14px;">About Us</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('about') }}" style="font-size: 14px;">Careers</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('about') }}" style="font-size: 14px;">In the News</a></li>
+                             <li><a class="dropdown-item py-2" href="{{ url_for('about') }}" style="font-size: 14px;">Partners</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Services</a>
                         <ul class="dropdown-menu shadow border-0" style="border-radius: 8px; padding: 8px 0;">
-                            <li><a class="dropdown-item py-2" href="{{ url_for('services') }}" style="font-size: 14px;">Portfolio Analysis</a></li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('algo_trading') }}" style="font-size: 14px;">ALGO Trading</a></li>
-                            <li><a class="dropdown-item py-2" href="{{ url_for('algo_trading') }}" style="font-size: 14px;">Account Handling</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('services') }}" style="font-size: 14px;">Trading  Signals</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('services') }}" style="font-size: 14px;">Stock Research</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('algo_trading') }}" style="font-size: 14px;">Portfolio Analysis</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('algo_trading') }}" style="font-size: 14px;">Algo Trading</a></li>
+                             <li><a class="dropdown-item py-2" href="{{ url_for('algo_trading') }}" style="font-size: 14px;">Account Handling</a></li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Pricing</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('blog') }}" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Blog</a>
@@ -137,8 +145,8 @@
                     <h6 class="fw-bold">Company</h6>
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('about') }}" class="text-white">About Us</a></li>
-                        <li><a href="{{ url_for('services') }}" class="text-white">Services</a></li>
-                        <li><a href="{{ url_for('blog') }}" class="text-white">Blog</a></li>
+                        <li><a href="{{ url_for('services') }}" class="text-white">Partners</a></li>
+                        <li><a href="{{ url_for('blog') }}" class="text-white">In the News</a></li>
                         <li><a href="#" class="text-white">Careers</a></li>
                     </ul>
                 </div>
@@ -146,10 +154,13 @@
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6 class="fw-bold">Services</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('algo_trading') }}" class="text-white">ALGO Trading</a></li>
-                        <li><a href="#" class="text-white">Portfolio Analysis</a></li>
                         <li><a href="#" class="text-white">Market Insights</a></li>
                         <li><a href="#" class="text-white">Trading Signals</a></li>
+                        <li><a href="#" class="text-white">Stock Research</a></li>
+                        <li><a href="#" class="text-white">Portfolio Analysis</a></li>
+                        <li><a href="{{ url_for('algo_trading') }}" class="text-white">ALGO Trading</a></li>
+                        <li><a href="{{ url_for('algo_trading') }}" class="text-white">Account Handling</a></li>
+
                     </ul>
                 </div>
                 
@@ -159,7 +170,7 @@
                         <li><a href="#" class="text-white">Help Center</a></li>
                         <li><a href="#" class="text-white">Contact Us</a></li>
                         <li><a href="#" class="text-white">Documentation</a></li>
-                        <li><a href="#" class="text-white">API</a></li>
+                        <li><a href="#" class="text-white">Blogs</a></li>
                     </ul>
                 </div>
                 
