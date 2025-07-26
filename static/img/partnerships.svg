@@ -1,0 +1,96 @@
+<svg width="450" height="350" viewBox="0 0 450 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="450" height="350" fill="#f8f9fa"/>
+  
+  <!-- Central hub (tCapital) -->
+  <circle cx="225" cy="175" r="40" fill="#007bff"/>
+  <text x="225" y="170" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">t</text>
+  <text x="225" y="185" font-family="Arial, sans-serif" font-size="8" fill="#ffffff" text-anchor="middle">Capital</text>
+  
+  <!-- Partner nodes -->
+  <!-- Data Partner -->
+  <circle cx="100" cy="100" r="25" fill="#28a745"/>
+  <text x="100" y="105" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">DATA</text>
+  
+  <!-- Cloud Partner -->
+  <circle cx="350" cy="100" r="25" fill="#17a2b8"/>
+  <text x="350" y="105" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">CLOUD</text>
+  
+  <!-- Financial Partner -->
+  <circle cx="100" cy="250" r="25" fill="#ffc107"/>
+  <text x="100" y="255" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">BANK</text>
+  
+  <!-- Exchange Partner -->
+  <circle cx="350" cy="250" r="25" fill="#dc3545"/>
+  <text x="350" y="255" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">NSE</text>
+  
+  <!-- Tech Partner -->
+  <circle cx="225" cy="50" r="25" fill="#6610f2"/>
+  <text x="225" y="55" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">AI/ML</text>
+  
+  <!-- Security Partner -->
+  <circle cx="225" cy="300" r="25" fill="#20c997"/>
+  <text x="225" y="305" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">SEC</text>
+  
+  <!-- Connection lines -->
+  <line x1="185" y1="135" x2="125" y2="125" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  <line x1="265" y1="135" x2="325" y2="125" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  <line x1="185" y1="215" x2="125" y2="225" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  <line x1="265" y1="215" x2="325" y2="225" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  <line x1="225" y1="135" x2="225" y2="75" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  <line x1="225" y1="215" x2="225" y2="275" stroke="#6c757d" stroke-width="3" opacity="0.7"/>
+  
+  <!-- Data flow arrows -->
+  <g transform="translate(150, 112)" opacity="0.8">
+    <path d="M 0,0 L 8,4 L 0,8 L 2,4 Z" fill="#28a745"/>
+  </g>
+  
+  <g transform="translate(300, 112)" opacity="0.8">
+    <path d="M 8,0 L 0,4 L 8,8 L 6,4 Z" fill="#17a2b8"/>
+  </g>
+  
+  <g transform="translate(150, 238)" opacity="0.8">
+    <path d="M 0,0 L 8,4 L 0,8 L 2,4 Z" fill="#ffc107"/>
+  </g>
+  
+  <g transform="translate(300, 238)" opacity="0.8">
+    <path d="M 8,0 L 0,4 L 8,8 L 6,4 Z" fill="#dc3545"/>
+  </g>
+  
+  <!-- Integration symbols -->
+  <g transform="translate(50, 50)">
+    <rect x="0" y="0" width="15" height="15" fill="#007bff" rx="2"/>
+    <rect x="5" y="5" width="15" height="15" fill="#28a745" rx="2" opacity="0.8"/>
+    <text x="20" y="12" font-family="Arial, sans-serif" font-size="8" fill="#6c757d">API</text>
+  </g>
+  
+  <!-- Handshake icon -->
+  <g transform="translate(380, 20)">
+    <path d="M 5,15 Q 10,10 15,15 Q 20,10 25,15 L 25,25 Q 20,30 15,25 Q 10,30 5,25 Z" fill="#007bff" opacity="0.7"/>
+    <text x="15" y="35" font-family="Arial, sans-serif" font-size="8" fill="#6c757d" text-anchor="middle">Partners</text>
+  </g>
+  
+  <!-- Network effect -->
+  <g opacity="0.3">
+    <circle cx="75" cy="175" r="3" fill="#007bff"/>
+    <circle cx="375" cy="175" r="3" fill="#007bff"/>
+    <circle cx="180" cy="80" r="3" fill="#007bff"/>
+    <circle cx="270" cy="80" r="3" fill="#007bff"/>
+    <circle cx="180" cy="270" r="3" fill="#007bff"/>
+    <circle cx="270" cy="270" r="3" fill="#007bff"/>
+    
+    <line x1="75" y1="175" x2="185" y2="175" stroke="#007bff" stroke-width="1"/>
+    <line x1="265" y1="175" x2="375" y2="175" stroke="#007bff" stroke-width="1"/>
+    <line x1="180" y1="80" x2="180" y2="135" stroke="#007bff" stroke-width="1"/>
+    <line x1="270" y1="80" x2="270" y2="135" stroke="#007bff" stroke-width="1"/>
+    <line x1="180" y1="215" x2="180" y2="270" stroke="#007bff" stroke-width="1"/>
+    <line x1="270" y1="215" x2="270" y2="270" stroke="#007bff" stroke-width="1"/>
+  </g>
+  
+  <!-- Growth indicators -->
+  <g transform="translate(30, 300)">
+    <path d="M 0,20 L 10,15 L 20,10 L 30,5 L 40,0" stroke="#28a745" stroke-width="2" fill="none"/>
+    <path d="M 35,5 L 40,0 L 35,-5" stroke="#28a745" stroke-width="2" fill="none"/>
+    <text x="20" y="35" font-family="Arial, sans-serif" font-size="8" fill="#28a745" text-anchor="middle">Growth</text>
+  </g>
+</svg>

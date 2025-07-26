@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block title %}Careers - Join Our AI Trading Team | tCapital{% endblock %}
+
+{% block description %}Join tCapital's mission to democratize AI-powered trading. Explore career opportunities in engineering, data science, product, and more at our innovative fintech company.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    Build the Future of AI Trading
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    Join our world-class team of engineers, data scientists, and financial experts. 
+                    Help us democratize sophisticated trading technology for millions of investors worldwide.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="#open-positions" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                        View Open Positions
+                    </a>
+                    <a href="#culture" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        Learn About Our Culture
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/careers-hero.svg') }}" 
+                         alt="Careers at tCapital" class="img-fluid" style="max-width: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Join Us -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Why Join tCapital?</h2>
+                <p class="text-muted">
+                    We're building the next generation of financial technology with cutting-edge AI
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-rocket text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Cutting-Edge Technology</h4>
+                        <p class="text-muted">
+                            Work with the latest AI/ML frameworks, real-time data processing, 
+                            and high-performance trading systems at scale.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-line text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">High Impact Work</h4>
+                        <p class="text-muted">
+                            Your code directly impacts millions of dollars in trading decisions 
+                            and helps users achieve their financial goals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-users text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">World-Class Team</h4>
+                        <p class="text-muted">
+                            Collaborate with alumni from Goldman Sachs, Google, MIT, Stanford, 
+                            and other top-tier institutions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-globe text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Global Impact</h4>
+                        <p class="text-muted">
+                            Help democratize access to sophisticated trading tools for investors 
+                            across the globe, not just Wall Street.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-lightbulb text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Innovation Culture</h4>
+                        <p class="text-muted">
+                            20% time for research projects, hackathons, conference speaking, 
+                            and exploring new technologies and ideas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-balance-scale text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Work-Life Balance</h4>
+                        <p class="text-muted">
+                            Flexible remote work, unlimited PTO, comprehensive health benefits, 
+                            and a culture that respects personal time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Culture Section -->
+<section id="culture" class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold text-dark mb-4">Our Culture & Values</h2>
+                <div class="mb-4">
+                    <h5 class="fw-semibold text-primary mb-2"><i class="fas fa-brain me-2"></i>Continuous Learning</h5>
+                    <p class="text-muted">
+                        $5,000 annual learning budget, conference attendance, and dedicated time for skill development.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-semibold text-primary mb-2"><i class="fas fa-handshake me-2"></i>Collaborative Excellence</h5>
+                    <p class="text-muted">
+                        Cross-functional teams, open communication, and shared ownership of success and challenges.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-semibold text-primary mb-2"><i class="fas fa-shield-alt me-2"></i>Ethical AI</h5>
+                    <p class="text-muted">
+                        Responsible development of AI systems with transparency, fairness, and user privacy at the core.
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-semibold text-primary mb-2"><i class="fas fa-star me-2"></i>Ownership Mindset</h5>
+                    <p class="text-muted">
+                        Equity participation for all employees, competitive compensation, and decision-making autonomy.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/team-culture.svg') }}" 
+                         alt="Team Culture" class="img-fluid" style="max-width: 450px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Comprehensive Benefits</h2>
+                <p class="text-muted">We invest in our team's success and well-being</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-heart text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Health & Wellness</h5>
+                    <ul class="list-unstyled text-muted small">
+                        <li>Premium health insurance</li>
+                        <li>Dental & vision coverage</li>
+                        <li>Mental health support</li>
+                        <li>Fitness membership</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-dollar-sign text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Financial</h5>
+                    <ul class="list-unstyled text-muted small">
+                        <li>Competitive salary</li>
+                        <li>Equity participation</li>
+                        <li>401(k) with matching</li>
+                        <li>Performance bonuses</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-clock text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Time Off</h5>
+                    <ul class="list-unstyled text-muted small">
+                        <li>Unlimited PTO</li>
+                        <li>Paid parental leave</li>
+                        <li>Sabbatical programs</li>
+                        <li>Flexible schedules</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-graduation-cap text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Growth</h5>
+                    <ul class="list-unstyled text-muted small">
+                        <li>$5K learning budget</li>
+                        <li>Conference attendance</li>
+                        <li>Mentorship programs</li>
+                        <li>Internal mobility</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Open Positions -->
+<section id="open-positions" class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Open Positions</h2>
+                <p class="text-muted">Join our growing team and help shape the future of AI trading</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Engineering Positions -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-code text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Senior Full-Stack Engineer</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Build scalable web applications and APIs that power our AI trading platform. 
+                            Work with React, Python, and cloud infrastructure.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2">Remote</span>
+                                <span class="badge bg-light text-dark">Full-time</span>
+                            </div>
+                            <a href="#apply" class="btn btn-outline-primary btn-sm">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-brain text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">ML Engineer - Trading Systems</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Develop and deploy machine learning models for real-time trading decisions. 
+                            Experience with PyTorch/TensorFlow and financial data.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2">San Francisco</span>
+                                <span class="badge bg-light text-dark">Full-time</span>
+                            </div>
+                            <a href="#apply" class="btn btn-outline-primary btn-sm">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-chart-bar text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Quantitative Researcher</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Research and develop new trading strategies using statistical analysis and ML. 
+                            PhD in Mathematics, Physics, or related field preferred.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2">New York</span>
+                                <span class="badge bg-light text-dark">Full-time</span>
+                            </div>
+                            <a href="#apply" class="btn btn-outline-primary btn-sm">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-palette text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Senior Product Designer</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Design intuitive user experiences for complex financial data. 
+                            Experience with Figma, user research, and fintech products.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-light text-dark me-2">Remote</span>
+                                <span class="badge bg-light text-dark">Full-time</span>
+                            </div>
+                            <a href="#apply" class="btn btn-outline-primary btn-sm">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <p class="text-muted mb-3">Don't see a perfect fit? We're always looking for exceptional talent.</p>
+                <a href="#apply" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                    Send Us Your Resume
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Application Section -->
+<section id="apply" class="bg-primary text-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold mb-4">Ready to Join Our Team?</h2>
+                <p class="lead mb-5">
+                    Start your application today and help us build the future of AI-powered trading.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="mailto:careers@tcapital.ai?subject=Application - [Position Name]" 
+                       class="btn btn-light btn-lg px-5 py-3 rounded-pill text-primary fw-semibold">
+                        <i class="fas fa-envelope me-2"></i>Apply via Email
+                    </a>
+                    <a href="https://linkedin.com/company/tcapital-ai" 
+                       class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill">
+                        <i class="fab fa-linkedin me-2"></i>View on LinkedIn
+                    </a>
+                </div>
+                
+                <p class="small mt-4 opacity-75">
+                    <i class="fas fa-shield-alt me-2"></i>Equal opportunity employer • Inclusive workplace • Visa sponsorship available
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#f8f9fa"/>
+  
+  <!-- Main building representing company -->
+  <rect x="150" y="100" width="200" height="250" fill="#007bff" rx="10"/>
+  
+  <!-- Windows -->
+  <rect x="170" y="120" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="210" y="120" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="250" y="120" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="290" y="120" width="30" height="30" fill="#ffffff" rx="3"/>
+  
+  <rect x="170" y="170" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="210" y="170" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="250" y="170" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="290" y="170" width="30" height="30" fill="#ffffff" rx="3"/>
+  
+  <rect x="170" y="220" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="210" y="220" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="250" y="220" width="30" height="30" fill="#ffffff" rx="3"/>
+  <rect x="290" y="220" width="30" height="30" fill="#ffffff" rx="3"/>
+  
+  <!-- Door -->
+  <rect x="210" y="270" width="80" height="80" fill="#28a745" rx="5"/>
+  <circle cx="270" cy="310" r="3" fill="#ffffff"/>
+  
+  <!-- AI symbols floating around -->
+  <circle cx="100" cy="150" r="15" fill="#28a745" opacity="0.8"/>
+  <text x="100" y="157" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">AI</text>
+  
+  <circle cx="400" cy="200" r="15" fill="#ffc107" opacity="0.8"/>
+  <text x="400" y="207" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">ML</text>
+  
+  <circle cx="80" cy="280" r="15" fill="#dc3545" opacity="0.8"/>
+  <text x="80" y="287" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">API</text>
+  
+  <!-- Growth chart -->
+  <g transform="translate(350, 50)">
+    <rect x="0" y="0" width="120" height="80" fill="#ffffff" stroke="#007bff" stroke-width="2" rx="5"/>
+    <polyline points="10,60 30,45 50,30 70,20 90,10 110,5" fill="none" stroke="#28a745" stroke-width="3"/>
+    <text x="60" y="75" font-family="Arial, sans-serif" font-size="10" fill="#007bff" text-anchor="middle">Growth</text>
+  </g>
+  
+  <!-- People icons -->
+  <g transform="translate(50, 320)">
+    <circle cx="20" cy="20" r="8" fill="#007bff"/>
+    <rect x="12" y="30" width="16" height="20" fill="#007bff" rx="8"/>
+  </g>
+  
+  <g transform="translate(100, 320)">
+    <circle cx="20" cy="20" r="8" fill="#28a745"/>
+    <rect x="12" y="30" width="16" height="20" fill="#28a745" rx="8"/>
+  </g>
+  
+  <g transform="translate(150, 320)">
+    <circle cx="20" cy="20" r="8" fill="#ffc107"/>
+    <rect x="12" y="30" width="16" height="20" fill="#ffc107" rx="8"/>
+  </g>
+</svg>

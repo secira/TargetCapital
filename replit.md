@@ -21,6 +21,16 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
   - Reorganized Services dropdown: Trading Signals, Stock Research, Portfolio Analysis, Algo Trading, Account Handling
   - Added dedicated Pricing link and optimized navigation flow: Company → Services → Pricing → Blog
   - Improved professional website navigation following industry standards
+- ✓ Created comprehensive pricing page modeled after arvat.ai:
+  - 3-tier pricing structure: Starter (Free), Professional ($49/mo), Enterprise (Custom)
+  - Monthly/annual billing toggle with 20% annual discount
+  - Feature comparison table and comprehensive FAQ section
+- ✓ Developed complete Company section pages:
+  - About Us page with mission, values, leadership team, and company stats
+  - Careers page with job listings, culture section, benefits, and application process
+  - In the News page with press coverage, media kit, and press contact information
+  - Partners page showcasing strategic partnerships and collaboration opportunities
+- ✓ Connected all new pages to Company dropdown navigation menu
 - ✓ Fixed logo text visibility by changing from white to dark blue font (#1a365d)
 - ✓ Enhanced navigation background to maintain solid white color when scrolling
 - ✓ Spread menu items evenly across header with better spacing and distribution

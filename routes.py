@@ -77,6 +77,26 @@ def pricing():
     """Pricing page route"""
     return render_template('pricing.html')
 
+@app.route('/about-us')
+def about_us():
+    """About Us page route"""
+    return render_template('about_us.html')
+
+@app.route('/careers')
+def careers():
+    """Careers page route"""
+    return render_template('careers.html')
+
+@app.route('/news')
+def news():
+    """In the News page route"""
+    return render_template('news.html')
+
+@app.route('/partners')
+def partners():
+    """Partners page route"""
+    return render_template('partners.html')
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     """Contact page route"""

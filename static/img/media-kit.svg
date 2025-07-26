@@ -1,0 +1,92 @@
+<svg width="450" height="350" viewBox="0 0 450 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="450" height="350" fill="#f8f9fa"/>
+  
+  <!-- Main folder -->
+  <rect x="100" y="100" width="250" height="180" fill="#007bff" rx="10"/>
+  <rect x="110" y="110" width="230" height="160" fill="#ffffff" rx="5"/>
+  
+  <!-- Folder tab -->
+  <rect x="100" y="80" width="60" height="30" fill="#007bff" rx="5"/>
+  
+  <!-- Documents inside -->
+  <rect x="130" y="130" width="60" height="80" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" rx="3"/>
+  <rect x="200" y="130" width="60" height="80" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" rx="3"/>
+  <rect x="270" y="130" width="60" height="80" fill="#f8f9fa" stroke="#6c757d" stroke-width="1" rx="3"/>
+  
+  <!-- Document content lines -->
+  <rect x="135" y="140" width="50" height="2" fill="#007bff"/>
+  <rect x="135" y="150" width="40" height="2" fill="#6c757d"/>
+  <rect x="135" y="160" width="45" height="2" fill="#6c757d"/>
+  <rect x="135" y="170" width="35" height="2" fill="#6c757d"/>
+  
+  <rect x="205" y="140" width="50" height="2" fill="#28a745"/>
+  <rect x="205" y="150" width="40" height="2" fill="#6c757d"/>
+  <rect x="205" y="160" width="45" height="2" fill="#6c757d"/>
+  <rect x="205" y="170" width="35" height="2" fill="#6c757d"/>
+  
+  <!-- Logo/image placeholder -->
+  <rect x="275" y="140" width="50" height="30" fill="#ffc107" rx="3"/>
+  <circle cx="290" cy="155" r="5" fill="#ffffff"/>
+  <path d="M 305,165 L 310,155 L 315,165" fill="#ffffff"/>
+  
+  <!-- Media icons around folder -->
+  <!-- Camera -->
+  <g transform="translate(50, 150)">
+    <rect x="0" y="5" width="30" height="20" fill="#343a40" rx="3"/>
+    <circle cx="15" cy="15" r="6" fill="#6c757d"/>
+    <circle cx="15" cy="15" r="3" fill="#ffffff"/>
+    <rect x="5" y="0" width="8" height="5" fill="#343a40" rx="2"/>
+  </g>
+  
+  <!-- Microphone -->
+  <g transform="translate(370, 160)">
+    <rect x="12" y="0" width="6" height="15" fill="#dc3545" rx="3"/>
+    <rect x="10" y="15" width="10" height="3" fill="#343a40"/>
+    <rect x="14" y="18" width="2" height="8" fill="#343a40"/>
+    <rect x="8" y="26" width="14" height="2" fill="#343a40"/>
+  </g>
+  
+  <!-- Video camera -->
+  <g transform="translate(200, 50)">
+    <rect x="0" y="8" width="25" height="15" fill="#6610f2" rx="3"/>
+    <circle cx="12.5" cy="15.5" r="5" fill="#343a40"/>
+    <circle cx="12.5" cy="15.5" r="2" fill="#ffffff"/>
+    <path d="M 25,12 L 35,8 L 35,20 L 25,16 Z" fill="#6610f2"/>
+  </g>
+  
+  <!-- Press badge -->
+  <g transform="translate(300, 300)">
+    <circle cx="25" cy="25" r="25" fill="#28a745"/>
+    <text x="25" y="20" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">PRESS</text>
+    <text x="25" y="32" font-family="Arial, sans-serif" font-size="8" fill="#ffffff" text-anchor="middle">KIT</text>
+  </g>
+  
+  <!-- Download symbol -->
+  <g transform="translate(80, 50)">
+    <rect x="8" y="0" width="4" height="20" fill="#007bff"/>
+    <path d="M 0,15 L 10,25 L 20,15" fill="#007bff"/>
+    <rect x="0" y="28" width="20" height="2" fill="#007bff"/>
+  </g>
+  
+  <!-- Sharing arrows -->
+  <g transform="translate(350, 80)" opacity="0.6">
+    <path d="M 0,10 L 15,0 L 15,5 L 30,5 L 30,15 L 15,15 L 15,20 Z" fill="#ffc107"/>
+  </g>
+  
+  <!-- Brand elements -->
+  <g transform="translate(120, 240)">
+    <rect x="0" y="0" width="20" height="20" fill="#007bff"/>
+    <rect x="25" y="0" width="20" height="20" fill="#28a745"/>
+    <rect x="50" y="0" width="20" height="20" fill="#ffc107"/>
+    <rect x="75" y="0" width="20" height="20" fill="#dc3545"/>
+  </g>
+  
+  <!-- Stats/charts -->
+  <g transform="translate(250, 240)">
+    <rect x="0" y="15" width="5" height="10" fill="#007bff"/>
+    <rect x="8" y="10" width="5" height="15" fill="#28a745"/>
+    <rect x="16" y="5" width="5" height="20" fill="#ffc107"/>
+    <rect x="24" y="12" width="5" height="13" fill="#dc3545"/>
+  </g>
+</svg>

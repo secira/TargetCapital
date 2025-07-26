@@ -1,0 +1,99 @@
+<svg width="450" height="350" viewBox="0 0 450 350" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="450" height="350" fill="#f8f9fa"/>
+  
+  <!-- Conference table -->
+  <ellipse cx="225" cy="200" rx="120" ry="60" fill="#6c757d"/>
+  <ellipse cx="225" cy="195" rx="120" ry="60" fill="#adb5bd"/>
+  
+  <!-- Team members around table -->
+  <!-- Person 1 -->
+  <g transform="translate(150, 120)">
+    <circle cx="0" cy="0" r="15" fill="#007bff"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#007bff" rx="12"/>
+    <!-- Laptop -->
+    <rect x="-10" y="50" width="20" height="12" fill="#343a40" rx="2"/>
+  </g>
+  
+  <!-- Person 2 -->
+  <g transform="translate(300, 120)">
+    <circle cx="0" cy="0" r="15" fill="#28a745"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#28a745" rx="12"/>
+    <!-- Coffee cup -->
+    <rect x="20" y="40" width="8" height="10" fill="#8b4513" rx="2"/>
+    <ellipse cx="24" cy="40" rx="4" ry="2" fill="#d2691e"/>
+  </g>
+  
+  <!-- Person 3 -->
+  <g transform="translate(225, 100)">
+    <circle cx="0" cy="0" r="15" fill="#ffc107"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#ffc107" rx="12"/>
+    <!-- Presentation pointer -->
+    <rect x="15" y="20" width="20" height="2" fill="#343a40"/>
+  </g>
+  
+  <!-- Person 4 -->
+  <g transform="translate(120, 200)">
+    <circle cx="0" cy="0" r="15" fill="#dc3545"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#dc3545" rx="12"/>
+  </g>
+  
+  <!-- Person 5 -->
+  <g transform="translate(330, 200)">
+    <circle cx="0" cy="0" r="15" fill="#6610f2"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#6610f2" rx="12"/>
+  </g>
+  
+  <!-- Person 6 -->
+  <g transform="translate(180, 280)">
+    <circle cx="0" cy="0" r="15" fill="#20c997"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#20c997" rx="12"/>
+  </g>
+  
+  <!-- Person 7 -->
+  <g transform="translate(270, 280)">
+    <circle cx="0" cy="0" r="15" fill="#fd7e14"/>
+    <rect x="-12" y="15" width="24" height="30" fill="#fd7e14" rx="12"/>
+  </g>
+  
+  <!-- Collaboration elements -->
+  <!-- Ideas floating -->
+  <g transform="translate(350, 50)">
+    <circle cx="0" cy="0" r="8" fill="#ffffff" stroke="#007bff" stroke-width="2"/>
+    <path d="M -3,-3 L 3,3 M 3,-3 L -3,3" stroke="#007bff" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(80, 80)">
+    <circle cx="0" cy="0" r="6" fill="#ffffff" stroke="#28a745" stroke-width="2"/>
+    <text x="0" y="3" font-family="Arial, sans-serif" font-size="8" fill="#28a745" text-anchor="middle">!</text>
+  </g>
+  
+  <!-- Whiteboard -->
+  <g transform="translate(50, 30)">
+    <rect x="0" y="0" width="80" height="50" fill="#ffffff" stroke="#343a40" stroke-width="2"/>
+    <!-- Chart on whiteboard -->
+    <polyline points="10,35 20,25 30,30 40,15 50,20 60,10 70,15" fill="none" stroke="#007bff" stroke-width="2"/>
+    <rect x="5" y="40" width="70" height="3" fill="#343a40"/>
+  </g>
+  
+  <!-- Growth symbols -->
+  <g transform="translate(380, 150)">
+    <path d="M 0,20 L 10,10 L 20,5 L 30,0" stroke="#28a745" stroke-width="3" fill="none"/>
+    <path d="M 25,5 L 30,0 L 25,-5" stroke="#28a745" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Innovation sparks -->
+  <g transform="translate(50, 250)">
+    <circle cx="0" cy="0" r="2" fill="#ffc107"/>
+    <circle cx="10" cy="5" r="1.5" fill="#ffc107"/>
+    <circle cx="20" cy="-3" r="1" fill="#ffc107"/>
+  </g>
+  
+  <!-- Communication lines -->
+  <g opacity="0.3">
+    <line x1="150" y1="150" x2="225" y2="130" stroke="#007bff" stroke-width="2"/>
+    <line x1="300" y1="150" x2="225" y2="130" stroke="#28a745" stroke-width="2"/>
+    <line x1="225" y1="130" x2="180" y2="280" stroke="#ffc107" stroke-width="2"/>
+    <line x1="225" y1="130" x2="270" y2="280" stroke="#ffc107" stroke-width="2"/>
+  </g>
+</svg>
