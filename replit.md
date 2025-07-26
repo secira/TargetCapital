@@ -51,6 +51,9 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
   - Risk Disclosure with detailed investment and AI trading risks
   - Compliance page with regulatory status, filings, and contact information
 - ✓ Connected all Support and Legal pages to footer navigation menu
+- ✓ Merged about-us and about pages into single consolidated about page
+- ✓ Updated all navigation links in both top menu and footer to point to unified about page
+- ✓ Removed duplicate about_us route and template file for cleaner codebase structure
 
 ## Previous Changes (2025-07-25)
 - ✓ Added professional tCapital logo to navigation menu with circular design

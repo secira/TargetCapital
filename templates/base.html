@@ -40,7 +40,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Company</a>
                         <ul class="dropdown-menu shadow border-0" style="border-radius: 8px; padding: 8px 0;">
-                            <li><a class="dropdown-item py-2" href="{{ url_for('about_us') }}" style="font-size: 14px;">About Us</a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('about') }}" style="font-size: 14px;">About Us</a></li>
                             <li><a class="dropdown-item py-2" href="{{ url_for('careers') }}" style="font-size: 14px;">Careers</a></li>
                             <li><a class="dropdown-item py-2" href="{{ url_for('news') }}" style="font-size: 14px;">In the News</a></li>
                              <li><a class="dropdown-item py-2" href="{{ url_for('partners') }}" style="font-size: 14px;">Partners</a></li>
@@ -145,9 +145,9 @@
                     <h6 class="fw-bold">Company</h6>
                     <ul class="list-unstyled">
                         <li><a href="{{ url_for('about') }}" class="text-white">About Us</a></li>
-                        <li><a href="{{ url_for('services') }}" class="text-white">Partners</a></li>
-                        <li><a href="{{ url_for('blog') }}" class="text-white">In the News</a></li>
-                        <li><a href="#" class="text-white">Careers</a></li>
+                        <li><a href="{{ url_for('careers') }}" class="text-white">Careers</a></li>
+                        <li><a href="{{ url_for('news') }}" class="text-white">In the News</a></li>
+                        <li><a href="{{ url_for('partners') }}" class="text-white">Partners</a></li>
                     </ul>
                 </div>
                 

@@ -1,79 +1,290 @@
 {% extends "base.html" %}
 
-{% block title %}About Us - tCapital{% endblock %}
+{% block title %}About Us - Leading AI-Powered Trading Platform | tCapital{% endblock %}
+
+{% block description %}Learn about tCapital's mission to democratize AI-powered trading. Meet our team of experts building the future of intelligent investing and portfolio management.{% endblock %}
 
 {% block content %}
-<!-- Header Section -->
-<section class="bg-white text-dark" style="padding-top: 100px; border-bottom: 1px solid #e9ecef;">
-    <div class="container py-5">
-        <div class="row justify-content-center text-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4">About tCapital</h1>
-                <p class="lead">
-                    We're revolutionizing the financial industry with cutting-edge AI technology, 
-                    making sophisticated trading strategies accessible to everyone.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- About Section -->
-<section class="py-5">
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Our Mission & Vision</h2>
-                <p class="mb-4">
-                    Dedicated to delivering custom AI software that enhances operational efficiency, optimizes processes, 
-                    and fuels sustainable growth in the financial trading sector. Committed to innovation and client success, 
-                    we strive our best to support traders and investors, ushering them into a future where advanced AI 
-                    propels them towards new heights of trading excellence.
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    Democratizing AI-Powered Trading for Everyone
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    At tCapital, we believe intelligent investing shouldn't be limited to institutional traders. 
+                    Our AI-powered platform makes sophisticated trading strategies accessible to individual investors worldwide.
                 </p>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <h5 class="fw-bold text-primary">Our Mission</h5>
-                        <p class="text-muted">Empowering companies and individual traders with tailored AI solutions to drive technological transformation in financial markets.</p>
-                    </div>
-                    <div class="col-md-6 mb-4">
-                        <h5 class="fw-bold text-success">Our Vision</h5>
-                        <p class="text-muted">To become the leading provider of custom AI trading solutions that enhance operational efficiency and optimize trading processes globally.</p>
-                    </div>
-                </div>
-                
-                <div class="achievements mb-4">
-                    <h5 class="fw-bold mb-3">Our Achievements</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Delivered Solutions to over 20 Customers</li>
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Global Team in India, USA and Singapore</li>
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Right Solution at an optimal cost</li>
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i>Management Team has executed projects for Fortune 500 clients globally</li>
-                    </ul>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                        Start Trading Today
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        Contact Our Team
+                    </a>
                 </div>
             </div>
-            
             <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/team-collaboration.svg') }}" 
-                     alt="Professional Team" class="img-fluid rounded shadow">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/about-hero.svg') }}" 
+                         alt="About tCapital" class="img-fluid" style="max-width: 500px;">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Team Section -->
-<section class="bg-light py-5">
+<!-- Mission Section -->
+<section class="bg-light" style="padding: 80px 0;">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Meet Our Expert Team</h2>
-            <p class="lead text-muted">Experienced professionals from finance, technology, and AI research</p>
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Our Mission</h2>
+                <p class="lead text-muted">
+                    To empower every trader with institutional-grade AI technology, making smart investing accessible, 
+                    transparent, and profitable for individuals and institutions alike.
+                </p>
+            </div>
         </div>
         
         <div class="row g-4">
-            <!-- Team members will be populated from database if available -->
-            {% if team_members %}
-                {% for member in team_members %}
-                <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-brain text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">AI-First Approach</h4>
+                        <p class="text-muted">
+                            Our advanced machine learning algorithms analyze thousands of data points 
+                            to provide you with intelligent trading insights and recommendations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-users text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Democratized Access</h4>
+                        <p class="text-muted">
+                            We believe sophisticated trading tools shouldn't be exclusive to Wall Street. 
+                            Our platform brings institutional-grade technology to everyone.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Trust & Security</h4>
+                        <p class="text-muted">
+                            Your data and investments are protected with bank-level security. 
+                            We never store trading credentials and follow strict compliance protocols.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Company Values -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Our Values</h2>
+                <p class="text-muted">
+                    These core principles guide everything we do at tCapital
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-lightbulb text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Innovation</h5>
+                    <p class="text-muted">
+                        Continuously pushing the boundaries of what's possible with AI in trading
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-eye text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Transparency</h5>
+                    <p class="text-muted">
+                        Clear, honest communication about our algorithms, fees, and performance
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-chart-line text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Performance</h5>
+                    <p class="text-muted">
+                        Delivering measurable results and consistent value for our users
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <i class="fas fa-handshake text-white" style="font-size: 2rem;"></i>
+                    </div>
+                    <h5 class="fw-bold mb-3">Integrity</h5>
+                    <p class="text-muted">
+                        Building trust through ethical practices and responsible AI development
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="bg-primary text-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">50K+</h2>
+                <p class="mb-0">Active Traders</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">$2.5B+</h2>
+                <p class="mb-0">Assets Under Management</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">98.7%</h2>
+                <p class="mb-0">Uptime Reliability</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">24/7</h2>
+                <p class="mb-0">AI Monitoring</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leadership Team -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Leadership Team</h2>
+                <p class="text-muted">Meet the experts building the future of AI-powered trading</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Sarah Chen</h5>
+                        <p class="text-primary mb-3">CEO & Co-Founder</p>
+                        <p class="text-muted small">
+                            Former Goldman Sachs VP with 15+ years in algorithmic trading. 
+                            Stanford PhD in Computer Science, specialized in machine learning applications in finance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Michael Rodriguez</h5>
+                        <p class="text-primary mb-3">CTO & Co-Founder</p>
+                        <p class="text-muted small">
+                            Ex-Google AI researcher with deep expertise in neural networks and quantitative finance. 
+                            MIT graduate, published author on AI applications in trading systems.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="fas fa-user text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Dr. James Thompson</h5>
+                        <p class="text-primary mb-3">Head of AI Research</p>
+                        <p class="text-muted small">
+                            Former JPMorgan Chase quantitative analyst with 12+ years developing trading algorithms. 
+                            Harvard PhD in Financial Mathematics, expert in risk management systems.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold text-dark mb-4">Ready to Join Our Mission?</h2>
+                <p class="lead text-muted mb-5">
+                    Experience the future of AI-powered trading. Start your journey with tCapital today.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Get Started Free
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                        Schedule Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
                     <div class="team-card card border-0 shadow-sm text-center">
                         <div class="card-body p-4">
                             <div class="team-avatar bg-primary text-white rounded-circle mx-auto mb-3">

@@ -77,10 +77,7 @@ def pricing():
     """Pricing page route"""
     return render_template('pricing.html')
 
-@app.route('/about-us')
-def about_us():
-    """About Us page route"""
-    return render_template('about_us.html')
+
 
 @app.route('/careers')
 def careers():
