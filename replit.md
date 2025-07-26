@@ -16,9 +16,10 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
 
 ## Recent Changes (2025-07-26)
 - ✓ Enhanced navigation menu structure with improved organization:
-  - Converted single "About" link to "Company" dropdown menu
-  - Added Company sub-items: About Us, Careers, News
-  - Maintained existing Services dropdown with trading-focused items
+  - Converted single "About" link to "Company" dropdown menu  
+  - Added Company sub-items: About Us, Careers, In the News, Partners
+  - Reorganized Services dropdown: Trading Signals, Stock Research, Portfolio Analysis, Algo Trading, Account Handling
+  - Added dedicated Pricing link and optimized navigation flow: Company → Services → Pricing → Blog
   - Improved professional website navigation following industry standards
 - ✓ Fixed logo text visibility by changing from white to dark blue font (#1a365d)
 - ✓ Enhanced navigation background to maintain solid white color when scrolling
