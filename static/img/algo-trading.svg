@@ -1,0 +1,178 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#f8f9fa"/>
+  
+  <!-- Main algorithm builder interface -->
+  <rect x="40" y="40" width="420" height="280" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="12"/>
+  
+  <!-- Header -->
+  <rect x="40" y="40" width="420" height="50" fill="#6f42c1" rx="12 12 0 0"/>
+  <text x="60" y="60" font-family="Arial" font-size="14" font-weight="bold" fill="#ffffff">Algorithmic Trading Platform</text>
+  <text x="60" y="75" font-family="Arial" font-size="11" fill="rgba(255,255,255,0.8)">Strategy Builder • Backtesting • Live Execution</text>
+  
+  <!-- Status indicators -->
+  <g transform="translate(380, 50)">
+    <circle cx="0" cy="0" r="8" fill="#28a745">
+      <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <text x="0" y="3" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">LIVE</text>
+    <text x="15" y="5" font-family="Arial" font-size="9" fill="#ffffff">Active</text>
+  </g>
+  
+  <!-- Strategy flow blocks -->
+  <g transform="translate(60, 110)">
+    <!-- Data input block -->
+    <rect x="0" y="0" width="80" height="40" fill="#007bff" rx="6"/>
+    <text x="40" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">Market Data</text>
+    <text x="40" y="28" font-family="Arial" font-size="8" fill="rgba(255,255,255,0.8)" text-anchor="middle">Real-time feed</text>
+    
+    <!-- Arrow -->
+    <path d="M 85,20 L 105,20" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Analysis block -->
+    <rect x="110" y="0" width="80" height="40" fill="#28a745" rx="6"/>
+    <text x="150" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">AI Analysis</text>
+    <text x="150" y="28" font-family="Arial" font-size="8" fill="rgba(255,255,255,0.8)" text-anchor="middle">Pattern detection</text>
+    
+    <!-- Arrow -->
+    <path d="M 195,20 L 215,20" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Decision block -->
+    <rect x="220" y="0" width="80" height="40" fill="#ffc107" rx="6"/>
+    <text x="260" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#212529" text-anchor="middle">Decision</text>
+    <text x="260" y="28" font-family="Arial" font-size="8" fill="#856404" text-anchor="middle">Buy/Sell logic</text>
+    
+    <!-- Arrow -->
+    <path d="M 305,20 L 325,20" stroke="#6c757d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Execution block -->
+    <rect x="330" y="0" width="80" height="40" fill="#dc3545" rx="6"/>
+    <text x="370" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">Execution</text>
+    <text x="370" y="28" font-family="Arial" font-size="8" fill="rgba(255,255,255,0.8)" text-anchor="middle">Order placement</text>
+  </g>
+  
+  <!-- Performance chart -->
+  <g transform="translate(60, 170)">
+    <text x="0" y="0" font-family="Arial" font-size="12" font-weight="bold" fill="#343a40">Strategy Performance</text>
+    
+    <!-- Chart background -->
+    <rect x="0" y="10" width="180" height="80" fill="#f8f9fa" stroke="#e9ecef" rx="4"/>
+    
+    <!-- Performance lines -->
+    <path d="M 10,70 Q 30,65 50,55 T 90,45 Q 110,40 130,35 T 170,25" 
+          stroke="#28a745" stroke-width="3" fill="none"/>
+    
+    <!-- Benchmark -->
+    <path d="M 10,75 Q 30,70 50,65 T 90,60 Q 110,55 130,52 T 170,50" 
+          stroke="#6c757d" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+    
+    <!-- Performance stats -->
+    <text x="10" y="105" font-family="Arial" font-size="8" fill="#28a745" font-weight="bold">Algorithm: +24.8%</text>
+    <text x="110" y="105" font-family="Arial" font-size="8" fill="#6c757d">Benchmark: +11.2%</text>
+  </g>
+  
+  <!-- Risk controls panel -->
+  <g transform="translate(260, 170)">
+    <rect x="0" y="0" width="140" height="100" fill="#fff3cd" stroke="#ffc107" rx="6"/>
+    
+    <text x="10" y="18" font-family="Arial" font-size="11" font-weight="bold" fill="#856404">Risk Controls</text>
+    
+    <text x="10" y="35" font-family="Arial" font-size="9" fill="#856404">Max Position Size:</text>
+    <text x="100" y="35" font-family="Arial" font-size="9" font-weight="bold" fill="#343a40">$50,000</text>
+    
+    <text x="10" y="48" font-family="Arial" font-size="9" fill="#856404">Stop Loss:</text>
+    <text x="100" y="48" font-family="Arial" font-size="9" font-weight="bold" fill="#dc3545">-2.5%</text>
+    
+    <text x="10" y="61" font-family="Arial" font-size="9" fill="#856404">Max Drawdown:</text>
+    <text x="100" y="61" font-family="Arial" font-size="9" font-weight="bold" fill="#dc3545">-5%</text>
+    
+    <text x="10" y="74" font-family="Arial" font-size="9" fill="#856404">Daily Trades:</text>
+    <text x="100" y="74" font-family="Arial" font-size="9" font-weight="bold" fill="#343a40">Max 20</text>
+    
+    <!-- Status indicator -->
+    <circle cx="120" cy="85" r="6" fill="#28a745"/>
+    <text x="120" y="89" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">✓</text>
+    <text x="10" y="90" font-family="Arial" font-size="8" fill="#28a745" font-weight="bold">All systems normal</text>
+  </g>
+  
+  <!-- Execution stats -->
+  <g transform="translate(60, 290)">
+    <text x="0" y="0" font-family="Arial" font-size="11" font-weight="bold" fill="#343a40">Execution Stats</text>
+    
+    <text x="0" y="18" font-family="Arial" font-size="9" fill="#6c757d">Latency:</text>
+    <text x="50" y="18" font-family="Arial" font-size="9" font-weight="bold" fill="#28a745">&lt;1ms</text>
+    
+    <text x="100" y="18" font-family="Arial" font-size="9" fill="#6c757d">Success Rate:</text>
+    <text x="170" y="18" font-family="Arial" font-size="9" font-weight="bold" fill="#28a745">99.97%</text>
+    
+    <text x="220" y="18" font-family="Arial" font-size="9" fill="#6c757d">Orders Today:</text>
+    <text x="290" y="18" font-family="Arial" font-size="9" font-weight="bold" fill="#343a40">847</text>
+  </g>
+  
+  <!-- Algorithm types -->
+  <g transform="translate(40, 340)">
+    <rect x="0" y="0" width="90" height="20" fill="#007bff" rx="10"/>
+    <text x="45" y="13" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">Momentum</text>
+    
+    <rect x="100" y="0" width="90" height="20" fill="#28a745" rx="10"/>
+    <text x="145" y="13" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">Mean Reversion</text>
+    
+    <rect x="200" y="0" width="90" height="20" fill="#6f42c1" rx="10"/>
+    <text x="245" y="13" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">Arbitrage</text>
+    
+    <rect x="300" y="0" width="90" height="20" fill="#fd7e14" rx="10"/>
+    <text x="345" y="13" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">ML-Powered</text>
+  </g>
+  
+  <!-- Market connection -->
+  <g transform="translate(420, 150)">
+    <rect x="0" y="0" width="60" height="60" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2" rx="8"/>
+    
+    <text x="30" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">Markets</text>
+    
+    <circle cx="15" cy="25" r="3" fill="#28a745">
+      <animate attributeName="opacity" values="1;0.3;1" dur="0.8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="20" y="28" font-family="Arial" font-size="7" fill="#343a40">NYSE</text>
+    
+    <circle cx="15" cy="35" r="3" fill="#28a745">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="20" y="38" font-family="Arial" font-size="7" fill="#343a40">NASDAQ</text>
+    
+    <circle cx="15" cy="45" r="3" fill="#28a745">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="20" y="48" font-family="Arial" font-size="7" fill="#343a40">FOREX</text>
+    
+    <text x="30" y="58" font-family="Arial" font-size="7" fill="#28a745" text-anchor="middle" font-weight="bold">Connected</text>
+  </g>
+  
+  <!-- Server status -->
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="100" height="20" fill="#28a745" rx="10"/>
+    <text x="50" y="13" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">🖥️ Servers Online</text>
+  </g>
+  
+  <!-- Define arrow marker -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6c757d"/>
+    </marker>
+  </defs>
+  
+  <!-- Neural network visualization -->
+  <g transform="translate(450, 250)" opacity="0.6">
+    <circle cx="0" cy="0" r="3" fill="#007bff"/>
+    <circle cx="15" cy="-10" r="3" fill="#007bff"/>
+    <circle cx="15" cy="10" r="3" fill="#007bff"/>
+    <circle cx="30" cy="0" r="3" fill="#28a745"/>
+    
+    <line x1="3" y1="0" x2="12" y2="-10" stroke="#6c757d" stroke-width="1"/>
+    <line x1="3" y1="0" x2="12" y2="10" stroke="#6c757d" stroke-width="1"/>
+    <line x1="18" y1="-10" x2="27" y2="0" stroke="#6c757d" stroke-width="1"/>
+    <line x1="18" y1="10" x2="27" y2="0" stroke="#6c757d" stroke-width="1"/>
+    
+    <text x="15" y="25" font-family="Arial" font-size="8" fill="#6c757d" text-anchor="middle">Neural Net</text>
+  </g>
+</svg>

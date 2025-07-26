@@ -1,0 +1,97 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#f8f9fa"/>
+  
+  <!-- Main chart area -->
+  <rect x="50" y="50" width="400" height="250" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="8"/>
+  
+  <!-- Grid lines -->
+  <g stroke="#f1f3f4" stroke-width="1" opacity="0.5">
+    <line x1="50" y1="100" x2="450" y2="100"/>
+    <line x1="50" y1="150" x2="450" y2="150"/>
+    <line x1="50" y1="200" x2="450" y2="200"/>
+    <line x1="50" y1="250" x2="450" y2="250"/>
+    <line x1="125" y1="50" x2="125" y2="300"/>
+    <line x1="200" y1="50" x2="200" y2="300"/>
+    <line x1="275" y1="50" x2="275" y2="300"/>
+    <line x1="350" y1="50" x2="350" y2="300"/>
+  </g>
+  
+  <!-- Price line -->
+  <path d="M 50,200 Q 100,180 125,160 T 200,140 Q 250,120 275,130 T 350,120 Q 400,100 450,90" 
+        stroke="#007bff" stroke-width="3" fill="none"/>
+  
+  <!-- Buy signals (green arrows up) -->
+  <g fill="#28a745">
+    <path d="M 120,165 L 125,155 L 130,165 L 125,160 Z"/>
+    <circle cx="125" cy="160" r="3" fill="#28a745"/>
+    <text x="125" y="145" font-family="Arial" font-size="10" text-anchor="middle" fill="#28a745" font-weight="bold">BUY</text>
+    
+    <path d="M 270,135 L 275,125 L 280,135 L 275,130 Z"/>
+    <circle cx="275" cy="130" r="3" fill="#28a745"/>
+    <text x="275" y="115" font-family="Arial" font-size="10" text-anchor="middle" fill="#28a745" font-weight="bold">BUY</text>
+  </g>
+  
+  <!-- Sell signals (red arrows down) -->
+  <g fill="#dc3545">
+    <path d="M 195,145 L 200,155 L 205,145 L 200,150 Z"/>
+    <circle cx="200" cy="140" r="3" fill="#dc3545"/>
+    <text x="200" y="175" font-family="Arial" font-size="10" text-anchor="middle" fill="#dc3545" font-weight="bold">SELL</text>
+    
+    <path d="M 345,125 L 350,135 L 355,125 L 350,130 Z"/>
+    <circle cx="350" cy="120" r="3" fill="#dc3545"/>
+    <text x="350" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="#dc3545" font-weight="bold">SELL</text>
+  </g>
+  
+  <!-- Volume bars -->
+  <g fill="#6c757d" opacity="0.3">
+    <rect x="75" y="280" width="8" height="15"/>
+    <rect x="100" y="270" width="8" height="25"/>
+    <rect x="125" y="260" width="8" height="35"/>
+    <rect x="150" y="275" width="8" height="20"/>
+    <rect x="175" y="265" width="8" height="30"/>
+    <rect x="200" y="255" width="8" height="40"/>
+    <rect x="225" y="270" width="8" height="25"/>
+    <rect x="250" y="275" width="8" height="20"/>
+    <rect x="275" y="260" width="8" height="35"/>
+    <rect x="300" y="270" width="8" height="25"/>
+    <rect x="325" y="265" width="8" height="30"/>
+    <rect x="350" y="250" width="8" height="45"/>
+    <rect x="375" y="275" width="8" height="20"/>
+    <rect x="400" y="280" width="8" height="15"/>
+  </g>
+  
+  <!-- AI indicator -->
+  <g transform="translate(400, 60)">
+    <circle cx="0" cy="0" r="20" fill="#007bff"/>
+    <path d="M -8,-5 L -3,0 L -8,5 M 3,-5 L 8,0 L 3,5" stroke="#ffffff" stroke-width="2" fill="none"/>
+    <text x="0" y="35" font-family="Arial" font-size="12" font-weight="bold" fill="#007bff" text-anchor="middle">AI</text>
+  </g>
+  
+  <!-- Signal strength indicator -->
+  <g transform="translate(60, 320)">
+    <text x="0" y="0" font-family="Arial" font-size="14" font-weight="bold" fill="#343a40">Signal Strength</text>
+    <rect x="0" y="10" width="50" height="8" fill="#e9ecef" rx="4"/>
+    <rect x="0" y="10" width="42" height="8" fill="#28a745" rx="4"/>
+    <text x="55" y="18" font-family="Arial" font-size="12" fill="#28a745" font-weight="bold">95%</text>
+  </g>
+  
+  <!-- Real-time indicator -->
+  <g transform="translate(350, 320)">
+    <circle cx="0" cy="0" r="4" fill="#dc3545">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <text x="10" y="5" font-family="Arial" font-size="12" fill="#343a40">LIVE</text>
+  </g>
+  
+  <!-- Alert notification -->
+  <g transform="translate(20, 20)">
+    <rect x="0" y="0" width="120" height="25" fill="#ffc107" rx="12" opacity="0.9"/>
+    <text x="60" y="16" font-family="Arial" font-size="11" font-weight="bold" fill="#212529" text-anchor="middle">🔔 New Signal Alert</text>
+  </g>
+  
+  <!-- Performance stats -->
+  <g transform="translate(250, 340)">
+    <text x="0" y="0" font-family="Arial" font-size="10" fill="#6c757d">Today: +2.8% | Win Rate: 89% | Signals: 15</text>
+  </g>
+</svg>

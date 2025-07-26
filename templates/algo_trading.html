@@ -1,359 +1,408 @@
 {% extends "base.html" %}
 
-{% block title %}ALGO Trading - tCapital{% endblock %}
+{% block title %}Algorithmic Trading - AI-Powered Automated Trading | tCapital{% endblock %}
+
+{% block description %}Deploy sophisticated algorithmic trading strategies powered by AI. Automated execution, backtesting, and risk management for professional traders and institutions.{% endblock %}
 
 {% block content %}
-<!-- Header Section -->
-<section class="bg-white text-dark" style="padding-top: 100px; border-bottom: 1px solid #e9ecef;">
-    <div class="container py-5">
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
+    <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">ALGO Trading Solutions</h1>
-                <p class="lead mb-4">
-                    Experience the power of algorithmic trading with our advanced AI-driven strategies. 
-                    Automate your trades, eliminate emotions, and maximize your trading efficiency.
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    Algorithmic Trading Platform
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    Deploy sophisticated AI-powered trading algorithms with institutional-grade execution. 
+                    Build, backtest, and automate your trading strategies with our advanced algorithmic platform.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="#trial" class="btn btn-warning btn-lg px-4">
-                        <i class="fas fa-play me-2"></i>Start Trading
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                        Start Algo Trading
                     </a>
-                    <a href="#demo" class="btn btn-outline-primary btn-lg px-4">
-                        <i class="fas fa-eye me-2"></i>Watch Demo
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        Request Demo
                     </a>
                 </div>
+                <p class="small text-muted mt-3">
+                    <i class="fas fa-check me-2 text-success"></i>No coding required • Backtesting included • Institutional execution
+                </p>
             </div>
-            
             <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/algo-strategy.svg') }}" 
-                     alt="Algorithmic Trading" class="img-fluid rounded shadow-lg">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/algo-trading.svg') }}" 
+                         alt="Algorithmic Trading" class="img-fluid" style="max-width: 500px;">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Feature Section -->
-<section class="py-5">
+<!-- Platform Features -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Professional Algorithmic Trading</h2>
+                <p class="text-muted">
+                    Complete platform for developing, testing, and deploying automated trading strategies
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-code text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Strategy Builder</h4>
+                        <p class="text-muted">
+                            Visual strategy builder with drag-and-drop interface. 
+                            No coding required - create complex algorithms with simple logic blocks.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-history text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Advanced Backtesting</h4>
+                        <p class="text-muted">
+                            Historical backtesting with 10+ years of data. 
+                            Comprehensive performance metrics and risk analysis included.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-bolt text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Ultra-Low Latency</h4>
+                        <p class="text-muted">
+                            Sub-millisecond execution with co-located servers. 
+                            Direct market access for institutional-grade speed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-shield-alt text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Risk Management</h4>
+                        <p class="text-muted">
+                            Built-in risk controls including position limits, drawdown stops, 
+                            and volatility filters to protect your capital.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-area text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Real-Time Analytics</h4>
+                        <p class="text-muted">
+                            Live performance monitoring with detailed analytics. 
+                            Track P&L, Sharpe ratio, and other key metrics in real-time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-globe text-secondary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Multi-Asset Support</h4>
+                        <p class="text-muted">
+                            Trade stocks, options, futures, forex, and crypto. 
+                            Cross-asset strategies and portfolio-level optimization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Strategy Types -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Pre-Built Trading Strategies</h2>
+                <p class="text-muted">Deploy proven algorithms or customize for your needs</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-chart-line text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Momentum Strategies</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Trend-following algorithms that capitalize on price momentum. 
+                            Multiple timeframes and advanced filter combinations for optimal entry timing.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Moving average crossovers</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Breakout detection</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Relative strength indicators</li>
+                        </ul>
+                        <div class="text-primary small fw-semibold">
+                            Avg. Annual Return: 18.5% • Sharpe Ratio: 1.8
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-balance-scale text-success me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Mean Reversion</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Statistical arbitrage strategies that profit from price deviations. 
+                            Pairs trading, market neutral, and volatility-based approaches.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Statistical arbitrage</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Pairs trading</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Volatility targeting</li>
+                        </ul>
+                        <div class="text-success small fw-semibold">
+                            Avg. Annual Return: 14.2% • Max Drawdown: 8.5%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-clock text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">High-Frequency Trading</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Ultra-fast execution strategies for market making and arbitrage. 
+                            Microsecond-level decision making with advanced order management.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Market making algorithms</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Latency arbitrage</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Order flow prediction</li>
+                        </ul>
+                        <div class="text-warning small fw-semibold">
+                            Daily Volume: $10M+ • Win Rate: 78%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-brain text-info me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">AI-Powered Strategies</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Machine learning algorithms that adapt to changing market conditions. 
+                            Neural networks and ensemble methods for superior performance.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Deep learning models</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Sentiment analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Adaptive algorithms</li>
+                        </ul>
+                        <div class="text-info small fw-semibold">
+                            Avg. Annual Return: 24.8% • Information Ratio: 2.1
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Architecture -->
+<section class="bg-light" style="padding: 80px 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">How ALGO Trading Works</h2>
-                <p class="mb-4">
-                    Our algorithmic trading system combines advanced mathematical models, machine learning algorithms, 
-                    and real-time market data to execute trades with precision and speed that human traders cannot match.
-                </p>
+                <h2 class="fw-bold text-dark mb-4">Enterprise-Grade Infrastructure</h2>
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-server text-primary me-3 mt-1"></i>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Co-Located Servers</h5>
+                            <p class="text-muted">
+                                Our servers are co-located in major financial centers for ultra-low latency execution.
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="core-components">
-                    <div class="component-item mb-4">
-                        <h5><i class="fas fa-brain text-primary me-2"></i>AI Decision Engine</h5>
-                        <p class="text-muted">Machine learning models analyze market patterns, price movements, and technical indicators to make trading decisions.</p>
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-shield-alt text-success me-3 mt-1"></i>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Risk Controls</h5>
+                            <p class="text-muted">
+                                Multi-layered risk management with real-time monitoring and automatic circuit breakers.
+                            </p>
+                        </div>
                     </div>
-                    
-                    <div class="component-item mb-4">
-                        <h5><i class="fas fa-cogs text-primary me-2"></i>Strategy Engine</h5>
-                        <p class="text-muted">Pre-built and customizable trading strategies that adapt to different market conditions and asset classes.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-link text-warning me-3 mt-1"></i>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Direct Market Access</h5>
+                            <p class="text-muted">
+                                Direct connections to major exchanges and dark pools for optimal execution quality.
+                            </p>
+                        </div>
                     </div>
-                    
-                    <div class="component-item mb-4">
-                        <h5><i class="fas fa-bolt text-primary me-2"></i>Execution Engine</h5>
-                        <p class="text-muted">High-speed order execution system that minimizes slippage and maximizes trade efficiency.</p>
+                </div>
+                
+                <div>
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-chart-bar text-info me-3 mt-1"></i>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Real-Time Analytics</h5>
+                            <p class="text-muted">
+                                Comprehensive monitoring and analytics with customizable dashboards and alerts.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
             <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/trading-automation.svg') }}" 
-                     alt="Trading Analytics" class="img-fluid rounded shadow">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/trading-infrastructure.svg') }}" 
+                         alt="Trading Infrastructure" class="img-fluid" style="max-width: 450px;">
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features List Section -->
-<section class="bg-light py-5">
+<!-- Performance Stats -->
+<section class="bg-primary text-white" style="padding: 80px 0;">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Key ALGO Trading Features</h2>
-            <p class="lead text-muted">Powerful tools for automated trading success</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-4">
-                <div class="feature-card card border-0 shadow-sm h-100">
-                    <div class="card-body p-4 text-center">
-                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-robot fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">Automated Trading Strategies</h5>
-                        <p class="text-muted">Pre-configured strategies for different market conditions including trend following, mean reversion, and arbitrage opportunities.</p>
-                        <ul class="list-unstyled text-start mt-3">
-                            <li><i class="fas fa-check text-success me-2"></i>Momentum Trading</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Statistical Arbitrage</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Market Making</li>
-                        </ul>
-                    </div>
-                </div>
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">&lt;1ms</h2>
+                <p class="mb-0">Average Execution Time</p>
             </div>
-            
-            <div class="col-lg-4">
-                <div class="feature-card card border-0 shadow-sm h-100">
-                    <div class="card-body p-4 text-center">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-history fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">Backtesting Capabilities</h5>
-                        <p class="text-muted">Test your strategies against historical data to validate performance and optimize parameters before live deployment.</p>
-                        <ul class="list-unstyled text-start mt-3">
-                            <li><i class="fas fa-check text-success me-2"></i>Historical Data Analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Performance Metrics</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Risk Assessment</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">99.99%</h2>
+                <p class="mb-0">System Uptime</p>
             </div>
-            
-            <div class="col-lg-4">
-                <div class="feature-card card border-0 shadow-sm h-100">
-                    <div class="card-body p-4 text-center">
-                        <div class="feature-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-sync fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold">Real-Time Adjustments</h5>
-                        <p class="text-muted">Dynamic strategy adjustments based on changing market conditions, volatility, and performance metrics.</p>
-                        <ul class="list-unstyled text-start mt-3">
-                            <li><i class="fas fa-check text-success me-2"></i>Market Condition Monitoring</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Automatic Rebalancing</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Risk Controls</li>
-                        </ul>
-                    </div>
-                </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">$10B+</h2>
+                <p class="mb-0">Daily Trading Volume</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">500+</h2>
+                <p class="mb-0">Active Algorithms</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Benefits Section -->
-<section class="py-5">
+<!-- Backtesting Platform -->
+<section class="bg-white" style="padding: 80px 0;">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Benefits of ALGO Trading</h2>
-            <p class="lead text-muted">Why algorithmic trading is superior to manual trading</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="benefit-item text-center">
-                    <div class="benefit-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-target fa-2x"></i>
-                    </div>
-                    <h5 class="fw-bold">Increased Accuracy</h5>
-                    <p class="text-muted">Eliminate human errors and emotional decisions with precise algorithmic execution based on data-driven analysis.</p>
-                </div>
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Advanced Backtesting Engine</h2>
+                <p class="text-muted">Test your strategies with institutional-grade simulation</p>
             </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="benefit-item text-center">
-                    <div class="benefit-icon bg-success text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-tachometer-alt fa-2x"></i>
-                    </div>
-                    <h5 class="fw-bold">Lightning Speed</h5>
-                    <p class="text-muted">Execute trades in milliseconds to capture market opportunities and minimize slippage in volatile markets.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="benefit-item text-center">
-                    <div class="benefit-icon bg-warning text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-heart fa-2x"></i>
-                    </div>
-                    <h5 class="fw-bold">Emotion-Free Trading</h5>
-                    <p class="text-muted">Remove fear, greed, and other emotions that often lead to poor trading decisions and losses.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="benefit-item text-center">
-                    <div class="benefit-icon bg-info text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-clock fa-2x"></i>
-                    </div>
-                    <h5 class="fw-bold">24/7 Monitoring</h5>
-                    <p class="text-muted">Continuous market monitoring and trading execution even when you're sleeping or away from your computer.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- How It Works Section -->
-<section class="bg-light py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">How to Get Started with ALGO Trading</h2>
-            <p class="lead text-muted">Simple steps to begin automated trading</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-3">
-                <div class="step-card text-center">
-                    <div class="step-number bg-primary text-white rounded-circle mx-auto mb-3">1</div>
-                    <h5 class="fw-bold">Choose Strategy</h5>
-                    <p class="text-muted">Select from our pre-built strategies or create your own custom algorithm based on your trading preferences.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="step-card text-center">
-                    <div class="step-number bg-success text-white rounded-circle mx-auto mb-3">2</div>
-                    <h5 class="fw-bold">Backtest Performance</h5>
-                    <p class="text-muted">Test your chosen strategy against historical data to validate performance and optimize parameters.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="step-card text-center">
-                    <div class="step-number bg-warning text-white rounded-circle mx-auto mb-3">3</div>
-                    <h5 class="fw-bold">Set Parameters</h5>
-                    <p class="text-muted">Configure risk limits, position sizing, and other strategy parameters to match your risk tolerance.</p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="step-card text-center">
-                    <div class="step-number bg-info text-white rounded-circle mx-auto mb-3">4</div>
-                    <h5 class="fw-bold">Go Live</h5>
-                    <p class="text-muted">Deploy your algorithm to live trading and monitor performance through our comprehensive dashboard.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials Section -->
-{% if testimonials %}
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">ALGO Trading Success Stories</h2>
-            <p class="lead text-muted">Hear from traders who've transformed their results with algorithmic trading</p>
-        </div>
-        
-        <div class="row g-4">
-            {% for testimonial in testimonials %}
-            <div class="col-lg-6">
-                <div class="testimonial-card card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <div class="stars mb-3">
-                            {% for i in range(testimonial.rating) %}
-                            <i class="fas fa-star text-warning"></i>
-                            {% endfor %}
-                        </div>
-                        <p class="mb-3">"{{ testimonial.content }}"</p>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar bg-primary text-white rounded-circle me-3">
-                                {{ testimonial.name[0] }}
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold">{{ testimonial.name }}</h6>
-                                {% if testimonial.company %}
-                                <small class="text-muted">{{ testimonial.company }}</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- CTA Section -->
-<section class="bg-light text-dark py-5">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Ready to Start ALGO Trading?</h2>
-        <p class="lead mb-4">Join thousands of successful traders using our algorithmic trading platform to maximize their returns.</p>
-        
-        <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-            <a href="#trial" class="btn btn-warning btn-lg px-4">
-                <i class="fas fa-rocket me-2"></i>Start Free Trial
-            </a>
-            <a href="#demo" class="btn btn-outline-primary btn-lg px-4">
-                <i class="fas fa-calendar me-2"></i>Schedule Demo
-            </a>
-        </div>
-        
-        <p class="mb-0">
-            <small>
-                <i class="fas fa-shield-alt me-1"></i>
-                Risk-free trial • No setup fees • Professional support included
-            </small>
-        </p>
-    </div>
-</section>
-
-<!-- FAQ Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Frequently Asked Questions</h2>
-            <p class="lead text-muted">Common questions about ALGO trading</p>
         </div>
         
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="accordion" id="faqAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                What is algorithmic trading?
-                            </button>
-                        </h2>
-                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Algorithmic trading uses computer programs to execute trades automatically based on predefined rules and strategies. 
-                                It removes human emotions and enables faster, more precise trading decisions.
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 16px;">
+                    <div class="card-header bg-success text-white p-4" style="border-radius: 16px 16px 0 0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="fw-bold mb-1">Momentum Strategy Backtest</h4>
+                                <p class="mb-0 opacity-75">S&P 500 • 2019-2024 • Daily Rebalancing</p>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-light text-success fs-6 mb-2">VALIDATED</div>
+                                <div class="fw-bold">Sharpe: 1.85</div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                How much capital do I need to start?
-                            </button>
-                        </h2>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                You can start ALGO trading with as little as $1,000. However, we recommend starting with at least $10,000 
-                                to properly diversify your strategies and manage risk effectively.
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-success mb-3">Performance Metrics</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Total Return</small>
+                                        <span class="fw-semibold text-success">+127.4%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Annual Return</small>
+                                        <span class="fw-semibold text-success">+18.5%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Max Drawdown</small>
+                                        <span class="fw-semibold text-danger">-12.3%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Win Rate</small>
+                                        <span class="fw-semibold">67.2%</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                Can I customize the trading strategies?
-                            </button>
-                        </h2>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                Yes, our platform allows you to customize existing strategies or create entirely new ones. 
-                                You can adjust parameters like risk levels, asset allocation, and trading frequency to match your preferences.
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                How do you ensure the security of my funds?
-                            </button>
-                        </h2>
-                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                We partner with regulated brokers and use bank-level security measures. Your funds are held in segregated accounts, 
-                                and we employ advanced encryption and multi-factor authentication to protect your account.
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-success mb-3">Risk Analysis</h6>
+                                <div class="bg-light rounded p-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span class="small fw-semibold">Strategy Validation</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        Strategy shows consistent performance across different market regimes 
+                                        with controlled downside risk.
+                                    </p>
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Risk Score: <strong class="text-warning">Medium</strong></span>
+                                        <span>Confidence: <strong>94%</strong></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -362,4 +411,102 @@
         </div>
     </div>
 </section>
+
+<!-- Getting Started -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Get Started with Algo Trading</h2>
+                <p class="text-muted">Simple steps to deploy your first algorithm</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">1</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Choose Strategy</h5>
+                    <p class="text-muted">
+                        Select from our library of proven algorithms or build your own 
+                        using our visual strategy builder.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">2</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Backtest & Optimize</h5>
+                    <p class="text-muted">
+                        Test your strategy with historical data and optimize parameters 
+                        for maximum risk-adjusted returns.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">3</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Paper Trade</h5>
+                    <p class="text-muted">
+                        Test your algorithm in real market conditions with simulated trades 
+                        before risking real capital.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">4</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Go Live</h5>
+                    <p class="text-muted">
+                        Deploy your algorithm with real capital and monitor performance 
+                        with our real-time analytics dashboard.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold text-dark mb-4">Start Algorithmic Trading Today</h2>
+                <p class="lead text-muted mb-5">
+                    Join professional traders and institutions using our algorithmic trading platform to maximize returns.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Start Free Trial
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                        Schedule Demo
+                    </a>
+                </div>
+                
+                <p class="small text-muted mt-4">
+                    <i class="fas fa-shield-alt me-2"></i>Enterprise security • No coding required • 24/7 monitoring
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
 {% endblock %}

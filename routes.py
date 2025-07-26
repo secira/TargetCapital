@@ -97,6 +97,33 @@ def partners():
     """Partners page route"""
     return render_template('partners.html')
 
+@app.route('/trading-signals')
+def trading_signals():
+    """Trading Signals service page route"""
+    return render_template('trading_signals.html')
+
+@app.route('/stock-research')
+def stock_research():
+    """Stock Research service page route"""
+    return render_template('stock_research.html')
+
+@app.route('/portfolio-analysis')
+def portfolio_analysis():
+    """Portfolio Analysis service page route"""
+    return render_template('portfolio_analysis.html')
+
+@app.route('/algo-trading-service')
+def algo_trading_service():
+    """Algorithmic Trading service page route"""
+    return render_template('algo_trading.html')
+
+@app.route('/account-handling')
+def account_handling():
+    """Account Handling service page route"""
+    return render_template('account_handling.html')
+
+
+
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     """Contact page route"""

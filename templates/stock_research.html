@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}AI Stock Research - Deep Market Analysis | tCapital{% endblock %}
+
+{% block description %}Comprehensive AI-powered stock research with fundamental analysis, technical indicators, and market sentiment. Get detailed reports on 10,000+ stocks with buy/sell recommendations.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    AI-Powered Stock Research
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    Get comprehensive research reports on 10,000+ stocks powered by artificial intelligence. 
+                    Our platform combines fundamental analysis, technical indicators, and market sentiment for informed investment decisions.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                        Access Research Platform
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        View Sample Report
+                    </a>
+                </div>
+                <p class="small text-muted mt-3">
+                    <i class="fas fa-check me-2 text-success"></i>10,000+ stocks covered • Real-time updates • Institutional-grade analysis
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/stock-research.svg') }}" 
+                         alt="Stock Research" class="img-fluid" style="max-width: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Research Features -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Comprehensive Research Suite</h2>
+                <p class="text-muted">
+                    Everything you need to make informed investment decisions in one platform
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-bar text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Fundamental Analysis</h4>
+                        <p class="text-muted">
+                            Deep dive into financial statements, ratios, earnings growth, 
+                            and valuation metrics. AI-powered insights into company health and prospects.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-line text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Technical Analysis</h4>
+                        <p class="text-muted">
+                            Advanced technical indicators, chart patterns, and price action analysis. 
+                            Identify optimal entry and exit points with machine learning algorithms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-comments text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Sentiment Analysis</h4>
+                        <p class="text-muted">
+                            Real-time analysis of news, social media, and analyst reports. 
+                            Understand market sentiment and its impact on stock prices.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-industry text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Industry Analysis</h4>
+                        <p class="text-muted">
+                            Sector trends, competitive positioning, and industry outlook. 
+                            Compare stocks within their peer groups and identify leaders.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Risk Assessment</h4>
+                        <p class="text-muted">
+                            Comprehensive risk analysis including volatility, beta, 
+                            downside protection, and stress testing scenarios.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-star text-secondary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">AI Recommendations</h4>
+                        <p class="text-muted">
+                            Clear buy, hold, or sell recommendations with confidence scores. 
+                            Price targets and time horizons for each recommendation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Research Process -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold text-dark mb-4">Our AI Research Process</h2>
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="text-white fw-bold">1</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Data Collection</h5>
+                            <p class="text-muted">
+                                Aggregate financial data, news, earnings reports, and market data from 100+ sources in real-time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="text-white fw-bold">2</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-2">AI Analysis</h5>
+                            <p class="text-muted">
+                                Machine learning models process and analyze data to identify patterns, trends, and opportunities.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="text-white fw-bold">3</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Report Generation</h5>
+                            <p class="text-muted">
+                                Comprehensive reports are automatically generated with insights, recommendations, and risk analysis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="d-flex align-items-start">
+                        <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="text-white fw-bold">4</span>
+                        </div>
+                        <div>
+                            <h5 class="fw-semibold mb-2">Continuous Updates</h5>
+                            <p class="text-muted">
+                                Reports are updated continuously as new data becomes available, ensuring current insights.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/research-process.svg') }}" 
+                         alt="Research Process" class="img-fluid" style="max-width: 450px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sample Report -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Sample Research Report</h2>
+                <p class="text-muted">See what our comprehensive stock analysis looks like</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 16px;">
+                    <div class="card-header bg-primary text-white p-4" style="border-radius: 16px 16px 0 0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="fw-bold mb-1">Apple Inc. (AAPL)</h4>
+                                <p class="mb-0 opacity-75">Technology • Market Cap: $3.0T</p>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-success fs-6 mb-2">BUY</div>
+                                <div class="fw-bold">$185.43</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-primary mb-3">Key Metrics</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">P/E Ratio</small>
+                                        <span class="fw-semibold">28.5</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Revenue Growth</small>
+                                        <span class="fw-semibold text-success">+8.2%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Profit Margin</small>
+                                        <span class="fw-semibold">25.3%</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">ROE</small>
+                                        <span class="fw-semibold">147%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-primary mb-3">AI Recommendation</h6>
+                                <p class="small text-muted mb-3">
+                                    Strong fundamentals with growing services revenue. iPhone demand remains robust 
+                                    despite market headwinds. AI integration presents significant upside potential.
+                                </p>
+                                <div class="d-flex justify-content-between small">
+                                    <span>Target Price: <strong class="text-success">$210</strong></span>
+                                    <span>Confidence: <strong>92%</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Coverage Stats -->
+<section class="bg-primary text-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">10,000+</h2>
+                <p class="mb-0">Stocks Covered</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">100+</h2>
+                <p class="mb-0">Data Sources</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">24/7</h2>
+                <p class="mb-0">Real-time Updates</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">88%</h2>
+                <p class="mb-0">Recommendation Accuracy</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Research Tools -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Advanced Research Tools</h2>
+                <p class="text-muted">Professional-grade tools for serious investors</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-search text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Stock Screener</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Filter and discover stocks based on fundamental metrics, technical indicators, 
+                            and AI recommendations. Create custom screens for your investment strategy.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>50+ screening criteria</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Real-time filtering</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Save custom screens</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-balance-scale text-success me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Stock Comparison</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Side-by-side comparison of multiple stocks across all metrics. 
+                            Identify the best investment opportunities within sectors or themes.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Compare up to 10 stocks</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Visual comparison charts</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Rank by any metric</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-bell text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Research Alerts</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Get notified when research reports are updated, ratings change, 
+                            or significant events impact your stocks. Never miss important updates.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Rating change alerts</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Report update notifications</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Custom alert triggers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-download text-info me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Export & Share</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Download reports in PDF format, export data to Excel, 
+                            or share research with your team. Flexible options for any workflow.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>PDF report exports</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Excel data downloads</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Team sharing features</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold text-dark mb-4">Access Professional-Grade Stock Research</h2>
+                <p class="lead text-muted mb-5">
+                    Make smarter investment decisions with AI-powered research reports and analysis tools.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Start Research Platform
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                        View Sample Reports
+                    </a>
+                </div>
+                
+                <p class="small text-muted mt-4">
+                    <i class="fas fa-shield-alt me-2"></i>Institutional-grade research • Real-time updates • 14-day free trial
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

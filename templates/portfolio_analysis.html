@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}AI Portfolio Analysis - Optimize Your Investments | tCapital{% endblock %}
+
+{% block description %}Advanced AI-powered portfolio analysis and optimization. Get personalized recommendations, risk assessment, and rebalancing strategies to maximize returns and minimize risk.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-dark mb-4">
+                    AI Portfolio Optimization
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
+                    Maximize your investment returns with AI-powered portfolio analysis. 
+                    Get personalized recommendations, risk assessment, and automatic rebalancing strategies tailored to your goals.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                        Analyze My Portfolio
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        View Demo Analysis
+                    </a>
+                </div>
+                <p class="small text-muted mt-3">
+                    <i class="fas fa-check me-2 text-success"></i>Connect any broker • Real-time analysis • Personalized recommendations
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='img/portfolio-analysis.svg') }}" 
+                         alt="Portfolio Analysis" class="img-fluid" style="max-width: 500px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Analysis Features -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="fw-bold text-dark mb-4">Comprehensive Portfolio Intelligence</h2>
+                <p class="text-muted">
+                    Advanced AI analyzes your holdings to optimize performance and minimize risk
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-pie text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Asset Allocation</h4>
+                        <p class="text-muted">
+                            Analyze your current allocation across asset classes, sectors, and geographies. 
+                            Get recommendations for optimal diversification based on your risk profile.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Risk Assessment</h4>
+                        <p class="text-muted">
+                            Comprehensive risk analysis including volatility, correlation, 
+                            and downside protection. Identify concentration risks and hedging opportunities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-sync text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Auto Rebalancing</h4>
+                        <p class="text-muted">
+                            Automated portfolio rebalancing based on your target allocation. 
+                            Tax-efficient strategies to minimize transaction costs and taxes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-chart-line text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Performance Attribution</h4>
+                        <p class="text-muted">
+                            Understand what's driving your returns. Detailed breakdown of performance 
+                            by asset class, sector, and individual holdings.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-bullseye text-danger" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Goal Tracking</h4>
+                        <p class="text-muted">
+                            Set financial goals and track progress automatically. 
+                            Retirement planning, education funding, and custom objectives.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-calculator text-secondary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Tax Optimization</h4>
+                        <p class="text-muted">
+                            Tax-loss harvesting, asset location optimization, 
+                            and strategies to minimize your tax burden while maximizing returns.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">How Portfolio Analysis Works</h2>
+                <p class="text-muted">Simple process to optimize your investments</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">1</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Connect Accounts</h5>
+                    <p class="text-muted">
+                        Securely connect your brokerage accounts and investment platforms. 
+                        We support 50+ major brokers and financial institutions.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">2</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">AI Analysis</h5>
+                    <p class="text-muted">
+                        Our AI analyzes your holdings, risk profile, and investment goals 
+                        to identify optimization opportunities.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">3</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Get Recommendations</h5>
+                    <p class="text-muted">
+                        Receive personalized recommendations for rebalancing, 
+                        tax optimization, and portfolio improvements.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="text-center">
+                    <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                         style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold" style="font-size: 1.5rem;">4</span>
+                    </div>
+                    <h5 class="fw-bold mb-3">Execute Changes</h5>
+                    <p class="text-muted">
+                        Implement changes with one click or set up automatic rebalancing 
+                        to maintain optimal allocation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio Insights -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Portfolio Insights Dashboard</h2>
+                <p class="text-muted">Real-time analytics and actionable recommendations</p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg" style="border-radius: 16px;">
+                    <div class="card-header bg-primary text-white p-4" style="border-radius: 16px 16px 0 0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="fw-bold mb-1">Portfolio Performance</h4>
+                                <p class="mb-0 opacity-75">Total Value: $487,650 • YTD Return: +12.3%</p>
+                            </div>
+                            <div class="text-end">
+                                <div class="badge bg-success fs-6 mb-2">OPTIMIZED</div>
+                                <div class="fw-bold">Risk Score: 6/10</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-primary mb-3">Asset Allocation</h6>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Stocks (US)</span>
+                                        <span class="fw-semibold">65%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between small">
+                                        <span>International</span>
+                                        <span class="fw-semibold">20%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Bonds</span>
+                                        <span class="fw-semibold">10%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" style="width: 10%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Cash</span>
+                                        <span class="fw-semibold">5%</span>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-info" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-semibold text-primary mb-3">AI Recommendations</h6>
+                                <div class="bg-light rounded p-3">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                                        <span class="small fw-semibold">Rebalancing Opportunity</span>
+                                    </div>
+                                    <p class="small text-muted mb-2">
+                                        Your tech allocation is 5% overweight. Consider taking profits 
+                                        in AAPL and increasing international exposure.
+                                    </p>
+                                    <div class="d-flex justify-content-between small">
+                                        <span>Potential Benefit: <strong class="text-success">+$2,400</strong></span>
+                                        <button class="btn btn-sm btn-primary">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Performance Stats -->
+<section class="bg-primary text-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">+23%</h2>
+                <p class="mb-0">Average Return Improvement</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">-35%</h2>
+                <p class="mb-0">Risk Reduction</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">50+</h2>
+                <p class="mb-0">Supported Brokers</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h2 class="display-5 fw-bold mb-2">$50K</h2>
+                <p class="mb-0">Average Tax Savings</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Advanced Features -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="fw-bold text-dark mb-3">Advanced Portfolio Tools</h2>
+                <p class="text-muted">Professional-grade features for serious investors</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-robot text-primary me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">AI-Powered Rebalancing</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Automated rebalancing using machine learning to optimize timing and minimize costs. 
+                            Tax-loss harvesting and wash sale rule compliance built-in.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Automatic threshold monitoring</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Tax-efficient execution</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Market timing optimization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-chart-area text-success me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Scenario Analysis</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Stress test your portfolio against different market scenarios. 
+                            Monte Carlo simulations and historical backtesting for confidence.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Market crash scenarios</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Inflation stress tests</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Custom scenario modeling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-coins text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">ESG Integration</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Environmental, Social, and Governance scoring for all holdings. 
+                            Align your investments with your values without sacrificing returns.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>ESG scoring and analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Sustainable alternatives</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Impact measurement</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-users text-info me-3" style="font-size: 1.5rem;"></i>
+                            <h4 class="fw-bold mb-0">Family Office Features</h4>
+                        </div>
+                        <p class="text-muted mb-3">
+                            Multi-account management, household consolidation, and advisor collaboration tools. 
+                            Perfect for managing complex family portfolios.
+                        </p>
+                        <ul class="list-unstyled text-muted small">
+                            <li><i class="fas fa-check text-success me-2"></i>Multi-account aggregation</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Advisor portal access</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Family reporting tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="fw-bold text-dark mb-4">Optimize Your Portfolio Today</h2>
+                <p class="lead text-muted mb-5">
+                    Start maximizing your investment returns with AI-powered portfolio analysis and optimization.
+                </p>
+                
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
+                        Analyze My Portfolio
+                    </a>
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
+                        Book Consultation
+                    </a>
+                </div>
+                
+                <p class="small text-muted mt-4">
+                    <i class="fas fa-shield-alt me-2"></i>Bank-level security • Connect any broker • 30-day free trial
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

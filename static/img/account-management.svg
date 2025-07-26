@@ -1,0 +1,158 @@
+<svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="500" height="400" fill="#f8f9fa"/>
+  
+  <!-- Central account manager -->
+  <circle cx="250" cy="200" r="50" fill="#007bff"/>
+  <text x="250" y="190" font-family="Arial" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">Account</text>
+  <text x="250" y="205" font-family="Arial" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">Manager</text>
+  <text x="250" y="220" font-family="Arial" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Dedicated Support</text>
+  
+  <!-- Client nodes -->
+  <g fill="#28a745">
+    <circle cx="120" cy="120" r="25" fill="#28a745"/>
+    <text x="120" y="125" font-family="Arial" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">Premium</text>
+    <text x="120" y="100" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">$100K-$1M</text>
+    
+    <circle cx="380" cy="120" r="25" fill="#ffc107"/>
+    <text x="380" y="125" font-family="Arial" font-size="10" font-weight="bold" fill="#212529" text-anchor="middle">Elite</text>
+    <text x="380" y="100" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">$1M-$10M</text>
+    
+    <circle cx="120" cy="280" r="25" fill="#6f42c1"/>
+    <text x="120" y="275" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">Institutional</text>
+    <text x="120" y="285" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">$10M+</text>
+    
+    <circle cx="380" cy="280" r="25" fill="#17a2b8"/>
+    <text x="380" y="280" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">Family</text>
+    <text x="380" y="290" font-family="Arial" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">Office</text>
+  </g>
+  
+  <!-- Connection lines -->
+  <g stroke="#6c757d" stroke-width="2" opacity="0.6">
+    <line x1="145" y1="145" x2="225" y2="175"/>
+    <line x1="355" y1="145" x2="275" y2="175"/>
+    <line x1="145" y1="255" x2="225" y2="225"/>
+    <line x1="355" y1="255" x2="275" y2="225"/>
+  </g>
+  
+  <!-- Service icons around manager -->
+  <g transform="translate(250, 120)">
+    <circle cx="0" cy="0" r="15" fill="#dc3545"/>
+    <text x="0" y="5" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">📊</text>
+    <text x="0" y="-25" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">Portfolio</text>
+    <text x="0" y="-17" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">Analysis</text>
+  </g>
+  
+  <g transform="translate(330, 200)">
+    <circle cx="0" cy="0" r="15" fill="#fd7e14"/>
+    <text x="0" y="5" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">🎯</text>
+    <text x="25" y="0" font-family="Arial" font-size="8" fill="#343a40">Risk</text>
+    <text x="25" y="8" font-family="Arial" font-size="8" fill="#343a40">Management</text>
+  </g>
+  
+  <g transform="translate(250, 280)">
+    <circle cx="0" cy="0" r="15" fill="#20c997"/>
+    <text x="0" y="5" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">📈</text>
+    <text x="0" y="25" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">Market</text>
+    <text x="0" y="33" font-family="Arial" font-size="8" fill="#343a40" text-anchor="middle">Insights</text>
+  </g>
+  
+  <g transform="translate(170, 200)">
+    <circle cx="0" cy="0" r="15" fill="#e83e8c"/>
+    <text x="0" y="5" font-family="Arial" font-size="12" fill="#ffffff" text-anchor="middle">🔧</text>
+    <text x="-25" y="0" font-family="Arial" font-size="8" fill="#343a40">Custom</text>
+    <text x="-25" y="8" font-family="Arial" font-size="8" fill="#343a40">Solutions</text>
+  </g>
+  
+  <!-- Support features -->
+  <g transform="translate(50, 50)">
+    <rect x="0" y="0" width="100" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="8"/>
+    <text x="50" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">24/7 Support</text>
+    <circle cx="20" cy="30" r="5" fill="#28a745">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <text x="30" y="34" font-family="Arial" font-size="8" fill="#343a40">Always Available</text>
+  </g>
+  
+  <!-- Performance tracking -->
+  <g transform="translate(350, 50)">
+    <rect x="0" y="0" width="100" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="8"/>
+    <text x="50" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">Performance</text>
+    <path d="M 15,35 Q 25,30 35,25 T 55,20 Q 65,18 75,15" stroke="#28a745" stroke-width="2" fill="none"/>
+    <text x="50" y="45" font-family="Arial" font-size="8" fill="#28a745" text-anchor="middle">+23% Returns</text>
+  </g>
+  
+  <!-- Client communication -->
+  <g transform="translate(50, 320)">
+    <rect x="0" y="0" width="120" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="8"/>
+    <text x="60" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">Communication</text>
+    
+    <circle cx="20" cy="30" r="3" fill="#007bff"/>
+    <text x="25" y="33" font-family="Arial" font-size="7" fill="#343a40">Weekly Reviews</text>
+    
+    <circle cx="20" cy="40" r="3" fill="#28a745"/>
+    <text x="25" y="43" font-family="Arial" font-size="7" fill="#343a40">Monthly Reports</text>
+    
+    <circle cx="70" cy="30" r="3" fill="#ffc107"/>
+    <text x="75" y="33" font-family="Arial" font-size="7" fill="#343a40">Real-time Alerts</text>
+    
+    <circle cx="70" cy="40" r="3" fill="#dc3545"/>
+    <text x="75" y="43" font-family="Arial" font-size="7" fill="#343a40">Emergency Contact</text>
+  </g>
+  
+  <!-- Expertise levels -->
+  <g transform="translate(330, 320)">
+    <rect x="0" y="0" width="120" height="50" fill="#ffffff" stroke="#e9ecef" stroke-width="2" rx="8"/>
+    <text x="60" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#343a40" text-anchor="middle">Expert Team</text>
+    
+    <text x="10" y="28" font-family="Arial" font-size="7" fill="#6c757d">CFA Charterholders</text>
+    <text x="10" y="37" font-family="Arial" font-size="7" fill="#6c757d">15+ Years Experience</text>
+    <text x="10" y="46" font-family="Arial" font-size="7" fill="#6c757d">Former Wall Street</text>
+  </g>
+  
+  <!-- Success metrics -->
+  <g transform="translate(200, 350)">
+    <text x="0" y="0" font-family="Arial" font-size="10" fill="#6c757d">Client Satisfaction: </text>
+    <text x="90" y="0" font-family="Arial" font-size="10" font-weight="bold" fill="#28a745">98%</text>
+    
+    <text x="0" y="15" font-family="Arial" font-size="10" fill="#6c757d">Assets Under Management: </text>
+    <text x="135" y="15" font-family="Arial" font-size="10" font-weight="bold" fill="#007bff">$5B+</text>
+  </g>
+  
+  <!-- Certification badges -->
+  <g transform="translate(20, 150)">
+    <circle cx="0" cy="0" r="12" fill="#007bff"/>
+    <text x="0" y="4" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">SEC</text>
+    <text x="0" y="20" font-family="Arial" font-size="6" fill="#343a40" text-anchor="middle">Regulated</text>
+  </g>
+  
+  <g transform="translate(20, 200)">
+    <circle cx="0" cy="0" r="12" fill="#28a745"/>
+    <text x="0" y="-2" font-family="Arial" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">FINRA</text>
+    <text x="0" y="6" font-family="Arial" font-size="7" font-weight="bold" fill="#ffffff" text-anchor="middle">Member</text>
+    <text x="0" y="20" font-family="Arial" font-size="6" fill="#343a40" text-anchor="middle">Licensed</text>
+  </g>
+  
+  <g transform="translate(20, 250)">
+    <circle cx="0" cy="0" r="12" fill="#ffc107"/>
+    <text x="0" y="-2" font-family="Arial" font-size="7" font-weight="bold" fill="#212529" text-anchor="middle">SIPC</text>
+    <text x="0" y="6" font-family="Arial" font-size="7" font-weight="bold" fill="#212529" text-anchor="middle">Insured</text>
+    <text x="0" y="20" font-family="Arial" font-size="6" fill="#343a40" text-anchor="middle">Protected</text>
+  </g>
+  
+  <!-- Service tier progression arrows -->
+  <g fill="#6c757d" opacity="0.7">
+    <path d="M 145,120 L 155,115 L 145,110" stroke="#6c757d" stroke-width="1" fill="none"/>
+    <path d="M 355,120 L 365,115 L 355,110" stroke="#6c757d" stroke-width="1" fill="none"/>
+    <path d="M 120,255 L 115,245 L 110,255" stroke="#6c757d" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Value proposition -->
+  <g transform="translate(450, 200)">
+    <rect x="0" y="-30" width="40" height="60" fill="#28a745" rx="8"/>
+    <text x="20" y="-15" font-family="Arial" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">ROI</text>
+    <text x="20" y="-5" font-family="Arial" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">+35%</text>
+    <text x="20" y="8" font-family="Arial" font-size="8" fill="#ffffff" text-anchor="middle">Avg</text>
+    <text x="20" y="18" font-family="Arial" font-size="8" fill="#ffffff" text-anchor="middle">Return</text>
+  </g>
+</svg>
