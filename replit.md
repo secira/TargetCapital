@@ -26,6 +26,10 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
   - Uday Shankar as Chief Executive Officer with Fortune 500 project experience
   - Mukund Krishnasamy as Head of Business Development with financial markets expertise
   - Added professional styling, contact information, and management team highlight section
+- ✓ Fixed Account Handling navigation links:
+  - Connected Account Handling menu and footer links to public account_handling.html page
+  - Resolved route naming conflicts between public and dashboard Account Handling pages
+  - Public page accessible to all users, dashboard version requires authentication
 
 ## Previous Changes (2025-07-26)
 - ✓ Enhanced navigation menu structure with improved organization:

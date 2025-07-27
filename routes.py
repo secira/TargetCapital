@@ -115,7 +115,7 @@ def algo_trading_service():
     return render_template('algo_trading.html')
 
 @app.route('/account-handling')
-def account_management():
+def account_handling():
     """Account Handling service page route"""
     return render_template('account_handling.html')
 
@@ -636,10 +636,10 @@ def trade_now():
     """Trade Now page for Indian stocks"""
     return render_template('dashboard/trade_now.html')
 
-@app.route('/dashboard/account-handling')
+@app.route('/dashboard/account-handling', endpoint='dashboard_account_handling')
 @login_required
-def account_handling():
-    """Account Handling page"""
+def dashboard_account_handling():
+    """Dashboard Account Handling page"""
     return render_template('dashboard/account_handling.html')
 
 @app.route('/dashboard/live-market')
