@@ -95,7 +95,7 @@ def partners():
     return render_template('partners.html')
 
 @app.route('/trading-signals')
-def trading_signals():
+def trading_signals_page():
     """Trading Signals service page route"""
     return render_template('trading_signals.html')
 
@@ -115,7 +115,7 @@ def algo_trading_service():
     return render_template('algo_trading.html')
 
 @app.route('/account-handling')
-def account_handling():
+def account_management():
     """Account Handling service page route"""
     return render_template('account_handling.html')
 
@@ -617,6 +617,30 @@ def nse_stocks():
         logging.error(f"Error loading NSE stocks dashboard: {str(e)}")
         flash('Unable to load NSE market data. Please try again later.', 'error')
         return redirect(url_for('dashboard'))
+
+@app.route('/dashboard/trading-signals')
+@login_required
+def trading_signals():
+    """Trading Signals page with Indian market focus"""
+    return render_template('dashboard/trading_signals.html')
+
+@app.route('/dashboard/my-portfolio')
+@login_required  
+def my_portfolio():
+    """My Portfolio page with Indian holdings"""
+    return render_template('dashboard/my_portfolio.html')
+
+@app.route('/dashboard/trade-now')
+@login_required
+def trade_now():
+    """Trade Now page for Indian stocks"""
+    return render_template('dashboard/trade_now.html')
+
+@app.route('/dashboard/account-handling')
+@login_required
+def account_handling():
+    """Account Handling page"""
+    return render_template('dashboard/account_handling.html')
 
 @app.route('/dashboard/live-market')
 @login_required

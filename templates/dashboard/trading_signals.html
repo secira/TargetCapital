@@ -1,0 +1,177 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Trading Signals - tCapital{% endblock %}
+{% block dashboard_title %}Trading Signals{% endblock %}
+{% block dashboard_subtitle %}Real-time AI-powered trading signals for Indian markets{% endblock %}
+
+{% block dashboard_content %}
+<!-- Live Trading Signals -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-signal text-success me-2"></i>Live NSE Signals
+        </h5>
+        <span class="badge bg-success">
+            <i class="fas fa-circle pulse"></i> LIVE
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="alert alert-success border-0 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">RELIANCE</h6>
+                            <small class="text-muted">BUY Signal • ₹2,845.60</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success">+2.3%</span>
+                            <div class="small text-muted">Target: ₹2,950</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="alert alert-warning border-0 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">HDFCBANK</h6>
+                            <small class="text-muted">HOLD Signal • ₹1,672.40</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-warning">-0.7%</span>
+                            <div class="small text-muted">Watch: ₹1,650</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="alert alert-success border-0 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">TCS</h6>
+                            <small class="text-muted">BUY Signal • ₹4,127.85</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success">+1.8%</span>
+                            <div class="small text-muted">Target: ₹4,300</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="alert alert-danger border-0 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">BHARTIARTL</h6>
+                            <small class="text-muted">SELL Signal • ₹1,234.50</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-danger">-1.2%</span>
+                            <div class="small text-muted">Target: ₹1,180</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Signal Performance -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-chart-line text-primary me-2"></i>Signal Performance
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center mb-4">
+            <div class="col-md-3">
+                <div class="p-3 bg-success bg-opacity-10 rounded">
+                    <h4 class="text-success fw-bold">87%</h4>
+                    <small class="text-muted">Accuracy Rate</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-primary bg-opacity-10 rounded">
+                    <h4 class="text-primary fw-bold">142</h4>
+                    <small class="text-muted">Signals Today</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-warning bg-opacity-10 rounded">
+                    <h4 class="text-warning fw-bold">+12.3%</h4>
+                    <small class="text-muted">Avg Return</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-info bg-opacity-10 rounded">
+                    <h4 class="text-info fw-bold">1,247</h4>
+                    <small class="text-muted">Total Signals</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Market Sectors -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-industry text-info me-2"></i>Sector Signals
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Sector</th>
+                        <th>Signal Count</th>
+                        <th>Avg Performance</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fas fa-university text-primary me-2"></i>Banking</td>
+                        <td><span class="badge bg-primary">23</span></td>
+                        <td class="text-success">+2.1%</td>
+                        <td><i class="fas fa-arrow-up text-success"></i></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-laptop-code text-info me-2"></i>IT Services</td>
+                        <td><span class="badge bg-info">18</span></td>
+                        <td class="text-success">+1.8%</td>
+                        <td><i class="fas fa-arrow-up text-success"></i></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-car text-warning me-2"></i>Automotive</td>
+                        <td><span class="badge bg-warning">12</span></td>
+                        <td class="text-warning">+0.3%</td>
+                        <td><i class="fas fa-minus text-muted"></i></td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-pills text-danger me-2"></i>Pharma</td>
+                        <td><span class="badge bg-danger">8</span></td>
+                        <td class="text-danger">-0.9%</td>
+                        <td><i class="fas fa-arrow-down text-danger"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+</style>

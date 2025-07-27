@@ -1,0 +1,224 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Account Handling - tCapital{% endblock %}
+{% block dashboard_title %}Account Handling{% endblock %}
+{% block dashboard_subtitle %}Manage your trading account and preferences{% endblock %}
+
+{% block dashboard_content %}
+<!-- Account Summary -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-user-circle text-primary me-2"></i>Account Summary
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="text-muted">Account Holder</label>
+                    <div class="fw-bold">{{ current_user.get_full_name() }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Account Type</label>
+                    <div class="fw-bold">Individual Trading Account</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Member Since</label>
+                    <div class="fw-bold">{{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'January 2024' }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="text-muted">Available Balance</label>
+                    <div class="fw-bold text-success">₹2,45,670.50</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Total Investment</label>
+                    <div class="fw-bold">₹8,45,230.00</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Account Status</label>
+                    <span class="badge bg-success">Active</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fund Management -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-wallet text-success me-2"></i>Fund Management
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success">
+                        <i class="fas fa-plus-circle me-2"></i>Add Funds
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-minus-circle me-2"></i>Withdraw Funds
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="fas fa-history me-2"></i>Transaction History
+                    </button>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Recent Transactions</h6>
+                    <div class="small">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Fund Added</span>
+                            <span class="text-success">+₹50,000</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Stock Purchase</span>
+                            <span class="text-danger">-₹1,25,000</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Dividend Received</span>
+                            <span class="text-success">+₹2,150</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog text-warning me-2"></i>Account Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-user-edit me-2"></i>Update Profile
+                    </button>
+                    <button class="btn btn-outline-warning">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="fas fa-bell me-2"></i>Notification Settings
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-shield-alt me-2"></i>Security Settings
+                    </button>
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="fw-bold mb-3">Quick Settings</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">
+                            Email Notifications
+                        </label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="smsAlerts" checked>
+                        <label class="form-check-label" for="smsAlerts">
+                            SMS Price Alerts
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="marketNews">
+                        <label class="form-check-label" for="marketNews">
+                            Market News Updates
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Documents & Reports -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-file-alt text-info me-2"></i>Documents & Reports
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-2x text-primary mb-2"></i>
+                        <h6>Portfolio Statement</h6>
+                        <button class="btn btn-outline-primary btn-sm">Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="fas fa-receipt fa-2x text-success mb-2"></i>
+                        <h6>Tax Reports</h6>
+                        <button class="btn btn-outline-success btn-sm">Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border">
+                    <div class="card-body text-center">
+                        <i class="fas fa-history fa-2x text-warning mb-2"></i>
+                        <h6>Trade History</h6>
+                        <button class="btn btn-outline-warning btn-sm">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Support & Help -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-life-ring text-danger me-2"></i>Support & Help
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Contact Support</h6>
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-phone text-primary me-2"></i>
+                        <span>+91 80-4717-4600</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        <span>support@tcapital.ai</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-clock text-primary me-2"></i>
+                        <span>Mon-Fri: 8:00 AM - 8:00 PM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="fw-bold mb-3">Quick Actions</h6>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-question-circle me-2"></i>FAQ
+                    </button>
+                    <button class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-comments me-2"></i>Live Chat
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm">
+                        <i class="fas fa-ticket-alt me-2"></i>Raise Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

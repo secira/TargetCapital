@@ -21,33 +21,157 @@
         <!-- Left Sidebar Navigation -->
         <div class="col-lg-3 col-xl-2 bg-white border-end" style="min-height: calc(100vh - 200px); box-shadow: 1px 0 3px rgba(0,0,0,0.1);">
             <div class="p-3">
-                <h6 class="text-muted fw-bold mb-3">TRADING TOOLS</h6>
+                <h6 class="text-muted fw-bold mb-3">TRADING MENU</h6>
                 <nav class="nav nav-pills flex-column">
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
-                        <i class="fas fa-robot me-2"></i>AI Advisor
+                    <a class="nav-link {{ 'active' if request.endpoint == 'trading_signals' else '' }}" href="{{ url_for('trading_signals') }}">
+                        <i class="fas fa-signal me-2"></i>Trading Signals
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'stock_analysis' else '' }}" href="{{ url_for('stock_analysis') }}">
-                        <i class="fas fa-chart-line me-2"></i>Stock Analysis
+                    <a class="nav-link {{ 'active' if request.endpoint == 'my_portfolio' else '' }}" href="{{ url_for('my_portfolio') }}">
+                        <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'watchlist' else '' }}" href="{{ url_for('watchlist') }}">
-                        <i class="fas fa-eye me-2"></i>My Watchlist
+                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}">
+                        <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'nse_stocks' else '' }}" href="{{ url_for('nse_stocks') }}">
-                        <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
-                    </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'live_market' else '' }}" href="{{ url_for('live_market') }}">
-                        <i class="fas fa-broadcast-tower me-2"></i>Live Market Data
+                    <a class="nav-link {{ 'active' if request.endpoint == 'account_handling' else '' }}" href="{{ url_for('account_handling') }}">
+                        <i class="fas fa-user-cog me-2"></i>Account Handling
                     </a>
                 </nav>
             </div>
         </div>
 
         <!-- Main Content Area -->
-        <div class="col-lg-9 col-xl-10 py-4">
+        <div class="col-lg-6 col-xl-7 py-4">
             {% block dashboard_content %}{% endblock %}
+        </div>
+
+        <!-- Right Sidebar - Quick Actions and Info -->
+        <div class="col-lg-3 col-xl-3 py-4">
+            {% block right_sidebar %}
+            <!-- Your Activity -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-chart text-primary me-2"></i>Your Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                <i class="fas fa-eye text-primary fa-2x mb-2"></i>
+                                <h4 class="fw-bold text-primary mb-1">{{ watchlist|length if watchlist else 0 }}</h4>
+                                <small class="text-muted">Watchlist Items</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="p-3 bg-success bg-opacity-10 rounded">
+                                <i class="fas fa-calendar text-success fa-2x mb-2"></i>
+                                <h4 class="fw-bold text-success mb-1">{{ days_active if days_active else 1 }}</h4>
+                                <small class="text-muted">Days Active</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">Trading Level</small>
+                            <small class="text-muted fw-bold">{{ user_level if user_level else 'Beginner' }}</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: {{ level_progress if level_progress else 25 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('ai_advisor') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-robot me-2"></i>AI Advisor
+                        </a>
+                        <a href="{{ url_for('stock_analysis') }}" class="btn btn-outline-success">
+                            <i class="fas fa-chart-line me-2"></i>Stock Analysis
+                        </a>
+                        <a href="{{ url_for('watchlist') }}" class="btn btn-outline-info">
+                            <i class="fas fa-eye me-2"></i>My Watchlist
+                        </a>
+                        <a href="{{ url_for('nse_stocks') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-flag-checkered me-2"></i>Live Market Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Analysis -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line text-info me-2"></i>Recent Analysis
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_analyses %}
+                        {% for analysis in recent_analyses[:3] %}
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="me-3">
+                                <span class="badge bg-primary">{{ analysis.symbol }}</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ analysis.company_name }}</div>
+                                <small class="text-muted">{{ analysis.analysis_date.strftime('%m/%d/%Y') }}</small>
+                            </div>
+                            {% if analysis.ai_recommendation %}
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'success' if analysis.ai_recommendation == 'BUY' else 'warning' if analysis.ai_recommendation == 'HOLD' else 'danger' }}">
+                                    {{ analysis.ai_recommendation }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No analysis available yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- AI Trading Tips -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb text-success me-2"></i>AI Trading Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <div class="mb-3">
+                            <strong>Indian Market Focus:</strong>
+                            <p class="mb-0 text-muted">Focus on NSE large-cap stocks for stable returns and use technical analysis for intraday trading in Indian markets.</p>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Sector Insight:</strong>
+                            <p class="mb-0 text-muted">Banking and IT sectors showing strong momentum in NSE. Consider diversifying across these sectors.</p>
+                        </div>
+                        <div class="mb-0">
+                            <strong>Risk Management:</strong>
+                            <p class="mb-0 text-muted">Set stop-loss orders for all Indian stock positions to protect against sudden market volatility.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
         </div>
     </div>
 </div>
