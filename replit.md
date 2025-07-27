@@ -22,6 +22,10 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
 - ✓ Updated navigation links to point to public Trading Signals page instead of dashboard (login-protected) version
 - ✓ Fixed route naming conflicts between public and dashboard Trading Signals pages
 - ✓ Implemented proper separation: public pages accessible to all users, dashboard pages require authentication
+- ✓ Updated About page leadership team with authentic executive profiles from ScentricNetworks:
+  - Uday Shankar as Chief Executive Officer with Fortune 500 project experience
+  - Mukund Krishnasamy as Head of Business Development with financial markets expertise
+  - Added professional styling, contact information, and management team highlight section
 
 ## Previous Changes (2025-07-26)
 - ✓ Enhanced navigation menu structure with improved organization:
