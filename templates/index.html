@@ -85,7 +85,13 @@
                 <div class="text-center">
                     <div class="mb-4">
                         <img src="{{ url_for('static', filename='img/market-research.svg') }}" 
-                             alt="AI Analysis" width="120" height="120">
+                             alt="AI Market Analysis" width="120" height="120" 
+                             loading="lazy" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="text-primary" style="display:none; width:120px; height:120px; border:2px solid #007bff; border-radius:8px; padding:20px; text-align:center;">
+                            <i class="fas fa-chart-line fa-3x"></i>
+                            <small class="d-block mt-2">AI Analysis</small>
+                        </div>
                     </div>
                     <h5 class="fw-bold mb-3">AI Market Analysis</h5>
                     <p class="text-muted">
@@ -225,7 +231,13 @@
                 <div class="text-center">
                     <div class="mb-4">
                         <img src="{{ url_for('static', filename='img/market-research.svg') }}" 
-                             alt="Manual Processes" width="120" height="120">
+                             alt="Market Research Analysis" width="120" height="120" 
+                             loading="lazy" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="text-primary" style="display:none; width:120px; height:120px; border:2px solid #007bff; border-radius:8px; padding:20px; text-align:center;">
+                            <i class="fas fa-search fa-3x"></i>
+                            <small class="d-block mt-2">Research</small>
+                        </div>
                     </div>
                     <h5 class="fw-bold mb-3">Manual Analysis</h5>
                     <p class="text-muted">
