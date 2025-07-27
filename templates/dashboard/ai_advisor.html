@@ -405,28 +405,193 @@ document.getElementById('optimizePortfolioBtn').addEventListener('click', async 
     }
 });
 
-function displayAnalysisResult(analysis) {
+function displayAnalysisResult(data) {
     const resultDiv = document.getElementById('analysisResult');
-    const finalRec = analysis.final_recommendation;
+    const finalRec = data.final_recommendation;
     const confidence = (finalRec.confidence * 100).toFixed(1);
     
-    resultDiv.innerHTML = `
+    let html = `
         <div class="alert alert-success">
-            <h6><i class="fas fa-check-circle me-2"></i>Analysis Complete!</h6>
-            <div class="row">
-                <div class="col-md-6">
-                    <strong>Final Recommendation:</strong> 
-                    <span class="badge bg-primary">${finalRec.action}</span>
-                </div>
-                <div class="col-md-6">
-                    <strong>Confidence:</strong> ${confidence}%
+            <h5><i class="fas fa-check-circle me-2"></i>Analysis Complete!</h5>
+            <p>AI analysis has been completed for <strong>${finalRec.symbol}</strong>.</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-thumbs-up me-2"></i>Final Recommendation</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <span class="badge bg-${ 
+                                finalRec.action === 'BUY' ? 'success' : 
+                                finalRec.action === 'SELL' ? 'danger' : 'warning'
+                            } fs-6 p-2">${finalRec.action}</span>
+                            <div class="mt-2">
+                                <strong>Confidence: ${confidence}%</strong>
+                            </div>
+                            <div class="mt-2">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-${
+                                        finalRec.action === 'BUY' ? 'success' : 
+                                        finalRec.action === 'SELL' ? 'danger' : 'warning'
+                                    }" 
+                                         role="progressbar" 
+                                         style="width: ${confidence}%"
+                                         aria-valuenow="${confidence}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        ${confidence}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="mt-2">
-                <strong>Reasoning:</strong> ${finalRec.reasoning}
+            <div class="col-md-6">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trading Signals</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Action:</strong> 
+                            <span class="badge bg-${
+                                data.agents_analysis?.trading?.recommendation === 'BUY' ? 'success' : 
+                                data.agents_analysis?.trading?.recommendation === 'SELL' ? 'danger' : 'secondary'
+                            }">${data.agents_analysis?.trading?.recommendation || 'N/A'}</span>
+                        </p>
+                        <p><strong>Confidence:</strong> ${data.agents_analysis?.trading?.confidence ? (data.agents_analysis.trading.confidence * 100).toFixed(1) + '%' : 'N/A'}</p>
+                        <p><strong>Entry Point:</strong> $${data.agents_analysis?.trading?.entry_point || 'N/A'}</p>
+                    </div>
+                </div>
             </div>
         </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-newspaper me-2"></i>Sentiment Analysis</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Overall Sentiment:</strong> 
+                            <span class="badge bg-${
+                                data.agents_analysis?.sentiment?.overall_sentiment === 'POSITIVE' ? 'success' : 
+                                data.agents_analysis?.sentiment?.overall_sentiment === 'NEGATIVE' ? 'danger' : 'secondary'
+                            }">${data.agents_analysis?.sentiment?.overall_sentiment || 'NEUTRAL'}</span>
+                        </p>
+                        <p><strong>Score:</strong> ${data.agents_analysis?.sentiment?.sentiment_score || 'N/A'}</p>
+                        <p><strong>News Impact:</strong> ${data.agents_analysis?.sentiment?.news_sentiment || 'N/A'}</p>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 15px;">
+                                <div class="progress-bar bg-${
+                                    data.agents_analysis?.sentiment?.overall_sentiment === 'POSITIVE' ? 'success' : 
+                                    data.agents_analysis?.sentiment?.overall_sentiment === 'NEGATIVE' ? 'danger' : 'secondary'
+                                }" 
+                                     role="progressbar" 
+                                     style="width: ${data.agents_analysis?.sentiment?.sentiment_score ? Math.abs(data.agents_analysis.sentiment.sentiment_score * 100) : 50}%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Risk Assessment</h6>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Risk Level:</strong> 
+                            <span class="badge bg-${
+                                data.agents_analysis?.risk?.risk_level === 'LOW' ? 'success' : 
+                                data.agents_analysis?.risk?.risk_level === 'HIGH' ? 'danger' : 'warning'
+                            }">${data.agents_analysis?.risk?.risk_level || 'MEDIUM'}</span>
+                        </p>
+                        <p><strong>Position Size:</strong> ${data.agents_analysis?.risk?.suggested_position_size || 'N/A'}%</p>
+                        <p><strong>Risk Score:</strong> ${data.agents_analysis?.risk?.risk_score || 'N/A'}</p>
+                        <div class="mt-2">
+                            <div class="progress" style="height: 15px;">
+                                <div class="progress-bar bg-${
+                                    data.agents_analysis?.risk?.risk_level === 'LOW' ? 'success' : 
+                                    data.agents_analysis?.risk?.risk_level === 'HIGH' ? 'danger' : 'warning'
+                                }" 
+                                     role="progressbar" 
+                                     style="width: ${
+                                         data.agents_analysis?.risk?.risk_level === 'LOW' ? '25' :
+                                         data.agents_analysis?.risk?.risk_level === 'HIGH' ? '85' : '50'
+                                     }%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Agents Summary Chart -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>AI Agents Analysis Summary</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-3">
+                                <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                    <i class="fas fa-chart-line text-primary fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Trading Agent</h6>
+                                    <span class="badge bg-${
+                                        data.agents_analysis?.trading?.recommendation === 'BUY' ? 'success' : 
+                                        data.agents_analysis?.trading?.recommendation === 'SELL' ? 'danger' : 'secondary'
+                                    }">${data.agents_analysis?.trading?.recommendation || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-3 bg-warning bg-opacity-10 rounded">
+                                    <i class="fas fa-newspaper text-warning fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Sentiment Agent</h6>
+                                    <span class="badge bg-${
+                                        data.agents_analysis?.sentiment?.overall_sentiment === 'POSITIVE' ? 'success' : 
+                                        data.agents_analysis?.sentiment?.overall_sentiment === 'NEGATIVE' ? 'danger' : 'secondary'
+                                    }">${data.agents_analysis?.sentiment?.overall_sentiment || 'NEUTRAL'}</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-3 bg-danger bg-opacity-10 rounded">
+                                    <i class="fas fa-shield-alt text-danger fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Risk Agent</h6>
+                                    <span class="badge bg-${
+                                        data.agents_analysis?.risk?.risk_level === 'LOW' ? 'success' : 
+                                        data.agents_analysis?.risk?.risk_level === 'HIGH' ? 'danger' : 'warning'
+                                    }">${data.agents_analysis?.risk?.risk_level || 'MEDIUM'}</span>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-3 bg-success bg-opacity-10 rounded">
+                                    <i class="fas fa-briefcase text-success fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Portfolio Agent</h6>
+                                    <span class="badge bg-info">ANALYZED</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                ${finalRec.reasoning || 'Analysis completed by multi-agent AI system.'}
+            </small>
+        </div>
     `;
+    
+    resultDiv.innerHTML = html;
     resultDiv.classList.remove('d-none');
 }
 
