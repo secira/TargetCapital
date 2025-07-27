@@ -1,19 +1,15 @@
 {% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}NSE India Stocks - tCapital{% endblock %}
+{% block dashboard_title %}NSE India Stocks{% endblock %}
+{% block dashboard_subtitle %}Live Indian stock market data and trading{% endblock %}
 
 {% block dashboard_content %}
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 mb-1">NSE India Stock Market</h1>
-                    <p class="mb-0 text-muted">Real-time Indian stock market data and analysis</p>
-                </div>
-                <div>
-                    <button class="btn btn-light btn-sm" onclick="refreshMarketData()">
-                        <i class="fas fa-sync-alt me-1"></i>Refresh
-                    </button>
-                </div>
+            <!-- Market Refresh Button -->
+            <div class="d-flex justify-content-end mb-4">
+                <button class="btn btn-light btn-sm" onclick="refreshMarketData()">
+                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                </button>
             </div>
     <!-- Market Status -->
     <div class="row mb-4">

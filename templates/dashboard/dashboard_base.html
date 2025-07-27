@@ -19,7 +19,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Left Sidebar Navigation -->
-        <div class="col-lg-3 col-xl-2 bg-white border-end" style="min-height: calc(100vh - 200px); box-shadow: 1px 0 3px rgba(0,0,0,0.1);">
+        <div class="col-12 col-md-3 col-lg-3 col-xl-2 bg-white border-end d-md-block dashboard-sidebar-left" style="min-height: calc(100vh - 200px); box-shadow: 1px 0 3px rgba(0,0,0,0.1);">
             <div class="p-3">
                 <h6 class="text-muted fw-bold mb-3">TRADING MENU</h6>
                 <nav class="nav nav-pills flex-column">
@@ -43,12 +43,12 @@
         </div>
 
         <!-- Main Content Area -->
-        <div class="col-lg-6 col-xl-7 py-4">
+        <div class="col-12 col-md-6 col-lg-6 col-xl-7 py-4 dashboard-main-content">
             {% block dashboard_content %}{% endblock %}
         </div>
 
         <!-- Right Sidebar - Quick Actions and Info -->
-        <div class="col-lg-3 col-xl-3 py-4">
+        <div class="col-12 col-md-3 col-lg-3 col-xl-3 py-4 dashboard-sidebar-right">
             {% block right_sidebar %}
             <!-- Your Activity -->
             <div class="card shadow-sm mb-4">
@@ -195,6 +195,31 @@
     background-color: #007bff;
     color: white;
     box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+}
+
+/* Ensure proper layout on all screen sizes */
+@media (max-width: 767px) {
+    .dashboard-sidebar-left {
+        order: 1;
+    }
+    .dashboard-main-content {
+        order: 2;
+    }
+    .dashboard-sidebar-right {
+        order: 3;
+    }
+}
+
+@media (min-width: 768px) {
+    .dashboard-sidebar-left {
+        order: 1;
+    }
+    .dashboard-main-content {
+        order: 2;
+    }
+    .dashboard-sidebar-right {
+        order: 3;
+    }
 }
 </style>
 {% endblock %}
