@@ -1,143 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}AI Trading Signals - Real-Time Market Intelligence | tCapital{% endblock %}
-
-{% block description %}Get real-time AI-powered trading signals with 95% accuracy. Our machine learning algorithms analyze market data to provide instant buy/sell recommendations for optimal trading decisions.{% endblock %}
+{% block title %}Trading Signals - tCapital{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<section class="bg-white" style="padding-top: 140px; padding-bottom: 80px;">
+<section class="py-5 bg-gradient-primary text-white">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold text-dark mb-4">
-                    AI-Powered Trading Signals
-                </h1>
-                <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
-                    Receive real-time trading signals powered by advanced machine learning algorithms. 
-                    Our AI analyzes thousands of data points to deliver actionable buy/sell recommendations with 95% accuracy.
+                <h1 class="display-4 fw-bold mb-4">AI-Powered Trading Signals</h1>
+                <p class="lead mb-4">
+                    Get real-time trading signals powered by our advanced AI algorithms. 
+                    Make informed decisions with precise entry and exit points for maximum profitability.
                 </p>
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                <div class="d-flex gap-3">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill">
                         Start Free Trial
                     </a>
-                    <a href="{{ url_for('pricing') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                    <a href="{{ url_for('pricing') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
                         View Pricing
                     </a>
                 </div>
-                <p class="small text-muted mt-3">
-                    <i class="fas fa-check me-2 text-success"></i>7-day free trial • No credit card required • Cancel anytime
-                </p>
             </div>
-            <div class="col-lg-6">
-                <div class="text-center">
-                    <img src="{{ url_for('static', filename='img/trading-signals.svg') }}" 
-                         alt="Trading Signals" class="img-fluid" style="max-width: 500px;">
-                </div>
+            <div class="col-lg-6 text-center">
+                <img src="{{ url_for('static', filename='img/trading-signals.svg') }}" 
+                     alt="Trading Signals Dashboard" class="img-fluid" style="max-height: 400px;">
             </div>
         </div>
     </div>
 </section>
 
-<!-- Key Features -->
-<section class="bg-light" style="padding: 80px 0;">
+<!-- Signal Types Section -->
+<section class="py-5 bg-white">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center mb-5">
-                <h2 class="fw-bold text-dark mb-4">Advanced Signal Intelligence</h2>
-                <p class="text-muted">
-                    Our AI processes market data in real-time to deliver precise trading opportunities
-                </p>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold text-dark mb-4">Our Signal Types</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                Choose from multiple signal strategies designed for different trading styles and risk preferences
+            </p>
         </div>
         
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-bolt text-warning" style="font-size: 3rem;"></i>
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-4">
+                            <i class="fas fa-bolt text-primary fa-3x"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Real-Time Signals</h4>
-                        <p class="text-muted">
-                            Instant alerts delivered within milliseconds of market opportunities. 
-                            Never miss a profitable trade with our lightning-fast signal processing.
+                        <h5 class="fw-bold mb-3">Intraday Signals</h5>
+                        <p class="text-muted mb-4">
+                            Quick scalping opportunities with 5-15 minute holding periods. 
+                            Perfect for active day traders seeking frequent profit opportunities.
                         </p>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>1-5 minute timeframes</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Quick entry/exit points</li>
+                            <li><i class="fas fa-check text-success me-2"></i>High frequency signals</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Risk management alerts</li>
+                        </ul>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-target text-success" style="font-size: 3rem;"></i>
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-4">
+                            <i class="fas fa-chart-line text-success fa-3x"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">95% Accuracy Rate</h4>
-                        <p class="text-muted">
-                            Proven track record with 95% signal accuracy over the past 12 months. 
-                            Our ML models continuously learn and improve performance.
+                        <h5 class="fw-bold mb-3">Swing Trading</h5>
+                        <p class="text-muted mb-4">
+                            Medium-term signals for 2-10 day holding periods. 
+                            Ideal for traders who want quality over quantity.
                         </p>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>Daily timeframes</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Technical pattern analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Trend reversal signals</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Support/resistance levels</li>
+                        </ul>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-chart-line text-primary" style="font-size: 3rem;"></i>
+            <div class="col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-4">
+                            <i class="fas fa-chart-area text-warning fa-3x"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Multi-Asset Coverage</h4>
-                        <p class="text-muted">
-                            Signals for stocks, forex, crypto, and commodities. 
-                            Diversify your portfolio with opportunities across all major markets.
+                        <h5 class="fw-bold mb-3">Position Trading</h5>
+                        <p class="text-muted mb-4">
+                            Long-term signals for weeks to months holding periods. 
+                            Perfect for patient investors seeking substantial returns.
                         </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-mobile-alt text-info" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Mobile Alerts</h4>
-                        <p class="text-muted">
-                            Push notifications, SMS, and email alerts ensure you never miss a signal. 
-                            Trade on-the-go with our mobile-optimized platform.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-cog text-secondary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Customizable Filters</h4>
-                        <p class="text-muted">
-                            Set risk tolerance, asset preferences, and signal types. 
-                            Receive only the opportunities that match your trading strategy.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-shield-alt text-danger" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Risk Management</h4>
-                        <p class="text-muted">
-                            Every signal includes stop-loss and take-profit levels. 
-                            Automated risk management protects your capital.
-                        </p>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check text-success me-2"></i>Weekly/monthly analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Fundamental analysis</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Long-term trend signals</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Portfolio allocation advice</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -145,69 +107,177 @@
     </div>
 </section>
 
-<!-- How It Works -->
-<section class="bg-white" style="padding: 80px 0;">
+<!-- Live Signals Preview Section -->
+<section class="py-5 bg-light">
     <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold text-dark mb-3">How Our AI Generates Signals</h2>
-                <p class="text-muted">Advanced machine learning pipeline processes massive datasets</p>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold text-dark mb-4">Recent Signal Performance</h2>
+            <p class="lead text-muted">
+                See how our AI-powered signals have been performing in real market conditions
+            </p>
         </div>
         
         <div class="row g-4">
-            <div class="col-lg-3 col-md-6">
-                <div class="text-center">
-                    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                         style="width: 80px; height: 80px;">
-                        <span class="text-white fw-bold" style="font-size: 1.5rem;">1</span>
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Recent Signals Dashboard</h5>
                     </div>
-                    <h5 class="fw-bold mb-3">Data Ingestion</h5>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Stock</th>
+                                        <th>Signal Type</th>
+                                        <th>Entry Price</th>
+                                        <th>Current/Exit</th>
+                                        <th>P&L</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>RELIANCE.NS</strong></td>
+                                        <td><span class="badge bg-success">BUY</span></td>
+                                        <td>₹2,840</td>
+                                        <td>₹2,895</td>
+                                        <td class="text-success">+1.94%</td>
+                                        <td><span class="badge bg-warning">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TCS.NS</strong></td>
+                                        <td><span class="badge bg-danger">SELL</span></td>
+                                        <td>₹3,720</td>
+                                        <td>₹3,680</td>
+                                        <td class="text-success">+1.08%</td>
+                                        <td><span class="badge bg-success">Closed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>INFY.NS</strong></td>
+                                        <td><span class="badge bg-success">BUY</span></td>
+                                        <td>₹1,620</td>
+                                        <td>₹1,645</td>
+                                        <td class="text-success">+1.54%</td>
+                                        <td><span class="badge bg-warning">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>HDFC.NS</strong></td>
+                                        <td><span class="badge bg-success">BUY</span></td>
+                                        <td>₹1,750</td>
+                                        <td>₹1,785</td>
+                                        <td class="text-success">+2.00%</td>
+                                        <td><span class="badge bg-success">Closed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ICICIBANK.NS</strong></td>
+                                        <td><span class="badge bg-danger">SELL</span></td>
+                                        <td>₹1,180</td>
+                                        <td>₹1,165</td>
+                                        <td class="text-success">+1.27%</td>
+                                        <td><span class="badge bg-success">Closed</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-3 text-center">
+                                <h4 class="text-success fw-bold">87.5%</h4>
+                                <small class="text-muted">Success Rate</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h4 class="text-primary fw-bold">+1.56%</h4>
+                                <small class="text-muted">Avg. Return</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h4 class="text-warning fw-bold">48</h4>
+                                <small class="text-muted">Signals This Week</small>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h4 class="text-info fw-bold">12</h4>
+                                <small class="text-muted">Active Positions</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <p class="text-muted">
+                <i class="fas fa-lock me-2"></i>Join our premium members to access real-time signals and advanced analytics
+            </p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
+                Start Free Trial
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold text-dark mb-4">How Our Signals Work</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 600px;">
+                Our AI algorithms analyze multiple data sources to generate highly accurate trading signals
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="text-center">
+                    <div class="mb-4">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                            <span class="h3 fw-bold mb-0">1</span>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-3">Data Collection</h5>
                     <p class="text-muted">
-                        Real-time market data, news sentiment, social media trends, 
-                        and economic indicators are continuously processed.
+                        Our AI scans real-time market data, news sentiment, and technical indicators across multiple timeframes
                     </p>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3">
                 <div class="text-center">
-                    <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                         style="width: 80px; height: 80px;">
-                        <span class="text-white fw-bold" style="font-size: 1.5rem;">2</span>
+                    <div class="mb-4">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                            <span class="h3 fw-bold mb-0">2</span>
+                        </div>
                     </div>
                     <h5 class="fw-bold mb-3">AI Analysis</h5>
                     <p class="text-muted">
-                        Neural networks and ensemble models identify patterns 
-                        and predict price movements with high confidence.
+                        Advanced machine learning models process patterns and identify high-probability trading opportunities
                     </p>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3">
                 <div class="text-center">
-                    <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                         style="width: 80px; height: 80px;">
-                        <span class="text-white fw-bold" style="font-size: 1.5rem;">3</span>
+                    <div class="mb-4">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                            <span class="h3 fw-bold mb-0">3</span>
+                        </div>
                     </div>
                     <h5 class="fw-bold mb-3">Signal Generation</h5>
                     <p class="text-muted">
-                        Buy/sell signals are generated with entry points, 
-                        profit targets, and risk management parameters.
+                        Precise entry, exit, and stop-loss levels are calculated with confidence scores and risk assessments
                     </p>
                 </div>
             </div>
             
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-3">
                 <div class="text-center">
-                    <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                         style="width: 80px; height: 80px;">
-                        <span class="text-white fw-bold" style="font-size: 1.5rem;">4</span>
+                    <div class="mb-4">
+                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                            <span class="h3 fw-bold mb-0">4</span>
+                        </div>
                     </div>
-                    <h5 class="fw-bold mb-3">Instant Delivery</h5>
+                    <h5 class="fw-bold mb-3">Real-time Delivery</h5>
                     <p class="text-muted">
-                        Signals are instantly delivered to your preferred channels 
-                        with detailed analysis and execution guidance.
+                        Signals are instantly delivered via dashboard, email, and mobile notifications for timely execution
                     </p>
                 </div>
             </div>
@@ -215,149 +285,105 @@
     </div>
 </section>
 
-<!-- Performance Stats -->
-<section class="bg-primary text-white" style="padding: 80px 0;">
+<!-- Features Section -->
+<section class="py-5 bg-light">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">95%</h2>
-                <p class="mb-0">Signal Accuracy</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">500ms</h2>
-                <p class="mb-0">Average Delivery Time</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">15,000+</h2>
-                <p class="mb-0">Daily Signals</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">24/7</h2>
-                <p class="mb-0">Market Monitoring</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Signal Types -->
-<section class="bg-light" style="padding: 80px 0;">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold text-dark mb-3">Signal Types</h2>
-                <p class="text-muted">Choose the signals that match your trading style</p>
-            </div>
-        </div>
-        
-        <div class="row g-4">
+        <div class="row align-items-center">
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-clock text-danger me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Scalping Signals</h4>
+                <h2 class="display-6 fw-bold text-dark mb-4">Advanced Signal Features</h2>
+                <div class="feature-list">
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <i class="fas fa-brain text-primary fa-2x"></i>
                         </div>
-                        <p class="text-muted mb-3">
-                            High-frequency signals for quick 1-5 minute trades. Perfect for day traders 
-                            seeking multiple small profits throughout the trading session.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>1-5 minute timeframes</li>
-                            <li><i class="fas fa-check text-success me-2"></i>High volume opportunities</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Tight stop losses</li>
-                        </ul>
+                        <div>
+                            <h5 class="fw-bold mb-2">AI-Powered Analysis</h5>
+                            <p class="text-muted">
+                                Our advanced AI algorithms analyze 1000+ data points per second to identify optimal trading opportunities
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <i class="fas fa-shield-alt text-success fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Risk Management</h5>
+                            <p class="text-muted">
+                                Every signal comes with calculated stop-loss levels and position sizing recommendations
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex mb-4">
+                        <div class="me-3">
+                            <i class="fas fa-clock text-warning fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Real-time Alerts</h5>
+                            <p class="text-muted">
+                                Get instant notifications via dashboard, email, and mobile app for timely signal execution
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-chart-bar text-info fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-2">Performance Tracking</h5>
+                            <p class="text-muted">
+                                Track signal performance with detailed analytics and historical success rates
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-calendar-day text-primary me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Day Trading Signals</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Intraday opportunities with 15-60 minute holding periods. Ideal for active traders 
-                            looking for reliable daily profit opportunities.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>15-60 minute trades</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Momentum-based entries</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Clear profit targets</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-calendar-week text-success me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Swing Trading Signals</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Medium-term signals for 2-10 day holds. Perfect for part-time traders 
-                            who want to capture larger price movements without constant monitoring.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>2-10 day positions</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Trend-following strategies</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Higher profit potential</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-chart-line text-warning me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Position Trading Signals</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Long-term signals for weeks to months. Designed for investors seeking 
-                            substantial returns from major market trends and movements.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>Weeks to months</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Fundamental analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Maximum profit potential</li>
-                        </ul>
-                    </div>
-                </div>
+                <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
+                     alt="Trading Signals Features" class="img-fluid">
             </div>
         </div>
     </div>
 </section>
 
 <!-- CTA Section -->
-<section class="bg-white" style="padding: 80px 0;">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="fw-bold text-dark mb-4">Start Receiving Profitable Signals Today</h2>
-                <p class="lead text-muted mb-5">
-                    Join thousands of successful traders using our AI-powered signals to maximize profits and minimize risk.
-                </p>
-                
-                <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
-                        Start 7-Day Free Trial
-                    </a>
-                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
-                        Schedule Demo
-                    </a>
-                </div>
-                
-                <p class="small text-muted mt-4">
-                    <i class="fas fa-shield-alt me-2"></i>No credit card required • Cancel anytime • 30-day money-back guarantee
-                </p>
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-6 fw-bold mb-4">Ready to Start Trading Smarter?</h2>
+        <p class="lead mb-4">
+            Join thousands of traders who are already using our AI-powered signals to maximize their returns
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill">
+                <i class="fas fa-rocket me-2"></i>Start Free Trial
+            </a>
+            <a href="{{ url_for('contact') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
+                <i class="fas fa-phone me-2"></i>Contact Sales
+            </a>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-3">
+                <h3 class="fw-bold">10,000+</h3>
+                <p class="mb-0">Active Traders</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="fw-bold">87.5%</h3>
+                <p class="mb-0">Success Rate</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="fw-bold">₹2.5Cr+</h3>
+                <p class="mb-0">Trading Volume</p>
+            </div>
+            <div class="col-md-3">
+                <h3 class="fw-bold">24/7</h3>
+                <p class="mb-0">Market Coverage</p>
             </div>
         </div>
     </div>
 </section>
-
 {% endblock %}

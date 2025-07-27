@@ -14,7 +14,16 @@ Typography: Modern Poppins font throughout the website (updated on 2025-07-21)
 New Feature: Agentic AI system with multi-agent architecture (added on 2025-07-21)
 Dashboard Layout: Two-column layout with left sidebar for trading tools navigation (updated on 2025-07-21)
 
-## Recent Changes (2025-07-26)
+## Recent Changes (2025-07-27)
+- ✓ Fixed market-research.svg image loading issue on landing page with fallback mechanisms and lazy loading optimization
+- ✓ Enhanced AI Analysis functionality with rich visualizations including progress bars, color-coded badges, and interactive charts
+- ✓ Resolved AI Analysis images not displaying by implementing comprehensive displayAnalysisResult JavaScript function
+- ✓ Created public Trading Signals page (/trading-signals) separate from dashboard version
+- ✓ Updated navigation links to point to public Trading Signals page instead of dashboard (login-protected) version
+- ✓ Fixed route naming conflicts between public and dashboard Trading Signals pages
+- ✓ Implemented proper separation: public pages accessible to all users, dashboard pages require authentication
+
+## Previous Changes (2025-07-26)
 - ✓ Enhanced navigation menu structure with improved organization:
   - Converted single "About" link to "Company" dropdown menu  
   - Added Company sub-items: About Us, Careers, In the News, Partners

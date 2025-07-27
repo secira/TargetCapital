@@ -95,8 +95,8 @@ def partners():
     return render_template('partners.html')
 
 @app.route('/trading-signals')
-def trading_signals_page():
-    """Trading Signals service page route"""
+def trading_signals():
+    """Public Trading Signals page route"""
     return render_template('trading_signals.html')
 
 @app.route('/stock-research')
@@ -620,8 +620,8 @@ def nse_stocks():
 
 @app.route('/dashboard/trading-signals')
 @login_required
-def trading_signals():
-    """Trading Signals page with Indian market focus"""
+def dashboard_trading_signals():
+    """Dashboard Trading Signals page with Indian market focus"""
     return render_template('dashboard/trading_signals.html')
 
 @app.route('/dashboard/my-portfolio')
