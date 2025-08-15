@@ -1,0 +1,5 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="40" fill="black" rx="8"/>
+  <text x="60" y="16" fill="white" font-family="Arial, sans-serif" font-size="8" text-anchor="middle">Available on the</text>
+  <text x="60" y="28" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">App Store</text>
+</svg>

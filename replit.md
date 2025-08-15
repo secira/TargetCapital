@@ -1,239 +1,64 @@
 # tCapital - Flask Web Application
 
 ## Overview
-
-tCapital is a Flask-based web application that provides an AI-powered stock trading platform with portfolio analysis and algorithmic trading services. The application features a modern, responsive frontend with multiple service pages and a blog system for sharing trading insights.
+tCapital is a Flask-based web application providing an AI-powered stock trading platform. Its core purpose is to offer portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform aims to empower users with advanced AI tools for informed trading decisions and efficient portfolio management.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
-Brand name: tCapital (changed from AI TradeBot on 2025-07-20)
-Design preference: Clean white backgrounds instead of blue gradients (updated on 2025-07-20)
-Navigation bar: Custom dark navy background color #00091a (updated on 2025-07-20)
-Typography: Modern Poppins font throughout the website (updated on 2025-07-21)
-New Feature: Agentic AI system with multi-agent architecture (added on 2025-07-21)
-Dashboard Layout: Two-column layout with left sidebar for trading tools navigation (updated on 2025-07-21)
-
-## Recent Changes (2025-07-27)
-- ✓ Fixed market-research.svg image loading issue on landing page with fallback mechanisms and lazy loading optimization
-- ✓ Enhanced AI Analysis functionality with rich visualizations including progress bars, color-coded badges, and interactive charts
-- ✓ Resolved AI Analysis images not displaying by implementing comprehensive displayAnalysisResult JavaScript function
-- ✓ Created public Trading Signals page (/trading-signals) separate from dashboard version
-- ✓ Updated navigation links to point to public Trading Signals page instead of dashboard (login-protected) version
-- ✓ Fixed route naming conflicts between public and dashboard Trading Signals pages
-- ✓ Implemented proper separation: public pages accessible to all users, dashboard pages require authentication
-- ✓ Updated About page leadership team with authentic executive profiles from ScentricNetworks:
-  - Uday Shankar as Chief Executive Officer with Fortune 500 project experience
-  - Mukund Krishnasamy as Head of Business Development with financial markets expertise
-  - Added professional styling, contact information, and management team highlight section
-- ✓ Fixed Account Handling navigation links:
-  - Connected Account Handling menu and footer links to public account_handling.html page
-  - Resolved route naming conflicts between public and dashboard Account Handling pages
-  - Public page accessible to all users, dashboard version requires authentication
-
-## Previous Changes (2025-07-26)
-- ✓ Enhanced navigation menu structure with improved organization:
-  - Converted single "About" link to "Company" dropdown menu  
-  - Added Company sub-items: About Us, Careers, In the News, Partners
-  - Reorganized Services dropdown: Trading Signals, Stock Research, Portfolio Analysis, Algo Trading, Account Handling
-  - Added dedicated Pricing link and optimized navigation flow: Company → Services → Pricing → Blog
-  - Improved professional website navigation following industry standards
-- ✓ Created comprehensive pricing page modeled after arvat.ai:
-  - 3-tier pricing structure: Starter (Free), Professional ($49/mo), Enterprise (Custom)
-  - Monthly/annual billing toggle with 20% annual discount
-  - Feature comparison table and comprehensive FAQ section
-- ✓ Developed complete Company section pages:
-  - About Us page with mission, values, leadership team, and company stats
-  - Careers page with job listings, culture section, benefits, and application process
-  - In the News page with press coverage, media kit, and press contact information
-  - Partners page showcasing strategic partnerships and collaboration opportunities
-- ✓ Connected all new pages to Company dropdown navigation menu
-- ✓ Fixed logo text visibility by changing from white to dark blue font (#1a365d)
-- ✓ Enhanced navigation background to maintain solid white color when scrolling
-- ✓ Spread menu items evenly across header with better spacing and distribution
-- ✓ Increased image sizes for better visibility (portfolio-management.svg and other icons)
-- ✓ Completed all individual Services pages with professional layouts:
-  - Trading Signals page with real-time signal interface and performance metrics
-  - Stock Research page with comprehensive analysis tools and AI insights
-  - Portfolio Analysis page with optimization dashboard and risk metrics
-  - Algorithmic Trading page with strategy builder and execution monitoring
-  - Account Management page with tiered service levels and expert team presentation
-- ✓ Fixed Services dropdown navigation to connect to individual service pages
-- ✓ Updated footer links to properly connect all Services pages
-- ✓ Generated comprehensive supporting SVG graphics for all service pages
-- ✓ Created complete Support and Legal section pages:
-  - Help Center with FAQ, support categories, and search functionality
-  - Privacy Policy with comprehensive data protection and user rights information
-  - Terms of Service with clear usage terms and risk disclosures
-  - Risk Disclosure with detailed investment and AI trading risks
-  - Compliance page with regulatory status, filings, and contact information
-- ✓ Connected all Support and Legal pages to footer navigation menu
-- ✓ Merged about-us and about pages into single consolidated about page
-- ✓ Updated all navigation links in both top menu and footer to point to unified about page
-- ✓ Removed duplicate about_us route and template file for cleaner codebase structure
-
-## Previous Changes (2025-07-25)
-- ✓ Added professional tCapital logo to navigation menu with circular design
-- ✓ Created matching favicon for browser tab branding
-- ✓ Completely redesigned homepage layout using TargetGrid.ai-inspired modern design:
-  - Clean white background sections with subtle shadows
-  - Bold headlines with "Scale Smarter, Trade Faster" messaging
-  - AI-focused value propositions and feature presentations
-  - Problem/solution grid showcasing trading pain points
-  - Hyper-personalized trading features section
-  - Professional testimonials with customer success stories
-  - Strong call-to-action sections with rounded buttons
-  - Trust indicators and integration badges
-- ✓ Maintained all existing content while modernizing visual presentation
-- ✓ Implemented responsive design with mobile-first approach
-- ✓ All 9 SVG images optimized and working correctly
-- ✓ Removed image above hero section for cleaner layout
-- ✓ Created 404.html error template to fix application logs
-- ✓ Updated navigation to TargetGrid.ai-inspired style:
-  - Clean white background with subtle border
-  - Inter font family matching TargetGrid design
-  - Restructured menu items following TargetGrid model (Products, Pricing, Contact, Blog)
-  - Products dropdown with AI trading sub-items (AI Stock Analysis, Algorithmic Trading, Portfolio Dashboard, Risk Management, Market Intelligence)
-  - Gradient "Book a Demo" button styling
-  - Professional dropdown menus with clean shadows
-  - Fixed menu visibility issue
-- ✓ Created new pages with TargetGrid-inspired design:
-  - Pricing page with tiered plans (Starter Free, Professional $49/mo, Enterprise Custom)
-  - Contact page with comprehensive contact forms and multiple contact methods
-  - Both pages follow clean, modern design principles
-- ✓ Performed comprehensive code cleanup (2025-07-25):
-  - Removed duplicate contact form submission route
-  - Deleted unused temporary files (cookies.txt, __pycache__, .pyc files)
-  - Removed development setup scripts (setup_admin.py, setup_oauth.py, create_demo_user.py)
-  - Fixed all LSP diagnostics and code quality issues
-  - Verified all SVG images are properly used across templates
-  - Maintained OAuth functionality while removing unused logic
-  - Cleaned codebase for production readiness
+Brand name: tCapital
+Design preference: Clean white backgrounds instead of blue gradients
+Navigation bar: Custom dark navy background color #00091a
+Typography: Modern Poppins font throughout the website
+New Feature: Agentic AI system with multi-agent architecture
+Dashboard Layout: Two-column layout with left sidebar for trading tools navigation
 
 ## System Architecture
-
 ### Backend Architecture
 - **Framework**: Flask (Python web framework)
 - **Database ORM**: SQLAlchemy with Flask-SQLAlchemy extension
-- **Database**: SQLite (default) with PostgreSQL support via DATABASE_URL environment variable
-- **Session Management**: Flask sessions with configurable secret key
-- **Logging**: Python's built-in logging module configured at DEBUG level
-- **Deployment**: WSGI-compatible with ProxyFix middleware for reverse proxy support
+- **Database**: SQLite (default) with PostgreSQL support
+- **Session Management**: Flask sessions
+- **Logging**: Python's built-in logging module
+- **Deployment**: WSGI-compatible with ProxyFix middleware
 
 ### Frontend Architecture
-- **Template Engine**: Jinja2 (Flask's default)
+- **Template Engine**: Jinja2
 - **CSS Framework**: Bootstrap 5.3.0
 - **Icons**: Font Awesome 6.4.0
 - **Fonts**: Google Fonts (Inter)
-- **JavaScript**: Vanilla JavaScript with modern ES6+ features
+- **JavaScript**: Vanilla JavaScript (ES6+)
 - **Responsive Design**: Mobile-first approach using Bootstrap's grid system
+- **UI/UX Decisions**: Clean white backgrounds, subtle shadows, rounded elements, modern typography (Poppins/Inter), getquin.com and arvat.ai inspired layouts for various pages.
 
 ### Application Structure
-- **Entry Point**: `main.py` - Development server runner
-- **Application Factory**: `app.py` - Flask app initialization and configuration
-- **Models**: `models.py` - SQLAlchemy database models
-- **Routes**: `routes.py` - URL routing and view functions
-- **Services**: `/services/` - External API integrations and business logic
-  - `nse_service.py` - NSE India stock market data integration
-  - `market_data_service.py` - Multi-source market data with Alpha Vantage integration
-  - `ai_agent_service.py` - Agentic AI system with 4 specialized agents
-- **Templates**: `/templates/` - Jinja2 HTML templates
-- **Static Assets**: `/static/` - CSS, JavaScript, and media files
+- **Entry Point**: `main.py`
+- **Application Factory**: `app.py`
+- **Models**: `models.py` (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization)
+- **Routes**: `routes.py`
+- **Services**: `/services/` (nse_service.py, market_data_service.py, ai_agent_service.py)
+- **Templates**: `/templates/`
+- **Static Assets**: `/static/`
 
-## Key Components
-
-### Database Models
-1. **BlogPost**: Blog articles with title, content, author, featured images, and publishing metadata
-2. **TeamMember**: Team profiles with roles, bio, images, and social links
-3. **Testimonial**: Client testimonials with ratings and company information
-4. **User**: User authentication with Flask-Login, password hashing, profile information
-5. **WatchlistItem**: User stock watchlists with target prices and notes
-6. **StockAnalysis**: AI-powered stock analysis with recommendations and confidence scores
-7. **AIAnalysis**: Comprehensive AI agent analysis results with trading, sentiment, and risk data
-8. **PortfolioOptimization**: Portfolio optimization recommendations and rebalancing suggestions
-
-### Page Structure
-1. **Home Page** (`/`): Hero section, features, services overview, stats, testimonials
-2. **About Page** (`/about`): Company mission, team profiles, testimonials
-3. **Services Page** (`/services`): Service descriptions, benefits, testimonials
-4. **ALGO Trading Page** (`/algo-trading`): Specialized algorithmic trading features
-5. **Blog** (`/blog`): Article listings with pagination and featured posts
-6. **Blog Posts** (`/blog/<id>`): Individual article pages with related content
-7. **Authentication** (`/login`, `/register`, `/logout`): User authentication system
-8. **Dashboard** (`/dashboard`): User dashboard with market overview and watchlist
-9. **Stock Analysis** (`/dashboard/stock-analysis`): AI-powered stock analysis tools
-10. **Watchlist** (`/dashboard/watchlist`): Personal stock tracking and management
-11. **NSE India Stocks** (`/dashboard/nse-stocks`): Real-time Indian stock market data and trading interface
-12. **AI Advisor** (`/dashboard/ai-advisor`): Multi-agent AI system for comprehensive stock analysis and portfolio optimization
-
-### Frontend Features
-- Responsive navigation with dropdown menus and user authentication
-- Gradient backgrounds and modern UI components
-- Interactive elements with smooth scrolling
-- Form validation and user feedback
-- Animation and counter effects
-- Modal dialogs and tooltips
-- User dashboard with stock tracking and analysis tools
-- Real-time market data display (demo mode)
-- Stock watchlist management interface
-
-## Data Flow
-
-### Request Processing
-1. User requests are routed through Flask's URL routing system
-2. Route handlers in `routes.py` process requests and query database via SQLAlchemy models
-3. Data is passed to Jinja2 templates for rendering
-4. Rendered HTML is returned to the client with static assets served by Flask
-
-### Database Operations
-- Database models are defined using SQLAlchemy's declarative base
-- Database initialization occurs on application startup with automatic table creation
-- Database connections are managed by SQLAlchemy with connection pooling and health checks
-
-### Client-Side Interactions
-- JavaScript handles form submissions, animations, and user interface enhancements
-- AJAX requests (where implemented) communicate with Flask endpoints
-- Client-side validation complements server-side form processing
+### Key Features & Design Patterns
+- **AI-Powered Tools**: Integrated AI for stock analysis, trading signals, portfolio optimization, and an agentic AI advisor.
+- **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages.
+- **Navigation**: Enhanced menu structure with dropdowns, dedicated pricing link, and professional organization.
+- **Data Flow**: Flask's URL routing, SQLAlchemy for database operations, Jinja2 for rendering, and JavaScript for client-side interactions.
 
 ## External Dependencies
-
 ### Python Packages
-- Flask: Web framework
-- Flask-SQLAlchemy: Database ORM integration
-- Werkzeug: WSGI utilities and middleware
-- NSEPython: Real-time NSE India stock market data API
-- Pandas: Data manipulation and analysis
-- Requests: HTTP requests for API integration
+- Flask
+- Flask-SQLAlchemy
+- Werkzeug
+- NSEPython
+- Pandas
+- Requests
 
 ### Frontend Libraries
-- Bootstrap 5.3.0: CSS framework and components
-- Font Awesome 6.4.0: Icon library
-- Google Fonts (Inter): Typography
+- Bootstrap 5.3.0
+- Font Awesome 6.4.0
+- Google Fonts (Inter)
 
 ### Infrastructure Dependencies
 - Database: SQLite (development) / PostgreSQL (production)
-- Web server: Any WSGI-compatible server (development uses Flask's built-in server)
-
-## Deployment Strategy
-
-### Environment Configuration
-- Database URL configurable via `DATABASE_URL` environment variable
-- Session secret configurable via `SESSION_SECRET` environment variable
-- Application supports both SQLite (development) and PostgreSQL (production)
-
-### Production Considerations
-- ProxyFix middleware configured for reverse proxy deployment
-- SQLAlchemy connection pooling with health checks enabled
-- Debug mode controlled by environment
-- Static file serving handled by web server in production
-
-### Development Setup
-- Application runs on `0.0.0.0:5000` with debug mode enabled
-- Database tables automatically created on first run
-- Hot reloading enabled for development
-
-### Scalability Features
-- Database connection pooling with automatic reconnection
-- Stateless application design suitable for horizontal scaling
-- Separation of concerns between models, routes, and templates
-- Environment-based configuration for different deployment stages
+- Web server: Any WSGI-compatible server
