@@ -1,5 +1,9 @@
 <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="120" height="40" fill="black" rx="8"/>
-  <text x="60" y="16" fill="white" font-family="Arial, sans-serif" font-size="8" text-anchor="middle">Get it on</text>
-  <text x="60" y="28" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle">Google Play</text>
+  <rect width="120" height="40" fill="#000000" rx="8"/>
+  <text x="30" y="15" fill="white" font-family="Arial, sans-serif" font-size="8">GET IT ON</text>
+  <text x="30" y="28" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">Google Play</text>
+  <path d="M8 10L12 14L16 10M12 8V18" stroke="#4285f4" stroke-width="1.5" fill="none"/>
+  <path d="M18 12L22 8V16L18 12Z" fill="#ea4335"/>
+  <path d="M8 10L12 14L16 10L12 6L8 10Z" fill="#34a853"/>
+  <path d="M8 14L12 18L16 14L12 22L8 14Z" fill="#fbbc04"/>
 </svg>
