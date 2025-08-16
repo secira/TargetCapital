@@ -1,224 +1,517 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Account Handling - tCapital{% endblock %}
-{% block dashboard_title %}Account Handling{% endblock %}
-{% block dashboard_subtitle %}Manage your trading account and preferences{% endblock %}
+{% block title %}Account Handling - tCapital Dashboard{% endblock %}
 
-{% block dashboard_content %}
-<!-- Account Summary -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-user-circle text-primary me-2"></i>Account Summary
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="text-muted">Account Holder</label>
-                    <div class="fw-bold">{{ current_user.get_full_name() }}</div>
-                </div>
-                <div class="mb-3">
-                    <label class="text-muted">Account Type</label>
-                    <div class="fw-bold">Individual Trading Account</div>
-                </div>
-                <div class="mb-3">
-                    <label class="text-muted">Member Since</label>
-                    <div class="fw-bold">{{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'January 2024' }}</div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label class="text-muted">Available Balance</label>
-                    <div class="fw-bold text-success">₹2,45,670.50</div>
-                </div>
-                <div class="mb-3">
-                    <label class="text-muted">Total Investment</label>
-                    <div class="fw-bold">₹8,45,230.00</div>
-                </div>
-                <div class="mb-3">
-                    <label class="text-muted">Account Status</label>
-                    <span class="badge bg-success">Active</span>
-                </div>
-            </div>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
         </div>
-    </div>
-</div>
-
-<!-- Fund Management -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-wallet text-success me-2"></i>Fund Management
-                </h5>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-user-cog me-2"></i>Account Handling</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportAccountData()">
+                            <i class="fas fa-download me-1"></i>Export Data
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-success">
-                        <i class="fas fa-plus-circle me-2"></i>Add Funds
-                    </button>
-                    <button class="btn btn-outline-primary">
-                        <i class="fas fa-minus-circle me-2"></i>Withdraw Funds
-                    </button>
-                    <button class="btn btn-outline-info">
-                        <i class="fas fa-history me-2"></i>Transaction History
-                    </button>
+
+            <!-- Capital Investment Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Capital</h6>
+                                    <h4 class="mb-0" id="totalCapital">₹15,00,000</h4>
+                                    <small class="text-light">Allocated for handling</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-piggy-bank fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Current Value</h6>
+                                    <h4 class="mb-0" id="currentValue">₹16,85,450</h4>
+                                    <small class="text-light">+₹1,85,450 (+12.36%)</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Active Trades</h6>
+                                    <h4 class="mb-0" id="activeTrades">12</h4>
+                                    <small class="text-light">Currently running</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-exchange-alt fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Monthly Return</h6>
+                                    <h4 class="mb-0" id="monthlyReturn">+8.2%</h4>
+                                    <small class="text-light">This month</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-percentage fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P&L Analysis -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Profit & Loss Analysis</h5>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <input type="radio" class="btn-check" name="pnlPeriod" id="daily" checked>
+                                <label class="btn btn-outline-primary" for="daily">Daily</label>
+                                
+                                <input type="radio" class="btn-check" name="pnlPeriod" id="weekly">
+                                <label class="btn btn-outline-primary" for="weekly">Weekly</label>
+                                
+                                <input type="radio" class="btn-check" name="pnlPeriod" id="monthly">
+                                <label class="btn btn-outline-primary" for="monthly">Monthly</label>
+                                
+                                <input type="radio" class="btn-check" name="pnlPeriod" id="yearly">
+                                <label class="btn btn-outline-primary" for="yearly">Yearly</label>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                                        <h5 class="text-success">+₹45,680</h5>
+                                        <p class="mb-0">Today's P&L</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                                        <h5 class="text-primary">+₹1,85,420</h5>
+                                        <p class="mb-0">This Week</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                                        <h5 class="text-warning">+₹4,25,680</h5>
+                                        <p class="mb-0">This Month</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                                        <h5 class="text-info">+₹18,95,230</h5>
+                                        <p class="mb-0">This Year</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="pnlChart" width="800" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Trade Details -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Daily Trade Log</h5>
+                            <div>
+                                <input type="date" class="form-control form-control-sm" id="tradeDate" value="{{ date.today() }}">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Symbol</th>
+                                            <th>Action</th>
+                                            <th>Quantity</th>
+                                            <th>Entry Price</th>
+                                            <th>Exit Price</th>
+                                            <th>P&L</th>
+                                            <th>Broker</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tradeLogBody">
+                                        <tr>
+                                            <td>09:15 AM</td>
+                                            <td><strong>RELIANCE</strong></td>
+                                            <td><span class="badge bg-success">BUY</span></td>
+                                            <td>50</td>
+                                            <td>₹2,840.00</td>
+                                            <td>₹2,885.50</td>
+                                            <td class="text-success">+₹2,275 (+1.60%)</td>
+                                            <td>Zerodha</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>10:30 AM</td>
+                                            <td><strong>TCS</strong></td>
+                                            <td><span class="badge bg-danger">SELL</span></td>
+                                            <td>25</td>
+                                            <td>₹4,150.00</td>
+                                            <td>₹4,125.30</td>
+                                            <td class="text-danger">-₹618 (-0.60%)</td>
+                                            <td>Dhan</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>11:45 AM</td>
+                                            <td><strong>HDFCBANK</strong></td>
+                                            <td><span class="badge bg-success">BUY</span></td>
+                                            <td>30</td>
+                                            <td>₹1,640.00</td>
+                                            <td>₹1,675.80</td>
+                                            <td class="text-success">+₹1,074 (+2.18%)</td>
+                                            <td>Zerodha</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>02:15 PM</td>
+                                            <td><strong>INFY</strong></td>
+                                            <td><span class="badge bg-success">BUY</span></td>
+                                            <td>40</td>
+                                            <td>₹1,480.00</td>
+                                            <td>-</td>
+                                            <td class="text-muted">Holding</td>
+                                            <td>Dhan</td>
+                                            <td><span class="badge bg-warning">Active</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Manager Performance -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-user-tie me-2"></i>Account Manager Performance</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0">
+                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'><circle cx='25' cy='25' r='25' fill='%23007bff'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='20'>AM</text></svg>" 
+                                         alt="Account Manager" class="rounded-circle">
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-0">Rajesh Kumar</h6>
+                                    <small class="text-muted">Senior Account Manager</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small">Success Rate</span>
+                                    <span class="small fw-bold">85.2%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 85.2%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small">Average Return</span>
+                                    <span class="small fw-bold text-success">+12.3%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small">Risk Management</span>
+                                    <span class="small fw-bold text-warning">Moderate</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-0">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="small">Experience</span>
+                                    <span class="small fw-bold">8+ Years</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="mt-4">
-                    <h6 class="fw-bold mb-3">Recent Transactions</h6>
-                    <div class="small">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Fund Added</span>
-                            <span class="text-success">+₹50,000</span>
+                <div class="col-md-6">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Capital Allocation</h6>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Stock Purchase</span>
-                            <span class="text-danger">-₹1,25,000</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Dividend Received</span>
-                            <span class="text-success">+₹2,150</span>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Equity Trading</span>
+                                    <span class="fw-bold">60%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-primary" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Options Trading</span>
+                                    <span class="fw-bold">25%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-warning" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Futures Trading</span>
+                                    <span class="fw-bold">10%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-danger" style="width: 10%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-0">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>Cash Reserve</span>
+                                    <span class="fw-bold">5%</span>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" style="width: 5%"></div>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            <div class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" onclick="adjustAllocation()">
+                                    <i class="fas fa-cog me-1"></i>Adjust Allocation
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Allocation Adjustment Modal -->
+<div class="modal fade" id="allocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust Capital Allocation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Equity Trading (%)</label>
+                    <input type="range" class="form-range" id="equityRange" min="0" max="100" value="60">
+                    <div class="d-flex justify-content-between">
+                        <small>0%</small>
+                        <small id="equityValue">60%</small>
+                        <small>100%</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Options Trading (%)</label>
+                    <input type="range" class="form-range" id="optionsRange" min="0" max="100" value="25">
+                    <div class="d-flex justify-content-between">
+                        <small>0%</small>
+                        <small id="optionsValue">25%</small>
+                        <small>100%</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Futures Trading (%)</label>
+                    <input type="range" class="form-range" id="futuresRange" min="0" max="100" value="10">
+                    <div class="d-flex justify-content-between">
+                        <small>0%</small>
+                        <small id="futuresValue">10%</small>
+                        <small>100%</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cash Reserve (%)</label>
+                    <input type="range" class="form-range" id="cashRange" min="0" max="100" value="5">
+                    <div class="d-flex justify-content-between">
+                        <small>0%</small>
+                        <small id="cashValue">5%</small>
+                        <small>100%</small>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <strong>Total Allocation:</strong> <span id="totalAllocation">100%</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAllocation()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportAccountData() {
+    console.log('Exporting account data...');
+    // TODO: Implement export functionality
+}
+
+function refreshData() {
+    console.log('Refreshing account data...');
+    // TODO: Implement data refresh
+}
+
+function adjustAllocation() {
+    new bootstrap.Modal(document.getElementById('allocationModal')).show();
+}
+
+function saveAllocation() {
+    console.log('Saving allocation changes...');
+    // TODO: Implement allocation save
+    bootstrap.Modal.getInstance(document.getElementById('allocationModal')).hide();
+}
+
+// Update range slider values
+document.getElementById('equityRange').addEventListener('input', function() {
+    document.getElementById('equityValue').textContent = this.value + '%';
+    updateTotalAllocation();
+});
+
+document.getElementById('optionsRange').addEventListener('input', function() {
+    document.getElementById('optionsValue').textContent = this.value + '%';
+    updateTotalAllocation();
+});
+
+document.getElementById('futuresRange').addEventListener('input', function() {
+    document.getElementById('futuresValue').textContent = this.value + '%';
+    updateTotalAllocation();
+});
+
+document.getElementById('cashRange').addEventListener('input', function() {
+    document.getElementById('cashValue').textContent = this.value + '%';
+    updateTotalAllocation();
+});
+
+function updateTotalAllocation() {
+    const equity = parseInt(document.getElementById('equityRange').value);
+    const options = parseInt(document.getElementById('optionsRange').value);
+    const futures = parseInt(document.getElementById('futuresRange').value);
+    const cash = parseInt(document.getElementById('cashRange').value);
+    const total = equity + options + futures + cash;
     
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-cog text-warning me-2"></i>Account Settings
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary">
-                        <i class="fas fa-user-edit me-2"></i>Update Profile
-                    </button>
-                    <button class="btn btn-outline-warning">
-                        <i class="fas fa-key me-2"></i>Change Password
-                    </button>
-                    <button class="btn btn-outline-info">
-                        <i class="fas fa-bell me-2"></i>Notification Settings
-                    </button>
-                    <button class="btn btn-outline-secondary">
-                        <i class="fas fa-shield-alt me-2"></i>Security Settings
-                    </button>
-                </div>
-                
-                <div class="mt-4">
-                    <h6 class="fw-bold mb-3">Quick Settings</h6>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                        <label class="form-check-label" for="emailNotifications">
-                            Email Notifications
-                        </label>
-                    </div>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="smsAlerts" checked>
-                        <label class="form-check-label" for="smsAlerts">
-                            SMS Price Alerts
-                        </label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="marketNews">
-                        <label class="form-check-label" for="marketNews">
-                            Market News Updates
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    document.getElementById('totalAllocation').textContent = total + '%';
+    document.getElementById('totalAllocation').className = total === 100 ? 'text-success' : 'text-danger';
+}
 
-<!-- Documents & Reports -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-file-alt text-info me-2"></i>Documents & Reports
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="card border">
-                    <div class="card-body text-center">
-                        <i class="fas fa-chart-bar fa-2x text-primary mb-2"></i>
-                        <h6>Portfolio Statement</h6>
-                        <button class="btn btn-outline-primary btn-sm">Download</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card border">
-                    <div class="card-body text-center">
-                        <i class="fas fa-receipt fa-2x text-success mb-2"></i>
-                        <h6>Tax Reports</h6>
-                        <button class="btn btn-outline-success btn-sm">Download</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card border">
-                    <div class="card-body text-center">
-                        <i class="fas fa-history fa-2x text-warning mb-2"></i>
-                        <h6>Trade History</h6>
-                        <button class="btn btn-outline-warning btn-sm">Download</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+// P&L period change handlers
+document.querySelectorAll('input[name="pnlPeriod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        console.log('P&L period changed to:', this.id);
+        // TODO: Update P&L chart based on selected period
+    });
+});
 
-<!-- Support & Help -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-life-ring text-danger me-2"></i>Support & Help
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3">Contact Support</h6>
-                <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-phone text-primary me-2"></i>
-                        <span>+91 80-4717-4600</span>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-envelope text-primary me-2"></i>
-                        <span>support@tcapital.ai</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-clock text-primary me-2"></i>
-                        <span>Mon-Fri: 8:00 AM - 8:00 PM</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <h6 class="fw-bold mb-3">Quick Actions</h6>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-question-circle me-2"></i>FAQ
-                    </button>
-                    <button class="btn btn-outline-info btn-sm">
-                        <i class="fas fa-comments me-2"></i>Live Chat
-                    </button>
-                    <button class="btn btn-outline-warning btn-sm">
-                        <i class="fas fa-ticket-alt me-2"></i>Raise Ticket
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+// Trade date change handler
+document.getElementById('tradeDate').addEventListener('change', function() {
+    console.log('Trade date changed to:', this.value);
+    // TODO: Load trades for selected date
+});
+
+// Initialize P&L chart (placeholder)
+// TODO: Implement actual chart using Chart.js or similar library
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.btn-toolbar .btn-group {
+    margin-right: 0.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 20px;
+}
+
+.form-range {
+    margin: 10px 0;
+}
+
+.bg-opacity-10 {
+    background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+}
+</style>
 {% endblock %}

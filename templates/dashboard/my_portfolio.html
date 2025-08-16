@@ -1,232 +1,494 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}My Portfolio - tCapital{% endblock %}
-{% block dashboard_title %}My Portfolio{% endblock %}
-{% block dashboard_subtitle %}Your Indian stock holdings and performance analysis{% endblock %}
+{% block title %}My Portfolio - tCapital Dashboard{% endblock %}
 
-{% block dashboard_content %}
-<!-- Portfolio Summary -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-briefcase text-primary me-2"></i>Portfolio Overview
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row text-center mb-4">
-            <div class="col-md-3">
-                <div class="p-3 bg-primary bg-opacity-10 rounded">
-                    <h4 class="text-primary fw-bold">₹8,45,230</h4>
-                    <small class="text-muted">Total Value</small>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-briefcase me-2"></i>My Portfolio</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showUploadModal()">
+                            <i class="fas fa-upload me-1"></i>Upload Portfolio
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshPortfolio()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-success bg-opacity-10 rounded">
-                    <h4 class="text-success fw-bold">+₹67,540</h4>
-                    <small class="text-muted">Total Gains</small>
+
+            <!-- Portfolio Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Value</h6>
+                                    <h4 class="mb-0" id="totalValue">₹12,45,680</h4>
+                                    <small class="text-light">+₹45,230 (+3.77%)</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Today's P&L</h6>
+                                    <h4 class="mb-0" id="todayPnL">+₹8,450</h4>
+                                    <small class="text-light">+0.68%</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-arrow-up fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Stocks</h6>
+                                    <h4 class="mb-0" id="totalStocks">24</h4>
+                                    <small class="text-light">Across 8 sectors</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-layer-group fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Invested Amount</h6>
+                                    <h4 class="mb-0" id="investedAmount">₹12,00,450</h4>
+                                    <small class="text-light">Across brokers</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-rupee-sign fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-warning bg-opacity-10 rounded">
-                    <h4 class="text-warning fw-bold">+8.7%</h4>
-                    <small class="text-muted">Total Return</small>
+
+            <!-- Portfolio Upload Section -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Broker Integration</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23387ed1'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='12'>Zerodha</text></svg>" alt="Zerodha" class="mb-2">
+                                        <h6>Zerodha</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('zerodha')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23e74c3c'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='10'>Angel One</text></svg>" alt="Angel Broking" class="mb-2">
+                                        <h6>Angel One</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('angel')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-muted"><i class="fas fa-times-circle me-1"></i>Not Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23ff9500'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='14'>Dhan</text></svg>" alt="Dhan" class="mb-2">
+                                        <h6>Dhan</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('dhan')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Connect your broker accounts for automatic portfolio synchronization. All data is encrypted and secure.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-info bg-opacity-10 rounded">
-                    <h4 class="text-info fw-bold">12</h4>
-                    <small class="text-muted">Holdings</small>
+
+            <!-- Portfolio Allocation Chart -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Sector Allocation</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="sectorChart" width="400" height="200"></canvas>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #007bff; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>IT (28%)</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #28a745; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>Banking (22%)</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #ffc107; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>Energy (18%)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #dc3545; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>FMCG (15%)</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #17a2b8; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>Auto (10%)</small>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div style="width: 12px; height: 12px; background-color: #6f42c1; margin-right: 8px; border-radius: 2px;"></div>
+                                            <small>Others (7%)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Top Holdings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">RELIANCE</span>
+                                    <span class="badge bg-primary">8.5%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">TCS</span>
+                                    <span class="badge bg-success">7.2%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">HDFCBANK</span>
+                                    <span class="badge bg-info">6.8%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">INFY</span>
+                                    <span class="badge bg-warning">5.9%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: 59%"></div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold">ICICIBANK</span>
+                                    <span class="badge bg-danger">5.1%</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: 51%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Holdings Table -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Portfolio Holdings</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-success" onclick="optimizePortfolio()">
+                                    <i class="fas fa-magic me-1"></i>AI Optimize
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="exportPortfolio()">
+                                    <i class="fas fa-download me-1"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Company</th>
+                                            <th>Quantity</th>
+                                            <th>Avg Price</th>
+                                            <th>Current Price</th>
+                                            <th>Investment</th>
+                                            <th>Current Value</th>
+                                            <th>P&L</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="holdingsTableBody">
+                                        <tr>
+                                            <td><strong>RELIANCE</strong></td>
+                                            <td>Reliance Industries</td>
+                                            <td>40</td>
+                                            <td>₹2,650.00</td>
+                                            <td>₹2,845.60</td>
+                                            <td>₹1,06,000</td>
+                                            <td>₹1,13,824</td>
+                                            <td class="text-success">+₹7,824 (+7.38%)</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewStockDetails('RELIANCE')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="sellStock('RELIANCE')">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>TCS</strong></td>
+                                            <td>Tata Consultancy Services</td>
+                                            <td>25</td>
+                                            <td>₹4,200.00</td>
+                                            <td>₹4,125.30</td>
+                                            <td>₹1,05,000</td>
+                                            <td>₹1,03,133</td>
+                                            <td class="text-danger">-₹1,867 (-1.78%)</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewStockDetails('TCS')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="sellStock('TCS')">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>HDFCBANK</strong></td>
+                                            <td>HDFC Bank</td>
+                                            <td>60</td>
+                                            <td>₹1,580.00</td>
+                                            <td>₹1,652.45</td>
+                                            <td>₹94,800</td>
+                                            <td>₹99,147</td>
+                                            <td class="text-success">+₹4,347 (+4.58%)</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewStockDetails('HDFCBANK')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="sellStock('HDFCBANK')">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Holdings -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-chart-pie text-success me-2"></i>Current Holdings
-        </h5>
-        <a href="#" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-plus me-1"></i>Add Stock
-        </a>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Stock</th>
-                        <th>Qty</th>
-                        <th>Avg Price</th>
-                        <th>Current Price</th>
-                        <th>P&L</th>
-                        <th>Weight</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div>
-                                <span class="fw-bold">RELIANCE</span>
-                                <div class="small text-muted">Reliance Industries</div>
-                            </div>
-                        </td>
-                        <td>50</td>
-                        <td>₹2,750.00</td>
-                        <td>₹2,845.60</td>
-                        <td class="text-success">+₹4,780 (+3.5%)</td>
-                        <td>16.8%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>
-                                <span class="fw-bold">TCS</span>
-                                <div class="small text-muted">Tata Consultancy</div>
-                            </div>
-                        </td>
-                        <td>25</td>
-                        <td>₹4,050.00</td>
-                        <td>₹4,127.85</td>
-                        <td class="text-success">+₹1,946 (+1.9%)</td>
-                        <td>12.2%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>
-                                <span class="fw-bold">HDFCBANK</span>
-                                <div class="small text-muted">HDFC Bank</div>
-                            </div>
-                        </td>
-                        <td>60</td>
-                        <td>₹1,680.00</td>
-                        <td>₹1,672.40</td>
-                        <td class="text-danger">-₹456 (-0.5%)</td>
-                        <td>11.9%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>
-                                <span class="fw-bold">INFY</span>
-                                <div class="small text-muted">Infosys</div>
-                            </div>
-                        </td>
-                        <td>35</td>
-                        <td>₹1,620.00</td>
-                        <td>₹1,678.25</td>
-                        <td class="text-success">+₹2,039 (+3.6%)</td>
-                        <td>10.3%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div>
-                                <span class="fw-bold">ICICIBANK</span>
-                                <div class="small text-muted">ICICI Bank</div>
-                            </div>
-                        </td>
-                        <td>80</td>
-                        <td>₹950.00</td>
-                        <td>₹978.50</td>
-                        <td class="text-success">+₹2,280 (+3.0%)</td>
-                        <td>9.3%</td>
-                    </tr>
-                </tbody>
-            </table>
+<!-- Upload Portfolio Modal -->
+<div class="modal fade" id="uploadPortfolioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Select Broker</label>
+                    <select class="form-select" id="brokerSelect">
+                        <option value="zerodha">Zerodha</option>
+                        <option value="angel">Angel One</option>
+                        <option value="dhan">Dhan</option>
+                        <option value="manual">Manual Upload</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Upload Portfolio File</label>
+                    <input type="file" class="form-control" id="portfolioFile" accept=".csv,.xlsx,.xls">
+                    <div class="form-text">
+                        Supported formats: CSV, Excel. 
+                        <a href="#" onclick="downloadTemplate()">Download template</a>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="overwritePortfolio">
+                        <label class="form-check-label" for="overwritePortfolio">
+                            Overwrite existing portfolio data
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="uploadPortfolio()">Upload</button>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Sector Allocation -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-doughnut text-info me-2"></i>Sector Allocation
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Banking & Finance</span>
-                        <span class="fw-bold">35.2%</span>
-                    </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-primary" style="width: 35.2%"></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Information Technology</span>
-                        <span class="fw-bold">28.5%</span>
-                    </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: 28.5%"></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Energy & Oil</span>
-                        <span class="fw-bold">16.8%</span>
-                    </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-warning" style="width: 16.8%"></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>Others</span>
-                        <span class="fw-bold">19.5%</span>
-                    </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-info" style="width: 19.5%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<script>
+function showUploadModal() {
+    new bootstrap.Modal(document.getElementById('uploadPortfolioModal')).show();
+}
+
+function refreshPortfolio() {
+    console.log('Refreshing portfolio...');
+    // TODO: Implement portfolio refresh functionality
+}
+
+function connectBroker(broker) {
+    console.log('Connecting to broker:', broker);
+    // TODO: Implement broker connection functionality
+}
+
+function optimizePortfolio() {
+    console.log('Optimizing portfolio using AI...');
+    // TODO: Implement AI portfolio optimization
+}
+
+function exportPortfolio() {
+    console.log('Exporting portfolio...');
+    // TODO: Implement portfolio export functionality
+}
+
+function viewStockDetails(symbol) {
+    console.log('Viewing stock details for:', symbol);
+    // TODO: Implement stock details view
+}
+
+function sellStock(symbol) {
+    console.log('Selling stock:', symbol);
+    // TODO: Implement stock selling functionality
+}
+
+function uploadPortfolio() {
+    const broker = document.getElementById('brokerSelect').value;
+    const file = document.getElementById('portfolioFile').files[0];
     
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-trophy text-warning me-2"></i>Top Performers
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                    <div>
-                        <h6 class="fw-bold mb-1">INFY</h6>
-                        <small class="text-muted">Infosys Limited</small>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-success">+3.6%</span>
-                        <div class="small text-muted">₹+2,039</div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                    <div>
-                        <h6 class="fw-bold mb-1">RELIANCE</h6>
-                        <small class="text-muted">Reliance Industries</small>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-success">+3.5%</span>
-                        <div class="small text-muted">₹+4,780</div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                    <div>
-                        <h6 class="fw-bold mb-1">ICICIBANK</h6>
-                        <small class="text-muted">ICICI Bank</small>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-success">+3.0%</span>
-                        <div class="small text-muted">₹+2,280</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    if (!file) {
+        alert('Please select a file to upload');
+        return;
+    }
+    
+    console.log('Uploading portfolio from:', broker, 'File:', file.name);
+    // TODO: Implement portfolio upload functionality
+    
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('uploadPortfolioModal')).hide();
+}
+
+function downloadTemplate() {
+    console.log('Downloading portfolio template...');
+    // TODO: Implement template download
+}
+
+// Initialize sector chart (placeholder)
+// TODO: Implement actual chart using Chart.js or similar library
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.btn-toolbar .btn-group {
+    margin-right: 0.5rem;
+}
+
+.border {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.border:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
 {% endblock %}

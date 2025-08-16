@@ -1,177 +1,365 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Trading Signals - tCapital{% endblock %}
-{% block dashboard_title %}Trading Signals{% endblock %}
-{% block dashboard_subtitle %}Real-time AI-powered trading signals for Indian markets{% endblock %}
+{% block title %}Trading Signals - tCapital Dashboard{% endblock %}
 
-{% block dashboard_content %}
-<!-- Live Trading Signals -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-signal text-success me-2"></i>Live NSE Signals
-        </h5>
-        <span class="badge bg-success">
-            <i class="fas fa-circle pulse"></i> LIVE
-        </span>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-chart-line me-2"></i>Trading Signals</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshSignals()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Nifty 50</h6>
+                                    <h4 class="mb-0" id="nifty-price">22,345.60</h4>
+                                    <small class="text-light">+145.30 (+0.65%)</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-arrow-up fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Bank Nifty</h6>
+                                    <h4 class="mb-0" id="banknifty-price">48,750.25</h4>
+                                    <small class="text-light">-125.45 (-0.26%)</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-arrow-down fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Active Signals</h6>
+                                    <h4 class="mb-0" id="active-signals">24</h4>
+                                    <small class="text-light">AI Generated</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-robot fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Success Rate</h6>
+                                    <h4 class="mb-0" id="success-rate">78.5%</h4>
+                                    <small class="text-light">Last 30 days</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-trophy fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Signal Type</label>
+                                    <select class="form-select" id="signalType">
+                                        <option value="all">All Signals</option>
+                                        <option value="buy">Buy Signals</option>
+                                        <option value="sell">Sell Signals</option>
+                                        <option value="hold">Hold Signals</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Market Cap</label>
+                                    <select class="form-select" id="marketCap">
+                                        <option value="all">All Caps</option>
+                                        <option value="large">Large Cap</option>
+                                        <option value="mid">Mid Cap</option>
+                                        <option value="small">Small Cap</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Sector</label>
+                                    <select class="form-select" id="sector">
+                                        <option value="all">All Sectors</option>
+                                        <option value="banking">Banking</option>
+                                        <option value="it">Information Technology</option>
+                                        <option value="pharma">Pharmaceuticals</option>
+                                        <option value="auto">Automobile</option>
+                                        <option value="fmcg">FMCG</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Search Stock</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="stockSearch" placeholder="Enter symbol...">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="searchStock()">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Signals Table -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Active Trading Signals</h5>
+                            <span class="badge bg-primary">Real-time AI Analysis</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Company</th>
+                                            <th>Signal</th>
+                                            <th>Current Price</th>
+                                            <th>Target Price</th>
+                                            <th>Stop Loss</th>
+                                            <th>Confidence</th>
+                                            <th>Time Frame</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="signalsTableBody">
+                                        <!-- Trading signals will be loaded here dynamically -->
+                                        <tr>
+                                            <td><strong>RELIANCE</strong></td>
+                                            <td>Reliance Industries</td>
+                                            <td><span class="badge bg-success">BUY</span></td>
+                                            <td>₹2,845.60</td>
+                                            <td>₹3,100.00</td>
+                                            <td>₹2,650.00</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" style="width: 85%">85%</div>
+                                                </div>
+                                            </td>
+                                            <td>Short Term</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('RELIANCE')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('RELIANCE')">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>TCS</strong></td>
+                                            <td>Tata Consultancy Services</td>
+                                            <td><span class="badge bg-warning">HOLD</span></td>
+                                            <td>₹4,125.30</td>
+                                            <td>₹4,350.00</td>
+                                            <td>₹3,900.00</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-warning" style="width: 72%">72%</div>
+                                                </div>
+                                            </td>
+                                            <td>Medium Term</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('TCS')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('TCS')">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>HDFCBANK</strong></td>
+                                            <td>HDFC Bank</td>
+                                            <td><span class="badge bg-danger">SELL</span></td>
+                                            <td>₹1,652.45</td>
+                                            <td>₹1,500.00</td>
+                                            <td>₹1,720.00</td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-danger" style="width: 68%">68%</div>
+                                                </div>
+                                            </td>
+                                            <td>Short Term</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('HDFCBANK')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('HDFCBANK')">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Panel -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI Market Insights</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Market Sentiment</h6>
+                                    <div class="progress mb-3" style="height: 25px;">
+                                        <div class="progress-bar bg-success" style="width: 65%">Bullish 65%</div>
+                                    </div>
+                                    <p class="small text-muted">AI analysis suggests moderate bullish sentiment based on technical indicators and news analysis.</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Top Sectors to Watch</h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="badge bg-primary">Information Technology</span>
+                                        <span class="badge bg-success">Banking</span>
+                                        <span class="badge bg-warning">Pharmaceuticals</span>
+                                        <span class="badge bg-info">FMCG</span>
+                                    </div>
+                                    <p class="small text-muted mt-2">These sectors show strong technical patterns and positive momentum.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
+</div>
+
+<!-- Signal Details Modal -->
+<div class="modal fade" id="signalDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Signal Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="signalDetailsBody">
+                <!-- Signal details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshSignals() {
+    // Implement signal refresh functionality
+    console.log('Refreshing trading signals...');
+    // TODO: Fetch latest signals from API
+}
+
+function searchStock() {
+    const searchTerm = document.getElementById('stockSearch').value;
+    console.log('Searching for stock:', searchTerm);
+    // TODO: Implement stock search functionality
+}
+
+function viewDetails(symbol) {
+    // Show detailed analysis for the stock
+    document.getElementById('signalDetailsBody').innerHTML = `
         <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="alert alert-success border-0 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">RELIANCE</h6>
-                            <small class="text-muted">BUY Signal • ₹2,845.60</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-success">+2.3%</span>
-                            <div class="small text-muted">Target: ₹2,950</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <h6>Technical Analysis</h6>
+                <p>Detailed technical analysis for ${symbol} will be displayed here.</p>
             </div>
-            <div class="col-md-6 mb-3">
-                <div class="alert alert-warning border-0 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">HDFCBANK</h6>
-                            <small class="text-muted">HOLD Signal • ₹1,672.40</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-warning">-0.7%</span>
-                            <div class="small text-muted">Watch: ₹1,650</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="alert alert-success border-0 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">TCS</h6>
-                            <small class="text-muted">BUY Signal • ₹4,127.85</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-success">+1.8%</span>
-                            <div class="small text-muted">Target: ₹4,300</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="alert alert-danger border-0 shadow-sm">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">BHARTIARTL</h6>
-                            <small class="text-muted">SELL Signal • ₹1,234.50</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-danger">-1.2%</span>
-                            <div class="small text-muted">Target: ₹1,180</div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-6">
+                <h6>AI Reasoning</h6>
+                <p>AI-generated reasoning and rationale for the signal will be shown here.</p>
             </div>
         </div>
-    </div>
-</div>
+    `;
+    new bootstrap.Modal(document.getElementById('signalDetailsModal')).show();
+}
 
-<!-- Signal Performance -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-chart-line text-primary me-2"></i>Signal Performance
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row text-center mb-4">
-            <div class="col-md-3">
-                <div class="p-3 bg-success bg-opacity-10 rounded">
-                    <h4 class="text-success fw-bold">87%</h4>
-                    <small class="text-muted">Accuracy Rate</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-primary bg-opacity-10 rounded">
-                    <h4 class="text-primary fw-bold">142</h4>
-                    <small class="text-muted">Signals Today</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-warning bg-opacity-10 rounded">
-                    <h4 class="text-warning fw-bold">+12.3%</h4>
-                    <small class="text-muted">Avg Return</small>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="p-3 bg-info bg-opacity-10 rounded">
-                    <h4 class="text-info fw-bold">1,247</h4>
-                    <small class="text-muted">Total Signals</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+function addToWatchlist(symbol) {
+    // Add stock to user's watchlist
+    console.log('Adding to watchlist:', symbol);
+    // TODO: Implement add to watchlist functionality
+}
 
-<!-- Market Sectors -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-industry text-info me-2"></i>Sector Signals
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Sector</th>
-                        <th>Signal Count</th>
-                        <th>Avg Performance</th>
-                        <th>Trend</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><i class="fas fa-university text-primary me-2"></i>Banking</td>
-                        <td><span class="badge bg-primary">23</span></td>
-                        <td class="text-success">+2.1%</td>
-                        <td><i class="fas fa-arrow-up text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-laptop-code text-info me-2"></i>IT Services</td>
-                        <td><span class="badge bg-info">18</span></td>
-                        <td class="text-success">+1.8%</td>
-                        <td><i class="fas fa-arrow-up text-success"></i></td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-car text-warning me-2"></i>Automotive</td>
-                        <td><span class="badge bg-warning">12</span></td>
-                        <td class="text-warning">+0.3%</td>
-                        <td><i class="fas fa-minus text-muted"></i></td>
-                    </tr>
-                    <tr>
-                        <td><i class="fas fa-pills text-danger me-2"></i>Pharma</td>
-                        <td><span class="badge bg-danger">8</span></td>
-                        <td class="text-danger">-0.9%</td>
-                        <td><i class="fas fa-arrow-down text-danger"></i></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endblock %}
+// Auto-refresh signals every 30 seconds
+setInterval(refreshSignals, 30000);
+</script>
 
 <style>
-.pulse {
-    animation: pulse 2s infinite;
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.badge {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.btn-toolbar .btn-group {
+    margin-right: 0.5rem;
 }
 </style>
+{% endblock %}

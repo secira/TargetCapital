@@ -1,0 +1,147 @@
+<nav class="sidebar bg-dark text-white vh-100 position-fixed">
+    <div class="sidebar-header p-3">
+        <h4 class="text-center">
+            <i class="fas fa-chart-line me-2"></i>tCapital
+        </h4>
+        <p class="text-center small text-muted mb-0">AI Trading Dashboard</p>
+    </div>
+    
+    <div class="sidebar-content">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
+                   href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" 
+                   href="{{ url_for('dashboard_trading_signals') }}">
+                    <i class="fas fa-chart-line me-2"></i>Trading Signals
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_stock_picker' else '' }}" 
+                   href="{{ url_for('dashboard_stock_picker') }}">
+                    <i class="fas fa-search me-2"></i>Stock Picker
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" 
+                   href="{{ url_for('dashboard_my_portfolio') }}">
+                    <i class="fas fa-briefcase me-2"></i>My Portfolio
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" 
+                   href="{{ url_for('dashboard_trade_now') }}">
+                    <i class="fas fa-bolt me-2"></i>Trade Now
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" 
+                   href="{{ url_for('dashboard_account_handling') }}">
+                    <i class="fas fa-user-cog me-2"></i>Account Handling
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_ai_advisor' else '' }}" 
+                   href="{{ url_for('dashboard_ai_advisor') }}">
+                    <i class="fas fa-brain me-2"></i>AI Advisor
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_watchlist' else '' }}" 
+                   href="{{ url_for('dashboard_watchlist') }}">
+                    <i class="fas fa-eye me-2"></i>Watchlist
+                </a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_nse_stocks' else '' }}" 
+                   href="{{ url_for('dashboard_nse_stocks') }}">
+                    <i class="fas fa-list me-2"></i>NSE Stocks
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Broker Status -->
+        <div class="mt-4 p-3 border-top border-secondary">
+            <h6 class="text-muted small">Broker Status</h6>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small">Zerodha</span>
+                <span class="badge bg-success">Connected</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small">Dhan</span>
+                <span class="badge bg-success">Connected</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small">Angel One</span>
+                <span class="badge bg-secondary">Disconnected</span>
+            </div>
+        </div>
+        
+        <!-- AI Status -->
+        <div class="mt-3 p-3 border-top border-secondary">
+            <h6 class="text-muted small">AI Status</h6>
+            <div class="d-flex align-items-center">
+                <div class="spinner-grow spinner-grow-sm text-success me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="small">Agentic AI Active</span>
+            </div>
+            <small class="text-muted">Monitoring 245 stocks</small>
+        </div>
+    </div>
+</nav>
+
+<style>
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #00091a 0%, #1a1a2e 100%);
+    border-right: 1px solid #495057;
+    z-index: 1000;
+}
+
+.sidebar .nav-link {
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 2px 15px;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.sidebar .nav-link.active {
+    background-color: #007bff;
+    color: white !important;
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.badge {
+    font-size: 0.7rem;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+}
+</style>

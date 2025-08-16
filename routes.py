@@ -624,6 +624,26 @@ def dashboard_trading_signals():
     """Dashboard Trading Signals page with Indian market focus"""
     return render_template('dashboard/trading_signals.html')
 
+@app.route('/dashboard/stock-picker')
+@login_required
+def dashboard_stock_picker():
+    """AI-powered stock picker for research and analysis"""
+    return render_template('dashboard/stock_picker.html', current_user=current_user)
+
+@app.route('/dashboard/my-portfolio')
+@login_required
+def dashboard_my_portfolio():
+    """Portfolio management with unified broker view"""
+    return render_template('dashboard/my_portfolio.html', current_user=current_user)
+
+@app.route('/dashboard/trade-now')
+@login_required
+def dashboard_trade_now():
+    """Trade execution page following kavout.com smart-signals design"""
+    return render_template('dashboard/trade_now.html', current_user=current_user)
+
+
+
 @app.route('/dashboard/my-portfolio')
 @login_required  
 def my_portfolio():

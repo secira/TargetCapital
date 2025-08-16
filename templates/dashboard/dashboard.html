@@ -1,106 +1,359 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Dashboard - tCapital{% endblock %}
 
-{% block dashboard_title %}Welcome back, {{ current_user.get_full_name() }}!{% endblock %}
-{% block dashboard_subtitle %}Your Agentic AI-powered autonomous trading intelligence center{% endblock %}
-
-{% block dashboard_content %}
-<!-- Market Overview - Focus on Indian Markets -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-chart-area text-primary me-2"></i>Indian Market Overview
-        </h5>
-    </div>
-    <div class="card-body">
-        <!-- NSE Indices -->
-        <div class="mb-4">
-            <h6 class="text-muted fw-bold mb-3">NSE Indices</h6>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold mb-1">NIFTY 50</h6>
-                                <small class="text-muted">NSE Index</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold">₹22,368.45</div>
-                                <small class="text-success">
-                                    <i class="fas fa-arrow-up me-1"></i>+1.25%
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold mb-1">BANK NIFTY</h6>
-                                <small class="text-muted">Banking Index</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold">₹47,892.30</div>
-                                <small class="text-danger">
-                                    <i class="fas fa-arrow-down me-1"></i>-0.45%
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
         </div>
         
-        <!-- Top NSE Stocks -->
-        <div class="mb-4">
-            <h6 class="text-muted fw-bold mb-3">Top NSE Stocks</h6>
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-tachometer-alt me-2"></i>Portfolio Overview</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="syncAllData()">
+                            <i class="fas fa-sync-alt me-1"></i>Sync All
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportDashboard()">
+                            <i class="fas fa-download me-1"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Financial Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-gradient-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Portfolio Value</h6>
+                                    <h3 class="mb-0" id="totalPortfolioValue">₹18,45,680</h3>
+                                    <small class="text-light">+₹85,230 (+4.84%)</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-wallet fa-3x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-gradient-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Algo Trades Executed</h6>
+                                    <h3 class="mb-0" id="algoTrades">245</h3>
+                                    <small class="text-light">This month</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-robot fa-3x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-gradient-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Active Strategies</h6>
+                                    <h3 class="mb-0" id="activeStrategies">12</h3>
+                                    <small class="text-light">AI powered</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-brain fa-3x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-gradient-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Account Handling</h6>
+                                    <h3 class="mb-0" id="accountValue">₹15,00,000</h3>
+                                    <small class="text-light">Under management</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-user-tie fa-3x opacity-75"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Overview -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Indian Market Overview</h5>
+                            <span class="badge bg-success">Live</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">NIFTY 50</h6>
+                                            <small class="text-muted">NSE Index</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold fs-5">22,368.45</div>
+                                            <small class="text-success">
+                                                <i class="fas fa-arrow-up me-1"></i>+1.25%
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">BANK NIFTY</h6>
+                                            <small class="text-muted">Banking Index</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold fs-5">47,892.30</div>
+                                            <small class="text-danger">
+                                                <i class="fas fa-arrow-down me-1"></i>-0.45%
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">NIFTY IT</h6>
+                                            <small class="text-muted">IT Index</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold fs-5">32,145.80</div>
+                                            <small class="text-success">
+                                                <i class="fas fa-arrow-up me-1"></i>+2.15%
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">NIFTY AUTO</h6>
+                                            <small class="text-muted">Auto Index</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold fs-5">15,768.25</div>
+                                            <small class="text-warning">
+                                                <i class="fas fa-minus me-1"></i>-0.05%
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Today's Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <h3 class="text-success">+₹12,450</h3>
+                                <p class="text-muted mb-0">Today's P&L</p>
+                                <small class="text-success">+0.68% portfolio gain</small>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h6 class="text-success">8</h6>
+                                    <small class="text-muted">Winning Trades</small>
+                                </div>
+                                <div class="col-6">
+                                    <h6 class="text-danger">2</h6>
+                                    <small class="text-muted">Losing Trades</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Holdings and Recent Activity -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-star me-2"></i>Top Holdings</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong>RELIANCE</strong>
+                                        <br><small class="text-muted">Reliance Industries</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold">₹2,845.60</div>
+                                        <small class="text-success">+2.3%</small>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" style="width: 85%"></div>
+                                </div>
+                                <small class="text-muted">8.5% of portfolio</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong>TCS</strong>
+                                        <br><small class="text-muted">Tata Consultancy Services</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold">₹4,125.30</div>
+                                        <small class="text-success">+1.8%</small>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: 72%"></div>
+                                </div>
+                                <small class="text-muted">7.2% of portfolio</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <strong>HDFCBANK</strong>
+                                        <br><small class="text-muted">HDFC Bank</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold">₹1,652.45</div>
+                                        <small class="text-danger">-0.8%</small>
+                                    </div>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: 68%"></div>
+                                </div>
+                                <small class="text-muted">6.8% of portfolio</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Recent AI Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item mb-3">
+                                    <div class="timeline-marker bg-success"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">AI Buy Signal Generated</h6>
+                                        <p class="mb-1 small">RELIANCE - Strong momentum detected</p>
+                                        <small class="text-muted">2 minutes ago</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item mb-3">
+                                    <div class="timeline-marker bg-info"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Portfolio Rebalancing</h6>
+                                        <p class="mb-1 small">Automated allocation adjustment completed</p>
+                                        <small class="text-muted">15 minutes ago</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item mb-3">
+                                    <div class="timeline-marker bg-warning"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Market Alert</h6>
+                                        <p class="mb-1 small">Banking sector showing volatility</p>
+                                        <small class="text-muted">1 hour ago</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <h6 class="mb-1">Strategy Execution</h6>
+                                        <p class="mb-1 small">Momentum strategy triggered 3 trades</p>
+                                        <small class="text-muted">2 hours ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions and AI Insights -->
             <div class="row">
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold mb-1">RELIANCE</h6>
-                                <small class="text-muted">Reliance Industries</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold">₹2,845.60</div>
-                                <small class="text-success">
-                                    <i class="fas fa-arrow-up me-1"></i>+2.3%
-                                </small>
+                <div class="col-md-4">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-primary" onclick="location.href='/dashboard/trading-signals'">
+                                    <i class="fas fa-signal me-2"></i>View Trading Signals
+                                </button>
+                                <button class="btn btn-outline-success" onclick="location.href='/dashboard/stock-picker'">
+                                    <i class="fas fa-search me-2"></i>AI Stock Picker
+                                </button>
+                                <button class="btn btn-outline-info" onclick="location.href='/dashboard/trade-now'">
+                                    <i class="fas fa-lightning me-2"></i>Execute Trade
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="location.href='/dashboard/my-portfolio'">
+                                    <i class="fas fa-briefcase me-2"></i>Manage Portfolio
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold mb-1">TCS</h6>
-                                <small class="text-muted">Tata Consultancy</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold">₹4,127.85</div>
-                                <small class="text-success">
-                                    <i class="fas fa-arrow-up me-1"></i>+1.8%
-                                </small>
-                            </div>
+                
+                <div class="col-md-8">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-brain me-2"></i>AI Market Intelligence</h6>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="p-3 border rounded bg-light">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold mb-1">HDFCBANK</h6>
-                                <small class="text-muted">HDFC Bank</small>
-                            </div>
-                            <div class="text-end">
-                                <div class="fw-bold">₹1,672.40</div>
-                                <small class="text-danger">
-                                    <i class="fas fa-arrow-down me-1"></i>-0.7%
-                                </small>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Market Sentiment Analysis</h6>
+                                    <div class="progress mb-2" style="height: 25px;">
+                                        <div class="progress-bar bg-success" style="width: 68%">Bullish 68%</div>
+                                    </div>
+                                    <p class="small text-muted">AI analysis indicates positive market sentiment with strong IT and energy sector momentum.</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Recommended Actions</h6>
+                                    <ul class="list-unstyled">
+                                        <li class="small mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Consider increasing IT sector exposure
+                                        </li>
+                                        <li class="small mb-2">
+                                            <i class="fas fa-exclamation text-warning me-2"></i>
+                                            Monitor banking sector for volatility
+                                        </li>
+                                        <li class="small">
+                                            <i class="fas fa-info text-info me-2"></i>
+                                            Energy stocks showing strong momentum
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -110,71 +363,91 @@
     </div>
 </div>
 
-<!-- Indian Sector Performance -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h5 class="card-title mb-0">
-            <i class="fas fa-industry text-info me-2"></i>Sector Performance
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">Banking</h6>
-                            <small class="text-muted">15 stocks</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-success">+2.1%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">IT Services</h6>
-                            <small class="text-muted">12 stocks</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-success">+1.8%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">Pharma</h6>
-                            <small class="text-muted">8 stocks</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-danger">-0.9%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="p-3 border rounded">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">Auto</h6>
-                            <small class="text-muted">10 stocks</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-warning">+0.3%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+function syncAllData() {
+    console.log('Syncing all portfolio data...');
+    // TODO: Implement comprehensive data sync
+}
+
+function exportDashboard() {
+    console.log('Exporting dashboard data...');
+    // TODO: Implement dashboard export
+}
+
+// Auto-refresh dashboard data every 60 seconds
+setInterval(() => {
+    // Update portfolio values and market data
+    console.log('Auto-refreshing dashboard data...');
+}, 60000);
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+</style>
 {% endblock %}
-
-            <!-- Recent Analysis -->
-            <div class="card shadow-sm mb-4">
