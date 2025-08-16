@@ -9,7 +9,8 @@ Brand name: tCapital
 Design preference: Clean white backgrounds instead of blue gradients
 Navigation bar: Custom dark navy background color #00091a
 Typography: Modern Poppins font throughout the website
-New Feature: Agentic AI system with multi-agent architecture
+New Feature: Agentic AI system with multi-agent architecture for autonomous trading and portfolio analysis
+Core Concept: Agentic AI represents shift from passive automation to true autonomous decision-making with learn, reason, act, adapt capabilities
 Dashboard Layout: Two-column layout with left sidebar for trading tools navigation
 Recent Updates: Landing page images replaced with fresh SVG assets (August 16, 2025)
 Manual changes accepted for project integration and navigation structure
