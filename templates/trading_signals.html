@@ -107,183 +107,6 @@
     </div>
 </section>
 
-<!-- Live Signals Preview Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-6 fw-bold text-dark mb-4">Recent Signal Performance</h2>
-            <p class="lead text-muted">
-                See how our AI-powered signals have been performing in real market conditions
-            </p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-8 mx-auto">
-                <div class="card border-0 shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Recent Signals Dashboard</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Stock</th>
-                                        <th>Signal Type</th>
-                                        <th>Entry Price</th>
-                                        <th>Current/Exit</th>
-                                        <th>P&L</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>RELIANCE.NS</strong></td>
-                                        <td><span class="badge bg-success">BUY</span></td>
-                                        <td>₹2,840</td>
-                                        <td>₹2,895</td>
-                                        <td class="text-success">+1.94%</td>
-                                        <td><span class="badge bg-warning">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>TCS.NS</strong></td>
-                                        <td><span class="badge bg-danger">SELL</span></td>
-                                        <td>₹3,720</td>
-                                        <td>₹3,680</td>
-                                        <td class="text-success">+1.08%</td>
-                                        <td><span class="badge bg-success">Closed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>INFY.NS</strong></td>
-                                        <td><span class="badge bg-success">BUY</span></td>
-                                        <td>₹1,620</td>
-                                        <td>₹1,645</td>
-                                        <td class="text-success">+1.54%</td>
-                                        <td><span class="badge bg-warning">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>HDFC.NS</strong></td>
-                                        <td><span class="badge bg-success">BUY</span></td>
-                                        <td>₹1,750</td>
-                                        <td>₹1,785</td>
-                                        <td class="text-success">+2.00%</td>
-                                        <td><span class="badge bg-success">Closed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>ICICIBANK.NS</strong></td>
-                                        <td><span class="badge bg-danger">SELL</span></td>
-                                        <td>₹1,180</td>
-                                        <td>₹1,165</td>
-                                        <td class="text-success">+1.27%</td>
-                                        <td><span class="badge bg-success">Closed</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="row mt-4">
-                            <div class="col-md-3 text-center">
-                                <h4 class="text-success fw-bold">87.5%</h4>
-                                <small class="text-muted">Success Rate</small>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <h4 class="text-primary fw-bold">+1.56%</h4>
-                                <small class="text-muted">Avg. Return</small>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <h4 class="text-warning fw-bold">48</h4>
-                                <small class="text-muted">Signals This Week</small>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <h4 class="text-info fw-bold">12</h4>
-                                <small class="text-muted">Active Positions</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="text-center mt-4">
-            <p class="text-muted">
-                <i class="fas fa-lock me-2"></i>Join our premium members to access real-time signals and advanced analytics
-            </p>
-            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
-                Start Free Trial
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- How It Works Section -->
-<section class="py-5 bg-white">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-6 fw-bold text-dark mb-4">How Our Signals Work</h2>
-            <p class="lead text-muted mx-auto" style="max-width: 600px;">
-                Our AI algorithms analyze multiple data sources to generate highly accurate trading signals
-            </p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-3">
-                <div class="text-center">
-                    <div class="mb-4">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
-                            <span class="h3 fw-bold mb-0">1</span>
-                        </div>
-                    </div>
-                    <h5 class="fw-bold mb-3">Data Collection</h5>
-                    <p class="text-muted">
-                        Our AI scans real-time market data, news sentiment, and technical indicators across multiple timeframes
-                    </p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="text-center">
-                    <div class="mb-4">
-                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
-                            <span class="h3 fw-bold mb-0">2</span>
-                        </div>
-                    </div>
-                    <h5 class="fw-bold mb-3">AI Analysis</h5>
-                    <p class="text-muted">
-                        Advanced machine learning models process patterns and identify high-probability trading opportunities
-                    </p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="text-center">
-                    <div class="mb-4">
-                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
-                            <span class="h3 fw-bold mb-0">3</span>
-                        </div>
-                    </div>
-                    <h5 class="fw-bold mb-3">Signal Generation</h5>
-                    <p class="text-muted">
-                        Precise entry, exit, and stop-loss levels are calculated with confidence scores and risk assessments
-                    </p>
-                </div>
-            </div>
-            
-            <div class="col-lg-3">
-                <div class="text-center">
-                    <div class="mb-4">
-                        <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
-                            <span class="h3 fw-bold mb-0">4</span>
-                        </div>
-                    </div>
-                    <h5 class="fw-bold mb-3">Real-time Delivery</h5>
-                    <p class="text-muted">
-                        Signals are instantly delivered via dashboard, email, and mobile notifications for timely execution
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Features Section -->
 <section class="py-5 bg-light">
@@ -342,10 +165,6 @@
                 </div>
             </div>
             
-            <div class="col-lg-6">
-                <img src="{{ url_for('static', filename='img/ai-trading-dashboard.svg') }}" 
-                     alt="Trading Signals Features" class="img-fluid">
-            </div>
         </div>
     </div>
 </section>
@@ -368,7 +187,7 @@
         
         <div class="row mt-5">
             <div class="col-md-3">
-                <h3 class="fw-bold">10,000+</h3>
+                <h3 class="fw-bold">1,000+</h3>
                 <p class="mb-0">Active Traders</p>
             </div>
             <div class="col-md-3">
@@ -376,7 +195,7 @@
                 <p class="mb-0">Success Rate</p>
             </div>
             <div class="col-md-3">
-                <h3 class="fw-bold">₹2.5Cr+</h3>
+                <h3 class="fw-bold">₹10 Cr+</h3>
                 <p class="mb-0">Trading Volume</p>
             </div>
             <div class="col-md-3">
