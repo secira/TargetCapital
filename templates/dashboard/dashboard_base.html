@@ -18,8 +18,15 @@
 
 <div class="container-fluid">
     <div class="row">
+        <!-- Mobile Menu Toggle -->
+        <div class="d-md-none mb-3">
+            <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileDashboardSidebar">
+                <i class="fas fa-bars me-2"></i>Trading Menu
+            </button>
+        </div>
+
         <!-- Left Sidebar Navigation -->
-        <div class="col-12 col-md-3 col-lg-3 col-xl-2 bg-white border-end d-md-block dashboard-sidebar-left" style="min-height: calc(100vh - 200px); box-shadow: 1px 0 3px rgba(0,0,0,0.1);">
+        <div class="col-12 col-md-3 col-lg-3 col-xl-2 bg-white border-end d-none d-md-block dashboard-sidebar-left" style="min-height: calc(100vh - 200px); box-shadow: 1px 0 3px rgba(0,0,0,0.1);">
             <div class="p-3">
                 <h6 class="text-muted fw-bold mb-3">TRADING MENU</h6>
                 <nav class="nav nav-pills flex-column">
@@ -42,13 +49,40 @@
             </div>
         </div>
 
+        <!-- Mobile Offcanvas Sidebar -->
+        <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileDashboardSidebar">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title">Trading Menu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body">
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'trading_signals' else '' }}" href="{{ url_for('trading_signals') }}" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-signal me-2"></i>Trading Signals
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'my_portfolio' else '' }}" href="{{ url_for('my_portfolio') }}" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-briefcase me-2"></i>My Portfolio
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-exchange-alt me-2"></i>Trade Now
+                    </a>
+                    <a class="nav-link {{ 'active' if request.endpoint == 'account_handling' else '' }}" href="{{ url_for('account_handling') }}" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-user-cog me-2"></i>Account Handling
+                    </a>
+                </nav>
+            </div>
+        </div>
+
         <!-- Main Content Area -->
-        <div class="col-12 col-md-6 col-lg-6 col-xl-7 py-4 dashboard-main-content">
+        <div class="col-12 col-md-9 col-lg-6 col-xl-7 py-4 dashboard-main-content">
             {% block dashboard_content %}{% endblock %}
         </div>
 
         <!-- Right Sidebar - Quick Actions and Info -->
-        <div class="col-12 col-md-3 col-lg-3 col-xl-3 py-4 dashboard-sidebar-right">
+        <div class="col-12 col-md-12 col-lg-3 col-xl-3 py-4 dashboard-sidebar-right">
             {% block right_sidebar %}
             <!-- Your Activity -->
             <div class="card shadow-sm mb-4">
