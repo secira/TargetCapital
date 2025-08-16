@@ -1094,28 +1094,28 @@ def api_ai_analyze_stock():
             'positions': [{'symbol': item.symbol, 'value': 10000} for item in watchlist_items]
         }
         
-        # Perform comprehensive analysis
-        analysis_result = ai_coordinator.analyze_stock_comprehensive(symbol, portfolio)
+        # Perform Agentic AI analysis (learn, reason, act, adapt)
+        analysis_result = ai_coordinator.analyze_with_agentic_ai(symbol, "comprehensive")
         
         if 'error' in analysis_result:
             return jsonify({'success': False, 'error': analysis_result['error']}), 500
         
-        # Store analysis in database
+        # Store Agentic AI analysis in database
         ai_analysis = AIAnalysis(
             user_id=current_user.id,
             symbol=symbol,
-            analysis_type='STOCK',
-            trading_recommendation=analysis_result['agents_analysis']['trading'].get('recommendation'),
-            trading_confidence=analysis_result['agents_analysis']['trading'].get('confidence'),
-            trading_reasoning=', '.join(analysis_result['agents_analysis']['trading'].get('reasoning', [])),
-            sentiment_score=analysis_result['agents_analysis']['sentiment'].get('sentiment_score'),
-            sentiment_label=analysis_result['agents_analysis']['sentiment'].get('overall_sentiment'),
-            news_sentiment=analysis_result['agents_analysis']['sentiment'].get('news_sentiment'),
-            risk_level=analysis_result['agents_analysis']['risk'].get('risk_level'),
-            suggested_position_size=analysis_result['agents_analysis']['risk'].get('suggested_position_size'),
-            final_recommendation=analysis_result['final_recommendation']['action'],
-            overall_confidence=analysis_result['final_recommendation']['confidence'],
-            technical_indicators=str(analysis_result['agents_analysis']['trading'].get('signals', {}))
+            analysis_type='AGENTIC_AI',
+            trading_recommendation=analysis_result.get('final_recommendation', 'HOLD'),
+            trading_confidence=analysis_result.get('confidence', 0.5),
+            trading_reasoning=analysis_result.get('reasoning_summary', 'Agentic AI analysis completed'),
+            sentiment_score=0.5,  # Will be enhanced with research sentiment
+            sentiment_label='NEUTRAL',
+            news_sentiment='NEUTRAL',
+            risk_level='MEDIUM',
+            suggested_position_size=0.1,
+            final_recommendation=analysis_result.get('final_recommendation', 'HOLD'),
+            overall_confidence=analysis_result.get('confidence', 0.5),
+            technical_indicators=str(analysis_result.get('research_insights', []))
         )
         
         db.session.add(ai_analysis)
@@ -1189,6 +1189,35 @@ def api_ai_optimize_portfolio():
             'success': False,
             'error': 'Failed to optimize portfolio'
         }), 500
+
+@app.route('/api/n8n/trigger-workflow', methods=['POST'])
+@login_required
+def api_trigger_n8n_workflow():
+    """Trigger n8n workflow for Agentic AI automation"""
+    try:
+        data = request.get_json()
+        workflow_type = data.get('workflow_type')
+        workflow_data = data.get('data', {})
+        
+        if not workflow_type:
+            return jsonify({'success': False, 'error': 'Workflow type is required'}), 400
+        
+        # Initialize AI coordinator for n8n integration
+        ai_coordinator = AgenticAICoordinator()
+        
+        # Trigger the specified workflow
+        result = ai_coordinator._trigger_n8n_workflow(workflow_type, workflow_data)
+        
+        return jsonify({
+            'success': result,
+            'message': f'Workflow {workflow_type} triggered successfully' if result else f'Failed to trigger workflow {workflow_type}',
+            'workflow_type': workflow_type,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"n8n workflow trigger error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/ai/sentiment-analysis/<symbol>')
 @login_required

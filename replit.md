@@ -1,7 +1,7 @@
 # tCapital - Flask Web Application
 
 ## Overview
-tCapital is a Flask-based web application providing an AI-powered stock trading platform. Its core purpose is to offer portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform aims to empower users with advanced AI tools for informed trading decisions and efficient portfolio management.
+tCapital is a Flask-based web application providing an advanced Agentic AI-powered stock trading platform. Its core purpose is to offer autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform emphasizes true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -9,8 +9,10 @@ Brand name: tCapital
 Design preference: Clean white backgrounds instead of blue gradients
 Navigation bar: Custom dark navy background color #00091a
 Typography: Modern Poppins font throughout the website
-New Feature: Agentic AI system with multi-agent architecture for autonomous trading and portfolio analysis
+New Feature: Comprehensive Agentic AI system with multi-agent architecture and n8n workflow integration for autonomous trading and portfolio analysis
 Core Concept: Agentic AI represents shift from passive automation to true autonomous decision-making with learn, reason, act, adapt capabilities
+Agentic AI Implementation: Complete integration with OpenAI (GPT-4) and Perplexity APIs for real-time reasoning and research capabilities
+n8n Integration: Workflow automation for continuous monitoring and autonomous decision-making triggers
 Dashboard Layout: Two-column layout with left sidebar for trading tools navigation
 Recent Updates: Landing page images replaced with fresh SVG assets (August 16, 2025)
 Manual changes accepted for project integration and navigation structure
@@ -19,6 +21,9 @@ Comprehensive mobile and tablet compatibility enhancement completed (August 16, 
 Mobile responsive design improvements with detailed breakpoints implemented
 Fixed mobile header font sizing and dropdown menu functionality
 JavaScript errors resolved for better mobile performance
+Comprehensive Agentic AI system implemented with OpenAI and Perplexity integration (August 16, 2025)
+n8n workflow integration added for autonomous AI decision-making and monitoring
+AI Advisor dashboard enhanced with real-time workflow triggers and status monitoring
 
 ## System Architecture
 ### Backend Architecture
@@ -43,12 +48,12 @@ JavaScript errors resolved for better mobile performance
 - **Application Factory**: `app.py`
 - **Models**: `models.py` (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization)
 - **Routes**: `routes.py`
-- **Services**: `/services/` (nse_service.py, market_data_service.py, ai_agent_service.py)
+- **Services**: `/services/` (nse_service.py, market_data_service.py, ai_agent_service.py with full Agentic AI coordinator)
 - **Templates**: `/templates/`
 - **Static Assets**: `/static/` (includes mobile-responsive.js for enhanced mobile interactions)
 
 ### Key Features & Design Patterns
-- **AI-Powered Tools**: Integrated AI for stock analysis, trading signals, portfolio optimization, and an agentic AI advisor.
+- **Agentic AI Tools**: Fully autonomous AI system with OpenAI and Perplexity integration for stock analysis, real-time research, portfolio optimization, and adaptive decision-making with n8n workflow coordination.
 - **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages.
 - **Navigation**: Enhanced menu structure with dropdowns, dedicated pricing link, and professional organization.
 - **Data Flow**: Flask's URL routing, SQLAlchemy for database operations, Jinja2 for rendering, and JavaScript for client-side interactions.

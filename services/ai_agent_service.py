@@ -1,6 +1,7 @@
 """
 Agentic AI Service for tCapital Platform
-Implements multi-agent AI system for stock trading decisions, portfolio management, and market analysis.
+Implements autonomous AI system with n8n workflow integration for stock trading, portfolio management, and market analysis.
+Features OpenAI and Perplexity API integration for advanced reasoning and real-time research capabilities.
 """
 
 import pandas as pd
@@ -10,12 +11,453 @@ import os
 import requests
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+class AgenticAICoordinator:
+    """
+    Agentic AI Coordinator that orchestrates autonomous learning, reasoning, acting, and adapting
+    using OpenAI, Perplexity, and n8n workflow integration.
+    """
+    
+    def __init__(self):
+        self.openai_api_key = os.environ.get("OPENAI_API_KEY")
+        self.perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
+        self.n8n_webhook_url = os.environ.get("N8N_WEBHOOK_URL", "http://localhost:5678/webhook")
+        self.learning_history = []
+        self.adaptation_metrics = {}
+        
+    def analyze_with_agentic_ai(self, symbol: str, analysis_type: str = "comprehensive") -> Dict[str, Any]:
+        """
+        Main entry point for Agentic AI analysis that coordinates all AI capabilities:
+        - Learning from historical patterns
+        - Reasoning through market scenarios
+        - Acting on opportunities
+        - Adapting strategies based on outcomes
+        """
+        try:
+            # Step 1: LEARN - Gather and learn from data
+            market_data = self._learn_from_market_data(symbol)
+            historical_patterns = self._learn_from_historical_patterns(symbol)
+            
+            # Step 2: REASON - Use OpenAI for complex reasoning
+            reasoning_analysis = self._reason_with_openai(symbol, market_data, historical_patterns)
+            
+            # Step 3: ACT - Use Perplexity for real-time research and action planning
+            current_research = self._act_with_perplexity_research(symbol)
+            
+            # Step 4: ADAPT - Combine insights and adapt strategy
+            final_recommendation = self._adapt_strategy(symbol, reasoning_analysis, current_research)
+            
+            # Trigger n8n workflow for continuous monitoring
+            self._trigger_n8n_workflow("stock_analysis", {
+                "symbol": symbol,
+                "recommendation": final_recommendation,
+                "timestamp": datetime.now().isoformat()
+            })
+            
+            return final_recommendation
+            
+        except Exception as e:
+            logger.error(f"Agentic AI analysis error for {symbol}: {str(e)}")
+            return {"error": str(e), "symbol": symbol}
+    
+    def _learn_from_market_data(self, symbol: str) -> Dict[str, Any]:
+        """Learn from current market data and patterns"""
+        try:
+            stock = yf.Ticker(symbol)
+            data = stock.history(period="1y")
+            info = stock.info
+            
+            if data.empty:
+                return {"error": "No market data available"}
+            
+            # Calculate learning metrics
+            volatility = data['Close'].pct_change().std() * np.sqrt(252)
+            trend_strength = (data['Close'].iloc[-1] / data['Close'].iloc[0] - 1) * 100
+            volume_trend = data['Volume'].rolling(20).mean().iloc[-1] / data['Volume'].rolling(60).mean().iloc[-1]
+            
+            return {
+                "current_price": float(data['Close'].iloc[-1]),
+                "volatility": float(volatility),
+                "trend_strength": float(trend_strength),
+                "volume_trend": float(volume_trend),
+                "market_cap": info.get("marketCap", 0),
+                "pe_ratio": info.get("trailingPE", 0),
+                "data_quality": "high" if len(data) > 200 else "medium"
+            }
+            
+        except Exception as e:
+            logger.error(f"Learning from market data failed: {str(e)}")
+            return {"error": str(e)}
+    
+    def _learn_from_historical_patterns(self, symbol: str) -> Dict[str, Any]:
+        """Analyze historical patterns to learn long-term behaviors"""
+        try:
+            stock = yf.Ticker(symbol)
+            data = stock.history(period="2y")
+            
+            if len(data) < 50:
+                return {"pattern_confidence": "low", "learnings": []}
+            
+            # Pattern recognition learning
+            learnings = []
+            
+            # Seasonal patterns
+            monthly_returns = data.groupby(data.index.month)['Close'].pct_change().mean()
+            best_month = monthly_returns.idxmax()
+            worst_month = monthly_returns.idxmin()
+            
+            learnings.append(f"Historically performs best in month {best_month}")
+            learnings.append(f"Typically weaker in month {worst_month}")
+            
+            # Support and resistance learning
+            resistance = data['High'].rolling(20).max().iloc[-1]
+            support = data['Low'].rolling(20).min().iloc[-1]
+            current_price = data['Close'].iloc[-1]
+            
+            if current_price > resistance * 0.95:
+                learnings.append("Near resistance level - potential pullback")
+            elif current_price < support * 1.05:
+                learnings.append("Near support level - potential bounce")
+            
+            return {
+                "pattern_confidence": "high",
+                "learnings": learnings,
+                "resistance_level": float(resistance),
+                "support_level": float(support),
+                "historical_volatility": float(data['Close'].pct_change().std() * np.sqrt(252))
+            }
+            
+        except Exception as e:
+            logger.error(f"Historical pattern learning failed: {str(e)}")
+            return {"pattern_confidence": "low", "learnings": []}
+    
+    def _reason_with_openai(self, symbol: str, market_data: Dict[str, Any], historical_patterns: Dict[str, Any]) -> Dict[str, Any]:
+        """Use OpenAI GPT-4 for complex reasoning and scenario analysis"""
+        if not self.openai_api_key:
+            logger.warning("OpenAI API key not available, using fallback reasoning")
+            return self._fallback_reasoning(market_data, historical_patterns)
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.openai_api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            # Construct reasoning prompt
+            prompt = self._build_reasoning_prompt(symbol, market_data, historical_patterns)
+            
+            payload = {
+                "model": "gpt-4o",  # the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an expert financial analyst with Agentic AI capabilities. You learn from patterns, reason through scenarios, act on insights, and adapt strategies. Provide detailed analysis in JSON format."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "response_format": {"type": "json_object"},
+                "max_tokens": 1000,
+                "temperature": 0.3
+            }
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                content = json.loads(result['choices'][0]['message']['content'])
+                content['reasoning_source'] = 'openai_gpt4'
+                return content
+            else:
+                logger.error(f"OpenAI API error: {response.status_code}")
+                return self._fallback_reasoning(market_data, historical_patterns)
+                
+        except Exception as e:
+            logger.error(f"OpenAI reasoning failed: {str(e)}")
+            return self._fallback_reasoning(market_data, historical_patterns)
+    
+    def _act_with_perplexity_research(self, symbol: str) -> Dict[str, Any]:
+        """Use Perplexity for real-time research and current market insights"""
+        if not self.perplexity_api_key:
+            logger.warning("Perplexity API key not available, using fallback research")
+            return self._fallback_research(symbol)
+        
+        try:
+            headers = {
+                "Authorization": f"Bearer {self.perplexity_api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            # Research query for current market conditions
+            query = f"Latest news, earnings, and market sentiment for {symbol} stock. Include recent price movements, analyst upgrades/downgrades, and any significant company developments in the last 30 days."
+            
+            payload = {
+                "model": "llama-3.1-sonar-small-128k-online",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a real-time market research specialist. Provide current, factual information about stocks and market conditions. Focus on recent developments that could impact trading decisions."
+                    },
+                    {
+                        "role": "user",
+                        "content": query
+                    }
+                ],
+                "max_tokens": 800,
+                "temperature": 0.2,
+                "search_recency_filter": "month",
+                "return_related_questions": False,
+                "stream": False
+            }
+            
+            response = requests.post(
+                "https://api.perplexity.ai/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                research_content = result['choices'][0]['message']['content']
+                citations = result.get('citations', [])
+                
+                return {
+                    "research_summary": research_content,
+                    "citations": citations,
+                    "research_source": "perplexity_live",
+                    "research_timestamp": datetime.now().isoformat(),
+                    "key_findings": self._extract_key_findings(research_content)
+                }
+            else:
+                logger.error(f"Perplexity API error: {response.status_code}")
+                return self._fallback_research(symbol)
+                
+        except Exception as e:
+            logger.error(f"Perplexity research failed: {str(e)}")
+            return self._fallback_research(symbol)
+    
+    def _adapt_strategy(self, symbol: str, reasoning_analysis: Dict[str, Any], current_research: Dict[str, Any]) -> Dict[str, Any]:
+        """Adapt and combine insights from learning, reasoning, and research to form final recommendation"""
+        try:
+            # Extract key metrics
+            confidence_scores = []
+            recommendations = []
+            risk_factors = []
+            
+            # From reasoning analysis
+            if 'confidence' in reasoning_analysis:
+                confidence_scores.append(reasoning_analysis['confidence'])
+            if 'recommendation' in reasoning_analysis:
+                recommendations.append(reasoning_analysis['recommendation'])
+            if 'risks' in reasoning_analysis:
+                risk_factors.extend(reasoning_analysis['risks'])
+            
+            # From current research
+            research_sentiment = self._analyze_research_sentiment(current_research.get('research_summary', ''))
+            if research_sentiment['confidence'] > 0.6:
+                confidence_scores.append(research_sentiment['confidence'])
+                recommendations.append(research_sentiment['recommendation'])
+            
+            # Adaptive strategy formation
+            final_confidence = sum(confidence_scores) / len(confidence_scores) if confidence_scores else 0.5
+            final_recommendation = self._consolidate_recommendations(recommendations)
+            
+            # Adaptation metrics for future learning
+            adaptation_key = f"{symbol}_{datetime.now().strftime('%Y%m')}"
+            self.adaptation_metrics[adaptation_key] = {
+                "recommendation": final_recommendation,
+                "confidence": final_confidence,
+                "factors_considered": len(confidence_scores),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            return {
+                "symbol": symbol,
+                "final_recommendation": final_recommendation,
+                "confidence": final_confidence,
+                "reasoning_summary": reasoning_analysis.get('summary', 'Analysis completed'),
+                "research_insights": current_research.get('key_findings', []),
+                "risk_assessment": risk_factors,
+                "adaptation_notes": f"Strategy adapted based on {len(confidence_scores)} analysis sources",
+                "timestamp": datetime.now().isoformat(),
+                "agentic_ai_version": "1.0"
+            }
+            
+        except Exception as e:
+            logger.error(f"Strategy adaptation failed: {str(e)}")
+            return {
+                "symbol": symbol,
+                "final_recommendation": "HOLD",
+                "confidence": 0.5,
+                "error": "Strategy adaptation failed",
+                "timestamp": datetime.now().isoformat()
+            }
+    
+    def _trigger_n8n_workflow(self, workflow_type: str, data: Dict[str, Any]) -> bool:
+        """Trigger n8n workflow for continuous monitoring and automation"""
+        try:
+            webhook_url = f"{self.n8n_webhook_url}/{workflow_type}"
+            
+            payload = {
+                "workflow_type": workflow_type,
+                "data": data,
+                "triggered_by": "agentic_ai",
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            response = requests.post(webhook_url, json=payload, timeout=10)
+            
+            if response.status_code in [200, 201]:
+                logger.info(f"n8n workflow '{workflow_type}' triggered successfully")
+                return True
+            else:
+                logger.warning(f"n8n workflow trigger failed: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"n8n workflow trigger error: {str(e)}")
+            return False
+    
+    def _build_reasoning_prompt(self, symbol: str, market_data: Dict[str, Any], historical_patterns: Dict[str, Any]) -> str:
+        """Build comprehensive prompt for OpenAI reasoning"""
+        prompt = f"""
+        Analyze {symbol} stock using Agentic AI approach (learn, reason, act, adapt):
+
+        LEARNING DATA:
+        - Current Price: ${market_data.get('current_price', 'N/A')}
+        - Volatility: {market_data.get('volatility', 'N/A')}%
+        - Trend Strength: {market_data.get('trend_strength', 'N/A')}%
+        - Volume Trend: {market_data.get('volume_trend', 'N/A')}
+        - P/E Ratio: {market_data.get('pe_ratio', 'N/A')}
+        
+        HISTORICAL PATTERNS:
+        - Pattern Confidence: {historical_patterns.get('pattern_confidence', 'N/A')}
+        - Key Learnings: {historical_patterns.get('learnings', [])}
+        - Support Level: ${historical_patterns.get('support_level', 'N/A')}
+        - Resistance Level: ${historical_patterns.get('resistance_level', 'N/A')}
+
+        REASONING REQUIREMENTS:
+        1. Learn from the provided data patterns
+        2. Reason through multiple market scenarios (bull, bear, sideways)
+        3. Act by providing specific recommendation with rationale
+        4. Adapt by suggesting strategy adjustments for different conditions
+
+        Provide response in JSON format with:
+        {{
+            "recommendation": "BUY/HOLD/SELL",
+            "confidence": 0.0-1.0,
+            "summary": "Brief analysis summary",
+            "scenarios": {{"bull": "strategy", "bear": "strategy", "sideways": "strategy"}},
+            "risks": ["risk1", "risk2"],
+            "adaptation_triggers": ["condition1", "condition2"]
+        }}
+        """
+        return prompt
+    
+    def _fallback_reasoning(self, market_data: Dict[str, Any], historical_patterns: Dict[str, Any]) -> Dict[str, Any]:
+        """Fallback reasoning when OpenAI is not available"""
+        try:
+            # Simple rule-based reasoning
+            confidence = 0.6
+            recommendation = "HOLD"
+            
+            # Basic trend analysis
+            trend_strength = market_data.get('trend_strength', 0)
+            volatility = market_data.get('volatility', 0.2)
+            
+            if trend_strength > 10 and volatility < 0.3:
+                recommendation = "BUY"
+                confidence = 0.7
+            elif trend_strength < -10 and volatility > 0.4:
+                recommendation = "SELL"
+                confidence = 0.7
+            
+            return {
+                "recommendation": recommendation,
+                "confidence": confidence,
+                "summary": "Fallback analysis based on trend and volatility",
+                "reasoning_source": "fallback_rules"
+            }
+            
+        except Exception as e:
+            logger.error(f"Fallback reasoning failed: {str(e)}")
+            return {
+                "recommendation": "HOLD",
+                "confidence": 0.5,
+                "summary": "Unable to complete analysis",
+                "reasoning_source": "error_fallback"
+            }
+    
+    def _fallback_research(self, symbol: str) -> Dict[str, Any]:
+        """Fallback research when Perplexity is not available"""
+        return {
+            "research_summary": f"Research data for {symbol} not available - external API required",
+            "key_findings": ["Real-time research requires API access"],
+            "research_source": "fallback",
+            "research_timestamp": datetime.now().isoformat()
+        }
+    
+    def _extract_key_findings(self, research_content: str) -> List[str]:
+        """Extract key findings from research content"""
+        findings = []
+        
+        # Simple keyword-based extraction
+        keywords = ['upgrade', 'downgrade', 'earnings', 'revenue', 'profit', 'loss', 'acquisition', 'merger', 'dividend']
+        
+        sentences = research_content.split('.')
+        for sentence in sentences:
+            for keyword in keywords:
+                if keyword.lower() in sentence.lower() and len(sentence.strip()) > 10:
+                    findings.append(sentence.strip())
+                    break
+        
+        return findings[:5]  # Return top 5 findings
+    
+    def _analyze_research_sentiment(self, research_content: str) -> Dict[str, Any]:
+        """Analyze sentiment from research content"""
+        positive_words = ['upgrade', 'buy', 'strong', 'growth', 'profit', 'beat', 'exceed', 'positive', 'bullish']
+        negative_words = ['downgrade', 'sell', 'weak', 'decline', 'loss', 'miss', 'below', 'negative', 'bearish']
+        
+        content_lower = research_content.lower()
+        positive_count = sum(1 for word in positive_words if word in content_lower)
+        negative_count = sum(1 for word in negative_words if word in content_lower)
+        
+        if positive_count > negative_count:
+            return {"recommendation": "BUY", "confidence": min(0.8, 0.5 + (positive_count - negative_count) * 0.1)}
+        elif negative_count > positive_count:
+            return {"recommendation": "SELL", "confidence": min(0.8, 0.5 + (negative_count - positive_count) * 0.1)}
+        else:
+            return {"recommendation": "HOLD", "confidence": 0.5}
+    
+    def _consolidate_recommendations(self, recommendations: List[str]) -> str:
+        """Consolidate multiple recommendations into final decision"""
+        if not recommendations:
+            return "HOLD"
+        
+        buy_count = recommendations.count("BUY")
+        sell_count = recommendations.count("SELL")
+        hold_count = recommendations.count("HOLD")
+        
+        if buy_count > sell_count and buy_count > hold_count:
+            return "BUY"
+        elif sell_count > buy_count and sell_count > hold_count:
+            return "SELL"
+        else:
+            return "HOLD"
 
 class TradingAgent:
     """Core trading agent that makes buy/sell/hold decisions based on technical analysis"""
@@ -81,21 +523,31 @@ class TradingAgent:
         data['BB_Upper'] = data['BB_Middle'] + (data['BB_Std'] * 2)
         data['BB_Lower'] = data['BB_Middle'] - (data['BB_Std'] * 2)
         
-        # Get latest values (handle both Series and DataFrame)
-        if hasattr(data, 'iloc'):
-            latest = data.iloc[-1]
-        else:
-            latest = data[-1] if len(data) > 0 else {}
-        
-        signals = {
-            "sma_trend": "bullish" if latest['Close'] > latest['SMA_20'] else "bearish",
-            "golden_cross": latest['SMA_20'] > latest['SMA_50'],
-            "rsi": float(latest['RSI']),
-            "rsi_signal": "oversold" if latest['RSI'] < 30 else "overbought" if latest['RSI'] > 70 else "neutral",
-            "macd_signal": "bullish" if latest['MACD'] > latest['MACD_Signal'] else "bearish",
-            "bb_position": "upper" if latest['Close'] > latest['BB_Upper'] else "lower" if latest['Close'] < latest['BB_Lower'] else "middle",
-            "volume_trend": "high" if latest['Volume'] > data['Volume'].rolling(20).mean().iloc[-1] else "normal"
-        }
+        # Get latest values safely
+        try:
+            latest = data.iloc[-1] if len(data) > 0 else {}
+            volume_avg = data['Volume'].rolling(20).mean().iloc[-1] if len(data) >= 20 else data['Volume'].mean()
+            
+            signals = {
+                "sma_trend": "bullish" if latest['Close'] > latest['SMA_20'] else "bearish",
+                "golden_cross": latest['SMA_20'] > latest['SMA_50'],
+                "rsi": float(latest['RSI']) if not pd.isna(latest['RSI']) else 50.0,
+                "rsi_signal": "oversold" if latest['RSI'] < 30 else "overbought" if latest['RSI'] > 70 else "neutral",
+                "macd_signal": "bullish" if latest['MACD'] > latest['MACD_Signal'] else "bearish",
+                "bb_position": "upper" if latest['Close'] > latest['BB_Upper'] else "lower" if latest['Close'] < latest['BB_Lower'] else "middle",
+                "volume_trend": "high" if latest['Volume'] > volume_avg else "normal"
+            }
+        except Exception as e:
+            logger.error(f"Error calculating signals: {str(e)}")
+            signals = {
+                "sma_trend": "neutral",
+                "golden_cross": False,
+                "rsi": 50.0,
+                "rsi_signal": "neutral",
+                "macd_signal": "neutral",
+                "bb_position": "middle",
+                "volume_trend": "normal"
+            }
         
         return signals
     
