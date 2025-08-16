@@ -14,6 +14,10 @@ Dashboard Layout: Two-column layout with left sidebar for trading tools navigati
 Recent Updates: Landing page images replaced with fresh SVG assets (August 16, 2025)
 Manual changes accepted for project integration and navigation structure
 All manual changes saved and accepted (August 16, 2025)
+Comprehensive mobile and tablet compatibility enhancement completed (August 16, 2025)
+Mobile responsive design improvements with detailed breakpoints implemented
+Fixed mobile header font sizing and dropdown menu functionality
+JavaScript errors resolved for better mobile performance
 
 ## System Architecture
 ### Backend Architecture
@@ -30,7 +34,7 @@ All manual changes saved and accepted (August 16, 2025)
 - **Icons**: Font Awesome 6.4.0
 - **Fonts**: Google Fonts (Inter)
 - **JavaScript**: Vanilla JavaScript (ES6+)
-- **Responsive Design**: Mobile-first approach using Bootstrap's grid system
+- **Responsive Design**: Mobile-first approach using Bootstrap's grid system with comprehensive breakpoints (1024px tablets, 768px mobile, 576px small mobile, 375px tiny screens)
 - **UI/UX Decisions**: Clean white backgrounds, subtle shadows, rounded elements, modern typography (Poppins/Inter), getquin.com and arvat.ai inspired layouts for various pages.
 
 ### Application Structure
@@ -40,7 +44,7 @@ All manual changes saved and accepted (August 16, 2025)
 - **Routes**: `routes.py`
 - **Services**: `/services/` (nse_service.py, market_data_service.py, ai_agent_service.py)
 - **Templates**: `/templates/`
-- **Static Assets**: `/static/`
+- **Static Assets**: `/static/` (includes mobile-responsive.js for enhanced mobile interactions)
 
 ### Key Features & Design Patterns
 - **AI-Powered Tools**: Integrated AI for stock analysis, trading signals, portfolio optimization, and an agentic AI advisor.
