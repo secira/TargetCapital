@@ -171,10 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// CSS Custom Properties for dynamic viewport
-:root {
-    --vh: 1vh;
-}
+// CSS Custom Properties for dynamic viewport will be set via JavaScript
 
 // Utility functions for responsive behavior
 window.tCapitalMobile = {
