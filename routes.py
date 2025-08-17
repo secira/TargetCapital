@@ -1006,9 +1006,126 @@ def dashboard_my_portfolio():
 
 @app.route('/dashboard/trade-now')
 @login_required
-def dashboard_trade_now():
-    """Trade execution page following kavout.com smart-signals design"""
-    return render_template('dashboard/trade_now.html', current_user=current_user)
+def trade_now():
+    """Trade execution page with algorithmic trading signals"""
+    from datetime import datetime, date
+    
+    # Get selected date from query parameter or use today
+    selected_date_str = request.args.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = date.today()
+    else:
+        selected_date = date.today()
+    
+    # Get trading signals for selected date
+    trading_signals = TradingSignal.query.filter(
+        db.func.date(TradingSignal.created_at) == selected_date
+    ).all()
+    
+    # If no signals for today, create sample data for demo
+    if not trading_signals and selected_date == date.today():
+        sample_signals = [
+            TradingSignal(
+                symbol='RELIANCE',
+                signal_type='BUY',
+                instrument_type='Stock',
+                price=2450.50,
+                target_price=2550.00,
+                stop_loss=2350.00,
+                confidence_score=0.85,
+                analysis_summary='Strong bullish momentum with technical breakout',
+                created_at=datetime.now()
+            ),
+            TradingSignal(
+                symbol='TCS',
+                signal_type='BUY',
+                instrument_type='Stock',
+                price=3420.75,
+                target_price=3600.00,
+                stop_loss=3250.00,
+                confidence_score=0.78,
+                analysis_summary='Positive earnings outlook and sector strength',
+                created_at=datetime.now()
+            ),
+            TradingSignal(
+                symbol='HDFCBANK',
+                signal_type='SELL',
+                instrument_type='Stock',
+                price=1680.25,
+                target_price=1580.00,
+                stop_loss=1750.00,
+                confidence_score=0.72,
+                analysis_summary='Resistance at key levels, profit booking expected',
+                created_at=datetime.now()
+            ),
+            TradingSignal(
+                symbol='NIFTY24DEC',
+                signal_type='BUY',
+                instrument_type='Future',
+                price=24850.00,
+                target_price=25200.00,
+                stop_loss=24650.00,
+                confidence_score=0.80,
+                analysis_summary='Index showing strength, uptrend continuation',
+                created_at=datetime.now()
+            ),
+            TradingSignal(
+                symbol='RELIANCE-CE-2500',
+                signal_type='BUY',
+                instrument_type='Option',
+                price=45.50,
+                target_price=75.00,
+                stop_loss=30.00,
+                confidence_score=0.75,
+                analysis_summary='Option premium undervalued, volatility expansion expected',
+                created_at=datetime.now()
+            )
+        ]
+        
+        for signal in sample_signals:
+            db.session.add(signal)
+        
+        try:
+            db.session.commit()
+            trading_signals = sample_signals
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error creating sample signals: {e}")
+            trading_signals = []
+    
+    # Organize signals by type
+    signals_by_type = {
+        'Stocks': [s for s in trading_signals if s.instrument_type == 'Stock'],
+        'Options': [s for s in trading_signals if s.instrument_type == 'Option'],
+        'Futures': [s for s in trading_signals if s.instrument_type == 'Future']
+    }
+    
+    # Calculate statistics
+    total_signals = len(trading_signals)
+    buy_signals = len([s for s in trading_signals if s.signal_type == 'BUY'])
+    sell_signals = len([s for s in trading_signals if s.signal_type == 'SELL'])
+    avg_confidence = sum(s.confidence_score for s in trading_signals) / max(1, total_signals) * 100
+    
+    # Mock broker data - replace with actual broker integration
+    brokers = [
+        {'broker_id': 'zerodha', 'name': 'Zerodha'},
+        {'broker_id': 'angel', 'name': 'Angel Broking'},
+        {'broker_id': 'dhan', 'name': 'Dhan'}
+    ]
+    
+    return render_template('dashboard/trade_now.html',
+                         current_user=current_user,
+                         selected_date=selected_date,
+                         trading_signals=trading_signals,
+                         signals_by_type=signals_by_type,
+                         total_signals=total_signals,
+                         buy_signals=buy_signals,
+                         sell_signals=sell_signals,
+                         avg_confidence=avg_confidence,
+                         brokers=brokers)
 
 @app.route('/dashboard/account-handling')
 @login_required
@@ -1692,156 +1809,4 @@ def api_ai_trading_signals(symbol):
         }), 500
 
 
-@app.route('/dashboard/trade-now')
-def trade_now():
-    """Trade Now page with algorithmic trading signals"""
-    from models import DailyTradingSignal, Broker
-    
-    # Get date parameter or default to today
-    selected_date_str = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
-    try:
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-    except ValueError:
-        selected_date = datetime.now().date()
-    
-    # Create sample trading signals if they don't exist
-    sample_signals = [
-        {
-            'signal_date': date(2025, 8, 17),
-            'signal_type': 'Stocks',
-            'symbol': 'RELIANCE',
-            'action': 'BUY',
-            'entry_price': 2975.00,
-            'target_price': 3150.00,
-            'stop_loss': 2850.00,
-            'quantity': 50,
-            'strategy': 'Momentum Breakout',
-            'confidence': 85.0,
-            'risk_level': 'Medium',
-            'time_frame': 'Short Term',
-            'notes': 'Strong breakout above resistance with high volume'
-        },
-        {
-            'signal_date': date(2025, 8, 17),
-            'signal_type': 'Options',
-            'symbol': 'NIFTY 25750 CE',
-            'action': 'BUY',
-            'entry_price': 125.50,
-            'target_price': 185.00,
-            'stop_loss': 95.00,
-            'quantity': 100,
-            'strategy': 'Bull Call Spread',
-            'confidence': 78.0,
-            'risk_level': 'High',
-            'time_frame': 'Intraday',
-            'notes': 'Nifty showing bullish momentum, expecting move to 25800'
-        },
-        {
-            'signal_date': date(2025, 8, 17),
-            'signal_type': 'Futures',
-            'symbol': 'TCS AUG FUT',
-            'action': 'SELL',
-            'entry_price': 4280.00,
-            'target_price': 4150.00,
-            'stop_loss': 4350.00,
-            'quantity': 25,
-            'strategy': 'Mean Reversion',
-            'confidence': 72.0,
-            'risk_level': 'Medium',
-            'time_frame': 'Short Term',
-            'notes': 'Overbought conditions, expecting correction'
-        },
-        {
-            'signal_date': date(2025, 8, 17),
-            'signal_type': 'Stocks',
-            'symbol': 'HDFCBANK',
-            'action': 'BUY',
-            'entry_price': 1725.00,
-            'target_price': 1820.00,
-            'stop_loss': 1680.00,
-            'quantity': 30,
-            'strategy': 'Support Bounce',
-            'confidence': 80.0,
-            'risk_level': 'Low',
-            'time_frame': 'Long Term',
-            'notes': 'Strong support at 1720 level, fundamentals improving'
-        },
-        {
-            'signal_date': date(2025, 8, 17),
-            'signal_type': 'Options',
-            'symbol': 'BANKNIFTY 52500 PE',
-            'action': 'SELL',
-            'entry_price': 95.00,
-            'target_price': 45.00,
-            'stop_loss': 135.00,
-            'quantity': 50,
-            'strategy': 'Iron Condor',
-            'confidence': 75.0,
-            'risk_level': 'Medium',
-            'time_frame': 'Intraday',
-            'notes': 'Range-bound market, selling OTM options for premium'
-        }
-    ]
-    
-    # Check if sample signals exist for today, if not create them
-    existing_signals = DailyTradingSignal.query.filter_by(signal_date=selected_date).count()
-    if existing_signals == 0 and selected_date == date(2025, 8, 17):
-        for signal_data in sample_signals:
-            signal = DailyTradingSignal()
-            for key, value in signal_data.items():
-                setattr(signal, key, value)
-            db.session.add(signal)
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error creating sample trading signals: {e}")
-    
-    # Get trading signals for selected date
-    trading_signals = DailyTradingSignal.query.filter_by(signal_date=selected_date).all()
-    
-    # Group signals by type
-    signals_by_type = {
-        'Stocks': [s for s in trading_signals if s.signal_type == 'Stocks'],
-        'Options': [s for s in trading_signals if s.signal_type == 'Options'],
-        'Futures': [s for s in trading_signals if s.signal_type == 'Futures']
-    }
-    
-    # Create sample brokers if they don't exist
-    existing_brokers = Broker.query.count()
-    if existing_brokers == 0:
-        sample_brokers = [
-            {'name': 'Zerodha', 'account_ref': 'ZD12345'},
-            {'name': 'Angel One', 'account_ref': 'AO67890'},
-            {'name': 'Dhan', 'account_ref': 'DH54321'},
-            {'name': 'ICICI Direct', 'account_ref': 'IC98765'}
-        ]
-        for broker_data in sample_brokers:
-            broker = Broker()
-            for key, value in broker_data.items():
-                setattr(broker, key, value)
-            db.session.add(broker)
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error creating sample brokers: {e}")
-    
-    # Get available brokers
-    brokers = Broker.query.all()
-    
-    # Calculate signal statistics
-    total_signals = len(trading_signals)
-    buy_signals = len([s for s in trading_signals if s.action == 'BUY'])
-    sell_signals = len([s for s in trading_signals if s.action == 'SELL'])
-    avg_confidence = sum(s.confidence or 0 for s in trading_signals) / total_signals if total_signals > 0 else 0
-    
-    return render_template('dashboard/trade_now.html',
-                         trading_signals=trading_signals,
-                         signals_by_type=signals_by_type,
-                         selected_date=selected_date,
-                         brokers=brokers,
-                         total_signals=total_signals,
-                         buy_signals=buy_signals,
-                         sell_signals=sell_signals,
-                         avg_confidence=avg_confidence)
+
