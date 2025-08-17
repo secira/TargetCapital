@@ -1022,66 +1022,73 @@ def trade_now():
     
     # Get trading signals for selected date
     trading_signals = TradingSignal.query.filter(
-        db.func.date(TradingSignal.created_at) == selected_date
+        db.func.date(TradingSignal.creation_date) == selected_date
     ).all()
     
     # If no signals for today, create sample data for demo
     if not trading_signals and selected_date == date.today():
         sample_signals = [
             TradingSignal(
-                symbol='RELIANCE',
-                signal_type='BUY',
-                instrument_type='Stock',
-                price=2450.50,
-                target_price=2550.00,
-                stop_loss=2350.00,
-                confidence_score=0.85,
-                analysis_summary='Strong bullish momentum with technical breakout',
-                created_at=datetime.now()
+                user_id=current_user.id,
+                open_date=selected_date,
+                symbol_type='stocks',
+                ticker_symbol='RELIANCE',
+                trade_direction='Long',
+                entry_price=2450.50,
+                number_of_units=50,
+                capital_risk=122525.00,
+                signal_status='Active',
+                trading_account='Zerodha'
             ),
             TradingSignal(
-                symbol='TCS',
-                signal_type='BUY',
-                instrument_type='Stock',
-                price=3420.75,
-                target_price=3600.00,
-                stop_loss=3250.00,
-                confidence_score=0.78,
-                analysis_summary='Positive earnings outlook and sector strength',
-                created_at=datetime.now()
+                user_id=current_user.id,
+                open_date=selected_date,
+                symbol_type='stocks',
+                ticker_symbol='TCS',
+                trade_direction='Long',
+                entry_price=3420.75,
+                number_of_units=30,
+                capital_risk=102622.50,
+                signal_status='Active',
+                trading_account='Angel One'
             ),
             TradingSignal(
-                symbol='HDFCBANK',
-                signal_type='SELL',
-                instrument_type='Stock',
-                price=1680.25,
-                target_price=1580.00,
-                stop_loss=1750.00,
-                confidence_score=0.72,
-                analysis_summary='Resistance at key levels, profit booking expected',
-                created_at=datetime.now()
+                user_id=current_user.id,
+                open_date=selected_date,
+                symbol_type='stocks',
+                ticker_symbol='HDFCBANK',
+                trade_direction='Short',
+                entry_price=1680.25,
+                number_of_units=40,
+                capital_risk=67210.00,
+                signal_status='Active',
+                trading_account='Dhan'
             ),
             TradingSignal(
-                symbol='NIFTY24DEC',
-                signal_type='BUY',
-                instrument_type='Future',
-                price=24850.00,
-                target_price=25200.00,
-                stop_loss=24650.00,
-                confidence_score=0.80,
-                analysis_summary='Index showing strength, uptrend continuation',
-                created_at=datetime.now()
+                user_id=current_user.id,
+                open_date=selected_date,
+                symbol_type='futures',
+                ticker_symbol='NIFTY24DEC',
+                trade_direction='Long',
+                entry_price=24850.00,
+                number_of_units=1,
+                capital_risk=24850.00,
+                signal_status='Active',
+                trading_account='Zerodha'
             ),
             TradingSignal(
-                symbol='RELIANCE-CE-2500',
-                signal_type='BUY',
-                instrument_type='Option',
-                price=45.50,
-                target_price=75.00,
-                stop_loss=30.00,
-                confidence_score=0.75,
-                analysis_summary='Option premium undervalued, volatility expansion expected',
-                created_at=datetime.now()
+                user_id=current_user.id,
+                open_date=selected_date,
+                symbol_type='options',
+                ticker_symbol='RELIANCE',
+                option_type='call',
+                strike_price=2500.00,
+                trade_direction='Long',
+                entry_price=45.50,
+                number_of_units=100,
+                capital_risk=4550.00,
+                signal_status='Active',
+                trading_account='Angel One'
             )
         ]
         
@@ -1098,16 +1105,16 @@ def trade_now():
     
     # Organize signals by type
     signals_by_type = {
-        'Stocks': [s for s in trading_signals if s.instrument_type == 'Stock'],
-        'Options': [s for s in trading_signals if s.instrument_type == 'Option'],
-        'Futures': [s for s in trading_signals if s.instrument_type == 'Future']
+        'Stocks': [s for s in trading_signals if s.symbol_type == 'stocks'],
+        'Options': [s for s in trading_signals if s.symbol_type == 'options'],
+        'Futures': [s for s in trading_signals if s.symbol_type == 'futures']
     }
     
     # Calculate statistics
     total_signals = len(trading_signals)
-    buy_signals = len([s for s in trading_signals if s.signal_type == 'BUY'])
-    sell_signals = len([s for s in trading_signals if s.signal_type == 'SELL'])
-    avg_confidence = sum(s.confidence_score for s in trading_signals) / max(1, total_signals) * 100
+    buy_signals = len([s for s in trading_signals if s.trade_direction == 'Long'])
+    sell_signals = len([s for s in trading_signals if s.trade_direction == 'Short'])
+    avg_confidence = 78.5  # Mock average confidence score
     
     # Mock broker data - replace with actual broker integration
     brokers = [
@@ -1116,7 +1123,7 @@ def trade_now():
         {'broker_id': 'dhan', 'name': 'Dhan'}
     ]
     
-    return render_template('dashboard/trade_now.html',
+    return render_template('dashboard/trade_now_simple.html',
                          current_user=current_user,
                          selected_date=selected_date,
                          trading_signals=trading_signals,
