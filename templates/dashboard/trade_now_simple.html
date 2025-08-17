@@ -107,7 +107,7 @@
                         </td>
                         <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
                         <td>{{ signal.number_of_units }}</td>
-                        <td>₹{{ "{:,.0f}"|format(signal.capital_risk) }}</td>
+                        <td>₹{{ "%.0f"|format(signal.capital_risk) }}</td>
                         <td>{{ signal.trading_account }}</td>
                         <td>
                             <span class="badge {{ signal.get_status_badge_class() }}">
