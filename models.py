@@ -182,6 +182,76 @@ class PortfolioOptimization(db.Model):
     # Relationship to user
     user = db.relationship('User', backref='portfolio_optimizations')
 
+class TradingSignal(db.Model):
+    """Trading signals table for dashboard display"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Admin user creating signal
+    open_date = db.Column(db.Date, nullable=False)
+    symbol_type = db.Column(db.String(20), nullable=False)  # Index, futures, currency, crypto, options, stocks, gold
+    ticker_symbol = db.Column(db.String(20), nullable=False)
+    option_type = db.Column(db.String(20), nullable=True)  # call, put, stock
+    trade_strategy = db.Column(db.String(100), nullable=True)  # Covered calls, Naked put, Buy and hold
+    strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
+    expiration_date = db.Column(db.Date, nullable=True)  # Option expiry date
+    number_of_units = db.Column(db.Integer, nullable=False)  # Number of contracts or shares
+    trade_direction = db.Column(db.String(10), nullable=False)  # Long or Short
+    entry_price = db.Column(db.Float, nullable=False)
+    current_price = db.Column(db.Float, nullable=True)
+    trade_fees = db.Column(db.Float, nullable=True)  # Brokerage charges
+    capital_risk = db.Column(db.Float, nullable=False)  # Total purchase capital
+    exit_date = db.Column(db.Date, nullable=True)
+    exit_price = db.Column(db.Float, nullable=True)
+    trade_result = db.Column(db.String(20), nullable=True)  # Profit, Loss, Breakeven
+    trade_duration = db.Column(db.Integer, nullable=True)  # Days held
+    assignment_details = db.Column(db.Text, nullable=True)
+    reason_for_exit = db.Column(db.String(100), nullable=True)  # Stop loss, target, etc.
+    trading_account = db.Column(db.String(50), nullable=True)  # Brokerage account
+    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Status and performance tracking
+    signal_status = db.Column(db.String(20), default='Active')  # Active, Closed, Stopped
+    pnl_amount = db.Column(db.Float, nullable=True)
+    pnl_percentage = db.Column(db.Float, nullable=True)
+    
+    # Relationship to user (admin)
+    user = db.relationship('User', backref='trading_signals')
+    
+    def calculate_pnl(self):
+        """Calculate P&L based on current or exit price"""
+        if self.exit_price:
+            price_diff = self.exit_price - self.entry_price
+        elif self.current_price:
+            price_diff = self.current_price - self.entry_price
+        else:
+            return 0, 0
+            
+        if self.trade_direction.lower() == 'short':
+            price_diff = -price_diff
+            
+        pnl_amount = price_diff * self.number_of_units
+        pnl_percentage = (price_diff / self.entry_price) * 100 if self.entry_price > 0 else 0
+        
+        return pnl_amount, pnl_percentage
+    
+    def get_status_badge_class(self):
+        """Return Bootstrap badge class based on status"""
+        if self.signal_status == 'Active':
+            return 'bg-primary'
+        elif self.signal_status == 'Closed':
+            return 'bg-success'
+        elif self.signal_status == 'Stopped':
+            return 'bg-danger'
+        return 'bg-secondary'
+    
+    def get_pnl_class(self):
+        """Return CSS class for P&L display"""
+        pnl_amount, _ = self.calculate_pnl()
+        if pnl_amount > 0:
+            return 'text-success'
+        elif pnl_amount < 0:
+            return 'text-danger'
+        return 'text-muted'
+
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

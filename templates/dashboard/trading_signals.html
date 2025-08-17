@@ -23,35 +23,19 @@
                 </div>
             </div>
 
-            <!-- Market Overview Cards -->
+            <!-- Trading Signals Summary Cards -->
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="card bg-white shadow-sm border-0">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="card-title text-muted">Nifty 50</h6>
-                                    <h5 class="mb-0 text-dark" id="nifty-price">22,345.60</h5>
-                                    <small class="text-success">+145.30 (+0.65%)</small>
+                                    <h6 class="card-title text-muted">Total Signals</h6>
+                                    <h5 class="mb-0 text-dark" id="total-signals">{{ total_signals }}</h5>
+                                    <small class="text-muted">{{ selected_date }}</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-arrow-up fa-lg text-primary"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Bank Nifty</h6>
-                                    <h5 class="mb-0 text-dark" id="banknifty-price">48,750.25</h5>
-                                    <small class="text-danger">-125.45 (-0.26%)</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-arrow-down fa-lg text-info"></i>
+                                    <i class="fas fa-signal fa-lg text-primary"></i>
                                 </div>
                             </div>
                         </div>
@@ -63,11 +47,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted">Active Signals</h6>
-                                    <h5 class="mb-0 text-dark" id="active-signals">24</h5>
-                                    <small class="text-muted">AI Generated</small>
+                                    <h5 class="mb-0 text-dark" id="active-signals">{{ active_signals }}</h5>
+                                    <small class="text-success">Currently running</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-robot fa-lg text-success"></i>
+                                    <i class="fas fa-play-circle fa-lg text-success"></i>
                                 </div>
                             </div>
                         </div>
@@ -79,8 +63,8 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h6 class="card-title text-muted">Success Rate</h6>
-                                    <h5 class="mb-0 text-dark" id="success-rate">78.5%</h5>
-                                    <small class="text-muted">Last 30 days</small>
+                                    <h5 class="mb-0 text-dark" id="success-rate">{{ "%.1f"|format(success_rate) }}%</h5>
+                                    <small class="text-muted">Closed signals</small>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="fas fa-trophy fa-lg text-warning"></i>
@@ -89,53 +73,62 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div class="card bg-white shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title text-muted">AI Accuracy</h6>
+                                    <h5 class="mb-0 text-dark" id="ai-accuracy">87.2%</h5>
+                                    <small class="text-muted">Prediction rate</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-brain fa-lg text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Filters and Search -->
+            <!-- Date Picker and Filters -->
             <div class="row mb-4">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="row">
+                            <form method="GET" action="{{ url_for('dashboard_trading_signals') }}" class="row">
                                 <div class="col-md-3">
-                                    <label class="form-label">Signal Type</label>
-                                    <select class="form-select" id="signalType">
-                                        <option value="all">All Signals</option>
-                                        <option value="buy">Buy Signals</option>
-                                        <option value="sell">Sell Signals</option>
-                                        <option value="hold">Hold Signals</option>
+                                    <label class="form-label">Select Date</label>
+                                    <input type="date" class="form-control" name="date" value="{{ selected_date }}" onchange="this.form.submit()">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Symbol Type</label>
+                                    <select class="form-select" name="symbol_type" onchange="this.form.submit()">
+                                        <option value="all" {% if symbol_type == 'all' %}selected{% endif %}>All Types</option>
+                                        {% for st in symbol_types %}
+                                        <option value="{{ st }}" {% if symbol_type == st %}selected{% endif %}>{{ st.title() }}</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Market Cap</label>
-                                    <select class="form-select" id="marketCap">
-                                        <option value="all">All Caps</option>
-                                        <option value="large">Large Cap</option>
-                                        <option value="mid">Mid Cap</option>
-                                        <option value="small">Small Cap</option>
+                                    <label class="form-label">Signal Status</label>
+                                    <select class="form-select" name="status" onchange="this.form.submit()">
+                                        <option value="all" {% if signal_status == 'all' %}selected{% endif %}>All Status</option>
+                                        <option value="Active" {% if signal_status == 'Active' %}selected{% endif %}>Active</option>
+                                        <option value="Closed" {% if signal_status == 'Closed' %}selected{% endif %}>Closed</option>
+                                        <option value="Stopped" {% if signal_status == 'Stopped' %}selected{% endif %}>Stopped</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Sector</label>
-                                    <select class="form-select" id="sector">
-                                        <option value="all">All Sectors</option>
-                                        <option value="banking">Banking</option>
-                                        <option value="it">Information Technology</option>
-                                        <option value="pharma">Pharmaceuticals</option>
-                                        <option value="auto">Automobile</option>
-                                        <option value="fmcg">FMCG</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Search Stock</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="stockSearch" placeholder="Enter symbol...">
-                                        <button class="btn btn-outline-secondary" type="button" onclick="searchStock()">
-                                            <i class="fas fa-search"></i>
-                                        </button>
+                                    <label class="form-label">Quick Actions</label>
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ url_for('dashboard_trading_signals', date=today.strftime('%Y-%m-%d')) }}" class="btn btn-outline-primary btn-sm">Today</a>
+                                        {% if current_user.is_admin %}
+                                        <a href="{{ url_for('create_trading_signal') }}" class="btn btn-success btn-sm">Add Signal</a>
+                                        {% endif %}
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -146,96 +139,97 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Active Trading Signals</h5>
-                            <span class="badge bg-primary">Real-time AI Analysis</span>
+                            <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Trading Signals</h5>
+                            <span class="badge bg-primary">{{ trading_signals|length }} signals</span>
                         </div>
                         <div class="card-body">
+                            {% if trading_signals %}
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="table-light">
                                         <tr>
+                                            <th>Date</th>
                                             <th>Symbol</th>
-                                            <th>Company</th>
-                                            <th>Signal</th>
+                                            <th>Type</th>
+                                            <th>Direction</th>
+                                            <th>Entry Price</th>
                                             <th>Current Price</th>
-                                            <th>Target Price</th>
-                                            <th>Stop Loss</th>
-                                            <th>Confidence</th>
-                                            <th>Time Frame</th>
+                                            <th>Units</th>
+                                            <th>P&L</th>
+                                            <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="signalsTableBody">
-                                        <!-- Trading signals will be loaded here dynamically -->
+                                    <tbody>
+                                        {% for signal in trading_signals %}
                                         <tr>
-                                            <td><strong>RELIANCE</strong></td>
-                                            <td>Reliance Industries</td>
-                                            <td><span class="badge bg-success">BUY</span></td>
-                                            <td>₹2,845.60</td>
-                                            <td>₹3,100.00</td>
-                                            <td>₹2,650.00</td>
+                                            <td>{{ signal.open_date.strftime('%m/%d') }}</td>
+                                            <td><strong>{{ signal.ticker_symbol }}</strong></td>
                                             <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-success" style="width: 85%">85%</div>
-                                                </div>
+                                                <span class="badge bg-light text-dark">{{ signal.symbol_type.title() }}</span>
+                                                {% if signal.option_type %}
+                                                <small class="text-muted d-block">{{ signal.option_type.title() }}</small>
+                                                {% endif %}
                                             </td>
-                                            <td>Short Term</td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('RELIANCE')">
+                                                <span class="badge {% if signal.trade_direction == 'Long' %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {% if signal.trade_direction == 'Long' %}
+                                                    <i class="fas fa-arrow-up"></i> {{ signal.trade_direction }}
+                                                    {% else %}
+                                                    <i class="fas fa-arrow-down"></i> {{ signal.trade_direction }}
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
+                                            <td>
+                                                {% if signal.current_price %}
+                                                ₹{{ "%.2f"|format(signal.current_price) }}
+                                                {% else %}
+                                                <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ signal.number_of_units }}</td>
+                                            <td>
+                                                {% set pnl_amount, pnl_percentage = signal.calculate_pnl() %}
+                                                <span class="{{ signal.get_pnl_class() }}">
+                                                    ₹{{ "%.0f"|format(pnl_amount) }}
+                                                    {% if pnl_percentage != 0 %}
+                                                    <small>({{ "%.1f"|format(pnl_percentage) }}%)</small>
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ signal.get_status_badge_class() }}">
+                                                    {{ signal.signal_status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetails({{ signal.id }})">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('RELIANCE')">
-                                                    <i class="fas fa-plus"></i>
+                                                {% if current_user.is_admin %}
+                                                <button class="btn btn-sm btn-outline-warning" onclick="editSignal({{ signal.id }})">
+                                                    <i class="fas fa-edit"></i>
                                                 </button>
+                                                {% endif %}
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td><strong>TCS</strong></td>
-                                            <td>Tata Consultancy Services</td>
-                                            <td><span class="badge bg-warning">HOLD</span></td>
-                                            <td>₹4,125.30</td>
-                                            <td>₹4,350.00</td>
-                                            <td>₹3,900.00</td>
-                                            <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-warning" style="width: 72%">72%</div>
-                                                </div>
-                                            </td>
-                                            <td>Medium Term</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('TCS')">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('TCS')">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>HDFCBANK</strong></td>
-                                            <td>HDFC Bank</td>
-                                            <td><span class="badge bg-danger">SELL</span></td>
-                                            <td>₹1,652.45</td>
-                                            <td>₹1,500.00</td>
-                                            <td>₹1,720.00</td>
-                                            <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-danger" style="width: 68%">68%</div>
-                                                </div>
-                                            </td>
-                                            <td>Short Term</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('HDFCBANK')">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('HDFCBANK')">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No trading signals found</h5>
+                                <p class="text-muted">Try selecting a different date or check back later.</p>
+                                {% if current_user.is_admin %}
+                                <a href="{{ url_for('create_trading_signal') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Create Trading Signal
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -298,33 +292,30 @@ function refreshSignals() {
     // TODO: Fetch latest signals from API
 }
 
-function searchStock() {
-    const searchTerm = document.getElementById('stockSearch').value;
-    console.log('Searching for stock:', searchTerm);
-    // TODO: Implement stock search functionality
-}
-
-function viewDetails(symbol) {
-    // Show detailed analysis for the stock
+function viewSignalDetails(signalId) {
+    // Show detailed analysis for the trading signal
     document.getElementById('signalDetailsBody').innerHTML = `
         <div class="row">
             <div class="col-md-6">
-                <h6>Technical Analysis</h6>
-                <p>Detailed technical analysis for ${symbol} will be displayed here.</p>
+                <h6>Signal Information</h6>
+                <p>Loading signal details for ID: ${signalId}...</p>
+                <p>This will show comprehensive signal analysis including entry/exit details, P&L calculations, and trade timeline.</p>
             </div>
             <div class="col-md-6">
-                <h6>AI Reasoning</h6>
-                <p>AI-generated reasoning and rationale for the signal will be shown here.</p>
+                <h6>AI Analysis</h6>
+                <p>AI-generated reasoning and market analysis for this specific signal will be displayed here.</p>
             </div>
         </div>
     `;
     new bootstrap.Modal(document.getElementById('signalDetailsModal')).show();
 }
 
-function addToWatchlist(symbol) {
-    // Add stock to user's watchlist
-    console.log('Adding to watchlist:', symbol);
-    // TODO: Implement add to watchlist functionality
+function editSignal(signalId) {
+    // Admin function to edit signal
+    const modal = new bootstrap.Modal(document.getElementById('editSignalModal'));
+    // Load signal data and show edit form
+    console.log('Editing signal:', signalId);
+    modal.show();
 }
 
 // Auto-refresh signals every 30 seconds

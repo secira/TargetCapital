@@ -1,0 +1,182 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Create Trading Signal - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create Trading Signal</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_trading_signal') }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="open_date" class="form-label">Open Date</label>
+                                    <input type="date" class="form-control" id="open_date" name="open_date" value="{{ today.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="symbol_type" class="form-label">Symbol Type</label>
+                                    <select class="form-select" id="symbol_type" name="symbol_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="stocks">Stocks</option>
+                                        <option value="options">Options</option>
+                                        <option value="futures">Futures</option>
+                                        <option value="etf">ETF</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="ticker_symbol" class="form-label">Ticker Symbol</label>
+                                    <input type="text" class="form-control" id="ticker_symbol" name="ticker_symbol" placeholder="e.g., RELIANCE, NIFTY" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="option_type" class="form-label">Option Type (if applicable)</label>
+                                    <select class="form-select" id="option_type" name="option_type">
+                                        <option value="">Select Option Type</option>
+                                        <option value="call">Call</option>
+                                        <option value="put">Put</option>
+                                        <option value="stock">Stock</option>
+                                        <option value="futures">Futures</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trade_strategy" class="form-label">Trade Strategy</label>
+                                    <input type="text" class="form-control" id="trade_strategy" name="trade_strategy" placeholder="e.g., Buy and hold, Momentum trading">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="strike_price" class="form-label">Strike Price (if applicable)</label>
+                                    <input type="number" class="form-control" id="strike_price" name="strike_price" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="expiration_date" class="form-label">Expiration Date (if applicable)</label>
+                                    <input type="date" class="form-control" id="expiration_date" name="expiration_date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="number_of_units" class="form-label">Number of Units</label>
+                                    <input type="number" class="form-control" id="number_of_units" name="number_of_units" required min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trade_direction" class="form-label">Trade Direction</label>
+                                    <select class="form-select" id="trade_direction" name="trade_direction" required>
+                                        <option value="">Select Direction</option>
+                                        <option value="Long">Long (Buy)</option>
+                                        <option value="Short">Short (Sell)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="entry_price" class="form-label">Entry Price</label>
+                                    <input type="number" class="form-control" id="entry_price" name="entry_price" step="0.01" required placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="current_price" class="form-label">Current Price</label>
+                                    <input type="number" class="form-control" id="current_price" name="current_price" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trade_fees" class="form-label">Trade Fees</label>
+                                    <input type="number" class="form-control" id="trade_fees" name="trade_fees" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="capital_risk" class="form-label">Capital Risk</label>
+                                    <input type="number" class="form-control" id="capital_risk" name="capital_risk" step="0.01" required placeholder="0.00">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trading_account" class="form-label">Trading Account</label>
+                                    <select class="form-select" id="trading_account" name="trading_account">
+                                        <option value="">Select Account</option>
+                                        <option value="Zerodha">Zerodha</option>
+                                        <option value="Angel Broking">Angel Broking</option>
+                                        <option value="Dhan">Dhan</option>
+                                        <option value="Upstox">Upstox</option>
+                                        <option value="ICICI Direct">ICICI Direct</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard_trading_signals') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Signals
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Create Signal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-populate current price when entry price is entered
+document.getElementById('entry_price').addEventListener('blur', function() {
+    const entryPrice = this.value;
+    const currentPriceField = document.getElementById('current_price');
+    if (entryPrice && !currentPriceField.value) {
+        currentPriceField.value = entryPrice;
+    }
+});
+
+// Auto-calculate capital risk when entry price and units are entered
+function calculateCapitalRisk() {
+    const entryPrice = parseFloat(document.getElementById('entry_price').value) || 0;
+    const units = parseInt(document.getElementById('number_of_units').value) || 0;
+    const capitalRiskField = document.getElementById('capital_risk');
+    
+    if (entryPrice && units && !capitalRiskField.value) {
+        capitalRiskField.value = (entryPrice * units).toFixed(2);
+    }
+}
+
+document.getElementById('entry_price').addEventListener('blur', calculateCapitalRisk);
+document.getElementById('number_of_units').addEventListener('blur', calculateCapitalRisk);
+</script>
+{% endblock %}

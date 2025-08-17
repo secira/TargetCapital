@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization
+from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
@@ -581,8 +581,140 @@ def get_market_overview():
 @app.route('/dashboard/trading-signals')
 @login_required
 def dashboard_trading_signals():
-    """Dashboard Trading Signals page with Indian market focus"""
-    return render_template('dashboard/trading_signals.html')
+    """Dashboard Trading Signals page with real data from database"""
+    from datetime import date
+    
+    # Get filter parameters
+    selected_date = request.args.get('date', date.today().strftime('%Y-%m-%d'))
+    symbol_type = request.args.get('symbol_type', 'all')
+    signal_status = request.args.get('status', 'all')
+    
+    # Build query for trading signals
+    query = TradingSignal.query
+    
+    # Filter by date
+    if selected_date:
+        query = query.filter(TradingSignal.open_date == selected_date)
+    
+    # Filter by symbol type
+    if symbol_type != 'all':
+        query = query.filter(TradingSignal.symbol_type == symbol_type)
+    
+    # Filter by status
+    if signal_status != 'all':
+        query = query.filter(TradingSignal.signal_status == signal_status)
+    
+    # Get signals ordered by creation date
+    trading_signals = query.order_by(TradingSignal.creation_date.desc()).all()
+    
+    # Calculate summary statistics
+    total_signals = len(trading_signals)
+    active_signals = len([s for s in trading_signals if s.signal_status == 'Active'])
+    closed_signals = len([s for s in trading_signals if s.signal_status == 'Closed'])
+    
+    # Calculate success rate for closed signals
+    profitable_signals = len([s for s in trading_signals if s.signal_status == 'Closed' and s.calculate_pnl()[0] > 0])
+    success_rate = (profitable_signals / closed_signals * 100) if closed_signals > 0 else 0
+    
+    # Get unique symbol types for filter dropdown
+    symbol_types = db.session.query(TradingSignal.symbol_type).distinct().all()
+    symbol_types = [st[0] for st in symbol_types]
+    
+    return render_template('dashboard/trading_signals.html',
+                         trading_signals=trading_signals,
+                         total_signals=total_signals,
+                         active_signals=active_signals,
+                         success_rate=success_rate,
+                         selected_date=selected_date,
+                         symbol_type=symbol_type,
+                         signal_status=signal_status,
+                         symbol_types=symbol_types,
+                         today=date.today())
+
+@app.route('/admin/trading-signals/create', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def create_trading_signal():
+    """Admin route to create new trading signals"""
+    from datetime import date
+    
+    if request.method == 'POST':
+        try:
+            # Create new trading signal from form data
+            signal = TradingSignal(
+                user_id=current_user.id,
+                open_date=datetime.strptime(request.form['open_date'], '%Y-%m-%d').date(),
+                symbol_type=request.form['symbol_type'],
+                ticker_symbol=request.form['ticker_symbol'].upper(),
+                option_type=request.form.get('option_type'),
+                trade_strategy=request.form.get('trade_strategy'),
+                strike_price=float(request.form['strike_price']) if request.form.get('strike_price') else None,
+                expiration_date=datetime.strptime(request.form['expiration_date'], '%Y-%m-%d').date() if request.form.get('expiration_date') else None,
+                number_of_units=int(request.form['number_of_units']),
+                trade_direction=request.form['trade_direction'],
+                entry_price=float(request.form['entry_price']),
+                current_price=float(request.form['current_price']) if request.form.get('current_price') else None,
+                trade_fees=float(request.form['trade_fees']) if request.form.get('trade_fees') else None,
+                capital_risk=float(request.form['capital_risk']),
+                trading_account=request.form.get('trading_account'),
+                signal_status='Active'
+            )
+            
+            db.session.add(signal)
+            db.session.commit()
+            
+            flash(f'Trading signal for {signal.ticker_symbol} created successfully!', 'success')
+            return redirect(url_for('dashboard_trading_signals'))
+            
+        except Exception as e:
+            logging.error(f"Error creating trading signal: {str(e)}")
+            flash('Error creating trading signal. Please check your input.', 'error')
+    
+    return render_template('admin/create_trading_signal.html', today=date.today())
+
+@app.route('/admin/trading-signals/update/<int:signal_id>', methods=['POST'])
+@login_required
+@admin_required
+def update_trading_signal(signal_id):
+    """Admin route to update trading signal prices and status"""
+    try:
+        signal = TradingSignal.query.get_or_404(signal_id)
+        
+        # Update fields that can be modified
+        if request.form.get('current_price'):
+            signal.current_price = float(request.form['current_price'])
+        
+        if request.form.get('exit_price'):
+            signal.exit_price = float(request.form['exit_price'])
+            signal.exit_date = datetime.now().date()
+            signal.signal_status = 'Closed'
+            
+            # Calculate P&L
+            pnl_amount, pnl_percentage = signal.calculate_pnl()
+            signal.pnl_amount = pnl_amount
+            signal.pnl_percentage = pnl_percentage
+            
+            if pnl_amount > 0:
+                signal.trade_result = 'Profit'
+            elif pnl_amount < 0:
+                signal.trade_result = 'Loss'
+            else:
+                signal.trade_result = 'Breakeven'
+        
+        if request.form.get('signal_status'):
+            signal.signal_status = request.form['signal_status']
+        
+        if request.form.get('reason_for_exit'):
+            signal.reason_for_exit = request.form['reason_for_exit']
+        
+        db.session.commit()
+        flash(f'Trading signal for {signal.ticker_symbol} updated successfully!', 'success')
+        
+    except Exception as e:
+        logging.error(f"Error updating trading signal: {str(e)}")
+        flash('Error updating trading signal.', 'error')
+    
+    return redirect(url_for('dashboard_trading_signals'))
 
 @app.route('/dashboard/stock-picker')
 @login_required
