@@ -279,6 +279,64 @@ class AIStockPick(db.Model):
             return ((self.target_price - self.current_price) / self.current_price) * 100
         return 0
 
+class Portfolio(db.Model):
+    __tablename__ = 'portfolio'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    broker_id = db.Column(db.String(50), nullable=False)  # zerodha, angel, dhan, etc.
+    ticker_symbol = db.Column(db.String(20), nullable=False)
+    stock_name = db.Column(db.String(200), nullable=False)
+    asset_type = db.Column(db.String(20), nullable=False)  # Stocks, MF, ETF, Bonds
+    quantity = db.Column(db.Float, nullable=False)
+    date_purchased = db.Column(db.Date, nullable=False)
+    purchase_price = db.Column(db.Float, nullable=False)  # Price per unit when purchased
+    purchased_value = db.Column(db.Float, nullable=False)  # Total purchase value
+    current_price = db.Column(db.Float, nullable=True)  # Current market price per unit
+    current_value = db.Column(db.Float, nullable=True)  # Current total value
+    sector = db.Column(db.String(100), nullable=True)  # IT, Banking, Pharma, etc.
+    exchange = db.Column(db.String(10), nullable=True)  # NSE, BSE
+    isin = db.Column(db.String(20), nullable=True)  # ISIN code for unique identification
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='portfolio_holdings')
+    
+    @property
+    def pnl_amount(self):
+        """Calculate P&L amount"""
+        if self.current_value and self.purchased_value:
+            return self.current_value - self.purchased_value
+        return 0
+    
+    @property
+    def pnl_percentage(self):
+        """Calculate P&L percentage"""
+        if self.purchased_value and self.purchased_value > 0:
+            return ((self.current_value or 0) - self.purchased_value) / self.purchased_value * 100
+        return 0
+    
+    @property
+    def allocation_percentage(self):
+        """Calculate allocation percentage within user's portfolio"""
+        total_value = db.session.query(db.func.sum(Portfolio.current_value)).filter_by(user_id=self.user_id).scalar() or 0
+        if total_value > 0 and self.current_value:
+            return (self.current_value / total_value) * 100
+        return 0
+    
+    def get_pnl_class(self):
+        """Return CSS class for P&L display"""
+        pnl = self.pnl_amount
+        if pnl > 0:
+            return 'text-success'
+        elif pnl < 0:
+            return 'text-danger'
+        return 'text-muted'
+    
+    def __repr__(self):
+        return f'<Portfolio {self.ticker_symbol} - {self.quantity} units>'
+
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

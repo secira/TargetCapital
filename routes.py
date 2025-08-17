@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick
+from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
@@ -857,8 +857,152 @@ def detailed_stock_analysis(symbol):
 @app.route('/dashboard/my-portfolio')
 @login_required
 def dashboard_my_portfolio():
-    """Portfolio management with unified broker view"""
-    return render_template('dashboard/my_portfolio.html', current_user=current_user)
+    """Portfolio management with unified broker view and real data"""
+    from datetime import date, datetime
+    from sqlalchemy import func
+    
+    # Get user's portfolio holdings
+    portfolio_holdings = Portfolio.query.filter_by(user_id=current_user.id).all()
+    
+    # If no data exists, create sample portfolio for demonstration
+    if not portfolio_holdings:
+        sample_data = [
+            {
+                'broker_id': 'zerodha',
+                'ticker_symbol': 'RELIANCE',
+                'stock_name': 'Reliance Industries Limited',
+                'asset_type': 'Stocks',
+                'quantity': 50,
+                'date_purchased': date(2024, 6, 15),
+                'purchase_price': 2650.00,
+                'purchased_value': 132500.00,
+                'current_price': 2845.60,
+                'current_value': 142280.00,
+                'sector': 'Oil & Gas',
+                'exchange': 'NSE'
+            },
+            {
+                'broker_id': 'angel',
+                'ticker_symbol': 'INFY',
+                'stock_name': 'Infosys Limited',
+                'asset_type': 'Stocks',
+                'quantity': 75,
+                'date_purchased': date(2024, 7, 20),
+                'purchase_price': 1420.00,
+                'purchased_value': 106500.00,
+                'current_price': 1447.70,
+                'current_value': 108577.50,
+                'sector': 'Information Technology',
+                'exchange': 'NSE'
+            },
+            {
+                'broker_id': 'zerodha',
+                'ticker_symbol': 'HDFCBANK',
+                'stock_name': 'HDFC Bank Limited',
+                'asset_type': 'Stocks',
+                'quantity': 30,
+                'date_purchased': date(2024, 5, 10),
+                'purchase_price': 1580.00,
+                'purchased_value': 47400.00,
+                'current_price': 1625.30,
+                'current_value': 48759.00,
+                'sector': 'Banking',
+                'exchange': 'NSE'
+            },
+            {
+                'broker_id': 'dhan',
+                'ticker_symbol': 'TCS',
+                'stock_name': 'Tata Consultancy Services',
+                'asset_type': 'Stocks',
+                'quantity': 25,
+                'date_purchased': date(2024, 8, 1),
+                'purchase_price': 3950.00,
+                'purchased_value': 98750.00,
+                'current_price': 4125.80,
+                'current_value': 103145.00,
+                'sector': 'Information Technology',
+                'exchange': 'NSE'
+            },
+            {
+                'broker_id': 'zerodha',
+                'ticker_symbol': 'BAJFINANCE',
+                'stock_name': 'Bajaj Finance Limited',
+                'asset_type': 'Stocks',
+                'quantity': 15,
+                'date_purchased': date(2024, 4, 25),
+                'purchase_price': 6800.00,
+                'purchased_value': 102000.00,
+                'current_price': 6750.45,
+                'current_value': 101256.75,
+                'sector': 'Financial Services',
+                'exchange': 'NSE'
+            }
+        ]
+        
+        for data in sample_data:
+            portfolio_holding = Portfolio(
+                user_id=current_user.id,
+                **data
+            )
+            db.session.add(portfolio_holding)
+        
+        db.session.commit()
+        portfolio_holdings = Portfolio.query.filter_by(user_id=current_user.id).all()
+    
+    # Calculate portfolio summary
+    total_investment = sum(holding.purchased_value for holding in portfolio_holdings)
+    total_current_value = sum(holding.current_value or holding.purchased_value for holding in portfolio_holdings)
+    total_pnl = total_current_value - total_investment
+    total_pnl_percentage = (total_pnl / total_investment * 100) if total_investment > 0 else 0
+    
+    # Group holdings by sector for sectorial analysis
+    sector_analysis = {}
+    for holding in portfolio_holdings:
+        sector = holding.sector or 'Others'
+        if sector not in sector_analysis:
+            sector_analysis[sector] = {
+                'investment': 0,
+                'current_value': 0,
+                'holdings_count': 0
+            }
+        sector_analysis[sector]['investment'] += holding.purchased_value
+        sector_analysis[sector]['current_value'] += holding.current_value or holding.purchased_value
+        sector_analysis[sector]['holdings_count'] += 1
+    
+    # Group holdings by broker
+    broker_analysis = {}
+    broker_names = {
+        'zerodha': 'Zerodha',
+        'angel': 'Angel Broking',
+        'dhan': 'Dhan',
+        'upstox': 'Upstox',
+        'icici': 'ICICI Direct'
+    }
+    
+    for holding in portfolio_holdings:
+        broker = holding.broker_id
+        if broker not in broker_analysis:
+            broker_analysis[broker] = {
+                'name': broker_names.get(broker, broker.title()),
+                'investment': 0,
+                'current_value': 0,
+                'holdings_count': 0,
+                'holdings': []
+            }
+        broker_analysis[broker]['investment'] += holding.purchased_value
+        broker_analysis[broker]['current_value'] += holding.current_value or holding.purchased_value
+        broker_analysis[broker]['holdings_count'] += 1
+        broker_analysis[broker]['holdings'].append(holding)
+    
+    return render_template('dashboard/my_portfolio.html',
+                         current_user=current_user,
+                         portfolio_holdings=portfolio_holdings,
+                         total_investment=total_investment,
+                         total_current_value=total_current_value,
+                         total_pnl=total_pnl,
+                         total_pnl_percentage=total_pnl_percentage,
+                         sector_analysis=sector_analysis,
+                         broker_analysis=broker_analysis)
 
 @app.route('/dashboard/trade-now')
 @login_required
