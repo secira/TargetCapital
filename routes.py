@@ -611,11 +611,19 @@ def dashboard_trade_now():
 @login_required
 def dashboard_account_handling():
     """Dashboard Account Handling page"""
-    return render_template('dashboard/account_handling.html')
+    from datetime import date
+    return render_template('dashboard/account_handling.html', today=date.today())
 
 
 
 
+
+@app.route('/dashboard/watchlist')
+@login_required
+def dashboard_watchlist():
+    """User watchlist management"""
+    watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard/watchlist.html', watchlist_items=watchlist_items)
 
 @app.route('/dashboard/nse-stocks')
 @login_required
