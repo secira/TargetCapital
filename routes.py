@@ -300,11 +300,11 @@ def profile():
         return redirect(url_for('profile'))
     
     # Get user statistics
-    watchlist_count = WatchlistItem.query.filter_by(user_id=current_user.id).count()
+    trading_signals_count = TradingSignal.query.filter_by(user_id=current_user.id).count()
     analyses_count = StockAnalysis.query.count()  # Could be user-specific in future
     
     return render_template('auth/profile.html', 
-                         watchlist_count=watchlist_count,
+                         trading_signals_count=trading_signals_count,
                          analyses_count=analyses_count)
 
 # OAuth success redirect routes
@@ -331,27 +331,24 @@ def facebook_oauth_success():
 @login_required
 def dashboard():
     """Main dashboard route"""
-    # Get user's watchlist
-    watchlist = WatchlistItem.query.filter_by(user_id=current_user.id).all()
-    
     # Get recent stock analyses
     recent_analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).limit(10).all()
     
     # Calculate user statistics
     days_active = (datetime.utcnow() - current_user.created_at).days
-    watchlist_count = len(watchlist)
+    trading_signals_count = TradingSignal.query.filter_by(user_id=current_user.id).count()
     
-    # Calculate user level based on activity
-    if watchlist_count >= 20:
+    # Calculate user level based on trading activity
+    if trading_signals_count >= 20:
         user_level = "Expert Trader"
         level_progress = 100
-    elif watchlist_count >= 10:
+    elif trading_signals_count >= 10:
         user_level = "Advanced Trader"
         level_progress = 75
-    elif watchlist_count >= 5:
+    elif trading_signals_count >= 5:
         user_level = "Intermediate"
         level_progress = 50
-    elif watchlist_count >= 1:
+    elif trading_signals_count >= 1:
         user_level = "Beginner"
         level_progress = 25
     else:
@@ -362,7 +359,7 @@ def dashboard():
     market_data = generate_mock_market_data()
     
     return render_template('dashboard/dashboard.html', 
-                         watchlist=watchlist, 
+                         trading_signals_count=trading_signals_count,
                          recent_analyses=recent_analyses,
                          market_data=market_data,
                          days_active=days_active,
@@ -379,52 +376,7 @@ def stock_analysis():
 
 
 
-@app.route('/dashboard/add-to-watchlist', methods=['POST'])
-@login_required
-def add_to_watchlist():
-    """Add stock to watchlist"""
-    symbol = request.form.get('symbol', '').upper()
-    company_name = request.form.get('company_name', '')
-    target_price = request.form.get('target_price')
-    notes = request.form.get('notes', '')
-    
-    if not symbol:
-        flash('Stock symbol is required.', 'error')
-        return redirect(url_for('dashboard_watchlist'))
-    
-    # Check if already in watchlist
-    existing = WatchlistItem.query.filter_by(user_id=current_user.id, symbol=symbol).first()
-    if existing:
-        flash(f'{symbol} is already in your watchlist.', 'warning')
-        return redirect(url_for('dashboard_watchlist'))
-    
-    # Create new watchlist item
-    watchlist_item = WatchlistItem(
-        user_id=current_user.id,
-        symbol=symbol,
-        company_name=company_name,
-        target_price=float(target_price) if target_price else None,
-        notes=notes
-    )
-    
-    db.session.add(watchlist_item)
-    db.session.commit()
-    
-    flash(f'{symbol} added to your watchlist!', 'success')
-    return redirect(url_for('dashboard_watchlist'))
 
-@app.route('/dashboard/remove-from-watchlist/<int:item_id>')
-@login_required
-def remove_from_watchlist(item_id):
-    """Remove stock from watchlist"""
-    item = WatchlistItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
-    symbol = item.symbol
-    
-    db.session.delete(item)
-    db.session.commit()
-    
-    flash(f'{symbol} removed from your watchlist.', 'info')
-    return redirect(url_for('dashboard_watchlist'))
 
 @app.route('/seed-demo-data')
 def seed_demo_data():
@@ -1145,12 +1097,7 @@ def dashboard_account_handling():
 
 
 
-@app.route('/dashboard/watchlist')
-@login_required
-def dashboard_watchlist():
-    """User watchlist management"""
-    watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard/watchlist.html', watchlist_items=watchlist_items)
+
 
 @app.route('/dashboard/nse-stocks')
 @login_required
