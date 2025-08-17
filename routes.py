@@ -377,12 +377,7 @@ def stock_analysis():
     analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).all()
     return render_template('dashboard/stock_analysis.html', analyses=analyses)
 
-@app.route('/dashboard/watchlist')
-@login_required
-def watchlist():
-    """User watchlist management"""
-    watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard/watchlist.html', watchlist_items=watchlist_items)
+
 
 @app.route('/dashboard/add-to-watchlist', methods=['POST'])
 @login_required
@@ -395,13 +390,13 @@ def add_to_watchlist():
     
     if not symbol:
         flash('Stock symbol is required.', 'error')
-        return redirect(url_for('watchlist'))
+        return redirect(url_for('dashboard_watchlist'))
     
     # Check if already in watchlist
     existing = WatchlistItem.query.filter_by(user_id=current_user.id, symbol=symbol).first()
     if existing:
         flash(f'{symbol} is already in your watchlist.', 'warning')
-        return redirect(url_for('watchlist'))
+        return redirect(url_for('dashboard_watchlist'))
     
     # Create new watchlist item
     watchlist_item = WatchlistItem(
@@ -416,7 +411,7 @@ def add_to_watchlist():
     db.session.commit()
     
     flash(f'{symbol} added to your watchlist!', 'success')
-    return redirect(url_for('watchlist'))
+    return redirect(url_for('dashboard_watchlist'))
 
 @app.route('/dashboard/remove-from-watchlist/<int:item_id>')
 @login_required
@@ -429,7 +424,7 @@ def remove_from_watchlist(item_id):
     db.session.commit()
     
     flash(f'{symbol} removed from your watchlist.', 'info')
-    return redirect(url_for('watchlist'))
+    return redirect(url_for('dashboard_watchlist'))
 
 @app.route('/seed-demo-data')
 def seed_demo_data():
@@ -680,19 +675,19 @@ def add_nse_stock_to_watchlist():
         
         if not symbol:
             flash('Stock symbol is required.', 'error')
-            return redirect(url_for('watchlist'))
+            return redirect(url_for('dashboard_watchlist'))
         
         # Get real-time data from NSE
         stock_data = nse_service.get_stock_quote(symbol)
         if not stock_data:
             flash(f'Unable to find stock {symbol} on NSE. Please check the symbol.', 'error')
-            return redirect(url_for('watchlist'))
+            return redirect(url_for('dashboard_watchlist'))
         
         # Check if already in watchlist
         existing = WatchlistItem.query.filter_by(user_id=current_user.id, symbol=symbol).first()
         if existing:
             flash(f'{symbol} is already in your watchlist.', 'warning')
-            return redirect(url_for('watchlist'))
+            return redirect(url_for('dashboard_watchlist'))
         
         # Create new watchlist item with NSE data
         watchlist_item = WatchlistItem(
@@ -707,12 +702,12 @@ def add_nse_stock_to_watchlist():
         db.session.commit()
         
         flash(f'{symbol} ({stock_data["company_name"]}) added to your watchlist!', 'success')
-        return redirect(url_for('watchlist'))
+        return redirect(url_for('dashboard_watchlist'))
         
     except Exception as e:
         logging.error(f"Error adding NSE stock to watchlist: {str(e)}")
         flash('Error adding stock to watchlist. Please try again.', 'error')
-        return redirect(url_for('watchlist'))
+        return redirect(url_for('dashboard_watchlist'))
 
 @app.route('/dashboard/analyze-nse-stock', methods=['POST'])
 @login_required
