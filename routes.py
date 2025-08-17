@@ -720,7 +720,114 @@ def update_trading_signal(signal_id):
 @login_required
 def dashboard_stock_picker():
     """AI-powered stock picker for research and analysis"""
-    return render_template('dashboard/stock_picker.html', current_user=current_user)
+    from datetime import date
+    
+    # Get selected date for AI picks
+    selected_date = request.args.get('date', date.today().strftime('%Y-%m-%d'))
+    
+    # Fetch AI stock picks for the selected date
+    ai_picks = AIStockPick.query.filter_by(pick_date=selected_date).all()
+    
+    return render_template('dashboard/stock_picker.html', 
+                         current_user=current_user,
+                         ai_picks=ai_picks,
+                         selected_date=selected_date,
+                         today=date.today())
+
+@app.route('/dashboard/detailed-analysis/<string:symbol>')
+@login_required
+def detailed_stock_analysis(symbol):
+    """Detailed stock analysis page based on Infosys format"""
+    from datetime import date
+    
+    # Sample data structure - in production this would come from AI analysis
+    stock_data = {
+        'INFY': {
+            'company_name': 'Infosys Limited',
+            'current_price': 1447.70,
+            'pe_ratio': 22.0,
+            'market_cap': '₹6.15 lakh crore',
+            'market_cap_category': 'Large Cap',
+            'annual_revenue': '193,000',
+            'revenue_growth': '10',
+            'profit_margin': '18-20',
+            'quarterly_results': 'Q1 FY25 revenue and profit both up YoY, though margin growth slowed due to higher wage costs',
+            'global_presence': '98%+ of revenue from outside India, diversified client base (North America, Europe, APAC)',
+            'debt_position': 'Virtually debt-free, with robust cash reserves for buybacks/dividends',
+            'focus_areas': 'Enterprise AI (Infosys Topaz), cloud migration, digital transformation, and consulting',
+            'recent_contracts': 'Multiple multi-million dollar wins with large US/European firms and public sector AI initiatives',
+            'innovation': 'Strong push in generative AI, cloud, and cybersecurity services',
+            'dividend_yield': 2.6,
+            'buyback_info': 'Periodically announced, supporting shareholder value',
+            'sector_position': 'Second largest listed IT services firm in India (after TCS)',
+            'competitors': 'TCS, Accenture, IBM, Cognizant, Wipro, HCL Tech',
+            'operating_risks': ['Cost inflation and margin pressure', 'Talent war and salary hikes', 'Client IT budget constraints'],
+            'market_risks': ['Currency fluctuations impact', 'US/EU tech spending softness', 'Global recession concerns'],
+            'consensus_rating': 'HOLD/BUY',
+            'consensus_details': 'Majority "Hold" rating, some "Buy" on dips',
+            'target_price': 1650.00,
+            'upside_potential': 14.0,
+            'long_term_outlook': 'Expected to benefit from AI/cloud/digital transformation trends',
+            'short_term_view': 'Range-bound movement as cost pressures and global moderation persist',
+            'debt_status': 'Debt-free',
+            'fair_value_status': 'Slight premium/near value',
+            'ai_verdict': 'Infosys continues to be a high-quality core IT holding in India. Long-term investors may hold/accumulate on dips, given its digital competency, strong balance sheet, and global client diversification.',
+            'ai_recommendation': 'HOLD with selective buying opportunities on market dips',
+            'disclaimer': 'Always check your risk profile and investment horizon. For updated targets, review latest quarterly results and analyst notes.'
+        },
+        'RELIANCE': {
+            'company_name': 'Reliance Industries Limited',
+            'current_price': 2845.60,
+            'pe_ratio': 25.5,
+            'market_cap': '₹19.2 lakh crore',
+            'market_cap_category': 'Large Cap',
+            'annual_revenue': '792,000',
+            'revenue_growth': '12',
+            'profit_margin': '8-10',
+            'quarterly_results': 'Strong performance across retail and telecom segments with steady oil & gas business',
+            'global_presence': 'Diversified operations in petrochemicals, oil refining, telecommunications, and retail',
+            'debt_position': 'Debt reduced significantly, strong cash generation from operations',
+            'focus_areas': 'Digital services expansion, retail growth, green energy transition',
+            'recent_contracts': 'Major partnerships in renewable energy and digital infrastructure',
+            'innovation': 'Investment in new energy solutions and digital technologies',
+            'dividend_yield': 0.5,
+            'buyback_info': 'Focus on growth investments rather than buybacks',
+            'sector_position': 'Largest private sector company in India with diversified business model',
+            'competitors': 'ONGC, IOC, Bharti Airtel, other energy and telecom companies',
+            'operating_risks': ['Oil price volatility', 'Regulatory changes in telecom', 'Competition in retail'],
+            'market_risks': ['Global energy transitions', 'Economic slowdown impact', 'Interest rate changes'],
+            'consensus_rating': 'BUY',
+            'consensus_details': 'Strong buy recommendations based on diversified growth prospects',
+            'target_price': 3100.00,
+            'upside_potential': 8.9,
+            'long_term_outlook': 'Well-positioned for energy transition and digital economy growth',
+            'short_term_view': 'Steady performance expected with potential volatility from oil prices',
+            'debt_status': 'Net debt reduced',
+            'fair_value_status': 'Fair to attractive valuation',
+            'ai_verdict': 'Reliance remains a core holding for diversified growth exposure in the Indian market with strong fundamentals across multiple business segments.',
+            'ai_recommendation': 'BUY for long-term wealth creation',
+            'disclaimer': 'Monitor oil prices and regulatory changes in telecom sector for short-term volatility.'
+        }
+    }
+    
+    # Get stock data or use defaults
+    data = stock_data.get(symbol.upper(), {
+        'company_name': f'{symbol.upper()} Company',
+        'current_price': 0,
+        'pe_ratio': 0,
+        'market_cap': 'N/A',
+        'dividend_yield': 0,
+        'target_price': 0,
+        'upside_potential': 0,
+        'consensus_rating': 'HOLD',
+        'ai_verdict': f'Detailed analysis for {symbol} is being prepared by our AI research team.',
+        'ai_recommendation': 'Analysis in progress'
+    })
+    
+    return render_template('dashboard/detailed_stock_analysis.html',
+                         stock_symbol=symbol.upper(),
+                         analysis_date=date.today().strftime('%B %d, %Y'),
+                         **data)
 
 @app.route('/dashboard/my-portfolio')
 @login_required

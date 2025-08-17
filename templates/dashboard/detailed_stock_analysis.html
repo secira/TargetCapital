@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}{{ stock_symbol }} - Detailed Stock Analysis - tCapital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{{ stock_symbol }} - Detailed Analysis</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{{ url_for('dashboard_stock_picker') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Stock Picker
+                        </a>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="refreshAnalysis()">
+                            <i class="fas fa-sync me-1"></i>Refresh Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Header Card -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h2 class="mb-1">{{ company_name or stock_symbol }}</h2>
+                                    <p class="mb-0">Stock Symbol: {{ stock_symbol }} • Last Updated: {{ analysis_date }}</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <h3 class="mb-0">₹{{ "%.2f"|format(current_price or 0) }}</h3>
+                                    <small>Current Price</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price & Valuation Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Current Price & Valuation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3 text-center bg-light">
+                                        <h6 class="text-muted">Price</h6>
+                                        <h4 class="text-primary">₹{{ "%.2f"|format(current_price or 0) }}</h4>
+                                        <small>(NSE/BSE)</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted">P/E Ratio</h6>
+                                        <h4>{{ "%.1f"|format(pe_ratio or 0) }}</h4>
+                                        <small>Moderately valued</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted">Market Cap</h6>
+                                        <h4>₹{{ market_cap or "N/A" }}</h4>
+                                        <small>{{ market_cap_category or "Large Cap" }}</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3 text-center">
+                                        <h6 class="text-muted">Intrinsic Value</h6>
+                                        <h4 class="text-success">Fair Value</h4>
+                                        <small>Reasonable valuation</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financials & Growth Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Financials & Growth</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><strong>Revenue Growth:</strong></h6>
+                                <p>Latest annual revenue: ₹{{ annual_revenue or "193,000" }} crore (YoY growth ~{{ revenue_growth or "10" }}%)</p>
+                                <p>Net profit margin: {{ profit_margin or "18-20" }}%, among the highest in the sector</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><strong>Recent Quarterly Results:</strong></h6>
+                                <p>{{ quarterly_results or "Revenue and profit both up YoY, though margin growth slowed due to higher costs" }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><strong>Global Presence:</strong></h6>
+                                <p>{{ global_presence or "98%+ of revenue from outside India, diversified client base" }}</p>
+                            </div>
+                            <div>
+                                <h6><strong>Debt Position:</strong></h6>
+                                <p class="text-success">{{ debt_position or "Virtually debt-free, with robust cash reserves for buybacks/dividends" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Business Updates</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><strong>Focus Areas:</strong></h6>
+                                <p>{{ focus_areas or "Enterprise AI, cloud migration, digital transformation, and consulting" }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><strong>Recent Contracts:</strong></h6>
+                                <p>{{ recent_contracts or "Multiple multi-million dollar wins with large enterprises and public sector AI initiatives" }}</p>
+                            </div>
+                            <div>
+                                <h6><strong>Innovation:</strong></h6>
+                                <p>{{ innovation or "Strong push in generative AI, cloud, and cybersecurity services" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dividends & Returns Section -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-coins me-2"></i>Dividends & Buyback</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h6>Dividend Yield</h6>
+                                    <h4 class="text-success">{{ "%.1f"|format(dividend_yield or 2.6) }}%</h4>
+                                    <small>Regular payouts</small>
+                                </div>
+                                <div class="col-6">
+                                    <h6>Share Buybacks</h6>
+                                    <p class="mb-0">{{ buyback_info or "Periodically announced, supporting shareholder value" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Sector Position</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ sector_position or "Leading position in the sector with strong competitive advantages" }}</p>
+                            <p><strong>Key Competitors:</strong> {{ competitors or "Major industry players and global competitors" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risks & Challenges Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Risks & Challenges</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><strong>Operating Risks:</strong></h6>
+                                    <ul>
+                                        {% for risk in operating_risks or ['Cost inflation and margin pressure', 'Talent acquisition and retention challenges'] %}
+                                        <li>{{ risk }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><strong>Market Risks:</strong></h6>
+                                    <ul>
+                                        {% for risk in market_risks or ['Economic slowdown impact', 'Currency fluctuation effects'] %}
+                                        <li>{{ risk }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outlook & Analyst Views Section -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-crystal-ball me-2"></i>Outlook & Analyst Views</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6><strong>Consensus Rating:</strong></h6>
+                                <span class="badge bg-success fs-6">{{ consensus_rating or "HOLD/BUY" }}</span>
+                                <p class="mt-2">{{ consensus_details or "Majority analysts recommend holding with some suggesting buying on dips" }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6><strong>Target Price:</strong></h6>
+                                <h4 class="text-primary">₹{{ "%.2f"|format(target_price or 1650) }}</h4>
+                                <small class="text-success">{{ "%.1f"|format(upside_potential or 14) }}% upside potential</small>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <h6><strong>Long-Term Outlook:</strong></h6>
+                                    <p>{{ long_term_outlook or "Expected to benefit from digital transformation trends" }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <h6><strong>Short-Term View:</strong></h6>
+                                    <p>{{ short_term_view or "Range-bound movement expected with selective opportunities" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Summary Table</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr><td><strong>Price</strong></td><td>₹{{ "%.2f"|format(current_price or 0) }}</td></tr>
+                                    <tr><td><strong>Market Cap</strong></td><td>{{ market_cap or "₹6.15 lakh crore" }}</td></tr>
+                                    <tr><td><strong>P/E Ratio</strong></td><td>{{ "%.1f"|format(pe_ratio or 22) }}</td></tr>
+                                    <tr><td><strong>Dividend Yield</strong></td><td>{{ "%.1f"|format(dividend_yield or 2.6) }}%</td></tr>
+                                    <tr><td><strong>Debt</strong></td><td class="text-success">{{ debt_status or "Debt-free" }}</td></tr>
+                                    <tr><td><strong>Rating</strong></td><td><span class="badge bg-primary">{{ consensus_rating or "Hold/Buy" }}</span></td></tr>
+                                    <tr><td><strong>Fair Value</strong></td><td>{{ fair_value_status or "Near value" }}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Verdict Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Verdict</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead">{{ ai_verdict or "This stock continues to be a high-quality investment option with strong fundamentals and market position. Long-term investors may consider holding or accumulating on dips, given its competitive advantages and growth prospects." }}</p>
+                            <p><strong>Investment Recommendation:</strong> {{ ai_recommendation or "HOLD with selective buying opportunities on market dips" }}</p>
+                            <p class="text-muted"><small>{{ disclaimer or "Always check your risk profile and investment horizon. For updated analysis, review the latest quarterly results and market conditions." }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <button class="btn btn-success me-2" onclick="addToWatchlist('{{ stock_symbol }}')">
+                        <i class="fas fa-plus me-2"></i>Add to Watchlist
+                    </button>
+                    <button class="btn btn-primary me-2" onclick="createTradingSignal('{{ stock_symbol }}')">
+                        <i class="fas fa-signal me-2"></i>Create Trading Signal
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshAnalysis() {
+    location.reload();
+}
+
+function addToWatchlist(symbol) {
+    // Implementation to add to watchlist
+    alert('Adding ' + symbol + ' to watchlist...');
+}
+
+function createTradingSignal(symbol) {
+    // Implementation to create trading signal
+    alert('Creating trading signal for ' + symbol + '...');
+}
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.border.rounded {
+    border-radius: 8px !important;
+}
+
+@media print {
+    .btn-toolbar, .sidebar, .btn {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

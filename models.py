@@ -252,6 +252,33 @@ class TradingSignal(db.Model):
             return 'text-danger'
         return 'text-muted'
 
+class AIStockPick(db.Model):
+    """AI-generated daily stock picks for dashboard display"""
+    __tablename__ = 'ai_stock_picks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    pick_date = db.Column(db.Date, nullable=False)
+    symbol = db.Column(db.String(20), nullable=False)
+    company_name = db.Column(db.String(200), nullable=False)
+    current_price = db.Column(db.Float, nullable=False)
+    target_price = db.Column(db.Float, nullable=True)
+    recommendation = db.Column(db.String(20), nullable=False)  # BUY, SELL, HOLD
+    confidence_score = db.Column(db.Integer, default=85)
+    ai_reasoning = db.Column(db.Text, nullable=True)
+    sector = db.Column(db.String(100), nullable=True)
+    market_cap = db.Column(db.String(50), nullable=True)
+    pe_ratio = db.Column(db.Float, nullable=True)
+    dividend_yield = db.Column(db.Float, nullable=True)
+    key_highlights = db.Column(db.Text, nullable=True)
+    risk_factors = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def get_upside_percentage(self):
+        """Calculate upside percentage"""
+        if self.target_price and self.current_price:
+            return ((self.target_price - self.current_price) / self.current_price) * 100
+        return 0
+
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
