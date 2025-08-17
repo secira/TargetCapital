@@ -288,6 +288,18 @@ function startAIResearch() {
     const risk = document.getElementById('riskTolerance').value;
     const horizon = document.getElementById('investmentHorizon').value;
     
+    // Handle single stock analysis
+    if (researchType === 'single') {
+        const stockSymbol = document.getElementById('stockSymbol').value.trim().toUpperCase();
+        if (!stockSymbol) {
+            alert('Please enter a stock symbol');
+            return;
+        }
+        // Navigate to detailed analysis page for the entered stock
+        window.location.href = `/dashboard/detailed-analysis/${stockSymbol}`;
+        return;
+    }
+    
     // Show loading
     document.getElementById('researchLoading').style.display = 'block';
     document.getElementById('researchResults').style.display = 'none';
