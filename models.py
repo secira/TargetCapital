@@ -337,6 +337,118 @@ class Portfolio(db.Model):
     def __repr__(self):
         return f'<Portfolio {self.ticker_symbol} - {self.quantity} units>'
 
+
+# Trading and Algorithmic Trading Models
+class TradingStrategy(db.Model):
+    __tablename__ = 'trading_strategies'
+    
+    strategy_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # Straddle, Strangle, Butterfly, etc.
+    parameters = db.Column(db.JSON, nullable=True)  # Strategy parameters (dynamic)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AlgoRun(db.Model):
+    __tablename__ = 'algo_runs'
+    
+    run_id = db.Column(db.Integer, primary_key=True)
+    strategy_id = db.Column(db.Integer, db.ForeignKey('trading_strategies.strategy_id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=True)
+    status = db.Column(db.String(20), default='RUNNING')  # RUNNING, CLOSED, ERROR
+    
+    strategy = db.relationship('TradingStrategy', backref='algo_runs')
+
+
+class TradePosition(db.Model):
+    __tablename__ = 'trade_positions'
+    
+    position_id = db.Column(db.Integer, primary_key=True)
+    run_id = db.Column(db.Integer, db.ForeignKey('algo_runs.run_id'), nullable=False)
+    symbol = db.Column(db.String(50), nullable=False)  # NIFTY, TCS, etc.
+    trade_date = db.Column(db.DateTime, nullable=False)
+    broker_id = db.Column(db.Integer, db.ForeignKey('brokers.broker_id'), nullable=False)
+    status = db.Column(db.String(20), default='OPEN')  # OPEN, CLOSED
+    
+    algo_run = db.relationship('AlgoRun', backref='trade_positions')
+    broker = db.relationship('Broker', backref='trade_positions')
+
+
+class TradeLeg(db.Model):
+    __tablename__ = 'trade_legs'
+    
+    leg_id = db.Column(db.Integer, primary_key=True)
+    position_id = db.Column(db.Integer, db.ForeignKey('trade_positions.position_id'), nullable=False)
+    leg_type = db.Column(db.String(20), nullable=False)  # CALL, PUT, STOCK
+    action = db.Column(db.String(10), nullable=False)  # BUY, SELL
+    strike_price = db.Column(db.Float, nullable=True)
+    expiry = db.Column(db.Date, nullable=True)
+    quantity = db.Column(db.Integer, nullable=False)
+    entry_price = db.Column(db.Float, nullable=False)
+    exit_price = db.Column(db.Float, nullable=True)
+    pnl = db.Column(db.Float, nullable=True)
+    
+    trade_position = db.relationship('TradePosition', backref='trade_legs')
+
+
+class Broker(db.Model):
+    __tablename__ = 'brokers'
+    
+    broker_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # Zerodha, Angel One, etc.
+    account_ref = db.Column(db.String(100), nullable=True)
+    api_config = db.Column(db.JSON, nullable=True)  # API keys/config for automation
+
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+    
+    order_id = db.Column(db.Integer, primary_key=True)
+    leg_id = db.Column(db.Integer, db.ForeignKey('trade_legs.leg_id'), nullable=False)
+    broker_id = db.Column(db.Integer, db.ForeignKey('brokers.broker_id'), nullable=False)
+    status = db.Column(db.String(20), default='PLACED')  # PLACED, EXECUTED, REJECTED, CANCELLED
+    order_type = db.Column(db.String(20), default='MARKET')  # MARKET, LIMIT, etc.
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    trade_leg = db.relationship('TradeLeg', backref='orders')
+    broker = db.relationship('Broker', backref='orders')
+
+
+class Performance(db.Model):
+    __tablename__ = 'performance'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    run_id = db.Column(db.Integer, db.ForeignKey('algo_runs.run_id'), nullable=False)
+    net_pnl = db.Column(db.Float, nullable=True)
+    max_drawdown = db.Column(db.Float, nullable=True)
+    win_rate = db.Column(db.Float, nullable=True)
+    sharpe_ratio = db.Column(db.Float, nullable=True)
+    
+    algo_run = db.relationship('AlgoRun', backref='performance', uselist=False)
+
+
+class DailyTradingSignal(db.Model):
+    __tablename__ = 'daily_trading_signals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    signal_date = db.Column(db.Date, nullable=False)
+    signal_type = db.Column(db.String(20), nullable=False)  # Stocks, Options, Futures
+    symbol = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # BUY, SELL, HOLD
+    entry_price = db.Column(db.Float, nullable=True)
+    target_price = db.Column(db.Float, nullable=True)
+    stop_loss = db.Column(db.Float, nullable=True)
+    quantity = db.Column(db.Integer, nullable=True)
+    strategy = db.Column(db.String(100), nullable=True)
+    confidence = db.Column(db.Float, nullable=True)  # 0-100
+    risk_level = db.Column(db.String(20), default='Medium')  # Low, Medium, High
+    time_frame = db.Column(db.String(20), nullable=True)  # Intraday, Short Term, Long Term
+    notes = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

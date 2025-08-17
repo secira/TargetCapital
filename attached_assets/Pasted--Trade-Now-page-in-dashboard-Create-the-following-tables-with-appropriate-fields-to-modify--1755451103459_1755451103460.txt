@@ -1,0 +1,89 @@
+
+“Trade Now”  page in dashboard. 
+
+Create the following tables with appropriate fields to modify the Trade Now page in dashboard. Data should come from this table. This table will be created by admin on a daily basis and user will be browsing and making trading decision. Since there will be date for every day, we will need a date picker to display today signals or go back and see past signals for reference. We can organize the trading signals page by Stocks, Options, Futures. First user will select the date, for each date we can display each asset class. Update the “Trade Now” to take data from these tables and list the strategies for execution.
+
+Here is a comprehensive table structure for an algo trading platform supporting multiple strategies—Straddle, Strangle, Butterfly, Covered Calls, Naked Calls—with live execution across multiple brokers. This schema is optimized for algorithmic setups, modular strategy tracking, multi-leg positions, and automated order routing.
+ 
+1. Strategies Table
+Field	Type	Description
+StrategyID	INT (PK)	Unique strategy identifier
+Name	VARCHAR	Name (Straddle, Strangle, etc.)
+Parameters	JSON	Strategy parameters (dynamic)
+Description	TEXT	Short strategy logic
+CreatedAt	DATETIME	Timestamp
+
+ 
+2. AlgoRuns Table
+Field	Type	Description
+RunID	INT (PK)	Unique ID for every strategy execution
+StrategyID	INT (FK)	Reference to Strategies
+StartTime	DATETIME	When run was started
+EndTime	DATETIME	When run completed/closed
+Status	VARCHAR	RUNNING, CLOSED, ERROR
+
+ 
+3. TradePositions Table
+Field	Type	Description
+PositionID	INT (PK)	Unique trade position ID
+RunID	INT (FK)	Reference to AlgoRuns
+Symbol	VARCHAR	Underlying asset (NIFTY, TCS, etc.)
+TradeDate	DATETIME	Date/Time placed
+BrokerID	INT (FK)	Reference to Brokers
+Status	VARCHAR	OPEN/CLOSED
+
+ 
+4. TradeLegs Table
+Field	Type	Description
+LegID	INT (PK)	Unique leg ID
+PositionID	INT (FK)	Reference to TradePositions
+LegType	VARCHAR	CALL, PUT, STOCK
+Action	VARCHAR	BUY, SELL
+StrikePrice	DECIMAL	Strike price for options
+Expiry	DATE	Expiry date for option leg
+Quantity	INT	Contracts or shares
+EntryPrice	DECIMAL	Execution price
+ExitPrice	DECIMAL	Close-out price
+PnL	DECIMAL	Realized profit/loss per leg
+
+ 
+5. Brokers Table
+Field	Type	Description
+BrokerID	INT (PK)	Unique broker reference
+Name	VARCHAR	Broker name (Zerodha, IB, etc.)
+AccountRef	VARCHAR	User account reference/ID
+APIConfig	JSON	API keys/config for automation
+
+ 
+6. Orders Table
+Field	Type	Description
+OrderID	INT (PK)	Unique order ID
+LegID	INT (FK)	Reference to TradeLegs
+BrokerID	INT (FK)	Broker facilitating order
+Status	VARCHAR	PLACED, EXECUTED, REJECTED, CANCELLED
+OrderType	VARCHAR	MARKET, LIMIT, etc.
+Timestamp	DATETIME	Placed/executed/cancelled time
+
+ 
+7. Performance Table
+Field	Type	Description
+RunID	INT (FK)	Reference to AlgoRuns
+NetPnL	DECIMAL	Net profit/loss for run
+MaxDrawdown	DECIMAL	Maximum drawdown
+WinRate	DECIMAL	% Winning trades
+SharpeRatio	DECIMAL	Sharpe ratio
+
+ 
+Relationships:
+•	Each Strategy can have multiple AlgoRuns (executions).
+•	Each AlgoRun can have multiple Positions.
+•	Each Position (multi-leg) supports legs (calls/puts/stocks)—suitable for complex options strategies.
+•	Leg orders are routed and tracked via multiple Brokers.
+•	Orders table allows order level auditing and low-level error handling—important for algo trading automation.
+ 
+This schema supports:
+•	Modular expansion for more strategies.
+•	Clean separation between strategies, executions, positions, and brokers.
+•	Real-time, multi-broker, multi-leg order management and performance analytics—ideal for advanced algo trading setups.
+Let me know if you need further normalization, API route suggestions, or sample data inserts for specific strategies!
+⁂

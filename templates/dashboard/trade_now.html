@@ -1,352 +1,350 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Trade Now - tCapital Dashboard{% endblock %}
+{% block title %}Trade Now - tCapital{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
+{% block dashboard_title %}Trade Now{% endblock %}
+{% block dashboard_subtitle %}Algorithmic trading signals and multi-broker execution{% endblock %}
+
+{% block dashboard_content %}
+<!-- Date Picker and Quick Actions -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <label class="form-label">Select Date</label>
+        <input type="date" class="form-control" id="datePicker" 
+               value="{{ selected_date.strftime('%Y-%m-%d') }}" 
+               onchange="changeDate()" style="width: 200px;">
+    </div>
+    <div>
+        <button class="btn btn-outline-primary me-2" onclick="refreshSignals()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <button class="btn btn-primary" onclick="showAlgoSetup()">
+            <i class="fas fa-robot me-1"></i>Algo Setup
+        </button>
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary bg-opacity-10 border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-signal text-primary fa-2x mb-2"></i>
+                <h4 class="fw-bold text-primary">{{ total_signals }}</h4>
+                <small class="text-muted">Total Signals</small>
+            </div>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2"><i class="fas fa-bolt me-2"></i>Smart Trading Signals</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-success btn-sm" onclick="executeAutoTrade()">
-                            <i class="fas fa-play me-1"></i>Auto Trade
-                        </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshSignals()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
-                </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success bg-opacity-10 border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-up text-success fa-2x mb-2"></i>
+                <h4 class="fw-bold text-success">{{ buy_signals }}</h4>
+                <small class="text-muted">Buy Signals</small>
             </div>
-
-            <!-- Trading Overview Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Active Signals</h6>
-                                    <h5 class="mb-0 text-dark" id="activeSignals">18</h5>
-                                    <small class="text-muted">Ready to trade</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-signal fa-2x text-success"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Success Rate</h6>
-                                    <h5 class="mb-0 text-dark" id="successRate">82.5%</h5>
-                                    <small class="text-muted">Last 50 trades</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-trophy fa-2x text-primary"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Avg Return</h6>
-                                    <h5 class="mb-0 text-dark" id="avgReturn">+4.2%</h5>
-                                    <small class="text-muted">Per trade</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-percentage fa-2x text-warning"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Available Capital</h6>
-                                    <h5 class="mb-0 text-dark" id="availableCapital">₹2,45,000</h5>
-                                    <small class="text-muted">For trading</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-wallet fa-2x text-info"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger bg-opacity-10 border-danger">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-down text-danger fa-2x mb-2"></i>
+                <h4 class="fw-bold text-danger">{{ sell_signals }}</h4>
+                <small class="text-muted">Sell Signals</small>
             </div>
-
-            <!-- Smart Signal Controls -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card border-primary">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Smart Trading Configuration</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Trading Mode</label>
-                                        <select class="form-select" id="tradingMode">
-                                            <option value="manual">Manual Execution</option>
-                                            <option value="semi-auto">Semi-Automatic</option>
-                                            <option value="auto">Fully Automatic</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Risk Level</label>
-                                        <select class="form-select" id="riskLevel">
-                                            <option value="low">Conservative</option>
-                                            <option value="medium" selected>Moderate</option>
-                                            <option value="high">Aggressive</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Max Position Size</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="maxPositionSize" value="50000" min="10000" max="500000">
-                                            <span class="input-group-text">₹</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="mb-3">
-                                        <label class="form-label">Stop Loss %</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control" id="stopLoss" value="3" min="1" max="10" step="0.5">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="enableNotifications" checked>
-                                        <label class="form-check-label" for="enableNotifications">
-                                            Enable trade notifications
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="enableAutoStopLoss" checked>
-                                        <label class="form-check-label" for="enableAutoStopLoss">
-                                            Auto set stop-loss orders
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info bg-opacity-10 border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line text-info fa-2x mb-2"></i>
+                <h4 class="fw-bold text-info">{{ "%.0f"|format(avg_confidence) }}%</h4>
+                <small class="text-muted">Avg Confidence</small>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Live Trading Signals -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-lightning me-2"></i>Live Trading Signals</h5>
-                            <div>
-                                <span class="badge bg-success me-2">Live</span>
-                                <span class="text-muted small">Updated: 2 min ago</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
+<!-- Broker Selection -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <label class="form-label">Active Broker</label>
+        <select class="form-select" id="brokerSelect">
+            {% for broker in brokers %}
+            <option value="{{ broker.broker_id }}">{{ broker.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Quick Actions</label>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" onclick="executeAllBuySignals()">
+                <i class="fas fa-play me-1"></i>Execute All Buys
+            </button>
+            <button class="btn btn-warning" onclick="setStopLossAll()">
+                <i class="fas fa-shield-alt me-1"></i>Set Stop Loss
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Trading Signal Tabs -->
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" id="tradingTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="stocks-tab" data-bs-toggle="tab" data-bs-target="#stocks" type="button" role="tab">
+                    <i class="fas fa-chart-line me-1"></i>Stocks ({{ signals_by_type.Stocks|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="options-tab" data-bs-toggle="tab" data-bs-target="#options" type="button" role="tab">
+                    <i class="fas fa-code-branch me-1"></i>Options ({{ signals_by_type.Options|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="futures-tab" data-bs-toggle="tab" data-bs-target="#futures" type="button" role="tab">
+                    <i class="fas fa-forward me-1"></i>Futures ({{ signals_by_type.Futures|length }})
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content" id="tradingTabsContent">
+                        
+                        <!-- Stocks Tab -->
+                        <div class="tab-pane fade show active" id="stocks" role="tabpanel">
+                            {% if signals_by_type.Stocks %}
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Signal</th>
                                             <th>Symbol</th>
+                                            <th>Action</th>
                                             <th>Entry Price</th>
                                             <th>Target</th>
                                             <th>Stop Loss</th>
+                                            <th>Quantity</th>
+                                            <th>Strategy</th>
                                             <th>Confidence</th>
-                                            <th>Time Frame</th>
+                                            <th>Risk</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tradingSignalsBody">
-                                        <tr class="table-success">
-                                            <td><span class="badge bg-success fs-6">BUY</span></td>
-                                            <td><strong>RELIANCE</strong></td>
-                                            <td>₹2,845.60</td>
-                                            <td>₹3,100.00 (+8.9%)</td>
-                                            <td>₹2,650.00 (-6.9%)</td>
+                                    <tbody>
+                                        {% for signal in signals_by_type.Stocks %}
+                                        <tr>
                                             <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-success" style="width: 88%">88%</div>
+                                                <div class="fw-bold">{{ signal.symbol }}</div>
+                                                <small class="text-muted">{{ signal.time_frame }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
+                                                    {{ signal.action }}
+                                                </span>
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
+                                            <td>{{ signal.quantity }}</td>
+                                            <td>
+                                                <small>{{ signal.strategy }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="width: 60px; height: 20px;">
+                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
+                                                         style="width: {{ signal.confidence }}%">
+                                                        {{ "%.0f"|format(signal.confidence) }}%
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td><span class="badge bg-warning">Intraday</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-success" onclick="executeTrade('RELIANCE', 'BUY')">
-                                                    <i class="fas fa-play me-1"></i>Execute
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetails('RELIANCE')">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
+                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
+                                                    {{ signal.risk_level }}
+                                                </span>
                                             </td>
-                                        </tr>
-                                        <tr class="table-info">
-                                            <td><span class="badge bg-info fs-6">SELL</span></td>
-                                            <td><strong>BAJFINANCE</strong></td>
-                                            <td>₹6,750.45</td>
-                                            <td>₹6,200.00 (-8.2%)</td>
-                                            <td>₹7,100.00 (+5.2%)</td>
                                             <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-info" style="width: 75%">75%</div>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
+                                                        <i class="fas fa-info"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
                                                 </div>
                                             </td>
-                                            <td><span class="badge bg-primary">Swing</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info" onclick="executeTrade('BAJFINANCE', 'SELL')">
-                                                    <i class="fas fa-play me-1"></i>Execute
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetails('BAJFINANCE')">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </td>
                                         </tr>
-                                        <tr class="table-warning">
-                                            <td><span class="badge bg-warning fs-6">BUY</span></td>
-                                            <td><strong>TATAMOTORS</strong></td>
-                                            <td>₹925.30</td>
-                                            <td>₹1,050.00 (+13.5%)</td>
-                                            <td>₹850.00 (-8.1%)</td>
-                                            <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-warning" style="width: 72%">72%</div>
-                                                </div>
-                                            </td>
-                                            <td><span class="badge bg-success">Positional</span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-warning" onclick="executeTrade('TATAMOTORS', 'BUY')">
-                                                    <i class="fas fa-play me-1"></i>Execute
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetails('TATAMOTORS')">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Stock Signals Available</h5>
+                                <p class="text-muted">No stock trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
+                            </div>
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Metrics -->
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card border-success">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Recent Performance</h6>
+                        
+                        <!-- Options Tab -->
+                        <div class="tab-pane fade" id="options" role="tabpanel">
+                            {% if signals_by_type.Options %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Action</th>
+                                            <th>Entry Price</th>
+                                            <th>Target</th>
+                                            <th>Stop Loss</th>
+                                            <th>Lots</th>
+                                            <th>Strategy</th>
+                                            <th>Confidence</th>
+                                            <th>Risk</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for signal in signals_by_type.Options %}
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">{{ signal.symbol }}</div>
+                                                <small class="text-muted">{{ signal.time_frame }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
+                                                    {{ signal.action }}
+                                                </span>
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
+                                            <td>{{ signal.quantity }}</td>
+                                            <td>
+                                                <small>{{ signal.strategy }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="width: 60px; height: 20px;">
+                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
+                                                         style="width: {{ signal.confidence }}%">
+                                                        {{ "%.0f"|format(signal.confidence) }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
+                                                    {{ signal.risk_level }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
+                                                        <i class="fas fa-info"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-code-branch fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Options Signals Available</h5>
+                                <p class="text-muted">No options trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <h5 class="text-success">+12.5%</h5>
-                                    <small class="text-muted">Today</small>
-                                </div>
-                                <div class="col-4">
-                                    <h5 class="text-success">+28.3%</h5>
-                                    <small class="text-muted">This Week</small>
-                                </div>
-                                <div class="col-4">
-                                    <h5 class="text-success">+45.7%</h5>
-                                    <small class="text-muted">This Month</small>
-                                </div>
+                        
+                        <!-- Futures Tab -->
+                        <div class="tab-pane fade" id="futures" role="tabpanel">
+                            {% if signals_by_type.Futures %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Action</th>
+                                            <th>Entry Price</th>
+                                            <th>Target</th>
+                                            <th>Stop Loss</th>
+                                            <th>Lots</th>
+                                            <th>Strategy</th>
+                                            <th>Confidence</th>
+                                            <th>Risk</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for signal in signals_by_type.Futures %}
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">{{ signal.symbol }}</div>
+                                                <small class="text-muted">{{ signal.time_frame }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
+                                                    {{ signal.action }}
+                                                </span>
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
+                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
+                                            <td>{{ signal.quantity }}</td>
+                                            <td>
+                                                <small>{{ signal.strategy }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="width: 60px; height: 20px;">
+                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
+                                                         style="width: {{ signal.confidence }}%">
+                                                        {{ "%.0f"|format(signal.confidence) }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
+                                                    {{ signal.risk_level }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
+                                                        <i class="fas fa-info"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
-                            <hr>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Winning Trades</span>
-                                    <span class="fw-bold">41/50</span>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 82%"></div>
-                                </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-forward fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Futures Signals Available</h5>
+                                <p class="text-muted">No futures trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
                             </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Average Profit</span>
-                                    <span class="fw-bold text-success">+6.2%</span>
-                                </div>
-                            </div>
-                            <div class="mb-0">
-                                <div class="d-flex justify-content-between">
-                                    <span>Risk Score</span>
-                                    <span class="fw-bold text-warning">Medium</span>
-                                </div>
-                            </div>
+                            {% endif %}
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card border-info">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Trading Insights</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info mb-3">
-                                <strong>Market Sentiment:</strong> Bullish<br>
-                                <small>AI detects positive momentum in large-cap stocks</small>
-                            </div>
-                            <h6>Top Performing Sectors</h6>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Technology</span>
-                                    <span class="badge bg-success">+8.5%</span>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Banking</span>
-                                    <span class="badge bg-success">+6.2%</span>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between">
-                                    <span>Energy</span>
-                                    <span class="badge bg-warning">+3.1%</span>
-                                </div>
-                            </div>
-                            <hr>
-                            <h6>AI Recommendations</h6>
-                            <ul class="list-unstyled mb-0">
-                                <li class="small mb-1"><i class="fas fa-check text-success me-2"></i>Increase position in IT stocks</li>
-                                <li class="small mb-1"><i class="fas fa-check text-success me-2"></i>Consider profit booking in auto sector</li>
-                                <li class="small"><i class="fas fa-exclamation text-warning me-2"></i>Monitor global market trends</li>
-                            </ul>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -354,86 +352,253 @@
     </div>
 </div>
 
-<!-- Trade Execution Modal -->
-<div class="modal fade" id="tradeExecutionModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Signal Details Modal -->
+<div class="modal fade" id="signalDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Execute Trade</h5>
+                <h5 class="modal-title">Signal Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="tradeExecutionBody">
-                <!-- Trade execution details will be loaded here -->
+            <div class="modal-body" id="signalDetailsContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="executeFromModal()">Execute Trade</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Algo Setup Modal -->
+<div class="modal fade" id="algoSetupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Algorithmic Trading Setup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Strategy Selection</h6>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="straddle">
+                            <label class="form-check-label" for="straddle">
+                                <strong>Long Straddle</strong>
+                                <small class="d-block text-muted">Buy call + put at same strike</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="strangle">
+                            <label class="form-check-label" for="strangle">
+                                <strong>Long Strangle</strong>
+                                <small class="d-block text-muted">Buy call + put at different strikes</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="butterfly">
+                            <label class="form-check-label" for="butterfly">
+                                <strong>Butterfly Spread</strong>
+                                <small class="d-block text-muted">Limited risk/reward strategy</small>
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="coveredCall">
+                            <label class="form-check-label" for="coveredCall">
+                                <strong>Covered Call</strong>
+                                <small class="d-block text-muted">Own stock + sell call</small>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Execution Parameters</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Maximum Position Size</label>
+                            <input type="number" class="form-control" placeholder="100000" id="maxPosition">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Risk Per Trade (%)</label>
+                            <input type="number" class="form-control" placeholder="2" id="riskPercent" max="10">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Auto-execution</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoExecution">
+                                <label class="form-check-label" for="autoExecution">
+                                    Enable automatic trade execution
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="confirmTrade()">Confirm Trade</button>
+                <button type="button" class="btn btn-primary" onclick="saveAlgoSetup()">Save Configuration</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-function executeAutoTrade() {
-    console.log('Executing auto trade...');
-    // TODO: Implement auto trade functionality
+// Date change functionality
+function changeDate() {
+    const selectedDate = document.getElementById('datePicker').value;
+    window.location.href = `/dashboard/trade-now?date=${selectedDate}`;
 }
 
-function refreshSignals() {
-    console.log('Refreshing trading signals...');
-    // TODO: Implement signal refresh functionality
+// Trading signal execution
+function executeSignal(signalId, symbol, action) {
+    const brokerId = document.getElementById('brokerSelect').value;
+    
+    if (confirm(`Execute ${action} order for ${symbol}?`)) {
+        // Here you would implement the actual order execution
+        alert(`${action} order for ${symbol} placed successfully via broker ${brokerId}!`);
+        console.log(`Executing signal ${signalId}: ${action} ${symbol} via broker ${brokerId}`);
+    }
 }
 
-function executeTrade(symbol, action) {
-    document.getElementById('tradeExecutionBody').innerHTML = `
+// Show signal details in modal
+function showSignalDetails(signalId) {
+    // This would fetch detailed signal information
+    const detailsContent = `
         <div class="row">
-            <div class="col-12">
-                <h6>Trade Details</h6>
-                <table class="table table-borderless">
-                    <tr><td><strong>Symbol:</strong></td><td>${symbol}</td></tr>
-                    <tr><td><strong>Action:</strong></td><td><span class="badge bg-${action === 'BUY' ? 'success' : 'danger'}">${action}</span></td></tr>
-                    <tr><td><strong>Quantity:</strong></td><td>10 shares</td></tr>
-                    <tr><td><strong>Price:</strong></td><td>₹2,845.60</td></tr>
-                    <tr><td><strong>Total Value:</strong></td><td>₹28,456</td></tr>
-                </table>
+            <div class="col-md-6">
+                <h6>Signal Information</h6>
+                <p><strong>Signal ID:</strong> ${signalId}</p>
+                <p><strong>Generated:</strong> {{ selected_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                <p><strong>Last Updated:</strong> Just now</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Technical Analysis</h6>
+                <p><strong>RSI:</strong> 65.2</p>
+                <p><strong>MACD:</strong> Bullish crossover</p>
+                <p><strong>Volume:</strong> Above average</p>
             </div>
         </div>
-        <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            Please review the trade details carefully before confirmation.
-        </div>
+        <hr>
+        <h6>AI Analysis Notes</h6>
+        <p class="text-muted">Detailed analysis notes would appear here...</p>
     `;
-    new bootstrap.Modal(document.getElementById('tradeExecutionModal')).show();
+    
+    document.getElementById('signalDetailsContent').innerHTML = detailsContent;
+    new bootstrap.Modal(document.getElementById('signalDetailsModal')).show();
 }
 
-function viewSignalDetails(symbol) {
-    console.log('Viewing signal details for:', symbol);
-    // TODO: Implement signal details view
+// Customize signal parameters
+function customizeSignal(signalId) {
+    alert(`Opening customization for signal ${signalId}...`);
+    // Implementation for signal customization
 }
 
-function confirmTrade() {
-    console.log('Confirming trade...');
-    // TODO: Implement trade confirmation
-    bootstrap.Modal.getInstance(document.getElementById('tradeExecutionModal')).hide();
+// Execute all buy signals
+function executeAllBuySignals() {
+    if (confirm('Execute all BUY signals for today?')) {
+        alert('Executing all buy signals...');
+        // Implementation for bulk execution
+    }
 }
 
-// Auto-refresh signals every 30 seconds
-setInterval(refreshSignals, 30000);
+// Set stop loss for all positions
+function setStopLossAll() {
+    alert('Setting stop loss for all open positions...');
+    // Implementation for bulk stop loss setting
+}
+
+// Refresh signals
+function refreshSignals() {
+    alert('Refreshing trading signals...');
+    location.reload();
+}
+
+// Show algorithmic setup modal
+function showAlgoSetup() {
+    new bootstrap.Modal(document.getElementById('algoSetupModal')).show();
+}
+
+// Save algorithmic trading configuration
+function saveAlgoSetup() {
+    const config = {
+        strategies: {
+            straddle: document.getElementById('straddle').checked,
+            strangle: document.getElementById('strangle').checked,
+            butterfly: document.getElementById('butterfly').checked,
+            coveredCall: document.getElementById('coveredCall').checked
+        },
+        maxPosition: document.getElementById('maxPosition').value,
+        riskPercent: document.getElementById('riskPercent').value,
+        autoExecution: document.getElementById('autoExecution').checked
+    };
+    
+    console.log('Saving algo configuration:', config);
+    alert('Algorithmic trading configuration saved successfully!');
+    bootstrap.Modal.getInstance(document.getElementById('algoSetupModal')).hide();
+}
+
+// Execute trade from modal
+function executeFromModal() {
+    alert('Executing trade from modal...');
+    bootstrap.Modal.getInstance(document.getElementById('signalDetailsModal')).hide();
+}
+
+// View portfolio
+function viewPortfolio() {
+    window.location.href = '/dashboard/my-portfolio';
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tabs
+    var triggerTabList = [].slice.call(document.querySelectorAll('#tradingTabs button'))
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl)
+        
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    })
+    
+    // Set up periodic refresh (every 30 seconds)
+    setInterval(function() {
+        // Update signal data without full page reload
+        console.log('Auto-refreshing signal data...');
+    }, 30000);
+});
 </script>
 
 <style>
-.card {
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+.sidebar {
+    border-radius: 0 15px 15px 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
-.card:hover {
-    transform: translateY(-2px);
+.main-content {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
 }
 
 .progress {
     border-radius: 10px;
+}
+
+.btn-group .btn {
+    padding: 0.25rem 0.5rem;
 }
 
 .badge {
@@ -441,27 +606,106 @@ setInterval(refreshSignals, 30000);
     padding: 0.4rem 0.6rem;
 }
 
-.table th {
-    border-top: none;
-    font-weight: 600;
-    color: #495057;
-    background-color: #f8f9fa;
+/* Custom styling for confidence progress bars */
+.table .progress {
+    margin: 0;
 }
 
-.btn-toolbar .btn-group {
-    margin-right: 0.5rem;
-}
-
-.table-success {
-    background-color: rgba(40, 167, 69, 0.1);
-}
-
-.table-info {
-    background-color: rgba(23, 162, 184, 0.1);
-}
-
-.table-warning {
-    background-color: rgba(255, 193, 7, 0.1);
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto !important;
+        border-radius: 0;
+    }
+    
+    .main-content {
+        padding: 1rem !important;
+    }
+    
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.2rem 0.4rem;
+    }
 }
 </style>
+
+{% endblock %}
+
+{% block right_sidebar %}
+<!-- Broker Connection Status -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="card-title mb-0">
+            <i class="fas fa-link text-primary me-2"></i>Broker Status
+        </h6>
+    </div>
+    <div class="card-body">
+        {% for broker in brokers %}
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small">{{ broker.name }}</span>
+            <span class="badge bg-success">Connected</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Today's Performance -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h6 class="card-title mb-0">
+            <i class="fas fa-chart-bar text-success me-2"></i>Today's Performance
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-6 mb-3">
+                <div class="p-2 bg-success bg-opacity-10 rounded">
+                    <h6 class="fw-bold text-success mb-1">₹12,450</h6>
+                    <small class="text-muted">Executed</small>
+                </div>
+            </div>
+            <div class="col-6 mb-3">
+                <div class="p-2 bg-warning bg-opacity-10 rounded">
+                    <h6 class="fw-bold text-warning mb-1">₹8,320</h6>
+                    <small class="text-muted">Pending</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Management -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h6 class="card-title mb-0">
+            <i class="fas fa-shield-alt text-warning me-2"></i>Risk Management
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <small>Daily Risk Usage</small>
+                <small>45%</small>
+            </div>
+            <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-warning" style="width: 45%"></div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <small>Max Drawdown</small>
+                <small>2.3%</small>
+            </div>
+            <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-danger" style="width: 23%"></div>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-outline-warning w-100">
+            <i class="fas fa-cog me-1"></i>Risk Settings
+        </button>
+    </div>
+</div>
 {% endblock %}
