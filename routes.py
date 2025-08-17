@@ -581,9 +581,54 @@ def get_market_overview():
         logging.error(f"Error fetching market overview: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to fetch market data'})
 
+
+
+@app.route('/dashboard/trading-signals')
+@login_required
+def dashboard_trading_signals():
+    """Dashboard Trading Signals page with Indian market focus"""
+    return render_template('dashboard/trading_signals.html')
+
+@app.route('/dashboard/stock-picker')
+@login_required
+def dashboard_stock_picker():
+    """AI-powered stock picker for research and analysis"""
+    return render_template('dashboard/stock_picker.html', current_user=current_user)
+
+@app.route('/dashboard/my-portfolio')
+@login_required
+def dashboard_my_portfolio():
+    """Portfolio management with unified broker view"""
+    return render_template('dashboard/my_portfolio.html', current_user=current_user)
+
+@app.route('/dashboard/trade-now')
+@login_required
+def dashboard_trade_now():
+    """Trade execution page following kavout.com smart-signals design"""
+    return render_template('dashboard/trade_now.html', current_user=current_user)
+
+@app.route('/dashboard/account-handling')
+@login_required
+def dashboard_account_handling():
+    """Dashboard Account Handling page"""
+    return render_template('dashboard/account_handling.html')
+
+@app.route('/dashboard/ai-advisor')
+@login_required
+def dashboard_ai_advisor():
+    """AI Advisor dashboard with autonomous intelligence"""
+    return render_template('dashboard/ai_advisor.html', current_user=current_user)
+
+@app.route('/dashboard/watchlist')
+@login_required
+def dashboard_watchlist():
+    """User watchlist management"""
+    watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard/watchlist.html', watchlist_items=watchlist_items)
+
 @app.route('/dashboard/nse-stocks')
 @login_required
-def nse_stocks():
+def dashboard_nse_stocks():
     """NSE India stocks dashboard with real-time data"""
     try:
         # Get Indian market data using enhanced market data service
@@ -617,50 +662,6 @@ def nse_stocks():
         logging.error(f"Error loading NSE stocks dashboard: {str(e)}")
         flash('Unable to load NSE market data. Please try again later.', 'error')
         return redirect(url_for('dashboard'))
-
-@app.route('/dashboard/trading-signals')
-@login_required
-def dashboard_trading_signals():
-    """Dashboard Trading Signals page with Indian market focus"""
-    return render_template('dashboard/trading_signals.html')
-
-@app.route('/dashboard/stock-picker')
-@login_required
-def dashboard_stock_picker():
-    """AI-powered stock picker for research and analysis"""
-    return render_template('dashboard/stock_picker.html', current_user=current_user)
-
-@app.route('/dashboard/my-portfolio')
-@login_required
-def dashboard_my_portfolio():
-    """Portfolio management with unified broker view"""
-    return render_template('dashboard/my_portfolio.html', current_user=current_user)
-
-@app.route('/dashboard/trade-now')
-@login_required
-def dashboard_trade_now():
-    """Trade execution page following kavout.com smart-signals design"""
-    return render_template('dashboard/trade_now.html', current_user=current_user)
-
-
-
-@app.route('/dashboard/my-portfolio')
-@login_required  
-def my_portfolio():
-    """My Portfolio page with Indian holdings"""
-    return render_template('dashboard/my_portfolio.html')
-
-@app.route('/dashboard/trade-now')
-@login_required
-def trade_now():
-    """Trade Now page for Indian stocks"""
-    return render_template('dashboard/trade_now.html')
-
-@app.route('/dashboard/account-handling', endpoint='dashboard_account_handling')
-@login_required
-def dashboard_account_handling():
-    """Dashboard Account Handling page"""
-    return render_template('dashboard/account_handling.html')
 
 @app.route('/dashboard/live-market')
 @login_required
