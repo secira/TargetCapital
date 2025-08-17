@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal
+from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
