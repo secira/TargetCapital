@@ -1,11 +1,30 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Trade Now - tCapital{% endblock %}
+{% block title %}Trade Now - tCapital Dashboard{% endblock %}
 
-{% block dashboard_title %}Trade Now{% endblock %}
-{% block dashboard_subtitle %}Algorithmic trading signals and multi-broker execution{% endblock %}
-
-{% block dashboard_content %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2"><i class="fas fa-bolt me-2"></i>Trade Now</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="refreshSignals()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="showAlgoSetup()">
+                            <i class="fas fa-robot me-1"></i>Algo Setup
+                        </button>
+                    </div>
+                </div>
+            </div>
 <!-- Date Picker and Quick Actions -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -141,84 +160,12 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
-
-{% block right_sidebar %}
-<!-- Broker Connection Status -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-link text-primary me-2"></i>Broker Status
-        </h6>
-    </div>
-    <div class="card-body">
-        {% for broker in brokers %}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small">{{ broker.name }}</span>
-            <span class="badge bg-success">Connected</span>
         </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Today's Performance -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-chart-bar text-success me-2"></i>Today's Performance
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-6 mb-3">
-                <div class="p-2 bg-success bg-opacity-10 rounded">
-                    <h6 class="fw-bold text-success mb-1">₹12,450</h6>
-                    <small class="text-muted">Executed</small>
-                </div>
-            </div>
-            <div class="col-6 mb-3">
-                <div class="p-2 bg-warning bg-opacity-10 rounded">
-                    <h6 class="fw-bold text-warning mb-1">₹8,320</h6>
-                    <small class="text-muted">Pending</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Risk Management -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-shield-alt text-warning me-2"></i>Risk Management
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-                <small>Daily Risk Usage</small>
-                <small>45%</small>
-            </div>
-            <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-warning" style="width: 45%"></div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-                <small>Max Drawdown</small>
-                <small>2.3%</small>
-            </div>
-            <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-danger" style="width: 23%"></div>
-            </div>
-        </div>
-        <button class="btn btn-sm btn-outline-warning w-100">
-            <i class="fas fa-cog me-1"></i>Risk Settings
-        </button>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
 <script>
 // Date change functionality
 function changeDate() {
@@ -249,3 +196,4 @@ function showAlgoSetup() {
     alert('Algorithmic trading setup coming soon...');
 }
 </script>
+{% endblock %}
