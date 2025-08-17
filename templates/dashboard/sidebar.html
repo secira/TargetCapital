@@ -45,21 +45,21 @@
             
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" 
-                   href="/dashboard/account-handling">
+                   href="{{ url_for('dashboard_account_handling') }}">
                     <i class="fas fa-user-cog me-2"></i>Account Handling
                 </a>
             </li>
             
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" 
-                   href="/dashboard/ai-advisor">
+                   href="{{ url_for('ai_advisor') }}">
                     <i class="fas fa-brain me-2"></i>AI Advisor
                 </a>
             </li>
             
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'watchlist' else '' }}" 
-                   href="/dashboard/watchlist">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_watchlist' else '' }}" 
+                   href="{{ url_for('dashboard_watchlist') }}">
                     <i class="fas fa-eye me-2"></i>Watchlist
                 </a>
             </li>

@@ -613,18 +613,9 @@ def dashboard_account_handling():
     """Dashboard Account Handling page"""
     return render_template('dashboard/account_handling.html')
 
-@app.route('/dashboard/ai-advisor')
-@login_required
-def dashboard_ai_advisor():
-    """AI Advisor dashboard with autonomous intelligence"""
-    return render_template('dashboard/ai_advisor.html', current_user=current_user)
 
-@app.route('/dashboard/watchlist')
-@login_required
-def dashboard_watchlist():
-    """User watchlist management"""
-    watchlist_items = WatchlistItem.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard/watchlist.html', watchlist_items=watchlist_items)
+
+
 
 @app.route('/dashboard/nse-stocks')
 @login_required
@@ -1080,6 +1071,7 @@ def api_search_stocks():
 @login_required
 def ai_advisor():
     """AI Advisor Dashboard - Main agentic AI interface"""
+    from datetime import date
     # Get recent AI analyses for the user
     recent_analyses = AIAnalysis.query.filter_by(user_id=current_user.id).order_by(
         AIAnalysis.created_at.desc()
@@ -1092,7 +1084,9 @@ def ai_advisor():
     
     return render_template('dashboard/ai_advisor.html', 
                          recent_analyses=recent_analyses,
-                         portfolio_optimizations=portfolio_optimizations)
+                         portfolio_optimizations=portfolio_optimizations,
+                         current_user=current_user,
+                         today=date.today())
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required

@@ -33,16 +33,16 @@
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trading_signals' else '' }}" href="{{ url_for('trading_signals') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}">
                         <i class="fas fa-signal me-2"></i>Trading Signals
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'my_portfolio' else '' }}" href="{{ url_for('my_portfolio') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}">
                         <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'account_handling' else '' }}" href="{{ url_for('account_handling') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" href="{{ url_for('dashboard_account_handling') }}">
                         <i class="fas fa-user-cog me-2"></i>Account Handling
                     </a>
                 </nav>
@@ -60,13 +60,13 @@
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trading_signals' else '' }}" href="{{ url_for('trading_signals') }}" data-bs-dismiss="offcanvas">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-signal me-2"></i>Trading Signals
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'my_portfolio' else '' }}" href="{{ url_for('my_portfolio') }}" data-bs-dismiss="offcanvas">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}" data-bs-dismiss="offcanvas">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
                     <a class="nav-link {{ 'active' if request.endpoint == 'account_handling' else '' }}" href="{{ url_for('account_handling') }}" data-bs-dismiss="offcanvas">
