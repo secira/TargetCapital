@@ -45,31 +45,26 @@
             
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" 
-                   href="{{ url_for('dashboard_account_handling') }}">
+                   href="/dashboard/account-handling">
                     <i class="fas fa-user-cog me-2"></i>Account Handling
                 </a>
             </li>
             
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_ai_advisor' else '' }}" 
-                   href="{{ url_for('dashboard_ai_advisor') }}">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" 
+                   href="/dashboard/ai-advisor">
                     <i class="fas fa-brain me-2"></i>AI Advisor
                 </a>
             </li>
             
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_watchlist' else '' }}" 
-                   href="{{ url_for('dashboard_watchlist') }}">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'watchlist' else '' }}" 
+                   href="/dashboard/watchlist">
                     <i class="fas fa-eye me-2"></i>Watchlist
                 </a>
             </li>
             
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_nse_stocks' else '' }}" 
-                   href="{{ url_for('dashboard_nse_stocks') }}">
-                    <i class="fas fa-list me-2"></i>NSE Stocks
-                </a>
-            </li>
+
         </ul>
         
         <!-- Broker Status -->

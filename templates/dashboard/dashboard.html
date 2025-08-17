@@ -29,64 +29,64 @@
             <!-- Portfolio Financial Overview -->
             <div class="row mb-4">
                 <div class="col-md-3">
-                    <div class="card bg-gradient-primary text-white">
+                    <div class="card bg-white shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="card-title">Total Portfolio Value</h6>
-                                    <h3 class="mb-0" id="totalPortfolioValue">₹18,45,680</h3>
-                                    <small class="text-light">+₹85,230 (+4.84%)</small>
+                                    <h6 class="card-title text-muted">Total Portfolio Value</h6>
+                                    <h3 class="mb-0 text-primary" id="totalPortfolioValue">₹18,45,680</h3>
+                                    <small class="text-success">+₹85,230 (+4.84%)</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-wallet fa-3x opacity-75"></i>
+                                    <i class="fas fa-wallet fa-3x text-primary opacity-75"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-gradient-success text-white">
+                    <div class="card bg-white shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="card-title">Algo Trades Executed</h6>
-                                    <h3 class="mb-0" id="algoTrades">245</h3>
-                                    <small class="text-light">This month</small>
+                                    <h6 class="card-title text-muted">Algo Trades Executed</h6>
+                                    <h3 class="mb-0 text-success" id="algoTrades">245</h3>
+                                    <small class="text-muted">This month</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-robot fa-3x opacity-75"></i>
+                                    <i class="fas fa-robot fa-3x text-success opacity-75"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-gradient-info text-white">
+                    <div class="card bg-white shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="card-title">Active Strategies</h6>
-                                    <h3 class="mb-0" id="activeStrategies">12</h3>
-                                    <small class="text-light">AI powered</small>
+                                    <h6 class="card-title text-muted">Active Strategies</h6>
+                                    <h3 class="mb-0 text-info" id="activeStrategies">12</h3>
+                                    <small class="text-muted">AI powered</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-brain fa-3x opacity-75"></i>
+                                    <i class="fas fa-brain fa-3x text-info opacity-75"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-gradient-warning text-white">
+                    <div class="card bg-white shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="card-title">Account Handling</h6>
-                                    <h3 class="mb-0" id="accountValue">₹15,00,000</h3>
-                                    <small class="text-light">Under management</small>
+                                    <h6 class="card-title text-muted">Account Handling</h6>
+                                    <h3 class="mb-0 text-warning" id="accountValue">₹15,00,000</h3>
+                                    <small class="text-muted">Under management</small>
                                 </div>
                                 <div class="align-self-center">
-                                    <i class="fas fa-user-tie fa-3x opacity-75"></i>
+                                    <i class="fas fa-user-tie fa-3x text-warning opacity-75"></i>
                                 </div>
                             </div>
                         </div>
@@ -306,16 +306,16 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button class="btn btn-outline-primary" onclick="location.href='/dashboard/trading-signals'">
+                                <button class="btn btn-outline-primary" onclick="location.href='{{ url_for('dashboard_trading_signals') }}'">
                                     <i class="fas fa-signal me-2"></i>View Trading Signals
                                 </button>
-                                <button class="btn btn-outline-success" onclick="location.href='/dashboard/stock-picker'">
+                                <button class="btn btn-outline-success" onclick="location.href='{{ url_for('dashboard_stock_picker') }}'">
                                     <i class="fas fa-search me-2"></i>AI Stock Picker
                                 </button>
-                                <button class="btn btn-outline-info" onclick="location.href='/dashboard/trade-now'">
+                                <button class="btn btn-outline-info" onclick="location.href='{{ url_for('dashboard_trade_now') }}'">
                                     <i class="fas fa-lightning me-2"></i>Execute Trade
                                 </button>
-                                <button class="btn btn-outline-warning" onclick="location.href='/dashboard/my-portfolio'">
+                                <button class="btn btn-outline-warning" onclick="location.href='{{ url_for('dashboard_my_portfolio') }}'">
                                     <i class="fas fa-briefcase me-2"></i>Manage Portfolio
                                 </button>
                             </div>
@@ -382,21 +382,6 @@ setInterval(() => {
 </script>
 
 <style>
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
-}
-
-.bg-gradient-info {
-    background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
-}
-
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-}
 
 .card {
     border-radius: 15px;
