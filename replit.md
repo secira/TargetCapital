@@ -44,6 +44,10 @@ Added real-time portfolio calculation features including P&L, allocation percent
 Built sample portfolio data system with holdings from Zerodha, Angel Broking, and Dhan for testing
 Enhanced portfolio analytics with sector-wise analysis and broker-wise breakdown capabilities
 Integrated AI portfolio optimization recommendations with actionable insights and portfolio scoring
+Dashboard system cleanup: Removed Watchlist menu item and functionality as requested by user (August 17, 2025)
+Unified dashboard navigation with consistent left sidebar layout across all menu items
+Updated Trade Now page template structure to match other dashboard pages for visual consistency
+Fixed routing issues and template structure alignment across dashboard components
 
 ## System Architecture
 ### Backend Architecture
