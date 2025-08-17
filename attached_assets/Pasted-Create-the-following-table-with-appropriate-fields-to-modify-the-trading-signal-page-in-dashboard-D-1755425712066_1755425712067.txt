@@ -1,0 +1,54 @@
+Create the following table with appropriate fields to modify the trading signal page in dashboard. Data should come from this table. This table will be created by admin on a daily basis and user will be browsing and making trading decision. Since there will be date for every day, we will need a date picker to display today signals or go back and see past signals for reference. We can organize the trading signals page by Stocks, Options, Futures, Currency, Mutual Funds, Crypto and Commodities. First user will select the date, for each date we can display each asset class.
+
+1. Trading signals for dashboard 
+	
+id
+user_id
+open_date	
+symbol_type	
+ticker_symbol	
+option_type	
+trade_strategy	
+strike_price	
+expiration_date	
+number_of_contracts	
+trade_direction	
+entry_price
+current_price	
+trade_fees	
+capital_risk	
+exit_date	
+exit_price	
+trade_result	
+trade_duration	
+assignment_details	
+reason_for_exit
+trading_account
+creation_date
+
+
+
+
+comment
+user_id - user will be admin. Admin will create this record and it will display in the Trading signal page
+open_date - Trade open date
+symbol_type - Index, futures, currency, crypto, options, stocks, gold
+ticker_symbol - appropriate ticker symbol based on symbol type
+option_type - call, put, Stock
+trade_strategy - Covered calls, Naked put, Buy and hold
+strike_price	- Strike price of options
+expiration_date	 - expiry date of option
+number_of_units -  number of contracts or total number of shares
+trade_direction	 - Long or Short
+entry_price  - Entry price
+current_price	 - Current price of the asset
+trade_fees	- Approx. brokerage charge, just for calculation 
+capital_risk	- Total purchase capital
+exit_date	- trade exit date
+exit_price	- trade exit price
+trade_result	 - Profit or loss or breakeven
+trade_duration	 - number of days trade help
+assignment_details - any details	
+reason_for_exit  - Stop loss to target
+trading_account   - brokerage account 
+creation_date   - date this row was created
