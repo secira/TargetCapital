@@ -1,10 +1,10 @@
 /* Dashboard Typography Standards */
-/* Headings should be around 24px, Body text should be at least 14px */
+/* Headings should be around 26px, Body text should be at least 16px */
 
 /* Dashboard Main Headings */
 .dashboard-heading,
 .h1, h1 {
-    font-size: 24px !important;
+    font-size: 26px !important;
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 1rem;
@@ -12,7 +12,7 @@
 
 .dashboard-subheading,
 .h2, h2 {
-    font-size: 20px !important;
+    font-size: 22px !important;
     font-weight: 500;
     line-height: 1.4;
     margin-bottom: 0.8rem;
@@ -20,28 +20,28 @@
 
 .dashboard-section-heading,
 .h3, h3 {
-    font-size: 18px !important;
+    font-size: 20px !important;
     font-weight: 500;
     line-height: 1.4;
     margin-bottom: 0.6rem;
 }
 
 .h4, h4 {
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: 500;
     line-height: 1.4;
     margin-bottom: 0.5rem;
 }
 
 .h5, h5 {
-    font-size: 15px !important;
+    font-size: 17px !important;
     font-weight: 500;
     line-height: 1.4;
     margin-bottom: 0.4rem;
 }
 
 .h6, h6 {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 500;
     line-height: 1.4;
     margin-bottom: 0.3rem;
@@ -49,56 +49,56 @@
 
 /* Body Text Standards */
 body, .dashboard-body-text {
-    font-size: 14px !important;
+    font-size: 16px !important;
     line-height: 1.5;
 }
 
 /* Card Text */
 .card-title {
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: 500;
     margin-bottom: 0.5rem;
 }
 
 .card-text, .card-body p {
-    font-size: 14px !important;
+    font-size: 16px !important;
     line-height: 1.5;
 }
 
 /* Button Text */
 .btn {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 500;
 }
 
 .btn-sm {
-    font-size: 13px !important;
+    font-size: 15px !important;
 }
 
 .btn-lg {
-    font-size: 16px !important;
+    font-size: 18px !important;
 }
 
 /* Form Elements */
 .form-label {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 500;
     margin-bottom: 0.3rem;
 }
 
 .form-control, .form-select {
-    font-size: 14px !important;
+    font-size: 16px !important;
     line-height: 1.5;
 }
 
 /* Table Text */
 .table th {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 600;
 }
 
 .table td {
-    font-size: 14px !important;
+    font-size: 16px !important;
     line-height: 1.4;
 }
 
@@ -110,17 +110,17 @@ body, .dashboard-body-text {
 
 /* Navigation Text */
 .nav-link {
-    font-size: 14px !important;
+    font-size: 16px !important;
     font-weight: 500;
 }
 
 /* Sidebar Text */
 .sidebar .nav-link {
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 
 .sidebar h6 {
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -128,51 +128,85 @@ body, .dashboard-body-text {
 
 /* Badge Text */
 .badge {
-    font-size: 11px !important;
+    font-size: 13px !important;
     font-weight: 500;
 }
 
 /* Alert Text */
 .alert {
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 
 /* Modal Text */
 .modal-title {
-    font-size: 18px !important;
+    font-size: 20px !important;
     font-weight: 600;
 }
 
 .modal-body {
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 
 /* Dashboard Specific Classes */
 .dashboard-metric {
-    font-size: 24px !important;
+    font-size: 26px !important;
     font-weight: 700;
     line-height: 1.2;
 }
 
 .dashboard-metric-label {
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .dashboard-card-value {
-    font-size: 20px !important;
+    font-size: 22px !important;
     font-weight: 600;
 }
 
 .dashboard-percentage {
-    font-size: 13px !important;
+    font-size: 15px !important;
     font-weight: 500;
 }
 
 /* Responsive Typography */
 @media (max-width: 768px) {
+    .dashboard-heading, .h1, h1 {
+        font-size: 24px !important;
+    }
+    
+    .dashboard-subheading, .h2, h2 {
+        font-size: 20px !important;
+    }
+    
+    .dashboard-section-heading, .h3, h3 {
+        font-size: 18px !important;
+    }
+    
+    .dashboard-metric {
+        font-size: 22px !important;
+    }
+    
+    .dashboard-card-value {
+        font-size: 20px !important;
+    }
+    
+    body, .dashboard-body-text {
+        font-size: 15px !important;
+    }
+    
+    .btn {
+        font-size: 15px !important;
+    }
+    
+    .form-control, .form-select {
+        font-size: 15px !important;
+    }
+}
+
+@media (max-width: 576px) {
     .dashboard-heading, .h1, h1 {
         font-size: 22px !important;
     }
@@ -181,10 +215,6 @@ body, .dashboard-body-text {
         font-size: 18px !important;
     }
     
-    .dashboard-section-heading, .h3, h3 {
-        font-size: 16px !important;
-    }
-    
     .dashboard-metric {
         font-size: 20px !important;
     }
@@ -192,23 +222,9 @@ body, .dashboard-body-text {
     .dashboard-card-value {
         font-size: 18px !important;
     }
-}
-
-@media (max-width: 576px) {
-    .dashboard-heading, .h1, h1 {
-        font-size: 20px !important;
-    }
     
-    .dashboard-subheading, .h2, h2 {
-        font-size: 16px !important;
-    }
-    
-    .dashboard-metric {
-        font-size: 18px !important;
-    }
-    
-    .dashboard-card-value {
-        font-size: 16px !important;
+    body, .dashboard-body-text {
+        font-size: 14px !important;
     }
 }
 
@@ -223,15 +239,15 @@ body * {
 
 /* Override Bootstrap defaults that are too small */
 .text-muted {
-    font-size: 13px !important;
+    font-size: 15px !important;
 }
 
 .breadcrumb {
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 
 .pagination .page-link {
-    font-size: 14px !important;
+    font-size: 16px !important;
 }
 
 /* Progress bar labels */
