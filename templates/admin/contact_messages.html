@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Messages - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h3 mb-0">Contact Messages</h1>
+                        <p class="text-muted">Manage customer inquiries and support requests</p>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">{{ stats.total }}</h5>
+                                <p class="card-text small text-muted">Total Messages</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning">{{ stats.new }}</h5>
+                                <p class="card-text small text-muted">New</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-info">{{ stats.read }}</h5>
+                                <p class="card-text small text-muted">Read</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">{{ stats.replied }}</h5>
+                                <p class="card-text small text-muted">Replied</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-secondary">{{ stats.closed }}</h5>
+                                <p class="card-text small text-muted">Closed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="GET" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label">Filter by Status:</label>
+                                <select name="status" class="form-select" onchange="this.form.submit()">
+                                    <option value="all" {{ 'selected' if status_filter == 'all' else '' }}>All Messages</option>
+                                    <option value="new" {{ 'selected' if status_filter == 'new' else '' }}>New</option>
+                                    <option value="read" {{ 'selected' if status_filter == 'read' else '' }}>Read</option>
+                                    <option value="replied" {{ 'selected' if status_filter == 'replied' else '' }}>Replied</option>
+                                    <option value="closed" {{ 'selected' if status_filter == 'closed' else '' }}>Closed</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Messages Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Type</th>
+                                        <th>Subject</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for message in messages.items %}
+                                    <tr>
+                                        <td>{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <strong>{{ message.name }}</strong>
+                                            {% if message.company %}
+                                            <br><small class="text-muted">{{ message.company }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="mailto:{{ message.email }}">{{ message.email }}</a>
+                                            {% if message.phone %}
+                                            <br><small class="text-muted">{{ message.phone }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ message.inquiry_type or 'General' }}</span>
+                                        </td>
+                                        <td>{{ message.subject or 'No subject' }}</td>
+                                        <td>
+                                            {% if message.status == 'new' %}
+                                            <span class="badge bg-warning">New</span>
+                                            {% elif message.status == 'read' %}
+                                            <span class="badge bg-info">Read</span>
+                                            {% elif message.status == 'replied' %}
+                                            <span class="badge bg-success">Replied</span>
+                                            {% elif message.status == 'closed' %}
+                                            <span class="badge bg-secondary">Closed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('admin_view_contact_message', message_id=message.id) }}" 
+                                               class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">
+                                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                            No contact messages found.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if messages.pages > 1 %}
+                        <nav aria-label="Contact messages pagination">
+                            <ul class="pagination justify-content-center">
+                                {% if messages.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_contact_messages', page=messages.prev_num, status=status_filter) }}">Previous</a>
+                                </li>
+                                {% endif %}
+                                
+                                {% for page_num in messages.iter_pages() %}
+                                {% if page_num %}
+                                {% if page_num != messages.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_contact_messages', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% endif %}
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">…</span>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                                
+                                {% if messages.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('admin_contact_messages', page=messages.next_num, status=status_filter) }}">Next</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

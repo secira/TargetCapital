@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio,
-                   PricingPlan, SubscriptionStatus, Payment, Referral)
+                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage)
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
@@ -193,18 +193,143 @@ def compliance():
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
-    """Contact page route"""
+    """Contact page route with email notifications"""
     if request.method == 'POST':
-        # Handle contact form submission
-        name = request.form.get('name')
-        email = request.form.get('email')
-        message = request.form.get('message')
-        
-        # Here you would typically send an email or save to database
-        flash('Thank you for your message. We will get back to you soon!', 'success')
-        return redirect(url_for('contact'))
+        try:
+            # Get form data
+            first_name = request.form.get('first_name', '').strip()
+            last_name = request.form.get('last_name', '').strip()
+            email = request.form.get('email', '').strip()
+            phone = request.form.get('phone', '').strip()
+            company = request.form.get('company', '').strip()
+            subject = request.form.get('subject', '').strip()
+            message = request.form.get('message', '').strip()
+            
+            # Validate required fields
+            if not all([first_name, last_name, email, message]):
+                flash('Please fill in all required fields.', 'error')
+                return redirect(url_for('contact'))
+            
+            # Create full name
+            full_name = f"{first_name} {last_name}"
+            
+            # Map subject to inquiry type
+            inquiry_type_map = {
+                'general': 'General',
+                'support': 'Support',
+                'sales': 'Sales', 
+                'partnership': 'Partnership',
+                'feedback': 'Feedback'
+            }
+            inquiry_type = inquiry_type_map.get(subject, 'General')
+            
+            # Create contact message record
+            contact_message = ContactMessage(
+                name=full_name,
+                email=email,
+                subject=subject,
+                message=message,
+                phone=phone if phone else None,
+                company=company if company else None,
+                inquiry_type=inquiry_type,
+                ip_address=request.environ.get('REMOTE_ADDR'),
+                user_agent=request.environ.get('HTTP_USER_AGENT')
+            )
+            
+            # Save to database
+            db.session.add(contact_message)
+            db.session.commit()
+            
+            # Send email notifications
+            from services.email_service import email_service
+            
+            # Send confirmation email to user
+            email_sent_to_user = email_service.send_contact_confirmation(contact_message)
+            
+            # Send notification email to admin
+            email_sent_to_admin = email_service.send_contact_notification(contact_message)
+            
+            # Show success message
+            if email_sent_to_user:
+                flash('Thank you for your message! We\'ve sent you a confirmation email and will get back to you within 24 hours.', 'success')
+            else:
+                flash('Thank you for your message! We will get back to you within 24 hours.', 'success')
+            
+            # Log the contact submission
+            logging.info(f"New contact message from {full_name} ({email}) - Type: {inquiry_type}")
+            
+            return redirect(url_for('contact'))
+            
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Contact form submission error: {str(e)}")
+            flash('Sorry, there was an error sending your message. Please try again or contact us directly.', 'error')
+            return redirect(url_for('contact'))
     
     return render_template('contact.html')
+
+# Admin route to view contact messages
+@app.route('/admin/contact-messages')
+@login_required
+@admin_required
+def admin_contact_messages():
+    """Admin page to view and manage contact messages"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'all')
+    
+    query = ContactMessage.query
+    
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+    
+    messages = query.order_by(ContactMessage.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+    
+    # Get statistics
+    stats = {
+        'total': ContactMessage.query.count(),
+        'new': ContactMessage.query.filter_by(status='new').count(),
+        'read': ContactMessage.query.filter_by(status='read').count(),
+        'replied': ContactMessage.query.filter_by(status='replied').count(),
+        'closed': ContactMessage.query.filter_by(status='closed').count(),
+    }
+    
+    return render_template('admin/contact_messages.html', 
+                         messages=messages, 
+                         stats=stats,
+                         status_filter=status_filter)
+
+@app.route('/admin/contact-message/<int:message_id>')
+@login_required 
+@admin_required
+def admin_view_contact_message(message_id):
+    """View individual contact message"""
+    message = ContactMessage.query.get_or_404(message_id)
+    
+    # Mark as read if it's new
+    if message.status == 'new':
+        message.status = 'read'
+        db.session.commit()
+    
+    return render_template('admin/view_contact_message.html', message=message)
+
+@app.route('/admin/contact-message/<int:message_id>/update-status', methods=['POST'])
+@login_required
+@admin_required  
+def admin_update_contact_status(message_id):
+    """Update contact message status"""
+    message = ContactMessage.query.get_or_404(message_id)
+    new_status = request.form.get('status')
+    
+    if new_status in ['new', 'read', 'replied', 'closed']:
+        message.status = new_status
+        if new_status == 'replied':
+            message.replied_at = datetime.utcnow()
+        db.session.commit()
+        flash(f'Message status updated to {new_status}.', 'success')
+    
+    return redirect(url_for('admin_view_contact_message', message_id=message_id))
 
 
 

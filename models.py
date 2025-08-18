@@ -66,6 +66,24 @@ class BlogPost(db.Model):
         word_count = len(self.content.split())
         return max(1, round(word_count / 200))  # Average 200 words per minute
 
+class ContactMessage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    subject = db.Column(db.String(200), nullable=True)
+    message = db.Column(db.Text, nullable=False)
+    phone = db.Column(db.String(20), nullable=True)
+    company = db.Column(db.String(100), nullable=True)
+    inquiry_type = db.Column(db.String(50), nullable=True)  # General, Support, Sales, Partnership
+    status = db.Column(db.String(20), default='new')  # new, read, replied, closed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    replied_at = db.Column(db.DateTime, nullable=True)
+    ip_address = db.Column(db.String(45), nullable=True)
+    user_agent = db.Column(db.String(500), nullable=True)
+    
+    def __repr__(self):
+        return f'<ContactMessage {self.name} - {self.subject}>'
+
 class TeamMember(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)

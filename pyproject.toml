@@ -22,4 +22,5 @@ dependencies = [
     "yfinance>=0.2.65",
     "openai>=1.99.9",
     "razorpay>=1.4.2",
+    "sendgrid>=6.12.4",
 ]
