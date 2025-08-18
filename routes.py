@@ -17,9 +17,18 @@ from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Razorpay configuration (in production, keep keys in environment variables)
+# Razorpay configuration
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_dummy_key')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'dummy_secret')
+
+# Initialize Razorpay client when keys are available
+razorpay_client = None
+if RAZORPAY_KEY_ID != 'rzp_test_dummy_key' and RAZORPAY_KEY_SECRET != 'dummy_secret':
+    try:
+        import razorpay
+        razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    except ImportError:
+        logging.warning("Razorpay library not installed")
 
 # Template Context Processor
 @app.context_processor
@@ -1892,17 +1901,41 @@ def create_razorpay_order():
         plan_type = data.get('plan_type')
         amount = data.get('amount')
         
-        order_data = {
-            'success': True,
-            'order_id': f'order_{int(datetime.now().timestamp())}',
-            'amount': amount * 100,
-            'currency': 'INR'
-        }
-        
-        return jsonify(order_data)
+        if razorpay_client:
+            # Create actual Razorpay order
+            order_data = {
+                'amount': amount * 100,  # Amount in paise
+                'currency': 'INR',
+                'receipt': f'tcapital_{current_user.id}_{int(datetime.now().timestamp())}',
+                'notes': {
+                    'user_id': str(current_user.id),
+                    'plan_type': plan_type,
+                    'email': current_user.email
+                }
+            }
+            order = razorpay_client.order.create(data=order_data)
+            
+            return jsonify({
+                'success': True,
+                'order_id': order['id'],
+                'amount': order['amount'],
+                'currency': order['currency'],
+                'key': RAZORPAY_KEY_ID
+            })
+        else:
+            # Fallback for demo/testing without real keys
+            order_data = {
+                'success': True,
+                'order_id': f'order_{int(datetime.now().timestamp())}',
+                'amount': amount * 100,
+                'currency': 'INR',
+                'key': RAZORPAY_KEY_ID
+            }
+            return jsonify(order_data)
         
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        logging.error(f"Razorpay order creation failed: {str(e)}")
+        return jsonify({'success': False, 'message': 'Failed to create payment order'})
 
 @app.route('/api/payment-success', methods=['POST'])
 @login_required
@@ -1912,8 +1945,21 @@ def handle_payment_success():
         data = request.get_json()
         payment_id = data.get('payment_id')
         order_id = data.get('order_id')
+        signature = data.get('signature')
         plan_type = data.get('plan_type')
         
+        # Verify payment signature if using real Razorpay
+        if razorpay_client and signature:
+            try:
+                razorpay_client.utility.verify_payment_signature({
+                    'razorpay_order_id': order_id,
+                    'razorpay_payment_id': payment_id,
+                    'razorpay_signature': signature
+                })
+            except:
+                return jsonify({'success': False, 'message': 'Payment verification failed'})
+        
+        # Determine plan and amount
         if plan_type == 'trader':
             current_user.pricing_plan = PricingPlan.TRADER
             amount = 1999
@@ -1923,11 +1969,13 @@ def handle_payment_success():
         else:
             return jsonify({'success': False, 'message': 'Invalid plan type'})
         
+        # Update user subscription
         current_user.subscription_status = SubscriptionStatus.ACTIVE
         current_user.subscription_start_date = datetime.utcnow()
         current_user.subscription_end_date = datetime.utcnow() + timedelta(days=30)
         current_user.total_payments += amount
         
+        # Create payment record
         payment = Payment(
             user_id=current_user.id,
             razorpay_payment_id=payment_id,
@@ -1941,11 +1989,13 @@ def handle_payment_success():
         db.session.add(payment)
         db.session.commit()
         
+        logging.info(f"User {current_user.id} upgraded to {plan_type} plan")
         return jsonify({'success': True, 'message': 'Plan upgraded successfully!'})
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
+        logging.error(f"Payment processing failed: {str(e)}")
+        return jsonify({'success': False, 'message': 'Payment processing failed'})
 
 @app.route('/api/generate-referral-code', methods=['POST'])
 @login_required
