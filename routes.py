@@ -336,6 +336,84 @@ def admin_update_contact_status(message_id):
     
     return redirect(url_for('admin_view_contact_message', message_id=message_id))
 
+@app.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    try:
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validate input
+        if not all([current_password, new_password, confirm_password]):
+            flash('All password fields are required.', 'error')
+            return redirect(url_for('account_settings'))
+        
+        # Check if current password is correct
+        if not check_password_hash(current_user.password_hash, current_password):
+            flash('Current password is incorrect.', 'error')
+            return redirect(url_for('account_settings'))
+        
+        # Check if new passwords match
+        if new_password != confirm_password:
+            flash('New passwords do not match.', 'error')
+            return redirect(url_for('account_settings'))
+        
+        # Check password length
+        if len(new_password) < 8:
+            flash('Password must be at least 8 characters long.', 'error')
+            return redirect(url_for('account_settings'))
+        
+        # Update password
+        current_user.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+        
+        flash('Password updated successfully!', 'success')
+        logging.info(f"User {current_user.id} changed password")
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Password change failed for user {current_user.id}: {str(e)}")
+        flash('Error updating password. Please try again.', 'error')
+    
+    return redirect(url_for('account_settings'))
+
+@app.route('/update-preferences', methods=['POST'])
+@login_required
+def update_preferences():
+    """Update user preferences"""
+    try:
+        # Get form data
+        email_trading_alerts = request.form.get('email_trading_alerts') == 'on'
+        email_market_updates = request.form.get('email_market_updates') == 'on'
+        email_billing_updates = request.form.get('email_billing_updates') == 'on'
+        email_promotional = request.form.get('email_promotional') == 'on'
+        default_dashboard_view = request.form.get('default_dashboard_view', 'overview')
+        theme_preference = request.form.get('theme_preference', 'light')
+        timezone = request.form.get('timezone', 'Asia/Kolkata')
+        
+        # For now, we'll store preferences in session since we don't have a UserPreferences model
+        # In a full implementation, you'd want to create a UserPreferences model
+        session['user_preferences'] = {
+            'email_trading_alerts': email_trading_alerts,
+            'email_market_updates': email_market_updates,
+            'email_billing_updates': email_billing_updates,
+            'email_promotional': email_promotional,
+            'default_dashboard_view': default_dashboard_view,
+            'theme_preference': theme_preference,
+            'timezone': timezone
+        }
+        
+        flash('Preferences updated successfully!', 'success')
+        logging.info(f"User {current_user.id} updated preferences")
+        
+    except Exception as e:
+        logging.error(f"Preferences update failed for user {current_user.id}: {str(e)}")
+        flash('Error updating preferences. Please try again.', 'error')
+    
+    return redirect(url_for('account_settings'))
+
 
 
 # Authentication routes
@@ -1971,7 +2049,8 @@ def update_profile():
 @login_required
 def account_settings():
     """Account settings page"""
-    user_preferences = {
+    # Get user preferences from session or use defaults
+    user_preferences = session.get('user_preferences', {
         'email_trading_alerts': True,
         'email_market_updates': True,
         'email_billing_updates': True,
@@ -1979,7 +2058,7 @@ def account_settings():
         'default_dashboard_view': 'overview',
         'theme_preference': 'light',
         'timezone': 'Asia/Kolkata'
-    }
+    })
     
     return render_template('account/settings.html', 
                          active_section='account',
