@@ -14,9 +14,10 @@
     --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
 }
 
-/* Typography */
+/* Typography Standards - Headings 24px, Body 14px minimum */
 body {
     font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: 14px !important;
     line-height: 1.6;
     color: var(--dark-color);
     font-weight: 400;
@@ -28,6 +29,31 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.02em;
+}
+
+/* Standardized heading sizes */
+h1, .h1 {
+    font-size: 24px !important;
+}
+
+h2, .h2 {
+    font-size: 20px !important;
+}
+
+h3, .h3 {
+    font-size: 18px !important;
+}
+
+h4, .h4 {
+    font-size: 16px !important;
+}
+
+h5, .h5 {
+    font-size: 15px !important;
+}
+
+h6, .h6 {
+    font-size: 14px !important;
 }
 
 .display-4, .display-5, .display-6 {
