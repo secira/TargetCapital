@@ -64,7 +64,11 @@
         
         <!-- Broker Status -->
         <div class="mt-4 p-3 border-top border-secondary">
-            <h6 class="text-muted small">Broker Status</h6>
+            <h6 class="text-white small">
+                <a href="{{ url_for('broker_management') }}" class="text-white text-decoration-none">
+                    Broker Status <i class="fas fa-external-link-alt ms-1 small"></i>
+                </a>
+            </h6>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="small">Zerodha</span>
                 <span class="badge bg-success">Connected</span>

@@ -521,6 +521,36 @@ class TradeLeg(db.Model):
     trade_position = db.relationship('TradePosition', backref='trade_legs')
 
 
+class UserBroker(db.Model):
+    """User's broker configurations for API trading access"""
+    __tablename__ = 'user_brokers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    broker_name = db.Column(db.String(50), nullable=False)  # Zerodha, Dhan, Angel One, etc.
+    api_key = db.Column(db.String(256), nullable=False)
+    api_secret = db.Column(db.String(256), nullable=False)
+    request_token = db.Column(db.String(256), nullable=True)
+    access_token = db.Column(db.String(256), nullable=True)
+    redirect_url = db.Column(db.String(500), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    last_token_refresh = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship to user
+    user = db.relationship('User', backref='brokers')
+    
+    @property
+    def status(self):
+        """Get connection status based on token availability"""
+        return 'Connected' if self.access_token else 'Disconnected'
+    
+    def get_redirect_url_template(self):
+        """Generate redirect URL template for this broker"""
+        base_url = "https://your-domain.replit.app/broker-callback"
+        return f"{base_url}?broker={self.broker_name.lower()}&user_id={self.user_id}"
+
 class Broker(db.Model):
     __tablename__ = 'brokers'
     

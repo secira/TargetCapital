@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio,
-                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage)
+                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker)
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
@@ -193,6 +193,192 @@ def compliance():
 def cancellation_refund_policy():
     """Cancellation and Refund Policy page route"""
     return render_template('cancellation_refund_policy.html')
+
+@app.route('/dashboard/broker-management')
+@login_required
+def broker_management():
+    """Broker Management page"""
+    brokers = UserBroker.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard/broker_management.html', 
+                         active_section='broker_management',
+                         brokers=brokers)
+
+@app.route('/add-broker', methods=['POST'])
+@login_required
+def add_broker():
+    """Add new broker connection"""
+    try:
+        broker_name = request.form.get('broker_name')
+        api_key = request.form.get('api_key')
+        api_secret = request.form.get('api_secret')
+        request_token = request.form.get('request_token')
+        redirect_url = request.form.get('redirect_url')
+        
+        # Validate required fields
+        if not all([broker_name, api_key, api_secret]):
+            flash('Broker name, API key, and API secret are required.', 'error')
+            return redirect(url_for('broker_management'))
+        
+        # Check if broker already exists for this user
+        existing = UserBroker.query.filter_by(
+            user_id=current_user.id, 
+            broker_name=broker_name
+        ).first()
+        
+        if existing:
+            flash(f'You already have a {broker_name} connection configured.', 'error')
+            return redirect(url_for('broker_management'))
+        
+        # Create new broker connection
+        new_broker = UserBroker(
+            user_id=current_user.id,
+            broker_name=broker_name,
+            api_key=api_key,
+            api_secret=api_secret,
+            request_token=request_token,
+            redirect_url=redirect_url
+        )
+        
+        db.session.add(new_broker)
+        db.session.commit()
+        
+        flash(f'{broker_name} broker added successfully!', 'success')
+        logging.info(f"User {current_user.id} added broker {broker_name}")
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error adding broker for user {current_user.id}: {str(e)}")
+        flash('Error adding broker. Please try again.', 'error')
+    
+    return redirect(url_for('broker_management'))
+
+@app.route('/update-broker', methods=['POST'])
+@login_required
+def update_broker():
+    """Update existing broker connection"""
+    try:
+        broker_id = request.form.get('broker_id')
+        api_key = request.form.get('api_key')
+        api_secret = request.form.get('api_secret')
+        request_token = request.form.get('request_token')
+        
+        broker = UserBroker.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            flash('Broker not found.', 'error')
+            return redirect(url_for('broker_management'))
+        
+        # Update broker details
+        if api_key:
+            broker.api_key = api_key
+        if api_secret:
+            broker.api_secret = api_secret
+        if request_token:
+            broker.request_token = request_token
+            
+        broker.updated_at = datetime.utcnow()
+        db.session.commit()
+        
+        flash(f'{broker.broker_name} updated successfully!', 'success')
+        logging.info(f"User {current_user.id} updated broker {broker.broker_name}")
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error updating broker: {str(e)}")
+        flash('Error updating broker. Please try again.', 'error')
+    
+    return redirect(url_for('broker_management'))
+
+@app.route('/api/broker/<int:broker_id>')
+@login_required
+def get_broker_details(broker_id):
+    """Get broker details for editing"""
+    try:
+        broker = UserBroker.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        return jsonify({
+            'success': True,
+            'broker': {
+                'id': broker.id,
+                'broker_name': broker.broker_name,
+                'api_key': broker.api_key,
+                'request_token': broker.request_token,
+                'status': broker.status
+            }
+        })
+        
+    except Exception as e:
+        logging.error(f"Error getting broker details: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/broker/<int:broker_id>', methods=['DELETE'])
+@login_required
+def delete_broker(broker_id):
+    """Delete broker connection"""
+    try:
+        broker = UserBroker.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        broker_name = broker.broker_name
+        db.session.delete(broker)
+        db.session.commit()
+        
+        logging.info(f"User {current_user.id} deleted broker {broker_name}")
+        return jsonify({'success': True, 'message': f'{broker_name} connection deleted successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error deleting broker: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/broker/<int:broker_id>/refresh-token', methods=['POST'])
+@login_required
+def refresh_broker_token(broker_id):
+    """Refresh broker access token"""
+    try:
+        data = request.get_json()
+        request_token = data.get('request_token')
+        
+        broker = UserBroker.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        if not request_token:
+            return jsonify({'success': False, 'message': 'Request token is required'})
+        
+        # Update request token and simulate token refresh
+        # In real implementation, you would call the broker's API here
+        broker.request_token = request_token
+        broker.access_token = f"access_token_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        broker.last_token_refresh = datetime.utcnow()
+        
+        db.session.commit()
+        
+        logging.info(f"User {current_user.id} refreshed token for broker {broker.broker_name}")
+        return jsonify({'success': True, 'message': 'Token refreshed successfully'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error refreshing token: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
 
 
 
