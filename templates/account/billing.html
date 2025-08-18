@@ -1,0 +1,428 @@
+{% extends "account/account_base.html" %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="fas fa-credit-card me-2"></i>Billing</h2>
+        <p class="text-muted mb-0">Manage your subscription and payment methods</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Current Plan -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Current Subscription</h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="text-primary mb-1">{{ current_user.get_plan_display_name() }}</h4>
+                        {% if current_user.pricing_plan == PricingPlan.FREE %}
+                        <p class="text-muted mb-0">Free plan with access to AI Advisor only</p>
+                        {% elif current_user.pricing_plan == PricingPlan.PREMIUM %}
+                        <p class="text-muted mb-0">Premium plan - Contact account manager for details</p>
+                        {% else %}
+                        <p class="text-muted mb-0">₹{{ current_user.get_plan_price() }}/month</p>
+                        {% endif %}
+                        
+                        {% if current_user.pricing_plan != PricingPlan.FREE %}
+                        <div class="mt-2">
+                            {% if current_user.is_subscription_active() %}
+                            <span class="badge bg-success me-2">Active</span>
+                            {% if current_user.subscription_end_date %}
+                            <small class="text-muted">Renews on {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}</small>
+                            {% endif %}
+                            {% else %}
+                            <span class="badge bg-warning">Inactive</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if current_user.pricing_plan == PricingPlan.FREE %}
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                            Upgrade Plan
+                        </a>
+                        {% else %}
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                                Change Plan
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="cancelSubscription()">
+                                Cancel
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Plans -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Available Plans</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Free Plan -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.FREE %}border-primary{% endif %}">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Free User</h5>
+                                <h3 class="text-muted">₹0</h3>
+                                <p class="text-muted small">per month</p>
+                                <ul class="list-unstyled text-start small">
+                                    <li><i class="fas fa-check text-success me-2"></i>AI Advisor access</li>
+                                    <li><i class="fas fa-times text-danger me-2"></i>Limited features</li>
+                                </ul>
+                                {% if current_user.pricing_plan != PricingPlan.FREE %}
+                                <button class="btn btn-outline-secondary btn-sm" onclick="downgradeToPlan('free')">
+                                    Downgrade
+                                </button>
+                                {% else %}
+                                <span class="badge bg-primary">Current Plan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trader Plan -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.TRADER %}border-primary{% endif %}">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Trader</h5>
+                                <h3 class="text-primary">₹1,999</h3>
+                                <p class="text-muted small">per month</p>
+                                <ul class="list-unstyled text-start small">
+                                    <li><i class="fas fa-check text-success me-2"></i>All features</li>
+                                    <li><i class="fas fa-times text-danger me-2"></i>Except Trade Now</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Portfolio analysis</li>
+                                </ul>
+                                {% if current_user.pricing_plan != PricingPlan.TRADER %}
+                                <button class="btn btn-primary btn-sm" onclick="upgradeToPlan('trader', 1999)">
+                                    {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
+                                </button>
+                                {% else %}
+                                <span class="badge bg-primary">Current Plan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trader Plus Plan -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.TRADER_PLUS %}border-primary{% endif %} position-relative">
+                            <div class="ribbon">
+                                <span>Popular</span>
+                            </div>
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Trader Plus</h5>
+                                <h3 class="text-success">₹3,999</h3>
+                                <p class="text-muted small">per month</p>
+                                <ul class="list-unstyled text-start small">
+                                    <li><i class="fas fa-check text-success me-2"></i>All features</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Trade Now access</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Full automation</li>
+                                </ul>
+                                {% if current_user.pricing_plan != PricingPlan.TRADER_PLUS %}
+                                <button class="btn btn-success btn-sm" onclick="upgradeToPlan('trader_plus', 3999)">
+                                    {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
+                                </button>
+                                {% else %}
+                                <span class="badge bg-success">Current Plan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Premium Plan -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.PREMIUM %}border-warning{% endif %}">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Premium</h5>
+                                <h3 class="text-warning">Custom</h3>
+                                <p class="text-muted small">profit sharing</p>
+                                <ul class="list-unstyled text-start small">
+                                    <li><i class="fas fa-check text-success me-2"></i>All features</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Account management</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Profit sharing</li>
+                                </ul>
+                                {% if current_user.pricing_plan != PricingPlan.PREMIUM %}
+                                <button class="btn btn-warning btn-sm" onclick="contactForPremium()">
+                                    Contact Us
+                                </button>
+                                {% else %}
+                                <span class="badge bg-warning">Current Plan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment History -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Payment History</h5>
+            </div>
+            <div class="card-body">
+                {% if payments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.created_at.strftime('%b %d, %Y') }}</td>
+                                <td>{{ payment.plan_type.value.replace('_', ' ').title() }}</td>
+                                <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                                <td>
+                                    <span class="badge bg-{% if payment.status == 'captured' %}success{% else %}danger{% endif %}">
+                                        {{ payment.status.title() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <code class="small">{{ payment.razorpay_payment_id }}</code>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No payment history</h5>
+                    <p class="text-muted">Your payment transactions will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Billing Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Billing Summary</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Total Paid</span>
+                    <span class="fw-bold">₹{{ "%.2f"|format(current_user.total_payments) }}</span>
+                </div>
+                {% if current_user.subscription_end_date %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Next Billing</span>
+                    <span class="fw-bold">{{ current_user.subscription_end_date.strftime('%b %d') }}</span>
+                </div>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Status</span>
+                    <span class="badge bg-{% if current_user.is_subscription_active() %}success{% else %}warning{% endif %}">
+                        {% if current_user.is_subscription_active() %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Support -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Need Help?</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-3">Have questions about billing or need to update your payment method?</p>
+                <div class="d-grid">
+                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-headset me-2"></i>Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="modal fade" id="upgradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upgrade Your Plan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="upgrade-content">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.ribbon {
+    position: absolute;
+    top: 10px;
+    right: -10px;
+    background: #28a745;
+    color: white;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    transform: rotate(15deg);
+    z-index: 1;
+}
+
+.ribbon span {
+    font-weight: bold;
+}
+</style>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+function upgradeToPlan(planType, amount) {
+    // Prepare Razorpay payment
+    var options = {
+        "key": "{{ razorpay_key_id }}", // Your Razorpay key
+        "amount": amount * 100, // Amount in paise
+        "currency": "INR",
+        "name": "tCapital",
+        "description": "Subscription - " + planType.replace('_', ' ').toUpperCase(),
+        "image": "/static/images/logo.png",
+        "order_id": "", // This should be generated from backend
+        "handler": function (response){
+            // Payment successful
+            handlePaymentSuccess(response, planType);
+        },
+        "prefill": {
+            "name": "{{ current_user.get_full_name() }}",
+            "email": "{{ current_user.email }}",
+            "contact": "{{ current_user.phone or '' }}"
+        },
+        "theme": {
+            "color": "#0d6efd"
+        }
+    };
+    
+    // Create order from backend first
+    createRazorpayOrder(planType, amount, options);
+}
+
+function createRazorpayOrder(planType, amount, options) {
+    fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            plan_type: planType,
+            amount: amount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            options.order_id = data.order_id;
+            var rzp = new Razorpay(options);
+            rzp.open();
+        } else {
+            alert('Error creating order: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error processing request');
+    });
+}
+
+function handlePaymentSuccess(response, planType) {
+    // Send payment details to backend
+    fetch('/api/payment-success', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            payment_id: response.razorpay_payment_id,
+            order_id: response.razorpay_order_id,
+            signature: response.razorpay_signature,
+            plan_type: planType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Payment successful! Your plan has been upgraded.');
+            location.reload();
+        } else {
+            alert('Payment verification failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error verifying payment');
+    });
+}
+
+function downgradeToPlan(planType) {
+    if (confirm('Are you sure you want to downgrade your plan?')) {
+        fetch('/api/change-plan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                plan_type: planType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Plan changed successfully!');
+                location.reload();
+            } else {
+                alert('Error changing plan: ' + data.message);
+            }
+        });
+    }
+}
+
+function contactForPremium() {
+    window.location.href = '{{ url_for("contact") }}?subject=Premium Plan Inquiry';
+}
+
+function cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription? You will lose access to premium features.')) {
+        fetch('/api/cancel-subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Subscription cancelled successfully.');
+                location.reload();
+            } else {
+                alert('Error cancelling subscription: ' + data.message);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

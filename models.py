@@ -3,6 +3,20 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
+from enum import Enum
+
+# Pricing Plan Enums
+class PricingPlan(Enum):
+    FREE = "free"
+    TRADER = "trader"
+    TRADER_PLUS = "trader_plus"
+    PREMIUM = "premium"
+
+class SubscriptionStatus(Enum):
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    CANCELLED = "cancelled"
+    EXPIRED = "expired"
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -80,6 +94,18 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
     
+    # Subscription and Billing Information
+    pricing_plan = db.Column(db.Enum(PricingPlan), default=PricingPlan.FREE, nullable=False)
+    subscription_status = db.Column(db.Enum(SubscriptionStatus), default=SubscriptionStatus.INACTIVE, nullable=False)
+    subscription_start_date = db.Column(db.DateTime, nullable=True)
+    subscription_end_date = db.Column(db.DateTime, nullable=True)
+    razorpay_customer_id = db.Column(db.String(100), nullable=True)
+    razorpay_subscription_id = db.Column(db.String(100), nullable=True)
+    billing_cycle = db.Column(db.String(20), default="monthly", nullable=True)  # monthly, yearly
+    total_payments = db.Column(db.Float, default=0.0)
+    referral_code = db.Column(db.String(20), unique=True, nullable=True)
+    referred_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
     # Relationship to watchlist
     watchlist = db.relationship('WatchlistItem', backref='user', lazy=True, cascade='all, delete-orphan')
     
@@ -93,6 +119,89 @@ class User(UserMixin, db.Model):
         if self.first_name and self.last_name:
             return f"{self.first_name} {self.last_name}"
         return self.username
+    
+    def can_access_menu(self, menu_item):
+        """Check if user can access specific menu item based on pricing plan"""
+        if self.pricing_plan == PricingPlan.FREE:
+            return menu_item in ['ai_advisor', 'dashboard']
+        elif self.pricing_plan == PricingPlan.TRADER:
+            return menu_item not in ['trade_now']
+        elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
+            return True
+        return False
+    
+    def get_plan_display_name(self):
+        """Get human-readable plan name"""
+        plan_names = {
+            PricingPlan.FREE: "Free User",
+            PricingPlan.TRADER: "Trader",
+            PricingPlan.TRADER_PLUS: "Trader Plus",
+            PricingPlan.PREMIUM: "Premium"
+        }
+        return plan_names.get(self.pricing_plan, "Unknown")
+    
+    def get_plan_price(self):
+        """Get monthly price for the current plan"""
+        prices = {
+            PricingPlan.FREE: 0,
+            PricingPlan.TRADER: 1999,
+            PricingPlan.TRADER_PLUS: 3999,
+            PricingPlan.PREMIUM: "Contact Us"
+        }
+        return prices.get(self.pricing_plan, 0)
+    
+    def is_subscription_active(self):
+        """Check if user has active subscription"""
+        if self.pricing_plan == PricingPlan.FREE:
+            return True  # Free plan is always active
+        return (self.subscription_status == SubscriptionStatus.ACTIVE and 
+                self.subscription_end_date and 
+                self.subscription_end_date > datetime.utcnow())
+    
+    def generate_referral_code(self):
+        """Generate unique referral code for user"""
+        import string
+        import random
+        if not self.referral_code:
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            # Ensure uniqueness
+            while User.query.filter_by(referral_code=code).first():
+                code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+            self.referral_code = code
+            return code
+        return self.referral_code
+
+class Payment(db.Model):
+    """Track all payment transactions"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    razorpay_payment_id = db.Column(db.String(100), unique=True, nullable=False)
+    razorpay_order_id = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), default='INR')
+    status = db.Column(db.String(20), nullable=False)  # captured, failed, refunded
+    payment_method = db.Column(db.String(50), nullable=True)  # card, netbanking, upi
+    plan_type = db.Column(db.Enum(PricingPlan), nullable=False)
+    billing_period = db.Column(db.String(20), nullable=True)  # monthly, yearly
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationship
+    user = db.relationship('User', backref='payments')
+
+class Referral(db.Model):
+    """Track referral rewards and commissions"""
+    id = db.Column(db.Integer, primary_key=True)
+    referrer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    referred_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    reward_amount = db.Column(db.Float, default=0.0)
+    status = db.Column(db.String(20), default='pending')  # pending, paid, cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    referrer = db.relationship('User', foreign_keys=[referrer_id], backref='referrals_made')
+    referred = db.relationship('User', foreign_keys=[referred_id], backref='referral_record')
 
 class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)

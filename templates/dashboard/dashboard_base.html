@@ -33,17 +33,54 @@
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
+                    
+                    <!-- AI Advisor - Available for all plans -->
+                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
+                        <i class="fas fa-robot me-2"></i>AI Advisor
+                        {% if current_user.pricing_plan.name == 'FREE' %}
+                        <span class="badge bg-success ms-2 small">Free</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Trading Signals - Available for Trader+ plans -->
+                    {% if current_user.can_access_menu('trading_signals') %}
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}">
                         <i class="fas fa-signal me-2"></i>Trading Signals
                     </a>
+                    {% else %}
+                    <a class="nav-link disabled text-muted" href="#" onclick="showUpgradeAlert()">
+                        <i class="fas fa-signal me-2"></i>Trading Signals <i class="fas fa-lock fa-sm ms-1"></i>
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Portfolio - Available for Trader+ plans -->
+                    {% if current_user.can_access_menu('portfolio') %}
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}">
                         <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
+                    {% else %}
+                    <a class="nav-link disabled text-muted" href="#" onclick="showUpgradeAlert()">
+                        <i class="fas fa-briefcase me-2"></i>My Portfolio <i class="fas fa-lock fa-sm ms-1"></i>
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Trade Now - Available for Trader Plus and Premium only -->
+                    {% if current_user.can_access_menu('trade_now') %}
                     <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" href="{{ url_for('dashboard_account_handling') }}">
-                        <i class="fas fa-user-cog me-2"></i>Account Handling
+                    {% else %}
+                    <a class="nav-link disabled text-muted" href="#" onclick="showUpgradeAlert('Trader Plus')">
+                        <i class="fas fa-exchange-alt me-2"></i>Trade Now <i class="fas fa-lock fa-sm ms-1"></i>
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Account Management - Available for all authenticated users -->
+                    <div class="mt-3 pt-3 border-top">
+                        <small class="text-muted fw-bold">ACCOUNT</small>
+                    </div>
+                    <a class="nav-link {{ 'active' if request.endpoint.startswith('account_') else '' }}" href="{{ url_for('account_profile') }}">
+                        <i class="fas fa-user-cog me-2"></i>Account Settings
                     </a>
                 </nav>
             </div>
@@ -209,6 +246,43 @@
         </div>
     </div>
 </div>
+
+<!-- Upgrade Alert Modal -->
+<div class="modal fade" id="upgradeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upgrade Required</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-lock fa-3x text-warning mb-3"></i>
+                    <h5>This feature requires a higher subscription plan</h5>
+                    <p class="text-muted" id="upgradeMessage">Upgrade your account to access this feature and unlock the full power of our AI-powered trading platform.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{ url_for('account_billing') }}" class="btn btn-primary">Upgrade Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showUpgradeAlert(requiredPlan = 'Trader') {
+    const messages = {
+        'Trader': 'Upgrade to Trader plan (₹1,999/month) to access this feature.',
+        'Trader Plus': 'Upgrade to Trader Plus plan (₹3,999/month) to access this feature.'
+    };
+    
+    document.getElementById('upgradeMessage').textContent = messages[requiredPlan] || messages['Trader'];
+    
+    const upgradeModal = new bootstrap.Modal(document.getElementById('upgradeModal'));
+    upgradeModal.show();
+}
+</script>
 
 <style>
 .nav-pills .nav-link {

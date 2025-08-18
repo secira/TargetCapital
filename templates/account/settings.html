@@ -1,0 +1,359 @@
+{% extends "account/account_base.html" %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="fas fa-cog me-2"></i>Account Settings</h2>
+        <p class="text-muted mb-0">Manage your account security and preferences</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Security Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Security</h5>
+            </div>
+            <div class="card-body">
+                <!-- Change Password -->
+                <form method="POST" action="{{ url_for('change_password') }}" class="mb-4">
+                    {{ csrf_token() }}
+                    <h6 class="mb-3">Change Password</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" class="form-control" name="current_password" required>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="new_password" 
+                                   minlength="8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirm_password" 
+                                   minlength="8" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key me-2"></i>Update Password
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <!-- Two-Factor Authentication -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Two-Factor Authentication</h6>
+                        <p class="text-muted small mb-0">Add an extra layer of security to your account</p>
+                    </div>
+                    <div>
+                        {% if current_user.two_factor_enabled %}
+                        <span class="badge bg-success me-2">Enabled</span>
+                        <button class="btn btn-outline-danger btn-sm" onclick="disable2FA()">Disable</button>
+                        {% else %}
+                        <button class="btn btn-primary btn-sm" onclick="enable2FA()">Enable</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Preferences -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Preferences</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_preferences') }}">
+                    {{ csrf_token() }}
+                    
+                    <!-- Email Notifications -->
+                    <h6 class="mb-3">Email Notifications</h6>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="email_trading_alerts" 
+                                   id="emailTradingAlerts" {% if user_preferences.email_trading_alerts %}checked{% endif %}>
+                            <label class="form-check-label" for="emailTradingAlerts">
+                                Trading Signal Alerts
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="email_market_updates" 
+                                   id="emailMarketUpdates" {% if user_preferences.email_market_updates %}checked{% endif %}>
+                            <label class="form-check-label" for="emailMarketUpdates">
+                                Market Updates
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="email_billing_updates" 
+                                   id="emailBillingUpdates" {% if user_preferences.email_billing_updates %}checked{% endif %}>
+                            <label class="form-check-label" for="emailBillingUpdates">
+                                Billing Updates
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="email_promotional" 
+                                   id="emailPromotional" {% if user_preferences.email_promotional %}checked{% endif %}>
+                            <label class="form-check-label" for="emailPromotional">
+                                Promotional Emails
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Dashboard Preferences -->
+                    <h6 class="mb-3">Dashboard Preferences</h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Default Dashboard View</label>
+                            <select class="form-select" name="default_dashboard_view">
+                                <option value="overview" {% if user_preferences.default_dashboard_view == 'overview' %}selected{% endif %}>Overview</option>
+                                <option value="portfolio" {% if user_preferences.default_dashboard_view == 'portfolio' %}selected{% endif %}>Portfolio</option>
+                                <option value="trading_signals" {% if user_preferences.default_dashboard_view == 'trading_signals' %}selected{% endif %}>Trading Signals</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Theme Preference</label>
+                            <select class="form-select" name="theme_preference">
+                                <option value="light" {% if user_preferences.theme_preference == 'light' %}selected{% endif %}>Light</option>
+                                <option value="dark" {% if user_preferences.theme_preference == 'dark' %}selected{% endif %}>Dark</option>
+                                <option value="auto" {% if user_preferences.theme_preference == 'auto' %}selected{% endif %}>Auto</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Timezone</label>
+                        <select class="form-select" name="timezone">
+                            <option value="Asia/Kolkata" {% if user_preferences.timezone == 'Asia/Kolkata' %}selected{% endif %}>India Standard Time (IST)</option>
+                            <option value="UTC" {% if user_preferences.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+                            <option value="America/New_York" {% if user_preferences.timezone == 'America/New_York' %}selected{% endif %}>Eastern Time</option>
+                            <option value="America/Chicago" {% if user_preferences.timezone == 'America/Chicago' %}selected{% endif %}>Central Time</option>
+                            <option value="America/Denver" {% if user_preferences.timezone == 'America/Denver' %}selected{% endif %}>Mountain Time</option>
+                            <option value="America/Los_Angeles" {% if user_preferences.timezone == 'America/Los_Angeles' %}selected{% endif %}>Pacific Time</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Preferences
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h6 class="mb-1">Export Account Data</h6>
+                        <p class="text-muted small mb-0">Download all your account data in JSON format</p>
+                    </div>
+                    <button class="btn btn-outline-info btn-sm" onclick="exportAccountData()">
+                        <i class="fas fa-download me-1"></i>Export Data
+                    </button>
+                </div>
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 text-danger">Delete Account</h6>
+                        <p class="text-muted small mb-0">Permanently delete your account and all associated data</p>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDeleteAccount()">
+                        <i class="fas fa-trash me-1"></i>Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Account Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Account Status</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Account Status</span>
+                    <span class="badge bg-{% if current_user.active %}success{% else %}danger{% endif %}">
+                        {% if current_user.active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Email Verified</span>
+                    <span class="badge bg-{% if current_user.is_verified %}success{% else %}warning{% endif %}">
+                        {% if current_user.is_verified %}Verified{% else %}Unverified{% endif %}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Last Login</span>
+                    <span class="small">
+                        {% if current_user.last_login %}
+                        {{ current_user.last_login.strftime('%b %d, %Y') }}
+                        {% else %}
+                        Never
+                        {% endif %}
+                    </span>
+                </div>
+                
+                {% if not current_user.is_verified %}
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="sendVerificationEmail()">
+                        <i class="fas fa-envelope me-1"></i>Send Verification Email
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Recent Activity</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h6 class="small mb-1">Profile Updated</h6>
+                            <small class="text-muted">2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6 class="small mb-1">Password Changed</h6>
+                            <small class="text-muted">1 day ago</small>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-info"></div>
+                        <div class="timeline-content">
+                            <h6 class="small mb-1">Login from New Device</h6>
+                            <small class="text-muted">3 days ago</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="#" class="btn btn-outline-secondary btn-sm">View Full Activity Log</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function enable2FA() {
+    alert('Two-factor authentication setup will be implemented in a future update.');
+}
+
+function disable2FA() {
+    if (confirm('Are you sure you want to disable two-factor authentication? This will make your account less secure.')) {
+        alert('Two-factor authentication disabled.');
+    }
+}
+
+function exportAccountData() {
+    window.location.href = '/api/export-account-data';
+}
+
+function confirmDeleteAccount() {
+    const confirmation = prompt('This action cannot be undone. Type "DELETE" to confirm:');
+    if (confirmation === 'DELETE') {
+        if (confirm('Are you absolutely sure? This will permanently delete your account and all data.')) {
+            fetch('/api/delete-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account deletion initiated. You will receive a confirmation email.');
+                    window.location.href = '/';
+                } else {
+                    alert('Error deleting account: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting account');
+            });
+        }
+    }
+}
+
+function sendVerificationEmail() {
+    fetch('/api/send-verification-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Verification email sent! Please check your inbox.');
+        } else {
+            alert('Error sending email: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error sending verification email');
+    });
+}
+</script>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -35px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+</style>
+{% endblock %}

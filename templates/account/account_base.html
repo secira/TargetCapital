@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings - tCapital{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Account Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2 px-0 bg-light border-end">
+            <div class="account-sidebar p-3">
+                <h5 class="mb-4"><i class="fas fa-user-cog me-2"></i>Account</h5>
+                <nav class="nav nav-pills flex-column">
+                    <a class="nav-link {% if active_section == 'profile' %}active{% endif %}" 
+                       href="{{ url_for('account_profile') }}">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                    <a class="nav-link {% if active_section == 'account' %}active{% endif %}" 
+                       href="{{ url_for('account_settings') }}">
+                        <i class="fas fa-cog me-2"></i>Account
+                    </a>
+                    <a class="nav-link {% if active_section == 'billing' %}active{% endif %}" 
+                       href="{{ url_for('account_billing') }}">
+                        <i class="fas fa-credit-card me-2"></i>Billing
+                    </a>
+                    <a class="nav-link {% if active_section == 'referrals' %}active{% endif %}" 
+                       href="{{ url_for('account_referrals') }}">
+                        <i class="fas fa-share-alt me-2"></i>Referrals
+                    </a>
+                </nav>
+                
+                <!-- Quick Stats -->
+                <div class="mt-5 pt-4 border-top">
+                    <div class="small text-muted mb-2">Current Plan</div>
+                    <div class="fw-bold text-primary">{{ current_user.get_plan_display_name() }}</div>
+                    {% if current_user.pricing_plan != PricingPlan.FREE %}
+                    <div class="small text-muted mt-1">
+                        {% if current_user.is_subscription_active() %}
+                        <i class="fas fa-check-circle text-success me-1"></i>Active
+                        {% else %}
+                        <i class="fas fa-exclamation-circle text-warning me-1"></i>Inactive
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="col-md-9 col-lg-10">
+            <div class="p-4">
+                {% block account_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.account-sidebar {
+    min-height: 100vh;
+}
+
+.nav-pills .nav-link {
+    color: #6c757d;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    padding: 12px 16px;
+    transition: all 0.2s;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+}
+</style>
+{% endblock %}

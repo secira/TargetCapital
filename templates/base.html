@@ -75,9 +75,19 @@
                                     <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard
                                 </a></li>
                                 <li><hr class="dropdown-divider my-1"></li>
-                                <li><a class="dropdown-item py-2" href="{{ url_for('profile') }}" style="font-size: 14px;">
-                                    <i class="fas fa-user-cog me-2 text-muted"></i>Profile Settings
+                                <li><a class="dropdown-item py-2" href="{{ url_for('account_profile') }}" style="font-size: 14px;">
+                                    <i class="fas fa-user me-2 text-muted"></i>Profile
                                 </a></li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('account_billing') }}" style="font-size: 14px;">
+                                    <i class="fas fa-credit-card me-2 text-muted"></i>Billing
+                                </a></li>
+                                <li class="px-3 py-1">
+                                    <small class="text-muted">Current Plan:</small><br>
+                                    <small class="fw-bold text-primary">{{ current_user.get_plan_display_name() }}</small>
+                                    {% if not current_user.is_subscription_active() and current_user.pricing_plan.name != 'FREE' %}
+                                    <span class="badge bg-warning ms-1">Expired</span>
+                                    {% endif %}
+                                </li>
                                 {% if current_user.is_admin %}
                                 <li><a class="dropdown-item py-2" href="{{ url_for('admin_dashboard') }}" style="font-size: 14px;">
                                     <i class="fas fa-cog me-2 text-muted"></i>Admin Panel

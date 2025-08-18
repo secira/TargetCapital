@@ -1,0 +1,122 @@
+{% extends "account/account_base.html" %}
+
+{% block account_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2><i class="fas fa-user me-2"></i>Profile</h2>
+        <p class="text-muted mb-0">Manage your personal information and preferences</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ csrf_token() }}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" name="first_name" 
+                                   value="{{ current_user.first_name or '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" name="last_name" 
+                                   value="{{ current_user.last_name or '' }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" 
+                               value="{{ current_user.email }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" 
+                               value="{{ current_user.username }}" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" name="phone" 
+                               value="{{ current_user.phone or '' }}" placeholder="+91 XXXXX XXXXX">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Account Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">Account Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Member Since</span>
+                    <span class="fw-bold">{{ current_user.created_at.strftime('%B %Y') }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Current Plan</span>
+                    <span class="badge bg-primary">{{ current_user.get_plan_display_name() }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Trading Signals</span>
+                    <span class="fw-bold">{{ trading_signals_count }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Total Payments</span>
+                    <span class="fw-bold">₹{{ "%.0f"|format(current_user.total_payments) }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Plan -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Current Subscription</h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <h4 class="text-primary mb-2">{{ current_user.get_plan_display_name() }}</h4>
+                    {% if current_user.pricing_plan == PricingPlan.FREE %}
+                    <p class="text-muted">Free plan with limited access</p>
+                    {% else %}
+                    <p class="text-muted mb-3">
+                        ₹{{ current_user.get_plan_price() }}/month
+                    </p>
+                    {% if current_user.is_subscription_active() %}
+                    <span class="badge bg-success mb-3">Active</span>
+                    {% if current_user.subscription_end_date %}
+                    <p class="small text-muted">
+                        Renews on {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}
+                    </p>
+                    {% endif %}
+                    {% else %}
+                    <span class="badge bg-warning mb-3">Inactive</span>
+                    {% endif %}
+                    {% endif %}
+                    
+                    <div class="d-grid">
+                        <a href="{{ url_for('account_billing') }}" class="btn btn-outline-primary">
+                            Manage Subscription
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

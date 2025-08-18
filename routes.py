@@ -1,15 +1,34 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
-from models import BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio
+from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
+                   AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio,
+                   PricingPlan, SubscriptionStatus, Payment, Referral)
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
 import logging
 import random
+import os
+import hmac
+import hashlib
+import json
 from datetime import datetime, timedelta
 from functools import wraps
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# Razorpay configuration (in production, keep keys in environment variables)
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_dummy_key')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'dummy_secret')
+
+# Template Context Processor
+@app.context_processor
+def inject_pricing_plans():
+    """Make PricingPlan and SubscriptionStatus available to all templates"""
+    return {
+        'PricingPlan': PricingPlan,
+        'SubscriptionStatus': SubscriptionStatus
+    }
 
 def admin_required(f):
     """Decorator to require admin access"""
@@ -20,6 +39,22 @@ def admin_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
+
+def plan_required(*allowed_plans):
+    """Decorator to require specific pricing plan access"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+            
+            if current_user.pricing_plan not in allowed_plans:
+                flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+                return redirect(url_for('account_billing'))
+                
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 @app.route('/')
 def index():
@@ -1762,5 +1797,167 @@ def api_ai_trading_signals(symbol):
             'error': 'Failed to get trading signals'
         }), 500
 
+# Account Management Routes
+@app.route('/account/profile')
+@login_required
+def account_profile():
+    """User profile management"""
+    # Get user statistics for display
+    trading_signals_count = TradingSignal.query.count()
+    return render_template('account/profile.html', 
+                         active_section='profile',
+                         trading_signals_count=trading_signals_count,
+                         PricingPlan=PricingPlan)
 
+@app.route('/account/profile', methods=['POST'])
+@login_required
+def update_profile():
+    """Update user profile"""
+    try:
+        current_user.first_name = request.form.get('first_name')
+        current_user.last_name = request.form.get('last_name')
+        current_user.email = request.form.get('email')
+        current_user.username = request.form.get('username')
+        
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash('Error updating profile: ' + str(e), 'error')
+        
+    return redirect(url_for('account_profile'))
+
+@app.route('/account')
+@login_required
+def account_settings():
+    """Account settings page"""
+    user_preferences = {
+        'email_trading_alerts': True,
+        'email_market_updates': True,
+        'email_billing_updates': True,
+        'email_promotional': False,
+        'default_dashboard_view': 'overview',
+        'theme_preference': 'light',
+        'timezone': 'Asia/Kolkata'
+    }
+    
+    return render_template('account/settings.html', 
+                         active_section='account',
+                         user_preferences=user_preferences)
+
+@app.route('/account/billing')
+@login_required
+def account_billing():
+    """Billing and subscription management"""
+    payments = Payment.query.filter_by(user_id=current_user.id).order_by(Payment.created_at.desc()).limit(10).all()
+    
+    return render_template('account/billing.html', 
+                         active_section='billing',
+                         payments=payments,
+                         PricingPlan=PricingPlan,
+                         razorpay_key_id=RAZORPAY_KEY_ID)
+
+@app.route('/account/referrals')
+@login_required
+def account_referrals():
+    """Referrals management"""
+    if not current_user.referral_code:
+        current_user.generate_referral_code()
+        db.session.commit()
+    
+    referrals = Referral.query.filter_by(referrer_id=current_user.id).order_by(Referral.created_at.desc()).all()
+    
+    referral_stats = {
+        'total_referrals': len(referrals),
+        'successful_referrals': sum(1 for r in referrals if r.status == 'paid'),
+        'pending_referrals': sum(1 for r in referrals if r.status == 'pending'),
+        'total_earned': sum(r.reward_amount for r in referrals if r.status == 'paid'),
+        'pending_amount': sum(r.reward_amount for r in referrals if r.status == 'pending'),
+        'paid_amount': sum(r.reward_amount for r in referrals if r.status == 'paid')
+    }
+    
+    return render_template('account/referrals.html', 
+                         active_section='referrals',
+                         referrals=referrals,
+                         referral_stats=referral_stats)
+
+# API Routes for Account Management
+@app.route('/api/create-order', methods=['POST'])
+@login_required
+def create_razorpay_order():
+    """Create Razorpay order for subscription payment"""
+    try:
+        data = request.get_json()
+        plan_type = data.get('plan_type')
+        amount = data.get('amount')
+        
+        order_data = {
+            'success': True,
+            'order_id': f'order_{int(datetime.now().timestamp())}',
+            'amount': amount * 100,
+            'currency': 'INR'
+        }
+        
+        return jsonify(order_data)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/payment-success', methods=['POST'])
+@login_required
+def handle_payment_success():
+    """Handle successful payment and upgrade user plan"""
+    try:
+        data = request.get_json()
+        payment_id = data.get('payment_id')
+        order_id = data.get('order_id')
+        plan_type = data.get('plan_type')
+        
+        if plan_type == 'trader':
+            current_user.pricing_plan = PricingPlan.TRADER
+            amount = 1999
+        elif plan_type == 'trader_plus':
+            current_user.pricing_plan = PricingPlan.TRADER_PLUS
+            amount = 3999
+        else:
+            return jsonify({'success': False, 'message': 'Invalid plan type'})
+        
+        current_user.subscription_status = SubscriptionStatus.ACTIVE
+        current_user.subscription_start_date = datetime.utcnow()
+        current_user.subscription_end_date = datetime.utcnow() + timedelta(days=30)
+        current_user.total_payments += amount
+        
+        payment = Payment(
+            user_id=current_user.id,
+            razorpay_payment_id=payment_id,
+            razorpay_order_id=order_id,
+            amount=amount,
+            status='captured',
+            plan_type=current_user.pricing_plan,
+            billing_period='monthly'
+        )
+        
+        db.session.add(payment)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Plan upgraded successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/generate-referral-code', methods=['POST'])
+@login_required
+def generate_referral_code():
+    """Generate referral code for user"""
+    try:
+        referral_code = current_user.generate_referral_code()
+        db.session.commit()
+        
+        return jsonify({'success': True, 'referral_code': referral_code})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
