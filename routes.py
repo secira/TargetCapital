@@ -189,6 +189,11 @@ def compliance():
     """Compliance page route"""
     return render_template('compliance.html')
 
+@app.route('/cancellation-refund-policy')
+def cancellation_refund_policy():
+    """Cancellation and Refund Policy page route"""
+    return render_template('cancellation_refund_policy.html')
+
 
 
 @app.route('/contact', methods=['GET', 'POST'])
