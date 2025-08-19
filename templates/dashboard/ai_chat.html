@@ -4,181 +4,104 @@
 
 {% block extra_css %}
 <style>
-/* AI Advisor Dashboard Styles */
+/* AI Advisor Dashboard Styles - Perplexity-like Simple Design */
 .ai-dashboard-container {
     background: #f8f9fc;
     min-height: calc(100vh - 80px);
 }
 
+.ai-sections-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 .ai-section {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    padding: 24px;
-    margin-bottom: 24px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.ai-section:hover {
-    border-color: #00091a;
-    box-shadow: 0 4px 16px rgba(0,9,26,0.12);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
 }
 
 .ai-section-header {
+    background: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8ecf0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #f8f9fc;
 }
 
 .ai-section-title {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
 .ai-section-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 14px;
     color: white;
 }
 
 .ai-advisor-icon {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: #007bff;
 }
 
 .agentic-ai-icon {
-    background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);
+    background: #00091a;
 }
 
-.ai-section-info h3 {
+.ai-section-title h4 {
     margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: #00091a;
-}
-
-.ai-section-info p {
-    margin: 4px 0 0 0;
-    font-size: 14px;
-    color: #6c757d;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .ai-section-status {
+    font-size: 12px;
+    color: #28a745;
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: #e8f5e8;
-    border-radius: 20px;
-    font-size: 13px;
-    color: #28a745;
-    font-weight: 500;
+    gap: 6px;
 }
 
 .status-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: #28a745;
     border-radius: 50%;
-    animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.ai-section-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: start;
-}
-
-.ai-features {
-    background: #f8f9fc;
-    border-radius: 10px;
-    padding: 20px;
-}
-
-.ai-features h5 {
-    margin: 0 0 16px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #00091a;
-}
-
-.feature-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.feature-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 0;
-    font-size: 14px;
-    color: #495057;
-}
-
-.feature-icon {
-    width: 20px;
-    height: 20px;
-    background: #28a745;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 10px;
-    flex-shrink: 0;
-}
-
-.ai-chat-area {
+.chat-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    height: 400px;
-}
-
-.chat-messages-container {
-    flex: 1;
     background: #fafbfc;
-    border-radius: 10px;
-    border: 1px solid #e3e6f0;
-    padding: 16px;
+}
+
+.chat-messages {
+    flex: 1;
     overflow-y: auto;
-    margin-bottom: 12px;
-}
-
-.welcome-message {
-    text-align: center;
-    color: #6c757d;
-    font-size: 14px;
-    padding: 20px;
-}
-
-.welcome-message i {
-    font-size: 32px;
-    margin-bottom: 12px;
-    opacity: 0.5;
+    padding: 16px 20px;
+    max-height: 300px;
 }
 
 .message {
     margin-bottom: 16px;
     display: flex;
-    align-items: flex-start;
     gap: 10px;
+    align-items: flex-start;
 }
 
 .message.user {
@@ -186,13 +109,13 @@
 }
 
 .message-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     flex-shrink: 0;
 }
@@ -203,125 +126,163 @@
 }
 
 .message.assistant .message-avatar {
-    background: #28a745;
-    color: white;
+    background: #f1f3f5;
+    color: #495057;
 }
 
 .message-bubble {
-    max-width: 75%;
-    padding: 10px 14px;
-    border-radius: 16px;
+    max-width: 80%;
+    padding: 10px 12px;
+    border-radius: 12px;
     font-size: 14px;
     line-height: 1.4;
+    word-wrap: break-word;
 }
 
 .message.user .message-bubble {
     background: #007bff;
     color: white;
-    border-bottom-right-radius: 6px;
+    border-bottom-right-radius: 4px;
 }
 
 .message.assistant .message-bubble {
     background: white;
-    border: 1px solid #e3e6f0;
-    border-bottom-left-radius: 6px;
-    color: #495057;
+    border: 1px solid #e8ecf0;
+    color: #1a1a1a;
+    border-bottom-left-radius: 4px;
 }
 
-.chat-input-area {
+.empty-state {
     display: flex;
-    gap: 10px;
-    align-items: flex-end;
-}
-
-.chat-input {
-    flex: 1;
-    border: 1px solid #d1d3e2;
-    border-radius: 20px;
-    padding: 10px 16px;
-    resize: none;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    min-height: 40px;
-    max-height: 80px;
-}
-
-.chat-input:focus {
-    border-color: #00091a;
-    box-shadow: 0 0 0 2px rgba(0,9,26,0.1);
-    outline: none;
-}
-
-.send-button {
-    background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
+    height: 200px;
+    color: #6c757d;
+    text-align: center;
 }
 
-.send-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,9,26,0.3);
+.empty-state i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    opacity: 0.5;
 }
 
-.send-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
+.empty-state-text {
+    font-size: 14px;
+    margin-bottom: 12px;
 }
 
-.quick-actions {
+.chat-input-section {
+    padding: 16px 20px;
+    background: white;
+    border-top: 1px solid #e8ecf0;
+}
+
+.helpful-prompts {
     display: flex;
     gap: 8px;
     margin-bottom: 12px;
     flex-wrap: wrap;
 }
 
-.quick-action {
-    background: white;
-    border: 1px solid #e3e6f0;
+.prompt-chip {
+    background: #f8f9fc;
+    border: 1px solid #e8ecf0;
     border-radius: 16px;
-    padding: 6px 12px;
+    padding: 4px 10px;
     font-size: 12px;
-    color: #6c757d;
+    color: #495057;
     cursor: pointer;
     transition: all 0.2s;
-    text-decoration: none;
+    white-space: nowrap;
 }
 
-.quick-action:hover {
-    background: #00091a;
+.prompt-chip:hover {
+    background: #e8ecf0;
+    border-color: #d0d7de;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #f8f9fc;
+    border: 1px solid #e8ecf0;
+    border-radius: 20px;
+    padding: 8px 12px;
+    transition: all 0.2s;
+}
+
+.chat-input-wrapper:focus-within {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+}
+
+.chat-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 20px;
+    max-height: 60px;
+    outline: none;
+}
+
+.chat-input::placeholder {
+    color: #9ca3af;
+}
+
+.send-btn {
+    background: #007bff;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    border-color: #00091a;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.send-btn:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .typing-indicator {
     display: none;
     padding: 8px 12px;
-    background: white;
-    border: 1px solid #e3e6f0;
-    border-radius: 16px;
-    border-bottom-left-radius: 6px;
-    margin-bottom: 16px;
-    width: fit-content;
+    margin-bottom: 12px;
 }
 
 .typing-dots {
     display: flex;
     gap: 4px;
+    background: white;
+    border: 1px solid #e8ecf0;
+    border-radius: 12px;
+    padding: 8px 10px;
+    width: fit-content;
+    border-bottom-left-radius: 4px;
 }
 
 .typing-dot {
-    width: 6px;
-    height: 6px;
-    background: #6c757d;
+    width: 4px;
+    height: 4px;
+    background: #9ca3af;
     border-radius: 50%;
     animation: typing 1.4s infinite;
 }
@@ -330,46 +291,42 @@
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-4px); }
-}
-
-.use-case-badge {
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
-    display: inline-block;
-}
-
-.agentic-badge {
-    background: #f3e5f5;
-    color: #7b1fa2;
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .ai-section-content {
+    .ai-sections-container {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 16px;
     }
     
-    .ai-chat-area {
-        height: 300px;
+    .ai-section {
+        height: 400px;
     }
     
-    .quick-actions {
+    .helpful-prompts {
         flex-direction: column;
         gap: 6px;
     }
     
-    .quick-action {
+    .prompt-chip {
         text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .ai-section-header {
+        padding: 12px 16px;
+    }
+    
+    .chat-messages {
+        padding: 12px 16px;
+    }
+    
+    .chat-input-section {
+        padding: 12px 16px;
     }
 }
 </style>
@@ -390,82 +347,36 @@
                 <h1 class="dashboard-heading"><i class="fas fa-robot me-2"></i>AI Advisor</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-primary" onclick="refreshAllSections()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh All
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllChats()">
+                            <i class="fas fa-trash me-1"></i>Clear All
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- AI Investment Advisor Section -->
-            <div class="ai-section" id="ai-advisor-section">
-                <div class="ai-section-header">
-                    <div class="ai-section-title">
-                        <div class="ai-section-icon ai-advisor-icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <div class="ai-section-info">
-                            <h3>AI Investment Advisor</h3>
-                            <p>Personal financial guidance powered by Perplexity Sonar</p>
-                            <span class="use-case-badge">Perfect for: Learning & Market Analysis</span>
-                        </div>
-                    </div>
-                    <div class="ai-section-status">
-                        <div class="status-dot"></div>
-                        Connected
-                    </div>
-                </div>
-
-                <div class="ai-section-content">
-                    <!-- Features Column -->
-                    <div class="ai-features">
-                        <h5><i class="fas fa-star me-2"></i>What I Can Help You With</h5>
-                        <ul class="feature-list">
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Real-time Indian stock market analysis</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Current market news and sentiment</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Investment education and strategies</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Portfolio optimization suggestions</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Risk assessment and diversification</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Chat Area -->
-                    <div class="ai-chat-area">
-                        <div class="chat-messages-container" id="advisorMessages">
-                            <div class="welcome-message">
-                                <i class="fas fa-comments"></i><br>
-                                <strong>Start a conversation!</strong><br>
-                                Ask me about stocks, market trends, or investment strategies
+            <!-- AI Sections -->
+            <div class="ai-sections-container">
+                <!-- AI Investment Advisor Section -->
+                <div class="ai-section">
+                    <div class="ai-section-header">
+                        <div class="ai-section-title">
+                            <div class="ai-section-icon ai-advisor-icon">
+                                <i class="fas fa-user-tie"></i>
                             </div>
+                            <h4>AI Investment Advisor</h4>
                         </div>
-                        
-                        <div class="quick-actions">
-                            <span class="quick-action" onclick="sendAdvisorMessage('What are the top performing Indian stocks today?')">Top Indian stocks</span>
-                            <span class="quick-action" onclick="sendAdvisorMessage('Latest market news and sentiment')">Market news</span>
-                            <span class="quick-action" onclick="sendAdvisorMessage('Explain SIP investment strategy')">SIP strategy</span>
-                            <span class="quick-action" onclick="sendAdvisorMessage('How to diversify my portfolio?')">Portfolio tips</span>
+                        <div class="ai-section-status">
+                            <div class="status-dot"></div>
+                            Online
                         </div>
-                        
-                        <div class="chat-input-area">
-                            <textarea class="chat-input" id="advisorInput" placeholder="Ask me anything about investments and markets..." rows="1"></textarea>
-                            <button class="send-button" id="advisorSendBtn" onclick="sendAdvisorMessage()">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                    </div>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="advisorMessages">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <div class="empty-state-text">Ask about stocks, markets, or investment strategies</div>
+                            </div>
                         </div>
                         
                         <div class="typing-indicator" id="advisorTyping">
@@ -475,79 +386,46 @@
                                 <div class="typing-dot"></div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Agentic AI System Section -->
-            <div class="ai-section" id="agentic-ai-section">
-                <div class="ai-section-header">
-                    <div class="ai-section-title">
-                        <div class="ai-section-icon agentic-ai-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="ai-section-info">
-                            <h3>Agentic AI System</h3>
-                            <p>Autonomous AI agents that make independent trading decisions</p>
-                            <span class="use-case-badge agentic-badge">Perfect for: Automated Trading & Portfolio Management</span>
-                        </div>
-                    </div>
-                    <div class="ai-section-status">
-                        <div class="status-dot"></div>
-                        Active (12 workflows)
-                    </div>
-                </div>
-
-                <div class="ai-section-content">
-                    <!-- Features Column -->
-                    <div class="ai-features">
-                        <h5><i class="fas fa-cogs me-2"></i>Autonomous Capabilities</h5>
-                        <ul class="feature-list">
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Learn from market patterns and your preferences</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Reason through complex market scenarios</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Act on trading opportunities automatically</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Adapt strategies based on performance</span>
-                            </li>
-                            <li class="feature-item">
-                                <div class="feature-icon"><i class="fas fa-check"></i></div>
-                                <span>Monitor and optimize your portfolio 24/7</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Chat Area -->
-                    <div class="ai-chat-area">
-                        <div class="chat-messages-container" id="agenticMessages">
-                            <div class="welcome-message">
-                                <i class="fas fa-robot"></i><br>
-                                <strong>Autonomous AI System Ready</strong><br>
-                                Monitor AI decisions, set preferences, or request portfolio actions
+                        <div class="chat-input-section">
+                            <div class="helpful-prompts">
+                                <div class="prompt-chip" onclick="sendAdvisorMessage('Top Indian stocks today')">Top stocks today</div>
+                                <div class="prompt-chip" onclick="sendAdvisorMessage('Market news India')">Market news</div>
+                                <div class="prompt-chip" onclick="sendAdvisorMessage('SIP strategy')">SIP strategy</div>
+                                <div class="prompt-chip" onclick="sendAdvisorMessage('Portfolio tips')">Portfolio tips</div>
+                            </div>
+                            
+                            <div class="chat-input-wrapper">
+                                <textarea class="chat-input" id="advisorInput" placeholder="Ask about investments, markets, stocks..." rows="1"></textarea>
+                                <button class="send-btn" id="advisorSendBtn" onclick="sendAdvisorMessage()">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
                             </div>
                         </div>
-                        
-                        <div class="quick-actions">
-                            <span class="quick-action" onclick="sendAgenticMessage('Show me recent AI trading decisions')">Recent decisions</span>
-                            <span class="quick-action" onclick="sendAgenticMessage('Optimize my portfolio automatically')">Optimize portfolio</span>
-                            <span class="quick-action" onclick="sendAgenticMessage('Set risk tolerance to moderate')">Set risk level</span>
-                            <span class="quick-action" onclick="sendAgenticMessage('What is the AI system learning?')">AI insights</span>
+                    </div>
+                </div>
+
+                <!-- Agentic AI Section -->
+                <div class="ai-section">
+                    <div class="ai-section-header">
+                        <div class="ai-section-title">
+                            <div class="ai-section-icon agentic-ai-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h4>Agentic AI System</h4>
                         </div>
-                        
-                        <div class="chat-input-area">
-                            <textarea class="chat-input" id="agenticInput" placeholder="Command the AI system or ask about autonomous decisions..." rows="1"></textarea>
-                            <button class="send-button" id="agenticSendBtn" onclick="sendAgenticMessage()">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                        <div class="ai-section-status">
+                            <div class="status-dot"></div>
+                            12 Active
+                        </div>
+                    </div>
+
+                    <div class="chat-container">
+                        <div class="chat-messages" id="agenticMessages">
+                            <div class="empty-state">
+                                <i class="fas fa-cogs"></i>
+                                <div class="empty-state-text">Command AI agents or monitor decisions</div>
+                            </div>
                         </div>
                         
                         <div class="typing-indicator" id="agenticTyping">
@@ -555,6 +433,22 @@
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-section">
+                            <div class="helpful-prompts">
+                                <div class="prompt-chip" onclick="sendAgenticMessage('Recent AI decisions')">Recent decisions</div>
+                                <div class="prompt-chip" onclick="sendAgenticMessage('Optimize portfolio')">Optimize portfolio</div>
+                                <div class="prompt-chip" onclick="sendAgenticMessage('Set risk level')">Set risk level</div>
+                                <div class="prompt-chip" onclick="sendAgenticMessage('AI performance')">AI performance</div>
+                            </div>
+                            
+                            <div class="chat-input-wrapper">
+                                <textarea class="chat-input" id="agenticInput" placeholder="Command AI system or ask about decisions..." rows="1"></textarea>
+                                <button class="send-btn" id="agenticSendBtn" onclick="sendAgenticMessage()">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -572,24 +466,21 @@ let isAgenticProcessing = false;
 let advisorConversationId = null;
 let agenticConversationId = null;
 
-// Initialize the interface
+// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     initializeChatInputs();
 });
 
-// Initialize chat inputs
 function initializeChatInputs() {
     const advisorInput = document.getElementById('advisorInput');
     const agenticInput = document.getElementById('agenticInput');
     
-    // Auto-resize textareas
     [advisorInput, agenticInput].forEach(input => {
         input.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
+            this.style.height = Math.min(this.scrollHeight, 60) + 'px';
         });
         
-        // Handle Enter key
         input.addEventListener('keydown', function(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
@@ -603,7 +494,6 @@ function initializeChatInputs() {
     });
 }
 
-// Send advisor message
 function sendAdvisorMessage(quickMessage = null) {
     if (isAdvisorProcessing) return;
     
@@ -612,38 +502,32 @@ function sendAdvisorMessage(quickMessage = null) {
     
     if (!message) return;
     
-    if (message.length > 1000) {
-        showAdvisorError('Message too long. Please keep it under 1000 characters.');
-        return;
-    }
-    
     isAdvisorProcessing = true;
     document.getElementById('advisorSendBtn').disabled = true;
     
-    // Add user message
-    addMessageToChat('advisorMessages', 'user', message);
+    removeEmptyState('advisorMessages');
+    addMessage('advisorMessages', 'user', message);
+    
     if (!quickMessage) {
         input.value = '';
         input.style.height = 'auto';
     }
     
-    // Show typing indicator
-    showTypingIndicator('advisorTyping');
+    showTyping('advisorTyping');
     
-    // Send to API
     sendToAPI(message, 'advisor', advisorConversationId)
         .then(data => {
-            hideTypingIndicator('advisorTyping');
+            hideTyping('advisorTyping');
             if (data.success) {
                 advisorConversationId = data.conversation_id;
-                addMessageToChat('advisorMessages', 'assistant', data.ai_response);
+                addMessage('advisorMessages', 'assistant', data.ai_response);
             } else {
-                showAdvisorError(data.error || 'Something went wrong');
+                addMessage('advisorMessages', 'assistant', '❌ ' + (data.error || 'Something went wrong'));
             }
         })
         .catch(error => {
-            hideTypingIndicator('advisorTyping');
-            showAdvisorError('Failed to send message. Please try again.');
+            hideTyping('advisorTyping');
+            addMessage('advisorMessages', 'assistant', '❌ Failed to send message. Please try again.');
             console.error('Advisor error:', error);
         })
         .finally(() => {
@@ -652,7 +536,6 @@ function sendAdvisorMessage(quickMessage = null) {
         });
 }
 
-// Send agentic message
 function sendAgenticMessage(quickMessage = null) {
     if (isAgenticProcessing) return;
     
@@ -661,38 +544,32 @@ function sendAgenticMessage(quickMessage = null) {
     
     if (!message) return;
     
-    if (message.length > 1000) {
-        showAgenticError('Message too long. Please keep it under 1000 characters.');
-        return;
-    }
-    
     isAgenticProcessing = true;
     document.getElementById('agenticSendBtn').disabled = true;
     
-    // Add user message
-    addMessageToChat('agenticMessages', 'user', message);
+    removeEmptyState('agenticMessages');
+    addMessage('agenticMessages', 'user', message);
+    
     if (!quickMessage) {
         input.value = '';
         input.style.height = 'auto';
     }
     
-    // Show typing indicator
-    showTypingIndicator('agenticTyping');
+    showTyping('agenticTyping');
     
-    // Send to API
     sendToAPI(message, 'agentic', agenticConversationId)
         .then(data => {
-            hideTypingIndicator('agenticTyping');
+            hideTyping('agenticTyping');
             if (data.success) {
                 agenticConversationId = data.conversation_id;
-                addMessageToChat('agenticMessages', 'assistant', data.ai_response);
+                addMessage('agenticMessages', 'assistant', data.ai_response);
             } else {
-                showAgenticError(data.error || 'Something went wrong');
+                addMessage('agenticMessages', 'assistant', '❌ ' + (data.error || 'Something went wrong'));
             }
         })
         .catch(error => {
-            hideTypingIndicator('agenticTyping');
-            showAgenticError('Failed to send message. Please try again.');
+            hideTyping('agenticTyping');
+            addMessage('agenticMessages', 'assistant', '❌ Failed to send message. Please try again.');
             console.error('Agentic error:', error);
         })
         .finally(() => {
@@ -701,7 +578,6 @@ function sendAgenticMessage(quickMessage = null) {
         });
 }
 
-// Send to API
 async function sendToAPI(message, mode, conversationId) {
     const response = await fetch('/api/ai-chat/send', {
         method: 'POST',
@@ -718,75 +594,62 @@ async function sendToAPI(message, mode, conversationId) {
     return await response.json();
 }
 
-// Add message to chat
-function addMessageToChat(containerId, type, content) {
+function removeEmptyState(containerId) {
     const container = document.getElementById(containerId);
-    const welcomeMessage = container.querySelector('.welcome-message');
-    if (welcomeMessage) {
-        welcomeMessage.remove();
+    const emptyState = container.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
     }
-    
+}
+
+function addMessage(containerId, type, content) {
+    const container = document.getElementById(containerId);
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     
-    const currentTime = new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
     messageDiv.innerHTML = `
-        <div class="message-avatar">${type === 'user' ? 'YOU' : 'AI'}</div>
-        <div class="message-bubble">
-            ${content.replace(/\n/g, '<br>')}
-        </div>
+        <div class="message-avatar">${type === 'user' ? 'U' : 'AI'}</div>
+        <div class="message-bubble">${content.replace(/\n/g, '<br>')}</div>
     `;
     
     container.appendChild(messageDiv);
     container.scrollTop = container.scrollHeight;
 }
 
-// Show typing indicator
-function showTypingIndicator(indicatorId) {
+function showTyping(indicatorId) {
     document.getElementById(indicatorId).style.display = 'block';
+    const container = document.getElementById(indicatorId).parentElement.querySelector('.chat-messages');
+    container.scrollTop = container.scrollHeight;
 }
 
-// Hide typing indicator
-function hideTypingIndicator(indicatorId) {
+function hideTyping(indicatorId) {
     document.getElementById(indicatorId).style.display = 'none';
 }
 
-// Show error messages
-function showAdvisorError(message) {
-    addMessageToChat('advisorMessages', 'assistant', `❌ Error: ${message}`);
-}
-
-function showAgenticError(message) {
-    addMessageToChat('agenticMessages', 'assistant', `❌ Error: ${message}`);
-}
-
-// Refresh all sections
-function refreshAllSections() {
-    console.log('Refreshing all AI sections...');
-    // Clear conversations
+function clearAllChats() {
+    // Reset conversation IDs
     advisorConversationId = null;
     agenticConversationId = null;
     
-    // Reset chat areas
+    // Clear advisor messages
     document.getElementById('advisorMessages').innerHTML = `
-        <div class="welcome-message">
-            <i class="fas fa-comments"></i><br>
-            <strong>Start a conversation!</strong><br>
-            Ask me about stocks, market trends, or investment strategies
+        <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <div class="empty-state-text">Ask about stocks, markets, or investment strategies</div>
         </div>
     `;
     
+    // Clear agentic messages
     document.getElementById('agenticMessages').innerHTML = `
-        <div class="welcome-message">
-            <i class="fas fa-robot"></i><br>
-            <strong>Autonomous AI System Ready</strong><br>
-            Monitor AI decisions, set preferences, or request portfolio actions
+        <div class="empty-state">
+            <i class="fas fa-cogs"></i>
+            <div class="empty-state-text">Command AI agents or monitor decisions</div>
         </div>
     `;
+    
+    // Clear inputs
+    document.getElementById('advisorInput').value = '';
+    document.getElementById('agenticInput').value = '';
 }
 </script>
 {% endblock %}
