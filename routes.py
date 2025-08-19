@@ -2012,8 +2012,13 @@ def api_search_stocks():
 @app.route('/dashboard/ai-advisor')
 @login_required
 def ai_advisor():
-    """Redirect to unified AI Advisor (AI Chat)"""
-    return redirect(url_for('ai_chat'))
+    """Clean AI Investment Advisor Interface (Perplexity.ai style)"""
+    if not current_user.can_access_menu('ai_advisor'):
+        flash('Access denied. Please upgrade your subscription to access AI Advisor.', 'error')
+        return redirect(url_for('dashboard'))
+    
+    return render_template('dashboard/ai_advisor.html', 
+                         current_user=current_user)
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required
@@ -2531,14 +2536,14 @@ def ai_chat_conversation(session_id):
 @app.route('/api/ai-chat/send', methods=['POST'])
 @login_required
 def api_ai_chat_send():
-    """Send message to AI chatbot"""
+    """Clean AI Chat API Endpoint"""
     if not current_user.can_access_menu('ai_advisor'):
-        return jsonify({'error': 'Access denied'}), 403
+        return jsonify({'error': 'Access denied. Please upgrade your subscription.'}), 403
     
     try:
-        # Initialize chatbot service
-        from services.chatbot_service import InvestmentChatbot
-        chatbot = InvestmentChatbot()
+        # Initialize clean AI chat service
+        from services.ai_chat_service import AIChatService
+        ai_chat = AIChatService()
         
         data = request.get_json()
         if not data or not data.get('message'):
@@ -2546,35 +2551,28 @@ def api_ai_chat_send():
         
         user_message = data.get('message').strip()
         conversation_id = data.get('conversation_id')
-        mode = data.get('mode', 'advisor')  # 'advisor' or 'agentic'
         
-        if len(user_message) > 1000:
-            return jsonify({'error': 'Message too long. Please keep it under 1000 characters.'}), 400
+        if len(user_message) > 2000:
+            return jsonify({'error': 'Message too long. Please keep it under 2000 characters.'}), 400
         
-        # Get or create conversation
-        conversation = chatbot.get_or_create_conversation(current_user.id, conversation_id)
-        
-        # Get user context for personalized responses
-        user_context = chatbot.get_user_context(current_user.id)
-        
-        # Save user message
-        user_msg = chatbot.save_message(conversation, 'user', user_message)
-        
-        # Generate AI response using Perplexity
-        ai_response, usage_info = chatbot.generate_perplexity_response(user_message, conversation, user_context)
-        
-        # Save AI response
-        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response, usage_info)
+        # Process message with clean service
+        ai_response, conv_id, usage_info = ai_chat.process_user_message(
+            current_user.id, 
+            user_message, 
+            conversation_id
+        )
         
         return jsonify({
             'success': True,
-            'conversation_id': conversation.session_id,
+            'conversation_id': conv_id,
             'ai_response': ai_response
         })
         
     except Exception as e:
-        logging.error(f"Error in AI chat: {e}")
-        return jsonify({'error': 'Something went wrong. Please try again.'}), 500
+        logging.error(f"Error in AI chat endpoint: {e}")
+        return jsonify({'error': 'Unable to process your request. Please try again.'}), 500
+
+
 
 @app.route('/api/ai-chat/conversations')
 @login_required 
