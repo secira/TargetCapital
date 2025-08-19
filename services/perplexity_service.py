@@ -30,7 +30,7 @@ class PerplexityService:
             # Construct research prompt for Indian market
             research_prompt = self._build_research_prompt(symbol, research_type)
             
-            response = self._call_perplexity_api(research_prompt, model="llama-3.1-sonar-large-128k-online")
+            response = self._call_perplexity_api(research_prompt, model="sonar-pro")
             
             if response and 'choices' in response:
                 research_content = response['choices'][0]['message']['content']
@@ -43,7 +43,7 @@ class PerplexityService:
                     'citations': citations,
                     'timestamp': datetime.now().isoformat(),
                     'source': 'perplexity_ai',
-                    'model_used': 'llama-3.1-sonar-large-128k-online',
+                    'model_used': 'sonar-pro',
                     'success': True
                 }
             else:
@@ -64,7 +64,7 @@ class PerplexityService:
             # Build criteria-based prompt
             picks_prompt = self._build_picks_prompt(criteria)
             
-            response = self._call_perplexity_api(picks_prompt, model="llama-3.1-sonar-large-128k-online")
+            response = self._call_perplexity_api(picks_prompt, model="sonar-pro")
             
             if response and 'choices' in response:
                 picks_content = response['choices'][0]['message']['content']
@@ -80,7 +80,7 @@ class PerplexityService:
                     'criteria_used': criteria or self._get_default_criteria(),
                     'timestamp': datetime.now().isoformat(),
                     'source': 'perplexity_ai',
-                    'model_used': 'llama-3.1-sonar-large-128k-online',
+                    'model_used': 'sonar-pro',
                     'success': True
                 }
             else:
@@ -100,7 +100,7 @@ class PerplexityService:
             
             insights_prompt = self._build_insights_prompt(focus_area)
             
-            response = self._call_perplexity_api(insights_prompt, model="llama-3.1-sonar-small-128k-online")
+            response = self._call_perplexity_api(insights_prompt, model="sonar")
             
             if response and 'choices' in response:
                 insights_content = response['choices'][0]['message']['content']
@@ -121,7 +121,7 @@ class PerplexityService:
             self.logger.error(f"Perplexity insights error: {str(e)}")
             return self._get_fallback_insights()
     
-    def _call_perplexity_api(self, prompt: str, model: str = "llama-3.1-sonar-small-128k-online") -> Dict[str, Any]:
+    def _call_perplexity_api(self, prompt: str, model: str = "sonar") -> Dict[str, Any]:
         """
         Make API call to Perplexity
         """
