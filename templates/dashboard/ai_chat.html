@@ -1,183 +1,45 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% extends "base.html" %}
 
 {% block title %}AI Advisor - tCapital Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
-/* Main AI Advisor Layout */
-.ai-advisor-container {
-    height: calc(100vh - 200px);
-    display: flex;
-    gap: 20px;
+/* AI Advisor Dashboard Styles */
+.ai-dashboard-container {
+    background: #f8f9fc;
+    min-height: calc(100vh - 80px);
 }
 
-/* Left Panel - Mode Selection & Options */
-.ai-modes-panel {
-    width: 300px;
+.chat-interface-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    padding: 20px;
-    height: fit-content;
-}
-
-.mode-selector {
-    margin-bottom: 25px;
-}
-
-.mode-tabs {
-    display: flex;
-    background: #f8f9fc;
-    border-radius: 8px;
-    padding: 4px;
-}
-
-.mode-tab {
-    flex: 1;
-    padding: 10px 16px;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 14px;
-}
-
-.mode-tab.active {
-    background: #00091a;
-    color: white;
-}
-
-.mode-tab:hover:not(.active) {
-    background: #e9ecef;
-}
-
-.mode-description {
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fc;
-    border-radius: 8px;
-    border-left: 4px solid #00091a;
-}
-
-.mode-description h6 {
-    color: #00091a;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
-.mode-description p {
-    font-size: 14px;
-    color: #6c757d;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* AI Capabilities Cards */
-.ai-capabilities {
-    margin-top: 20px;
-}
-
-.capability-card {
-    background: white;
-    border: 1px solid #e3e6f0;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.capability-card:hover {
-    border-color: #00091a;
-    box-shadow: 0 2px 8px rgba(0,9,26,0.1);
-}
-
-.capability-card.active {
-    border-color: #00091a;
-    background: #f8f9fc;
-}
-
-.capability-icon {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.capability-title {
-    font-weight: 600;
-    font-size: 14px;
-    color: #00091a;
-    margin-bottom: 5px;
-}
-
-.capability-desc {
-    font-size: 13px;
-    color: #6c757d;
-    line-height: 1.3;
-}
-
-/* Right Panel - Chat Interface */
-.chat-panel {
-    flex: 1;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    height: 600px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .chat-header {
     background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);
     color: white;
     padding: 20px;
-    border-radius: 12px 12px 0 0;
+    border-bottom: none;
 }
 
-.chat-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-}
-
-.chat-title-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.chat-title h4 {
+.chat-header h5 {
     margin: 0;
     font-weight: 600;
-    font-size: 20px;
-}
-
-.chat-subtitle {
-    font-size: 14px;
-    opacity: 0.9;
-    margin: 0;
+    font-size: 18px;
 }
 
 .chat-status {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 12px;
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.9;
 }
 
 .status-indicator {
@@ -193,18 +55,11 @@
     50% { opacity: 0.5; }
 }
 
-.status-text {
-    font-size: 13px;
-    opacity: 0.9;
-}
-
-/* Chat Messages Area */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
     background: #fafbfc;
-    min-height: 400px;
 }
 
 .message {
@@ -275,14 +130,38 @@
     text-align: left;
 }
 
-/* Chat Input */
-.chat-input-container {
+.chat-input-section {
     padding: 20px;
     background: white;
     border-top: 1px solid #e3e6f0;
 }
 
-.input-group {
+.quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.quick-action {
+    background: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.quick-action:hover {
+    background: #00091a;
+    color: white;
+    border-color: #00091a;
+}
+
+.input-group-custom {
     display: flex;
     gap: 12px;
     align-items: flex-end;
@@ -332,32 +211,6 @@
     box-shadow: none;
 }
 
-/* Quick Actions */
-.quick-actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-}
-
-.quick-action {
-    background: #f8f9fc;
-    border: 1px solid #e3e6f0;
-    border-radius: 20px;
-    padding: 6px 12px;
-    font-size: 13px;
-    color: #6c757d;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.quick-action:hover {
-    background: #00091a;
-    color: white;
-    border-color: #00091a;
-}
-
-/* Typing Indicator */
 .typing-indicator {
     display: none;
     align-items: center;
@@ -366,6 +219,11 @@
 }
 
 .typing-dots {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-radius: 18px;
+    padding: 16px;
+    border-bottom-left-radius: 6px;
     display: flex;
     gap: 4px;
 }
@@ -383,270 +241,265 @@
 
 @keyframes typing {
     0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-10px); }
+    30% { transform: translateY(-6px); }
+}
+
+.ai-stats-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8f9fc;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #00091a;
+}
+
+.mode-selector {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.mode-tabs {
+    display: flex;
+    background: #f8f9fc;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 15px;
+}
+
+.mode-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    text-align: center;
+}
+
+.mode-tab.active {
+    background: #00091a;
+    color: white;
+}
+
+.mode-tab:hover:not(.active) {
+    background: #e9ecef;
+}
+
+.mode-description {
+    padding: 15px;
+    background: #f8f9fc;
+    border-radius: 8px;
+    border-left: 4px solid #00091a;
+}
+
+.mode-description h6 {
+    color: #00091a;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.mode-description p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.4;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .ai-advisor-container {
-        flex-direction: column;
-        height: auto;
-    }
-    
-    .ai-modes-panel {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    
-    .chat-panel {
+    .chat-interface-card {
         height: 500px;
     }
     
-    .mode-tabs {
-        flex-direction: column;
-    }
-    
-    .mode-tab {
-        text-align: center;
-    }
-}
-
-.typing-dots {
-    background: white;
-    border: 1px solid #e3e6f0;
-    border-radius: 18px;
-    padding: 1rem;
-    border-bottom-left-radius: 4px;
-}
-
-.typing-dots span {
-    height: 6px;
-    width: 6px;
-    margin: 0 2px;
-    background: #667eea;
-    border-radius: 50%;
-    display: inline-block;
-    animation: typing 1.5s infinite ease-in-out;
-}
-
-.typing-dots span:nth-child(2) { animation-delay: 0.1s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.2s; }
-
-@keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-10px); }
-}
-
-.welcome-message {
-    text-align: center;
-    padding: 2rem;
-    color: #6c757d;
-}
-
-.quick-actions {
-    padding: 1rem;
-    border-bottom: 1px solid #e3e6f0;
-}
-
-.quick-action-btn {
-    background: #f8f9fc;
-    border: 1px solid #e3e6f0;
-    border-radius: 20px;
-    padding: 0.5rem 1rem;
-    margin: 0.25rem;
-    font-size: 0.875rem;
-    transition: all 0.2s;
-}
-
-.quick-action-btn:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-@media (max-width: 768px) {
-    .chat-container {
-        height: calc(100vh - 120px);
-    }
-    
-    .message-bubble {
+    .message-content {
         max-width: 85%;
     }
     
-    .conversation-sidebar {
-        position: fixed;
-        top: 0;
-        left: -300px;
-        height: 100vh;
-        width: 300px;
-        background: white;
-        z-index: 1050;
-        transition: left 0.3s;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    .quick-actions {
+        flex-direction: column;
+        gap: 8px;
     }
     
-    .conversation-sidebar.show {
-        left: 0;
+    .quick-action {
+        text-align: center;
     }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Page Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1 class="dashboard-heading mb-1"><i class="fas fa-robot me-2"></i>AI Advisor</h1>
-        <p class="text-muted mb-0">Powered by Perplexity Sonar - Real-time market intelligence and personalized investment guidance</p>
-    </div>
-    <div class="d-flex gap-2">
-        <button class="btn btn-outline-primary btn-sm" onclick="refreshAI()">
-            <i class="fas fa-sync-alt me-1"></i>Refresh
-        </button>
-        <button class="btn btn-primary" onclick="startNewConversation()">
-            <i class="fas fa-plus me-2"></i>New Chat
-        </button>
-    </div>
-</div>
-
-<!-- Modern AI Advisor Interface -->
-<div class="ai-advisor-container">
-    <!-- Left Panel - AI Modes & Capabilities -->
-    <div class="ai-modes-panel">
-        <!-- Mode Selector -->
-        <div class="mode-selector">
-            <div class="mode-tabs">
-                <button class="mode-tab active" data-mode="advisor">AI Advisor</button>
-                <button class="mode-tab" data-mode="agentic">Agentic AI</button>
-            </div>
-            
-            <!-- Mode Descriptions -->
-            <div class="mode-description" id="advisor-desc">
-                <h6><i class="fas fa-user-tie me-2"></i>AI Investment Advisor</h6>
-                <p>Get personalized investment guidance, market insights, and educational content powered by real-time data from Perplexity Sonar.</p>
-            </div>
-            
-            <div class="mode-description" id="agentic-desc" style="display: none;">
-                <h6><i class="fas fa-robot me-2"></i>Agentic AI System</h6>
-                <p>Autonomous AI agents that learn, reason, act, and adapt to make intelligent investment decisions automatically.</p>
-            </div>
+<div class="container-fluid ai-dashboard-container">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
         </div>
-
-        <!-- AI Capabilities -->
-        <div class="ai-capabilities">
-            <h6 class="text-muted mb-3">Available Capabilities</h6>
-            
-            <div class="capability-card active" data-capability="market-analysis">
-                <div class="capability-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="capability-title">Market Analysis</div>
-                <div class="capability-desc">Real-time market insights and current stock analysis</div>
-            </div>
-            
-            <div class="capability-card" data-capability="portfolio-review">
-                <div class="capability-icon">
-                    <i class="fas fa-briefcase"></i>
-                </div>
-                <div class="capability-title">Portfolio Review</div>
-                <div class="capability-desc">Analyze your holdings and optimization suggestions</div>
-            </div>
-            
-            <div class="capability-card" data-capability="news-sentiment">
-                <div class="capability-icon">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="capability-title">News & Sentiment</div>
-                <div class="capability-desc">Latest market news and sentiment analysis</div>
-            </div>
-            
-            <div class="capability-card" data-capability="education">
-                <div class="capability-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <div class="capability-title">Investment Education</div>
-                <div class="capability-desc">Learn investment concepts and strategies</div>
-            </div>
-            
-            <div class="capability-card" data-capability="agentic-monitor" style="display: none;">
-                <div class="capability-icon">
-                    <i class="fas fa-cogs"></i>
-                </div>
-                <div class="capability-title">AI Monitoring</div>
-                <div class="capability-desc">Monitor autonomous trading decisions and performance</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Panel - Chat Interface -->
-    <div class="chat-panel">
-        <!-- Chat Header -->
-        <div class="chat-header">
-            <div class="chat-title">
-                <div class="chat-title-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div>
-                    <h4 id="chat-mode-title">AI Investment Advisor</h4>
-                    <p class="chat-subtitle" id="chat-mode-subtitle">Powered by Perplexity Sonar Pro</p>
-                </div>
-            </div>
-            <div class="chat-status">
-                <div class="status-indicator"></div>
-                <span class="status-text">Connected to real-time market data</span>
-            </div>
-        </div>
-
-        <!-- Chat Messages -->
-        <div class="chat-messages" id="chatMessages">
-            <!-- Welcome Message -->
-            <div class="message assistant">
-                <div class="message-avatar">AI</div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>👋 Hello! I'm your AI Investment Advisor powered by Perplexity Sonar. I have access to real-time market data and can help you with:</p>
-                        <ul style="margin: 10px 0; padding-left: 20px;">
-                            <li>Current market analysis and stock insights</li>
-                            <li>Portfolio optimization recommendations</li>
-                            <li>Latest market news and trends</li>
-                            <li>Investment education and strategies</li>
-                        </ul>
-                        <p>What would you like to know about the markets today?</p>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="dashboard-heading"><i class="fas fa-robot me-2"></i>AI Advisor</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-primary" onclick="refreshAI()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="startNewConversation()">
+                            <i class="fas fa-plus me-1"></i>New Chat
+                        </button>
                     </div>
-                    <div class="message-time">Just now</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Chat Input -->
-        <div class="chat-input-container">
-            <!-- Quick Actions -->
-            <div class="quick-actions">
-                <span class="quick-action" onclick="sendQuickMessage('What are the top performing Indian stocks today?')">Top Indian stocks</span>
-                <span class="quick-action" onclick="sendQuickMessage('Analyze my portfolio performance')">Portfolio analysis</span>
-                <span class="quick-action" onclick="sendQuickMessage('Latest market news India')">Market news</span>
-                <span class="quick-action" onclick="sendQuickMessage('Explain SIP investment strategy')">Investment basics</span>
-            </div>
-            
-            <!-- Input Group -->
-            <div class="input-group">
-                <textarea class="chat-input" id="messageInput" placeholder="Ask me anything about investments, markets, or your portfolio..." rows="1"></textarea>
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-        </div>
+            <!-- AI Advisor Content -->
+            <div class="row">
+                <!-- Left Column - Mode Selector & AI Stats -->
+                <div class="col-md-4">
+                    <!-- Mode Selector -->
+                    <div class="mode-selector">
+                        <h6 class="mb-3"><i class="fas fa-cog me-2"></i>AI Mode</h6>
+                        <div class="mode-tabs">
+                            <button class="mode-tab active" data-mode="advisor">AI Advisor</button>
+                            <button class="mode-tab" data-mode="agentic">Agentic AI</button>
+                        </div>
+                        
+                        <div class="mode-description" id="advisor-desc">
+                            <h6><i class="fas fa-user-tie me-2"></i>AI Investment Advisor</h6>
+                            <p>Get personalized investment guidance, market insights, and educational content powered by real-time data from Perplexity Sonar.</p>
+                        </div>
+                        
+                        <div class="mode-description" id="agentic-desc" style="display: none;">
+                            <h6><i class="fas fa-robot me-2"></i>Agentic AI System</h6>
+                            <p>Autonomous AI agents that learn, reason, act, and adapt to make intelligent investment decisions automatically.</p>
+                        </div>
+                    </div>
 
-        <!-- Typing Indicator -->
-        <div class="typing-indicator" id="typingIndicator">
-            <div class="message assistant">
-                <div class="message-avatar">AI</div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <div class="typing-dots">
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
-                            <div class="typing-dot"></div>
+                    <!-- AI Stats -->
+                    <div class="ai-stats-card">
+                        <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>AI Performance</h6>
+                        <div class="stat-item">
+                            <span class="stat-label">Decisions This Month</span>
+                            <span class="stat-value">47</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Success Rate</span>
+                            <span class="stat-value text-success">89.2%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Active Workflows</span>
+                            <span class="stat-value">12</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Market Sentiment</span>
+                            <span class="stat-value text-primary">Bullish</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Chat Interface -->
+                <div class="col-md-8">
+                    <div class="chat-interface-card">
+                        <!-- Chat Header -->
+                        <div class="chat-header">
+                            <h5 id="chat-mode-title"><i class="fas fa-robot me-2"></i>AI Investment Advisor</h5>
+                            <div class="chat-status">
+                                <div class="status-indicator"></div>
+                                <span id="chat-mode-subtitle">Powered by Perplexity Sonar Pro - Connected to real-time market data</span>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Welcome Message -->
+                            <div class="message assistant">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <div class="message-bubble">
+                                        <p><strong>👋 Welcome to AI Advisor!</strong></p>
+                                        <p>I'm your AI Investment Advisor powered by Perplexity Sonar. I have access to real-time market data and can help you with:</p>
+                                        <ul style="margin: 10px 0; padding-left: 20px;">
+                                            <li>Current market analysis and stock insights</li>
+                                            <li>Portfolio optimization recommendations</li>
+                                            <li>Latest market news and trends</li>
+                                            <li>Investment education and strategies</li>
+                                        </ul>
+                                        <p>What would you like to know about the markets today?</p>
+                                    </div>
+                                    <div class="message-time">Just now</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="chat-input-section">
+                            <!-- Quick Actions -->
+                            <div class="quick-actions">
+                                <span class="quick-action" onclick="sendQuickMessage('What are the top performing Indian stocks today?')">
+                                    <i class="fas fa-chart-line me-1"></i>Top Indian stocks
+                                </span>
+                                <span class="quick-action" onclick="sendQuickMessage('Analyze my portfolio performance')">
+                                    <i class="fas fa-briefcase me-1"></i>Portfolio analysis
+                                </span>
+                                <span class="quick-action" onclick="sendQuickMessage('Latest market news India')">
+                                    <i class="fas fa-newspaper me-1"></i>Market news
+                                </span>
+                                <span class="quick-action" onclick="sendQuickMessage('Explain SIP investment strategy')">
+                                    <i class="fas fa-graduation-cap me-1"></i>Investment basics
+                                </span>
+                            </div>
+                            
+                            <!-- Input Group -->
+                            <div class="input-group-custom">
+                                <textarea class="chat-input" id="messageInput" placeholder="Ask me anything about investments, markets, or your portfolio..." rows="1"></textarea>
+                                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="message assistant">
+                                <div class="message-avatar">AI</div>
+                                <div class="message-content">
+                                    <div class="message-bubble">
+                                        <div class="typing-dots">
+                                            <div class="typing-dot"></div>
+                                            <div class="typing-dot"></div>
+                                            <div class="typing-dot"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -654,7 +507,6 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
@@ -668,7 +520,6 @@ let isProcessing = false;
 document.addEventListener('DOMContentLoaded', function() {
     initializeModeSelector();
     initializeChatInput();
-    initializeCapabilityCards();
 });
 
 // Mode selector functionality
@@ -676,7 +527,6 @@ function initializeModeSelector() {
     const modeTabs = document.querySelectorAll('.mode-tab');
     const advisorDesc = document.getElementById('advisor-desc');
     const agenticDesc = document.getElementById('agentic-desc');
-    const capabilityCards = document.querySelectorAll('.capability-card');
     
     modeTabs.forEach(tab => {
         tab.addEventListener('click', function() {
@@ -687,54 +537,17 @@ function initializeModeSelector() {
             modeTabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
             
-            // Update descriptions
+            // Update descriptions and chat header
             if (mode === 'advisor') {
                 advisorDesc.style.display = 'block';
                 agenticDesc.style.display = 'none';
-                document.getElementById('chat-mode-title').textContent = 'AI Investment Advisor';
-                document.getElementById('chat-mode-subtitle').textContent = 'Powered by Perplexity Sonar Pro';
+                document.getElementById('chat-mode-title').innerHTML = '<i class="fas fa-user-tie me-2"></i>AI Investment Advisor';
+                document.getElementById('chat-mode-subtitle').textContent = 'Powered by Perplexity Sonar Pro - Connected to real-time market data';
             } else {
                 advisorDesc.style.display = 'none';
                 agenticDesc.style.display = 'block';
-                document.getElementById('chat-mode-title').textContent = 'Agentic AI System';
-                document.getElementById('chat-mode-subtitle').textContent = 'Autonomous Investment Intelligence';
-            }
-            
-            // Update capability cards visibility
-            capabilityCards.forEach(card => {
-                const capability = card.dataset.capability;
-                if (mode === 'advisor') {
-                    card.style.display = capability === 'agentic-monitor' ? 'none' : 'block';
-                } else {
-                    card.style.display = capability === 'agentic-monitor' ? 'block' : 'none';
-                }
-            });
-        });
-    });
-}
-
-// Capability cards functionality
-function initializeCapabilityCards() {
-    const cards = document.querySelectorAll('.capability-card');
-    cards.forEach(card => {
-        card.addEventListener('click', function() {
-            const capability = this.dataset.capability;
-            
-            // Remove active class from all cards
-            cards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Send contextual message based on capability
-            const messages = {
-                'market-analysis': 'Provide current market analysis for Indian stocks today',
-                'portfolio-review': 'Analyze my portfolio and provide optimization suggestions',
-                'news-sentiment': 'What are the latest market news and sentiment for Indian markets?',
-                'education': 'Explain investment diversification strategies for beginners',
-                'agentic-monitor': 'Show me the status of autonomous AI trading decisions'
-            };
-            
-            if (messages[capability]) {
-                sendQuickMessage(messages[capability]);
+                document.getElementById('chat-mode-title').innerHTML = '<i class="fas fa-robot me-2"></i>Agentic AI System';
+                document.getElementById('chat-mode-subtitle').textContent = 'Autonomous Investment Intelligence - Learning, Reasoning, Acting, Adapting';
             }
         });
     });
@@ -832,35 +645,34 @@ function sendMessage() {
 
 // Add message to chat
 function addMessageToChat(type, content) {
-    const messagesContainer = document.getElementById('chatMessages');
+    const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-IN', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+    const currentTime = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
     });
     
     messageDiv.innerHTML = `
-        <div class="message-avatar">${type === 'user' ? 'You' : 'AI'}</div>
+        <div class="message-avatar">${type === 'user' ? 'YOU' : 'AI'}</div>
         <div class="message-content">
             <div class="message-bubble">
                 ${content.replace(/\n/g, '<br>')}
             </div>
-            <div class="message-time">${timeString}</div>
+            <div class="message-time">${currentTime}</div>
         </div>
     `;
     
-    messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Show typing indicator
 function showTypingIndicator() {
     document.getElementById('typingIndicator').style.display = 'flex';
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Hide typing indicator
@@ -873,342 +685,23 @@ function showError(message) {
     addMessageToChat('assistant', `❌ Error: ${message}`);
 }
 
-// New conversation
-function startNewConversation() {
-    currentConversationId = null;
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = `
-        <div class="message assistant">
-            <div class="message-avatar">AI</div>
-            <div class="message-content">
-                <div class="message-bubble">
-                    <p>👋 Hello! I'm your AI Investment Advisor powered by Perplexity Sonar. I have access to real-time market data and can help you with:</p>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>Current market analysis and stock insights</li>
-                        <li>Portfolio optimization recommendations</li>
-                        <li>Latest market news and trends</li>
-                        <li>Investment education and strategies</li>
-                    </ul>
-                    <p>What would you like to know about the markets today?</p>
-                </div>
-                <div class="message-time">Just now</div>
-            </div>
-        </div>
-    `;
-}
-
 // Refresh AI function
 function refreshAI() {
-    startNewConversation();
-    // Could add additional refresh logic here
+    console.log('Refreshing AI Advisor...');
+    // Add refresh logic here
 }
 
-// Utility functions for debugging
-function log(message) {
-    console.log('[AI Advisor]', message);
-}
-</script>
-
-<script>
-let currentSessionId = null;
-let isLoading = false;
-
-// Auto-resize textarea
-document.getElementById('messageInput').addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-});
-
-function handleEnterKey(event) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-    }
-}
-
-function sendQuickMessage(message) {
-    document.getElementById('messageInput').value = message;
-    sendMessage();
-}
-
+// Start new conversation
 function startNewConversation() {
-    if (isLoading) return;
+    currentConversationId = null;
     
-    currentSessionId = null;
-    clearChatMessages();
-    document.getElementById('welcomeMessage').style.display = 'block';
+    // Clear chat messages except welcome message
+    const chatMessages = document.getElementById('chatMessages');
+    const welcomeMessage = chatMessages.querySelector('.message.assistant');
+    chatMessages.innerHTML = '';
+    chatMessages.appendChild(welcomeMessage);
     
-    // Remove active class from conversations
-    document.querySelectorAll('.conversation-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    console.log('Started new conversation');
 }
-
-function loadConversation(sessionId) {
-    if (isLoading || sessionId === currentSessionId) return;
-    
-    isLoading = true;
-    
-    fetch(`/dashboard/ai-chat/conversation/${sessionId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showError(data.error);
-                return;
-            }
-            
-            currentSessionId = sessionId;
-            clearChatMessages();
-            
-            data.messages.forEach(message => {
-                addMessageToChat(message.type, message.content, message.timestamp);
-            });
-            
-            // Mark conversation as active
-            document.querySelectorAll('.conversation-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.sessionId === sessionId) {
-                    item.classList.add('active');
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error loading conversation:', error);
-            showError('Failed to load conversation');
-        })
-        .finally(() => {
-            isLoading = false;
-        });
-}
-
-function sendMessage() {
-    if (isLoading) return;
-    
-    const messageInput = document.getElementById('messageInput');
-    const message = messageInput.value.trim();
-    
-    if (!message) return;
-    
-    if (message.length > 1000) {
-        showError('Message too long. Please keep it under 1000 characters.');
-        return;
-    }
-    
-    isLoading = true;
-    document.getElementById('sendBtn').disabled = true;
-    document.getElementById('welcomeMessage').style.display = 'none';
-    
-    // Add user message to chat
-    addMessageToChat('user', message);
-    messageInput.value = '';
-    messageInput.style.height = 'auto';
-    
-    // Show typing indicator
-    showTypingIndicator();
-    
-    fetch('/api/ai-chat/send', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            message: message,
-            session_id: currentSessionId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        hideTypingIndicator();
-        
-        if (data.error) {
-            showError(data.error);
-            return;
-        }
-        
-        if (data.success) {
-            currentSessionId = data.conversation_id;
-            addMessageToChat('assistant', data.ai_response.content, data.ai_response.timestamp);
-            loadConversationList();
-        }
-    })
-    .catch(error => {
-        console.error('Error sending message:', error);
-        hideTypingIndicator();
-        showError('Failed to send message. Please try again.');
-    })
-    .finally(() => {
-        isLoading = false;
-        document.getElementById('sendBtn').disabled = false;
-    });
-}
-
-function addMessageToChat(type, content, timestamp = null) {
-    const messagesContainer = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}`;
-    
-    const now = timestamp || new Date().toLocaleString();
-    
-    messageDiv.innerHTML = `
-        <div class="message-bubble">
-            <div class="message-content">${formatMessageContent(content)}</div>
-            <div class="message-time">${now}</div>
-        </div>
-    `;
-    
-    messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function formatMessageContent(content) {
-    // Convert line breaks to HTML
-    let formatted = content.replace(/\n/g, '<br>');
-    
-    // Format bullet points
-    formatted = formatted.replace(/^- (.*$)/gim, '<li>$1</li>');
-    if (formatted.includes('<li>')) {
-        formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    }
-    
-    // Format bold text
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    return formatted;
-}
-
-function clearChatMessages() {
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.innerHTML = `
-        <div class="welcome-message" id="welcomeMessage" style="display: block;">
-            <i class="fas fa-robot fa-3x text-primary mb-3"></i>
-            <h5>Welcome to AI Investment Chat!</h5>
-            <p>I'm here to help you understand investments, explain your portfolio, and answer market-related questions. Start by typing a message or choosing a quick action above.</p>
-        </div>
-        <div class="typing-indicator" id="typingIndicator">
-            <div class="typing-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    `;
-}
-
-function showTypingIndicator() {
-    document.getElementById('typingIndicator').style.display = 'flex';
-    const messagesContainer = document.getElementById('chatMessages');
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function hideTypingIndicator() {
-    document.getElementById('typingIndicator').style.display = 'none';
-}
-
-function showError(message) {
-    // Create error message bubble
-    addMessageToChat('assistant', `❌ Error: ${message}`);
-}
-
-function loadConversationList() {
-    fetch('/api/ai-chat/conversations')
-        .then(response => response.json())
-        .then(data => {
-            if (data.conversations) {
-                updateConversationList(data.conversations);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading conversations:', error);
-        });
-}
-
-function updateConversationList(conversations) {
-    const listContainer = document.getElementById('conversationList');
-    
-    if (conversations.length === 0) {
-        listContainer.innerHTML = `
-            <div class="text-center text-muted p-3">
-                <i class="fas fa-robot fa-2x mb-2"></i>
-                <p class="mb-0">No conversations yet.<br>Start chatting to get AI-powered investment insights!</p>
-            </div>
-        `;
-        return;
-    }
-    
-    listContainer.innerHTML = conversations.map(conv => `
-        <div class="conversation-item" data-session-id="${conv.session_id}" onclick="loadConversation('${conv.session_id}')">
-            <div class="fw-semibold text-truncate">${conv.title}</div>
-            <small class="text-muted">${new Date(conv.updated_at).toLocaleDateString()}</small>
-        </div>
-    `).join('');
-}
-
-function refreshAI() {
-    // Update AI statistics
-    fetch('/api/ai/refresh-stats', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('aiDecisions').textContent = data.stats.decisions_this_month;
-            document.getElementById('aiSuccessRate').textContent = data.stats.success_rate + '%';
-            document.getElementById('activeWorkflows').textContent = data.stats.active_workflows;
-            document.getElementById('marketSentiment').textContent = data.stats.market_sentiment;
-        }
-    })
-    .catch(error => {
-        console.error('Error refreshing AI stats:', error);
-        // Fallback to random updates
-        document.getElementById('aiDecisions').textContent = Math.floor(Math.random() * 50) + 30;
-        document.getElementById('aiSuccessRate').textContent = (Math.random() * 10 + 85).toFixed(1) + '%';
-        document.getElementById('activeWorkflows').textContent = Math.floor(Math.random() * 8) + 8;
-        
-        const sentiments = ['Bullish', 'Bearish', 'Neutral'];
-        const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
-        document.getElementById('marketSentiment').textContent = randomSentiment;
-    });
-    
-    // Show refresh feedback
-    const refreshBtn = document.querySelector('[onclick="refreshAI()"]');
-    const originalContent = refreshBtn.innerHTML;
-    refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
-    refreshBtn.disabled = true;
-    
-    setTimeout(() => {
-        refreshBtn.innerHTML = originalContent;
-        refreshBtn.disabled = false;
-    }, 1500);
-}
-
-function viewMarketAnalysis() {
-    // Send a predefined message to get market analysis
-    sendQuickMessage('Provide detailed current market analysis including sentiment, trends, and key insights');
-}
-
-function viewPortfolioInsights() {
-    // Send a predefined message to get portfolio insights
-    sendQuickMessage('Analyze my portfolio health and provide detailed optimization recommendations');
-}
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click listeners to conversation items
-    document.querySelectorAll('.conversation-item').forEach(item => {
-        item.addEventListener('click', function() {
-            loadConversation(this.dataset.sessionId);
-        });
-    });
-    
-    // Focus on message input
-    document.getElementById('messageInput').focus();
-    
-    // Auto-refresh AI stats every 30 seconds
-    setInterval(refreshAI, 30000);
-});
 </script>
 {% endblock %}
