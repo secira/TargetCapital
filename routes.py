@@ -2855,9 +2855,8 @@ def api_perplexity_generate_picks():
                     recommendation='BUY',
                     confidence_score=85,
                     sector='Technology',   
-                    analysis_summary=pick_data.get('rationale', 'AI-generated recommendation with real-time analysis'),
-                    pick_date=today,
-                    created_by_ai=True
+                    ai_reasoning=pick_data.get('rationale', 'AI-generated recommendation with real-time analysis'),
+                    pick_date=today
                 )
                 db.session.add(pick)
             
