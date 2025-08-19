@@ -2012,23 +2012,8 @@ def api_search_stocks():
 @app.route('/dashboard/ai-advisor')
 @login_required
 def ai_advisor():
-    """AI Advisor Dashboard - Main agentic AI interface"""
-    from datetime import date
-    # Get recent AI analyses for the user
-    recent_analyses = AIAnalysis.query.filter_by(user_id=current_user.id).order_by(
-        AIAnalysis.created_at.desc()
-    ).limit(10).all()
-    
-    # Get portfolio optimization history
-    portfolio_optimizations = PortfolioOptimization.query.filter_by(
-        user_id=current_user.id
-    ).order_by(PortfolioOptimization.created_at.desc()).limit(5).all()
-    
-    return render_template('dashboard/ai_advisor.html', 
-                         recent_analyses=recent_analyses,
-                         portfolio_optimizations=portfolio_optimizations,
-                         current_user=current_user,
-                         today=date.today())
+    """Redirect to unified AI Advisor (AI Chat)"""
+    return redirect(url_for('ai_chat'))
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required
@@ -2434,7 +2419,7 @@ def generate_referral_code():
 @app.route('/dashboard/ai-chat')
 @login_required
 def ai_chat():
-    """AI Investment Chatbot page"""
+    """Unified AI Advisor with Chat Interface and Market Intelligence"""
     if not current_user.can_access_menu('ai_advisor'):
         flash('This feature requires a subscription. Please upgrade your plan.', 'warning')
         return redirect(url_for('account_billing'))
