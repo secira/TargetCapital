@@ -85,18 +85,24 @@ class AIChatService:
     def get_conversation_history(self, conversation: ChatConversation, limit: int = 6) -> List[Dict]:
         """Get recent conversation history in proper alternating format"""
         try:
+            # Get messages excluding the current user message
             messages = ChatMessage.query.filter_by(
                 conversation_id=conversation.id
-            ).order_by(ChatMessage.created_at.desc()).limit(limit).all()
+            ).order_by(ChatMessage.created_at.desc()).limit(limit + 1).all()
             
             history = []
-            for msg in reversed(messages):
-                # Only add if we don't already have this message type as the last entry
-                if not history or history[-1]["role"] != ("assistant" if msg.message_type == "assistant" else "user"):
+            last_role = None
+            
+            for msg in reversed(messages[:-1]):  # Exclude the last (current) message
+                current_role = "assistant" if msg.message_type == "assistant" else "user"
+                
+                # Only add if it creates proper alternation
+                if current_role != last_role:
                     history.append({
-                        "role": "assistant" if msg.message_type == "assistant" else "user",
+                        "role": current_role,
                         "content": msg.content
                     })
+                    last_role = current_role
             
             return history
             
