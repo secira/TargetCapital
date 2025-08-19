@@ -119,8 +119,13 @@ class AIChatService:
             # Get conversation history for context
             history = self.get_conversation_history(conversation)
             
-            # Generate AI response
-            ai_response, usage_info = self.perplexity.get_investment_advice(message, history)
+            # Generate AI response with fallback
+            try:
+                ai_response, usage_info = self.perplexity.get_investment_advice(message, history)
+            except Exception as api_error:
+                logger.warning(f"Perplexity API error, using fallback: {api_error}")
+                ai_response = f"I'm experiencing connectivity issues. However, I can provide general investment guidance: {message[:100]}..."
+                usage_info = {"error": True, "fallback": True}
             
             # Save AI response
             self.save_message(conversation, 'assistant', ai_response, usage_info)

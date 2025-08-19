@@ -152,7 +152,7 @@ class PerplexityService:
         }
         
         try:
-            response = requests.post(self.base_url, headers=headers, json=payload, timeout=15)
+            response = requests.post(self.base_url, headers=headers, json=payload, timeout=90)
             
             if response.status_code == 200:
                 return response.json()
