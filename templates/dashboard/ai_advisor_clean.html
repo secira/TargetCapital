@@ -1,4 +1,4 @@
-{% extends "dashboard/base_dashboard.html" %}
+{% extends "base.html" %}
 
 {% block title %}AI Investment Advisor - tCapital{% endblock %}
 
@@ -355,7 +355,20 @@
 </style>
 {% endblock %}
 
-{% block dashboard_content %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 d-none d-md-block">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="dashboard-header mb-4">
+                <h1 class="dashboard-heading">AI Investment Advisor</h1>
+                <p class="text-muted">Get intelligent investment insights powered by real-time market data</p>
+            </div>
 <div class="ai-advisor-container">
     <!-- Header -->
     <div class="ai-advisor-header">
@@ -428,6 +441,7 @@
                     <i class="fas fa-arrow-up"></i>
                 </button>
             </div>
+        </div>
         </div>
     </div>
 </div>

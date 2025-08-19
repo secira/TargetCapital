@@ -82,8 +82,8 @@ class AIChatService:
             db.session.rollback()
             raise
     
-    def get_conversation_history(self, conversation: ChatConversation, limit: int = 10) -> List[Dict]:
-        """Get recent conversation history"""
+    def get_conversation_history(self, conversation: ChatConversation, limit: int = 6) -> List[Dict]:
+        """Get recent conversation history in proper alternating format"""
         try:
             messages = ChatMessage.query.filter_by(
                 conversation_id=conversation.id
@@ -91,10 +91,12 @@ class AIChatService:
             
             history = []
             for msg in reversed(messages):
-                history.append({
-                    "role": "assistant" if msg.message_type == "assistant" else "user",
-                    "content": msg.content
-                })
+                # Only add if we don't already have this message type as the last entry
+                if not history or history[-1]["role"] != ("assistant" if msg.message_type == "assistant" else "user"):
+                    history.append({
+                        "role": "assistant" if msg.message_type == "assistant" else "user",
+                        "content": msg.content
+                    })
             
             return history
             
