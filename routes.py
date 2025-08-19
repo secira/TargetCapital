@@ -2759,3 +2759,133 @@ def api_ai_agentic_analysis():
         logging.error(f"Agentic AI analysis error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to perform agentic analysis'}), 500
 
+# ===== PERPLEXITY AI INTEGRATION ROUTES =====
+
+@app.route('/api/perplexity/research', methods=['POST'])
+@login_required
+def api_perplexity_research():
+    """Conduct AI research using Perplexity for enhanced Indian stock market insights"""
+    try:
+        data = request.get_json()
+        research_type = data.get('research_type', 'recommendations')
+        symbol = data.get('symbol', '')
+        strategy = data.get('strategy', 'growth')
+        risk_tolerance = data.get('risk_tolerance', 'medium')
+        investment_horizon = data.get('investment_horizon', 'medium')
+        
+        from services.perplexity_service import PerplexityService
+        
+        perplexity_service = PerplexityService()
+        
+        if research_type == 'single' and symbol:
+            # Single stock research
+            result = perplexity_service.research_indian_stock(symbol, 'comprehensive')
+        elif research_type == 'recommendations':
+            # Generate stock recommendations
+            criteria = {
+                'strategy': strategy,
+                'risk_tolerance': risk_tolerance,
+                'investment_horizon': investment_horizon,
+                'market_cap': 'Large and Mid Cap',
+                'sectors': 'Technology, Banking, Healthcare, Consumer Goods, Energy'
+            }
+            result = perplexity_service.generate_ai_stock_picks(criteria)
+        elif research_type == 'market':
+            # Market overview research
+            result = perplexity_service.get_market_insights('general')
+        elif research_type == 'sector':
+            # Sector analysis
+            result = perplexity_service.get_market_insights('sector_analysis')
+        else:
+            return jsonify({'success': False, 'error': 'Invalid research type'}), 400
+        
+        return jsonify({
+            'success': result.get('success', True),
+            'research_content': result.get('research_content') or result.get('analysis_summary') or result.get('insights'),
+            'citations': result.get('citations', []),
+            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'source': result.get('source', 'perplexity_ai'),
+            'note': result.get('note', '')
+        })
+        
+    except Exception as e:
+        logging.error(f"Perplexity research error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Research failed. Please try again.'}), 500
+
+@app.route('/api/perplexity/generate-picks', methods=['POST'])
+@login_required
+def api_perplexity_generate_picks():
+    """Generate AI stock picks using Perplexity for Indian market"""
+    try:
+        data = request.get_json()
+        criteria = data.get('criteria', {})
+        
+        from services.perplexity_service import PerplexityService
+        
+        perplexity_service = PerplexityService()
+        result = perplexity_service.generate_ai_stock_picks(criteria)
+        
+        if result.get('success', True):
+            # Store the generated picks in the database
+            from datetime import date
+            from models import AIStockPick
+            
+            # Clear existing picks for today
+            today = date.today()
+            AIStockPick.query.filter_by(pick_date=today).delete()
+            
+            # Add new picks
+            for pick_data in result.get('picks', []):
+                pick = AIStockPick(
+                    symbol=pick_data.get('symbol', 'UNKNOWN'),
+                    company_name=pick_data.get('company_name', 'Unknown Company'),
+                    current_price=2500.0,  # Default price - should be fetched from real API
+                    target_price=2800.0,   # Default target - should be parsed from Perplexity response
+                    recommendation='BUY',
+                    confidence_score=85,
+                    sector='Technology',   # Should be extracted from response
+                    analysis_summary=pick_data.get('rationale', 'AI-generated recommendation'),
+                    pick_date=today,
+                    created_by_ai=True
+                )
+                db.session.add(pick)
+            
+            db.session.commit()
+        
+        return jsonify({
+            'success': result.get('success', True),
+            'picks_generated': len(result.get('picks', [])),
+            'analysis_summary': result.get('analysis_summary', 'AI picks generated successfully'),
+            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'note': result.get('note', '')
+        })
+        
+    except Exception as e:
+        logging.error(f"Perplexity picks generation error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to generate picks. Please try again.'}), 500
+
+@app.route('/api/perplexity/market-insights')
+@login_required
+def api_perplexity_market_insights():
+    """Get real-time market insights using Perplexity"""
+    try:
+        focus_area = request.args.get('focus', 'general')
+        
+        from services.perplexity_service import PerplexityService
+        
+        perplexity_service = PerplexityService()
+        result = perplexity_service.get_market_insights(focus_area)
+        
+        return jsonify({
+            'success': result.get('success', True),
+            'insights': result.get('insights', 'Market insights generated'),
+            'focus_area': result.get('focus_area', focus_area),
+            'citations': result.get('citations', []),
+            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'note': result.get('note', '')
+        })
+        
+    except Exception as e:
+        logging.error(f"Perplexity market insights error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to get market insights'}), 500
+

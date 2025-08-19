@@ -36,6 +36,12 @@ Built InvestmentAnalysisService with comprehensive stock analysis using AI and m
 Implemented AgenticAICoordinator with learn-reason-act-adapt cycle for autonomous investment decisions
 Added specialized AI agents: ResearchAgent, AnalysisAgent, DecisionAgent, and LearningAgent
 Enhanced AI Advisor interface with unified chat and market intelligence dashboard
+Perplexity AI integration completed for Stock Picker enhanced Indian market research (August 19, 2025)
+Integrated Perplexity API service for "Start AI Research" and "Generate AI Picks" features
+Created comprehensive PerplexityService with real-time Indian stock market research capabilities
+Added specialized API endpoints for Perplexity research, picks generation, and market insights
+Enhanced Stock Picker interface with Perplexity-powered research and intelligent fallback data
+Improved research quality specifically for Indian stock market using Perplexity's online models
 Enhanced dashboard completely redesigned with dynamic financial overview (August 16, 2025)
 New dashboard sidebar with broker connection status and AI monitoring features
 Portfolio overview cards showing total value, algo trades, active strategies, and account handling

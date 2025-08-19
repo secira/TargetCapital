@@ -86,7 +86,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="startAIResearch()">
+                            <button type="button" class="btn btn-primary" onclick="startPerplexityResearch()">
                                 <i class="fas fa-play me-2"></i>Start AI Research
                             </button>
                         </div>
@@ -202,7 +202,7 @@
                                 <i class="fas fa-robot fa-3x text-muted mb-3"></i>
                                 <h5 class="text-muted">No AI picks available for {{ selected_date or 'today' }}</h5>
                                 <p class="text-muted">AI is analyzing market data to generate personalized stock recommendations.</p>
-                                <button class="btn btn-primary" onclick="generateAIPicksForDate()">
+                                <button class="btn btn-primary" onclick="generatePerplexityPicks()">
                                     <i class="fas fa-magic me-2"></i>Generate AI Picks
                                 </button>
                             </div>
@@ -339,6 +339,160 @@ function addToWatchlist(symbol) {
 function generateAIRecommendations() {
     console.log('Generating AI recommendations...');
     alert('AI recommendations are being generated based on market analysis...');
+}
+
+// Perplexity AI Research Functions
+function startPerplexityResearch() {
+    const researchType = document.getElementById('researchType').value;
+    const strategy = document.getElementById('investmentStrategy').value;
+    const risk = document.getElementById('riskTolerance').value;
+    const horizon = document.getElementById('investmentHorizon').value;
+    
+    // Show loading
+    document.getElementById('researchLoading').style.display = 'block';
+    document.getElementById('researchResults').style.display = 'none';
+    
+    // Get symbol if single stock research
+    let symbol = '';
+    if (researchType === 'single') {
+        symbol = document.getElementById('stockSymbol').value.toUpperCase();
+        if (!symbol) {
+            alert('Please enter a stock symbol for single stock analysis');
+            document.getElementById('researchLoading').style.display = 'none';
+            return;
+        }
+    }
+    
+    // Call Perplexity API for research
+    fetch('/api/perplexity/research', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            research_type: researchType,
+            strategy: strategy,
+            risk_tolerance: risk,
+            investment_horizon: horizon,
+            symbol: symbol
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('researchLoading').style.display = 'none';
+        if (data.success) {
+            displayPerplexityResearchResults(data);
+            document.getElementById('researchResults').style.display = 'block';
+            document.getElementById('researchResults').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Research failed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Research error:', error);
+        document.getElementById('researchLoading').style.display = 'none';
+        alert('Research failed. Please try again.');
+    });
+}
+
+function generatePerplexityPicks() {
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+    button.disabled = true;
+    
+    // Call Perplexity API for stock picks
+    fetch('/api/perplexity/generate-picks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            criteria: {
+                market_cap: 'Large and Mid Cap',
+                time_horizon: '6-12 months',
+                risk_level: 'Moderate',
+                sectors: 'Technology, Banking, Healthcare, Consumer Goods, Energy',
+                style: 'Growth and Value'
+            }
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show new picks
+            window.location.reload();
+        } else {
+            alert('Failed to generate AI picks: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Picks generation error:', error);
+        alert('Failed to generate AI picks. Please try again.');
+    })
+    .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+
+function displayPerplexityResearchResults(data) {
+    const resultsBody = document.getElementById('researchResultsBody');
+    
+    let html = `
+        <div class="research-results">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">Research powered by Perplexity AI</h6>
+                <span class="badge bg-success">Real-time Analysis</span>
+            </div>
+    `;
+    
+    if (data.research_content) {
+        // Convert markdown-style content to HTML
+        const formattedContent = formatMarkdownToHTML(data.research_content);
+        html += `
+            <div class="research-content">
+                ${formattedContent}
+            </div>
+        `;
+    }
+    
+    if (data.citations && data.citations.length > 0) {
+        html += `
+            <div class="mt-4">
+                <h6>Sources:</h6>
+                <ul class="list-unstyled">
+        `;
+        data.citations.forEach(citation => {
+            html += `<li><small><i class="fas fa-link me-1"></i><a href="${citation}" target="_blank" class="text-decoration-none">${citation}</a></small></li>`;
+        });
+        html += `
+                </ul>
+            </div>
+        `;
+    }
+    
+    html += `
+            <div class="mt-3 text-muted small">
+                <i class="fas fa-clock me-1"></i>Generated: ${new Date(data.timestamp).toLocaleString()}
+            </div>
+        </div>
+    `;
+    
+    resultsBody.innerHTML = html;
+}
+
+function formatMarkdownToHTML(markdown) {
+    // Basic markdown to HTML conversion
+    return markdown
+        .replace(/## (.*)/g, '<h4>$1</h4>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>')
+        .replace(/^/, '<p>')
+        .replace(/$/, '</p>');
 }
 </script>
 
