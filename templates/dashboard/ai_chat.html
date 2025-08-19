@@ -5,7 +5,7 @@
 {% block extra_css %}
 <style>
 .chat-container {
-    height: calc(100vh - 180px);
+    height: calc(100vh - 280px);
     display: flex;
     flex-direction: column;
 }
@@ -206,20 +206,27 @@
 {% endblock %}
 
 {% block content %}
+<!-- Dashboard Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="dashboard-heading mb-1">AI Investment Chat</h1>
+        <p class="text-muted mb-0">Get personalized investment advice and educational insights from our AI advisor</p>
+    </div>
+    <button class="btn btn-primary" onclick="startNewConversation()">
+        <i class="fas fa-plus me-2"></i>New Chat
+    </button>
+</div>
+
+<!-- Main Chat Interface -->
 <div class="row g-4">
-    <!-- Conversation Sidebar -->
+    <!-- Chat History Sidebar -->
     <div class="col-lg-3">
         <div class="card shadow-sm" style="border-radius: 12px;">
             <div class="card-header bg-light">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0 fw-bold">
-                        <i class="fas fa-comments text-primary me-2"></i>
-                        Chat History
-                    </h6>
-                    <button class="btn btn-sm btn-outline-primary" onclick="startNewConversation()">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
+                <h6 class="mb-0 fw-bold">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    Recent Conversations
+                </h6>
             </div>
             <div class="conversation-list" id="conversationList">
                 {% for conversation in conversations %}
@@ -230,16 +237,16 @@
                 {% else %}
                 <div class="text-center text-muted p-3">
                     <i class="fas fa-robot fa-2x mb-2"></i>
-                    <p class="mb-0">No conversations yet.<br>Start chatting to get AI-powered investment insights!</p>
+                    <p class="mb-0 small">No conversations yet.<br>Start chatting to get AI-powered investment insights!</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 
-    <!-- Chat Interface -->
+    <!-- Main Chat Area -->
     <div class="col-lg-9">
-        <div class="card shadow-sm chat-container" style="border-radius: 12px;">
+        <div class="card shadow-sm" style="border-radius: 12px;">
             <!-- Chat Header -->
             <div class="chat-header">
                 <div class="d-flex align-items-center">
@@ -257,59 +264,61 @@
             <div class="quick-actions">
                 <div class="d-flex flex-wrap">
                     <button class="btn quick-action-btn" onclick="sendQuickMessage('Explain my portfolio performance')">
-                        📊 My Portfolio
+                        <i class="fas fa-chart-pie me-1"></i> My Portfolio
                     </button>
                     <button class="btn quick-action-btn" onclick="sendQuickMessage('What is SIP and how does it work?')">
-                        💡 What is SIP?
+                        <i class="fas fa-lightbulb me-1"></i> What is SIP?
                     </button>
                     <button class="btn quick-action-btn" onclick="sendQuickMessage('Analyze current market trends')">
-                        📈 Market Trends
+                        <i class="fas fa-chart-line me-1"></i> Market Trends
                     </button>
                     <button class="btn quick-action-btn" onclick="sendQuickMessage('How to diversify my investment?')">
-                        🎯 Diversification
+                        <i class="fas fa-balance-scale me-1"></i> Diversification
                     </button>
                 </div>
             </div>
 
-            <!-- Chat Messages -->
-            <div class="chat-messages" id="chatMessages">
-                <div class="welcome-message" id="welcomeMessage">
-                    <i class="fas fa-robot fa-3x text-primary mb-3"></i>
-                    <h5>Welcome to AI Investment Chat!</h5>
-                    <p>I'm here to help you understand investments, explain your portfolio, and answer market-related questions. Start by typing a message or choosing a quick action above.</p>
-                </div>
+            <!-- Chat Messages Container -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message" id="welcomeMessage">
+                        <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                        <h5>Welcome to AI Investment Chat!</h5>
+                        <p>I'm here to help you understand investments, explain your portfolio, and answer market-related questions. Start by typing a message or choosing a quick action above.</p>
+                    </div>
 
-                <!-- Typing Indicator -->
-                <div class="typing-indicator" id="typingIndicator">
-                    <div class="typing-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                    <!-- Typing Indicator -->
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Chat Input -->
-            <div class="chat-input-container">
-                <div class="d-flex align-items-end">
-                    <div class="flex-grow-1 me-2">
-                        <textarea 
-                            class="form-control chat-input" 
-                            id="messageInput" 
-                            placeholder="Ask me about investments, your portfolio, or market insights..."
-                            rows="1"
-                            onkeydown="handleEnterKey(event)"
-                        ></textarea>
+                <!-- Chat Input -->
+                <div class="chat-input-container">
+                    <div class="d-flex align-items-end">
+                        <div class="flex-grow-1 me-2">
+                            <textarea 
+                                class="form-control chat-input" 
+                                id="messageInput" 
+                                placeholder="Ask me about investments, your portfolio, or market insights..."
+                                rows="1"
+                                onkeydown="handleEnterKey(event)"
+                            ></textarea>
+                        </div>
+                        <button class="btn btn-primary send-btn" onclick="sendMessage()" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
-                    <button class="btn btn-primary send-btn" onclick="sendMessage()" id="sendBtn">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-                <div class="mt-2">
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Powered by GPT-4o • Educational purposes only, not financial advice
-                    </small>
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Powered by GPT-4o • Educational purposes only, not financial advice
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
