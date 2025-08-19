@@ -8,6 +8,7 @@
     
     <div class="sidebar-content">
         <ul class="nav flex-column">
+            <!-- Always available to all users -->
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
                    href="{{ url_for('dashboard') }}">
@@ -20,45 +21,88 @@
                     <i class="fas fa-brain me-2"></i>AI Advisor
                 </a>
             </li>
+            
+            <!-- Trader+ Features (not available to Free users) -->
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" 
                    href="{{ url_for('dashboard_trading_signals') }}">
                     <i class="fas fa-chart-line me-2"></i>Trading Signals
                 </a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-line me-2"></i>Trading Signals</span>
+                    <i class="fas fa-lock small" title="Upgrade to access"></i>
+                </span>
+            </li>
+            {% endif %}
             
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_stock_picker') %}
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_stock_picker' else '' }}" 
                    href="{{ url_for('dashboard_stock_picker') }}">
                     <i class="fas fa-search me-2"></i>Stock Picker
                 </a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-search me-2"></i>Stock Picker</span>
+                    <i class="fas fa-lock small" title="Upgrade to access"></i>
+                </span>
+            </li>
+            {% endif %}
             
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" 
                    href="{{ url_for('dashboard_my_portfolio') }}">
                     <i class="fas fa-briefcase me-2"></i>My Portfolio
                 </a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-briefcase me-2"></i>My Portfolio</span>
+                    <i class="fas fa-lock small" title="Upgrade to access"></i>
+                </span>
+            </li>
+            {% endif %}
             
+            <!-- Premium Feature - Trade Now (only Trader Plus & Premium) -->
+            {% if current_user.is_authenticated and current_user.can_access_menu('trade_now') %}
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'trade_now' else '' }}" 
                    href="{{ url_for('trade_now') }}">
                     <i class="fas fa-bolt me-2"></i>Trade Now
                 </a>
             </li>
+            {% else %}
+            <li class="nav-item">
+                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-bolt me-2"></i>Trade Now</span>
+                    <i class="fas fa-crown small text-warning" title="Premium feature"></i>
+                </span>
+            </li>
+            {% endif %}
             
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
             <li class="nav-item">
                 <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" 
                    href="{{ url_for('dashboard_account_handling') }}">
                     <i class="fas fa-user-cog me-2"></i>Account Handling
                 </a>
             </li>
-            
-
-            
-
-            
+            {% else %}
+            <li class="nav-item">
+                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-user-cog me-2"></i>Account Handling</span>
+                    <i class="fas fa-lock small" title="Upgrade to access"></i>
+                </span>
+            </li>
+            {% endif %}
 
         </ul>
         
@@ -82,6 +126,33 @@
                 <span class="badge bg-secondary">Disconnected</span>
             </div>
         </div>
+        
+        <!-- AI Status -->
+        <!-- User Plan Status -->
+        {% if current_user.is_authenticated %}
+        <div class="mt-3 p-3 border-top border-secondary">
+            <h6 class="text-white small">
+                <i class="fas fa-user-crown me-1"></i>Current Plan
+            </h6>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-white">{{ current_user.get_plan_display_name() }}</span>
+                {% if current_user.pricing_plan.value == 'free' %}
+                <span class="badge bg-secondary">Free</span>
+                {% elif current_user.pricing_plan.value == 'trader' %}
+                <span class="badge bg-primary">Trader</span>
+                {% elif current_user.pricing_plan.value == 'trader_plus' %}
+                <span class="badge bg-warning">Trader+</span>
+                {% else %}
+                <span class="badge bg-success">Premium</span>
+                {% endif %}
+            </div>
+            {% if current_user.pricing_plan.value == 'free' %}
+            <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-outline-warning w-100">
+                <i class="fas fa-arrow-up me-1"></i>Upgrade Plan
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
         
         <!-- AI Status -->
         <div class="mt-3 p-3 border-top border-secondary">

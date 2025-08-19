@@ -971,6 +971,10 @@ def get_market_overview():
 @app.route('/dashboard/trading-signals')
 @login_required
 def dashboard_trading_signals():
+    # Check subscription access
+    if not current_user.can_access_menu('dashboard_trading_signals'):
+        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+        return redirect(url_for('pricing'))
     """Dashboard Trading Signals page with real data from database"""
     from datetime import date
     
@@ -1109,6 +1113,10 @@ def update_trading_signal(signal_id):
 @app.route('/dashboard/stock-picker')
 @login_required
 def dashboard_stock_picker():
+    # Check subscription access
+    if not current_user.can_access_menu('dashboard_stock_picker'):
+        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+        return redirect(url_for('pricing'))
     """AI-powered stock picker for research and analysis"""
     from datetime import date
     
@@ -1247,6 +1255,10 @@ def detailed_stock_analysis(symbol):
 @app.route('/dashboard/my-portfolio')
 @login_required
 def dashboard_my_portfolio():
+    # Check subscription access
+    if not current_user.can_access_menu('dashboard_my_portfolio'):
+        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+        return redirect(url_for('pricing'))
     """Portfolio management with unified broker view and real data"""
     from datetime import date, datetime
     from sqlalchemy import func
@@ -1397,6 +1409,10 @@ def dashboard_my_portfolio():
 @app.route('/dashboard/trade-now')
 @login_required
 def trade_now():
+    # Check subscription access
+    if not current_user.can_access_menu('trade_now'):
+        flash('This feature requires Trader Plus or Premium subscription. Please upgrade your account.', 'warning')
+        return redirect(url_for('pricing'))
     """Trade execution page with algorithmic trading signals"""
     from datetime import datetime, date
     
@@ -1527,6 +1543,10 @@ def trade_now():
 @app.route('/dashboard/account-handling')
 @login_required
 def dashboard_account_handling():
+    # Check subscription access
+    if not current_user.can_access_menu('dashboard_account_handling'):
+        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+        return redirect(url_for('pricing'))
     """Dashboard Account Handling page"""
     from datetime import date
     return render_template('dashboard/account_handling.html', today=date.today())
