@@ -142,7 +142,7 @@ class PerplexityService:
                     "content": prompt
                 }
             ],
-            "max_tokens": 2000,
+            "max_tokens": 1500,
             "temperature": 0.2,
             "top_p": 0.9,
             "search_recency_filter": "month",
@@ -151,12 +151,19 @@ class PerplexityService:
             "stream": False
         }
         
-        response = requests.post(self.base_url, headers=headers, json=payload, timeout=30)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            self.logger.error(f"Perplexity API error: {response.status_code} - {response.text}")
+        try:
+            response = requests.post(self.base_url, headers=headers, json=payload, timeout=15)
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                self.logger.error(f"Perplexity API error: {response.status_code} - {response.text}")
+                return None
+        except requests.exceptions.Timeout:
+            self.logger.error("Perplexity API timeout - request took too long")
+            return None
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Perplexity API request failed: {str(e)}")
             return None
     
     def _build_research_prompt(self, symbol: str, research_type: str) -> str:
@@ -197,34 +204,19 @@ class PerplexityService:
         criteria = criteria or self._get_default_criteria()
         
         prompt = f"""
-        Generate 5 top AI-powered stock picks for the Indian stock market based on the following criteria:
+        Generate 5 Indian stock picks for {criteria.get('time_horizon', '6-12 months')} investment:
         
-        **Selection Criteria:**
-        - Market Cap: {criteria.get('market_cap', 'Large and Mid Cap')}
-        - Investment Horizon: {criteria.get('time_horizon', '6-12 months')}
-        - Risk Level: {criteria.get('risk_level', 'Moderate')}
-        - Sectors: {criteria.get('sectors', 'Technology, Banking, Healthcare, Consumer Goods, Energy')}
-        - Investment Style: {criteria.get('style', 'Growth and Value')}
+        Requirements: {criteria.get('market_cap', 'Large-Mid Cap')}, {criteria.get('risk_level', 'Moderate risk')}
         
-        For each stock pick, provide:
-        1. **Symbol & Company Name**
-        2. **Current Price & Market Cap**
-        3. **Investment Rationale** (2-3 key reasons)
-        4. **Recent Performance** (1-3 months)
-        5. **Target Price** (6-12 month horizon)
-        6. **Key Catalysts** (upcoming events/factors)
-        7. **Risk Factors** (main concerns)
-        8. **Sector Context** (how sector is performing)
+        For each stock provide:
+        1. Symbol & Company name (NSE/BSE)
+        2. Current price and recent performance
+        3. Why buy now (2-3 key reasons)
+        4. Main catalyst/opportunity
+        5. Key risk to watch
         
-        Focus on stocks that have:
-        - Strong fundamentals with recent positive developments
-        - Favorable technical setup or momentum
-        - Positive analyst sentiment or upgrades
-        - Clear business catalysts ahead
-        - Reasonable valuation relative to growth prospects
-        
-        Use the most current market data available and ensure all recommendations are based on recent analysis.
-        Format the response as a structured list with clear sections for each stock.
+        Focus on stocks with strong fundamentals, positive recent news, or good value.
+        Keep analysis concise but current.
         """
         
         return prompt
