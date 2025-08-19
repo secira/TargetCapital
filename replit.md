@@ -69,6 +69,7 @@ Created modern dual-mode interface accommodating both AI Advisor and Agentic AI 
 Enhanced chatbot service with Perplexity API integration using sonar-pro model for better market insights
 Built user-friendly interface with mode selection, capability cards, and streamlined chat experience
 Improved real-time market data access with current news, sentiment analysis, and live stock information
+Fixed Perplexity API message alternation format and successfully connected to real-time market data (August 19, 2025)
 Comprehensive Portfolio management system with multi-broker support and database integration (August 17, 2025)
 Created Portfolio database model with comprehensive fields for multi-broker holdings tracking
 Implemented My Portfolio page with four distinct views: Consolidated, Sectorial, Broker, and AI Optimization
