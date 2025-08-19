@@ -333,19 +333,65 @@
                 </div>
             </div>
 
+            <!-- Market Intelligence & Analysis -->
+            {% if ai_advisor_data %}
+            <div class="market-intelligence mb-3">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-2">
+                                    <i class="fas fa-brain text-primary me-2"></i>Market Intelligence
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-{{ 'success' if ai_advisor_data.market_sentiment.sentiment == 'Bullish' else 'warning' if ai_advisor_data.market_sentiment.sentiment == 'Neutral' else 'danger' }}">
+                                            {{ ai_advisor_data.market_sentiment.sentiment }}
+                                        </span>
+                                        <small class="text-muted ms-2">{{ ai_advisor_data.market_sentiment.confidence }}% confidence</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewMarketAnalysis()">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-2">
+                                    <i class="fas fa-chart-line text-success me-2"></i>Portfolio Health
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="fw-bold">{{ ai_advisor_data.portfolio_insights.overall_health_score }}/10</span>
+                                        <small class="text-muted ms-2">Health Score</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-success" onclick="viewPortfolioInsights()">
+                                        Optimize
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <!-- Quick Actions -->
             <div class="quick-actions">
                 <div class="d-flex flex-wrap">
-                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Explain my portfolio performance')">
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Analyze my portfolio performance and provide insights')">
                         <i class="fas fa-chart-pie me-1"></i> My Portfolio
                     </button>
-                    <button class="btn quick-action-btn" onclick="sendQuickMessage('What is SIP and how does it work?')">
-                        <i class="fas fa-lightbulb me-1"></i> What is SIP?
-                    </button>
-                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Analyze current market trends')">
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('What are the current market trends and opportunities?')">
                         <i class="fas fa-chart-line me-1"></i> Market Trends
                     </button>
-                    <button class="btn quick-action-btn" onclick="sendQuickMessage('How to diversify my investment?')">
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Recommend stocks based on current market analysis')">
+                        <i class="fas fa-search me-1"></i> Stock Recommendations
+                    </button>
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('How should I diversify my investment portfolio?')">
                         <i class="fas fa-balance-scale me-1"></i> Diversification
                     </button>
                 </div>
@@ -634,13 +680,33 @@ function updateConversationList(conversations) {
 
 function refreshAI() {
     // Update AI statistics
-    document.getElementById('aiDecisions').textContent = Math.floor(Math.random() * 50) + 30;
-    document.getElementById('aiSuccessRate').textContent = (Math.random() * 10 + 85).toFixed(1) + '%';
-    document.getElementById('activeWorkflows').textContent = Math.floor(Math.random() * 8) + 8;
-    
-    const sentiments = ['Bullish', 'Bearish', 'Neutral'];
-    const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
-    document.getElementById('marketSentiment').textContent = randomSentiment;
+    fetch('/api/ai/refresh-stats', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('aiDecisions').textContent = data.stats.decisions_this_month;
+            document.getElementById('aiSuccessRate').textContent = data.stats.success_rate + '%';
+            document.getElementById('activeWorkflows').textContent = data.stats.active_workflows;
+            document.getElementById('marketSentiment').textContent = data.stats.market_sentiment;
+        }
+    })
+    .catch(error => {
+        console.error('Error refreshing AI stats:', error);
+        // Fallback to random updates
+        document.getElementById('aiDecisions').textContent = Math.floor(Math.random() * 50) + 30;
+        document.getElementById('aiSuccessRate').textContent = (Math.random() * 10 + 85).toFixed(1) + '%';
+        document.getElementById('activeWorkflows').textContent = Math.floor(Math.random() * 8) + 8;
+        
+        const sentiments = ['Bullish', 'Bearish', 'Neutral'];
+        const randomSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+        document.getElementById('marketSentiment').textContent = randomSentiment;
+    });
     
     // Show refresh feedback
     const refreshBtn = document.querySelector('[onclick="refreshAI()"]');
@@ -652,6 +718,16 @@ function refreshAI() {
         refreshBtn.innerHTML = originalContent;
         refreshBtn.disabled = false;
     }, 1500);
+}
+
+function viewMarketAnalysis() {
+    // Send a predefined message to get market analysis
+    sendQuickMessage('Provide detailed current market analysis including sentiment, trends, and key insights');
+}
+
+function viewPortfolioInsights() {
+    // Send a predefined message to get portfolio insights
+    sendQuickMessage('Analyze my portfolio health and provide detailed optimization recommendations');
 }
 
 // Initialize
