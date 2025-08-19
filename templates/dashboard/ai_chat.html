@@ -1,0 +1,566 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}AI Investment Chat - tCapital Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.chat-container {
+    height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fc;
+    max-height: 400px;
+}
+
+.message {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.user {
+    justify-content: flex-end;
+}
+
+.message.assistant {
+    justify-content: flex-start;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 0.875rem 1rem;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.message.user .message-bubble {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.assistant .message-bubble {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+
+.chat-input-container {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #e3e6f0;
+    border-radius: 0 0 12px 12px;
+}
+
+.chat-input {
+    border: 1px solid #d1d3e2;
+    border-radius: 25px;
+    padding: 0.75rem 1rem;
+    resize: none;
+    min-height: 44px;
+    max-height: 120px;
+}
+
+.chat-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.send-btn {
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e3e6f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.conversation-item:hover {
+    background-color: #f8f9fc;
+}
+
+.conversation-item.active {
+    background-color: #e8f0fe;
+    border-left: 3px solid #667eea;
+}
+
+.typing-indicator {
+    display: none;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.typing-dots {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-radius: 18px;
+    padding: 1rem;
+    border-bottom-left-radius: 4px;
+}
+
+.typing-dots span {
+    height: 6px;
+    width: 6px;
+    margin: 0 2px;
+    background: #667eea;
+    border-radius: 50%;
+    display: inline-block;
+    animation: typing 1.5s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.1s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+.welcome-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+}
+
+.quick-actions {
+    padding: 1rem;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.quick-action-btn {
+    background: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.quick-action-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        height: calc(100vh - 120px);
+    }
+    
+    .message-bubble {
+        max-width: 85%;
+    }
+    
+    .conversation-sidebar {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        height: 100vh;
+        width: 300px;
+        background: white;
+        z-index: 1050;
+        transition: left 0.3s;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .conversation-sidebar.show {
+        left: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Conversation Sidebar -->
+    <div class="col-lg-3">
+        <div class="card shadow-sm" style="border-radius: 12px;">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        Chat History
+                    </h6>
+                    <button class="btn btn-sm btn-outline-primary" onclick="startNewConversation()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="conversation-list" id="conversationList">
+                {% for conversation in conversations %}
+                <div class="conversation-item" data-session-id="{{ conversation.session_id }}">
+                    <div class="fw-semibold text-truncate">{{ conversation.title }}</div>
+                    <small class="text-muted">{{ conversation.updated_at.strftime('%b %d, %Y') }}</small>
+                </div>
+                {% else %}
+                <div class="text-center text-muted p-3">
+                    <i class="fas fa-robot fa-2x mb-2"></i>
+                    <p class="mb-0">No conversations yet.<br>Start chatting to get AI-powered investment insights!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="col-lg-9">
+        <div class="card shadow-sm chat-container" style="border-radius: 12px;">
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">AI Investment Advisor</h5>
+                        <small class="opacity-75">Ask me anything about investments, markets, and your portfolio</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="d-flex flex-wrap">
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Explain my portfolio performance')">
+                        📊 My Portfolio
+                    </button>
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('What is SIP and how does it work?')">
+                        💡 What is SIP?
+                    </button>
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('Analyze current market trends')">
+                        📈 Market Trends
+                    </button>
+                    <button class="btn quick-action-btn" onclick="sendQuickMessage('How to diversify my investment?')">
+                        🎯 Diversification
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message" id="welcomeMessage">
+                    <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                    <h5>Welcome to AI Investment Chat!</h5>
+                    <p>I'm here to help you understand investments, explain your portfolio, and answer market-related questions. Start by typing a message or choosing a quick action above.</p>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-container">
+                <div class="d-flex align-items-end">
+                    <div class="flex-grow-1 me-2">
+                        <textarea 
+                            class="form-control chat-input" 
+                            id="messageInput" 
+                            placeholder="Ask me about investments, your portfolio, or market insights..."
+                            rows="1"
+                            onkeydown="handleEnterKey(event)"
+                        ></textarea>
+                    </div>
+                    <button class="btn btn-primary send-btn" onclick="sendMessage()" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Powered by GPT-4o • Educational purposes only, not financial advice
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentSessionId = null;
+let isLoading = false;
+
+// Auto-resize textarea
+document.getElementById('messageInput').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+function handleEnterKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+function sendQuickMessage(message) {
+    document.getElementById('messageInput').value = message;
+    sendMessage();
+}
+
+function startNewConversation() {
+    if (isLoading) return;
+    
+    currentSessionId = null;
+    clearChatMessages();
+    document.getElementById('welcomeMessage').style.display = 'block';
+    
+    // Remove active class from conversations
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.classList.remove('active');
+    });
+}
+
+function loadConversation(sessionId) {
+    if (isLoading || sessionId === currentSessionId) return;
+    
+    isLoading = true;
+    
+    fetch(`/dashboard/ai-chat/conversation/${sessionId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+            
+            currentSessionId = sessionId;
+            clearChatMessages();
+            
+            data.messages.forEach(message => {
+                addMessageToChat(message.type, message.content, message.timestamp);
+            });
+            
+            // Mark conversation as active
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.sessionId === sessionId) {
+                    item.classList.add('active');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading conversation:', error);
+            showError('Failed to load conversation');
+        })
+        .finally(() => {
+            isLoading = false;
+        });
+}
+
+function sendMessage() {
+    if (isLoading) return;
+    
+    const messageInput = document.getElementById('messageInput');
+    const message = messageInput.value.trim();
+    
+    if (!message) return;
+    
+    if (message.length > 1000) {
+        showError('Message too long. Please keep it under 1000 characters.');
+        return;
+    }
+    
+    isLoading = true;
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('welcomeMessage').style.display = 'none';
+    
+    // Add user message to chat
+    addMessageToChat('user', message);
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    fetch('/api/ai-chat/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message: message,
+            session_id: currentSessionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        
+        if (data.error) {
+            showError(data.error);
+            return;
+        }
+        
+        if (data.success) {
+            currentSessionId = data.conversation_id;
+            addMessageToChat('assistant', data.ai_response.content, data.ai_response.timestamp);
+            loadConversationList();
+        }
+    })
+    .catch(error => {
+        console.error('Error sending message:', error);
+        hideTypingIndicator();
+        showError('Failed to send message. Please try again.');
+    })
+    .finally(() => {
+        isLoading = false;
+        document.getElementById('sendBtn').disabled = false;
+    });
+}
+
+function addMessageToChat(type, content, timestamp = null) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    
+    const now = timestamp || new Date().toLocaleString();
+    
+    messageDiv.innerHTML = `
+        <div class="message-bubble">
+            <div class="message-content">${formatMessageContent(content)}</div>
+            <div class="message-time">${now}</div>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function formatMessageContent(content) {
+    // Convert line breaks to HTML
+    let formatted = content.replace(/\n/g, '<br>');
+    
+    // Format bullet points
+    formatted = formatted.replace(/^- (.*$)/gim, '<li>$1</li>');
+    if (formatted.includes('<li>')) {
+        formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    }
+    
+    // Format bold text
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    return formatted;
+}
+
+function clearChatMessages() {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = `
+        <div class="welcome-message" id="welcomeMessage" style="display: block;">
+            <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+            <h5>Welcome to AI Investment Chat!</h5>
+            <p>I'm here to help you understand investments, explain your portfolio, and answer market-related questions. Start by typing a message or choosing a quick action above.</p>
+        </div>
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
+}
+
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'flex';
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+function showError(message) {
+    // Create error message bubble
+    addMessageToChat('assistant', `❌ Error: ${message}`);
+}
+
+function loadConversationList() {
+    fetch('/api/ai-chat/conversations')
+        .then(response => response.json())
+        .then(data => {
+            if (data.conversations) {
+                updateConversationList(data.conversations);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading conversations:', error);
+        });
+}
+
+function updateConversationList(conversations) {
+    const listContainer = document.getElementById('conversationList');
+    
+    if (conversations.length === 0) {
+        listContainer.innerHTML = `
+            <div class="text-center text-muted p-3">
+                <i class="fas fa-robot fa-2x mb-2"></i>
+                <p class="mb-0">No conversations yet.<br>Start chatting to get AI-powered investment insights!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    listContainer.innerHTML = conversations.map(conv => `
+        <div class="conversation-item" data-session-id="${conv.session_id}" onclick="loadConversation('${conv.session_id}')">
+            <div class="fw-semibold text-truncate">${conv.title}</div>
+            <small class="text-muted">${new Date(conv.updated_at).toLocaleDateString()}</small>
+        </div>
+    `).join('');
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click listeners to conversation items
+    document.querySelectorAll('.conversation-item').forEach(item => {
+        item.addEventListener('click', function() {
+            loadConversation(this.dataset.sessionId);
+        });
+    });
+    
+    // Focus on message input
+    document.getElementById('messageInput').focus();
+});
+</script>
+{% endblock %}

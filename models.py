@@ -473,6 +473,91 @@ class Portfolio(db.Model):
         return f'<Portfolio {self.ticker_symbol} - {self.quantity} units>'
 
 
+class ChatConversation(db.Model):
+    """Chat conversation history for AI Investment Chatbot"""
+    __tablename__ = 'chat_conversations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.String(100), nullable=False)  # UUID for grouping messages
+    title = db.Column(db.String(200), nullable=True)  # Auto-generated conversation title
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='chat_conversations')
+    messages = db.relationship('ChatMessage', backref='conversation', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def get_recent_messages(self, limit=10):
+        """Get recent messages in chronological order"""
+        return self.messages.order_by(ChatMessage.created_at.desc()).limit(limit).all()[::-1]
+    
+    def __repr__(self):
+        return f'<ChatConversation {self.session_id} - {self.title}>'
+
+
+class ChatMessage(db.Model):
+    """Individual chat messages in conversations"""
+    __tablename__ = 'chat_messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('chat_conversations.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message_type = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
+    content = db.Column(db.Text, nullable=False)
+    context_data = db.Column(db.Text, nullable=True)  # JSON data for portfolio/stock context
+    tokens_used = db.Column(db.Integer, nullable=True)  # OpenAI token usage tracking
+    processing_time = db.Column(db.Float, nullable=True)  # Response time in seconds
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User')
+    
+    def get_context_json(self):
+        """Parse context data as JSON"""
+        if self.context_data:
+            try:
+                import json
+                return json.loads(self.context_data)
+            except:
+                return {}
+        return {}
+    
+    def set_context_json(self, data):
+        """Set context data as JSON string"""
+        if data:
+            import json
+            self.context_data = json.dumps(data)
+    
+    def __repr__(self):
+        return f'<ChatMessage {self.message_type}: {self.content[:50]}...>'
+
+
+class ChatbotKnowledgeBase(db.Model):
+    """Knowledge base for chatbot learning and context"""
+    __tablename__ = 'chatbot_knowledge'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(db.String(100), nullable=False)  # investment_basics, market_terms, etc.
+    topic = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    keywords = db.Column(db.Text, nullable=True)  # Comma-separated search keywords
+    difficulty_level = db.Column(db.String(20), default='beginner')  # beginner, intermediate, advanced
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def get_keywords_list(self):
+        """Get keywords as list"""
+        if self.keywords:
+            return [kw.strip().lower() for kw in self.keywords.split(',')]
+        return []
+    
+    def __repr__(self):
+        return f'<Knowledge {self.category}: {self.topic}>'
+
+
 # Trading and Algorithmic Trading Models
 class TradingStrategy(db.Model):
     __tablename__ = 'trading_strategies'

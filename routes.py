@@ -3,10 +3,12 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio,
-                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker)
+                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker,
+                   ChatConversation, ChatMessage, ChatbotKnowledgeBase)
 from services.nse_service import nse_service
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
+from services.chatbot_service import chatbot
 import logging
 import random
 import os
@@ -2425,4 +2427,162 @@ def generate_referral_code():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
+
+
+# ===== AI INVESTMENT CHATBOT ROUTES =====
+
+@app.route('/dashboard/ai-chat')
+@login_required
+def ai_chat():
+    """AI Investment Chatbot page"""
+    if not current_user.can_access_menu('ai_advisor'):
+        flash('This feature requires a subscription. Please upgrade your plan.', 'warning')
+        return redirect(url_for('account_billing'))
+    
+    # Get user's recent conversations
+    conversations = chatbot.get_user_conversations(current_user.id, limit=10)
+    
+    return render_template('dashboard/ai_chat.html', 
+                         conversations=conversations,
+                         active_menu='ai_chat')
+
+@app.route('/dashboard/ai-chat/conversation/<session_id>')
+@login_required
+def ai_chat_conversation(session_id):
+    """Load specific conversation"""
+    if not current_user.can_access_menu('ai_advisor'):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    conversation = ChatConversation.query.filter_by(
+        session_id=session_id, 
+        user_id=current_user.id,
+        is_active=True
+    ).first()
+    
+    if not conversation:
+        return jsonify({'error': 'Conversation not found'}), 404
+    
+    messages = conversation.get_recent_messages(50)
+    messages_data = []
+    
+    for msg in messages:
+        messages_data.append({
+            'id': msg.id,
+            'type': msg.message_type,
+            'content': msg.content,
+            'timestamp': msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    
+    return jsonify({
+        'conversation_id': conversation.session_id,
+        'title': conversation.title,
+        'messages': messages_data
+    })
+
+@app.route('/api/ai-chat/send', methods=['POST'])
+@login_required
+def api_ai_chat_send():
+    """Send message to AI chatbot"""
+    if not current_user.can_access_menu('ai_advisor'):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    try:
+        data = request.get_json()
+        if not data or not data.get('message'):
+            return jsonify({'error': 'Message is required'}), 400
+        
+        user_message = data.get('message').strip()
+        session_id = data.get('session_id')
+        
+        if len(user_message) > 1000:
+            return jsonify({'error': 'Message too long. Please keep it under 1000 characters.'}), 400
+        
+        # Get or create conversation
+        conversation = chatbot.get_or_create_conversation(current_user.id, session_id)
+        
+        # Get user context for personalized responses
+        user_context = chatbot.get_user_context(current_user.id)
+        
+        # Save user message
+        user_msg = chatbot.save_message(conversation, 'user', user_message)
+        
+        # Generate AI response
+        ai_response, usage_info = chatbot.generate_response(
+            user_message, conversation, user_context
+        )
+        
+        # Save AI response
+        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response, usage_info)
+        
+        return jsonify({
+            'success': True,
+            'conversation_id': conversation.session_id,
+            'user_message': {
+                'id': user_msg.id,
+                'content': user_msg.content,
+                'timestamp': user_msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            },
+            'ai_response': {
+                'id': ai_msg.id,
+                'content': ai_msg.content,
+                'timestamp': ai_msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            },
+            'usage_info': usage_info
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in AI chat: {e}")
+        return jsonify({'error': 'Something went wrong. Please try again.'}), 500
+
+@app.route('/api/ai-chat/conversations')
+@login_required 
+def api_ai_chat_conversations():
+    """Get user's chat conversations"""
+    if not current_user.can_access_menu('ai_advisor'):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    conversations = chatbot.get_user_conversations(current_user.id)
+    conversations_data = []
+    
+    for conv in conversations:
+        last_message = conv.messages.order_by(ChatMessage.created_at.desc()).first()
+        conversations_data.append({
+            'session_id': conv.session_id,
+            'title': conv.title,
+            'updated_at': conv.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'message_count': conv.messages.count(),
+            'last_message_preview': last_message.content[:100] + '...' if last_message and len(last_message.content) > 100 else last_message.content if last_message else ''
+        })
+    
+    return jsonify({'conversations': conversations_data})
+
+@app.route('/api/ai-chat/new-conversation', methods=['POST'])
+@login_required
+def api_ai_chat_new():
+    """Start a new conversation"""
+    if not current_user.can_access_menu('ai_advisor'):
+        return jsonify({'error': 'Access denied'}), 403
+    
+    try:
+        import uuid
+        session_id = str(uuid.uuid4())
+        conversation = chatbot.get_or_create_conversation(current_user.id, session_id)
+        
+        return jsonify({
+            'success': True,
+            'session_id': conversation.session_id,
+            'message': 'New conversation started'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error creating new conversation: {e}")
+        return jsonify({'error': 'Failed to create new conversation'}), 500
+
+# Initialize knowledge base on startup
+with app.app_context():
+    try:
+        chatbot.initialize_knowledge_base()
+        logging.info("Application initialized successfully")
+    except Exception as e:
+        logging.error(f"Error initializing app: {e}")
 
