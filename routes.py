@@ -2017,7 +2017,7 @@ def ai_advisor():
         flash('Access denied. Please upgrade your subscription to access AI Advisor.', 'error')
         return redirect(url_for('dashboard'))
     
-    return render_template('dashboard/ai_advisor.html', 
+    return render_template('dashboard/ai_advisor_clean.html', 
                          current_user=current_user)
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])

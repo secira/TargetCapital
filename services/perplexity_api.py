@@ -45,9 +45,11 @@ class PerplexityAPI:
                 }
             ]
             
-            # Add conversation history if available
+            # Add conversation history if available (ensure proper alternating format)
             if conversation_history:
-                messages.extend(conversation_history[-6:])  # Last 6 messages for context
+                for msg in conversation_history[-6:]:  # Last 6 messages for context
+                    if msg.get('role') in ['user', 'assistant']:
+                        messages.append(msg)
             
             # Add current user message
             messages.append({
