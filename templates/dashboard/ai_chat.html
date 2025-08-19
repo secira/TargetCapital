@@ -4,93 +4,56 @@
 
 {% block extra_css %}
 <style>
-/* AI Investment Advisor - Perplexity.ai Style */
-.ai-advisor-container {
-    background: #f8f9fc;
+/* Professional Perplexity.ai-style AI Investment Advisor */
+.ai-page {
+    background: #f5f7fa;
     min-height: calc(100vh - 80px);
-    padding: 20px 0;
+    padding: 0;
+    font-family: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
 }
 
-.advisor-main {
+.ai-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.ai-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.ai-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0d1117;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.ai-header p {
+    font-size: 18px;
+    color: #656d76;
+    font-weight: 400;
+    margin: 0;
+}
+
+.chat-card {
     background: white;
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e1e7ef;
     overflow: hidden;
-    max-width: 900px;
-    margin: 0 auto;
-    height: 650px;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
 }
 
-.advisor-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: white;
-    padding: 20px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.advisor-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.advisor-title h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.advisor-title p {
-    margin: 4px 0 0 0;
-    opacity: 0.9;
-    font-size: 14px;
-}
-
-.advisor-status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255,255,255,0.15);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-}
-
-.status-dot {
-    width: 6px;
-    height: 6px;
-    background: #28a745;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-.chat-area {
+.chat-messages-area {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #fafbfc;
-    position: relative;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
+    min-height: 400px;
     padding: 24px;
+    overflow-y: auto;
     scroll-behavior: smooth;
 }
 
@@ -99,46 +62,47 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
+    height: 400px;
     text-align: center;
-    color: #6c757d;
+    padding: 40px 20px;
 }
 
 .empty-state-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    border-radius: 20px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 24px;
     color: white;
     margin-bottom: 20px;
-    box-shadow: 0 4px 16px rgba(0,123,255,0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .empty-state h3 {
-    margin-bottom: 12px;
-    color: #1a1a1a;
+    font-size: 24px;
     font-weight: 600;
-    font-size: 22px;
+    color: #0d1117;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
 }
 
 .empty-state p {
-    margin: 0;
-    font-size: 15px;
-    max-width: 400px;
+    font-size: 16px;
+    color: #656d76;
     line-height: 1.5;
-    color: #6c757d;
+    max-width: 500px;
+    margin: 0;
 }
 
 .message {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: flex-start;
-    animation: slideIn 0.3s ease-out;
+    animation: slideInMessage 0.3s ease-out;
 }
 
 .message.user {
@@ -146,71 +110,72 @@
 }
 
 .message-avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
 }
 
 .message.user .message-avatar {
-    background: #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
 }
 
 .message.assistant .message-avatar {
-    background: #f8f9fc;
-    color: #007bff;
-    border: 2px solid #007bff;
+    background: #f6f8fa;
+    color: #4a5568;
+    border: 1px solid #e1e7ef;
 }
 
 .message-content {
-    max-width: 75%;
+    max-width: 85%;
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
 .message-bubble {
-    padding: 14px 18px;
-    border-radius: 18px;
+    padding: 16px 20px;
+    border-radius: 20px;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.6;
     word-wrap: break-word;
+    font-weight: 400;
 }
 
 .message.user .message-bubble {
-    background: #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border-bottom-right-radius: 8px;
 }
 
 .message.assistant .message-bubble {
-    background: white;
-    border: 1px solid #e3e6f0;
-    color: #1a1a1a;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #2d3748;
     border-bottom-left-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .message-time {
-    font-size: 12px;
-    color: #9ca3af;
+    font-size: 11px;
+    color: #8b949e;
     padding: 0 4px;
+    font-weight: 400;
 }
 
 .message.user .message-time {
     text-align: right;
 }
 
-@keyframes slideIn {
+@keyframes slideInMessage {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -218,122 +183,29 @@
     }
 }
 
-.chat-input-section {
-    padding: 20px 24px;
-    background: white;
-    border-top: 1px solid #e8ecf0;
-}
-
-.prompt-suggestions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.prompt-suggestion {
-    background: #f8f9fc;
-    border: 1px solid #e3e6f0;
-    border-radius: 24px;
-    padding: 10px 16px;
-    font-size: 14px;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.prompt-suggestion:hover {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-}
-
-.chat-input-container {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    background: #f8f9fc;
-    border: 1px solid #e3e6f0;
-    border-radius: 24px;
-    padding: 12px 18px;
-    transition: all 0.2s ease;
-    max-width: 100%;
-}
-
-.chat-input-container:focus-within {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
-    background: white;
-}
-
-.chat-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    resize: none;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
-    line-height: 1.4;
-    min-height: 24px;
-    max-height: 100px;
-    outline: none;
-    color: #1a1a1a;
-}
-
-.chat-input::placeholder {
-    color: #9ca3af;
-}
-
-.send-button {
-    background: #007bff;
-    border: none;
-    border-radius: 50%;
-    width: 42px;
-    height: 42px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-}
-
-.send-button:hover:not(:disabled) {
-    background: #0056b3;
-    transform: scale(1.05);
-    box-shadow: 0 4px 16px rgba(0,123,255,0.4);
-}
-
-.send-button:disabled {
-    background: #e9ecef;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
 .typing-indicator {
     display: none;
     margin-bottom: 20px;
     align-items: flex-start;
-    gap: 14px;
-    animation: slideIn 0.3s ease-out;
+    gap: 16px;
+    animation: slideInMessage 0.3s ease-out;
 }
 
 .typing-bubble {
-    background: white;
-    border: 1px solid #e3e6f0;
-    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
     border-bottom-left-radius: 8px;
-    padding: 14px 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.typing-text {
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 500;
 }
 
 .typing-dots {
@@ -342,9 +214,9 @@
 }
 
 .typing-dot {
-    width: 8px;
-    height: 8px;
-    background: #007bff;
+    width: 4px;
+    height: 4px;
+    background: #8b949e;
     border-radius: 50%;
     animation: typing 1.4s infinite;
 }
@@ -358,50 +230,196 @@
         opacity: 0.4; 
     }
     30% { 
-        transform: translateY(-8px); 
+        transform: translateY(-4px); 
         opacity: 1; 
     }
 }
 
+.chat-input-section {
+    border-top: 1px solid #e1e7ef;
+    padding: 24px;
+    background: white;
+}
+
+.suggestions-area {
+    margin-bottom: 20px;
+}
+
+.suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.suggestion-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.suggestion-card:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-icon {
+    font-size: 18px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.suggestion-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.suggestion-desc {
+    font-size: 12px;
+    color: #718096;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.input-container {
+    position: relative;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    transition: all 0.2s ease;
+    min-height: 72px;
+    max-height: 200px;
+}
+
+.chat-input-wrapper:focus-within {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.chat-textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #2d3748;
+    outline: none;
+    overflow-y: auto;
+    min-height: 24px;
+    max-height: 120px;
+}
+
+.chat-textarea::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+}
+
+.send-btn {
+    margin-left: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.send-btn:disabled {
+    background: #e2e8f0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.clear-btn {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.clear-btn:hover {
+    background: #edf2f7;
+    color: #2d3748;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .ai-advisor-container {
-        padding: 10px;
+    .ai-container {
+        padding: 20px 16px;
     }
     
-    .advisor-main {
-        height: 600px;
-        border-radius: 12px;
+    .ai-header h1 {
+        font-size: 28px;
     }
     
-    .advisor-header {
-        padding: 16px 20px;
+    .ai-header p {
+        font-size: 16px;
     }
     
-    .advisor-title h2 {
-        font-size: 18px;
+    .chat-card {
+        min-height: 500px;
     }
     
-    .chat-messages {
-        padding: 16px 20px;
+    .chat-messages-area {
+        padding: 20px 16px;
     }
     
     .chat-input-section {
-        padding: 16px 20px;
+        padding: 20px 16px;
     }
     
-    .prompt-suggestions {
-        flex-direction: column;
-        gap: 8px;
+    .suggestions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
     
-    .prompt-suggestion {
-        text-align: center;
-        justify-content: center;
+    .suggestion-card {
+        padding: 14px;
     }
     
-    .message-bubble {
-        font-size: 14px;
+    .empty-state {
+        height: 300px;
+        padding: 20px;
     }
     
     .empty-state h3 {
@@ -409,109 +427,132 @@
     }
     
     .empty-state-icon {
-        width: 64px;
-        height: 64px;
-        font-size: 24px;
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+    
+    .chat-input-wrapper {
+        padding: 12px 16px;
+        min-height: 60px;
+    }
+    
+    .chat-textarea {
+        font-size: 15px;
+    }
+    
+    .send-btn {
+        width: 36px;
+        height: 36px;
     }
 }
 
 @media (max-width: 576px) {
-    .advisor-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
+    .ai-header h1 {
+        font-size: 24px;
     }
     
-    .advisor-status {
-        margin: 0;
+    .message-bubble {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .suggestion-title {
+        font-size: 13px;
+    }
+    
+    .suggestion-desc {
+        font-size: 11px;
     }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid ai-advisor-container">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
-        </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="dashboard-heading"><i class="fas fa-brain me-2"></i>AI Investment Advisor</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearChat()">
-                            <i class="fas fa-broom me-1"></i>Clear Chat
-                        </button>
-                    </div>
-                </div>
+<div class="ai-page">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                {% include 'dashboard/sidebar.html' %}
             </div>
-
-            <!-- AI Investment Advisor -->
-            <div class="advisor-main">
-                <!-- Header -->
-                <div class="advisor-header">
-                    <div class="advisor-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="advisor-title">
-                        <h2>AI Investment Advisor</h2>
-                        <p>Real-time market insights powered by Perplexity AI</p>
-                    </div>
-                    <div class="advisor-status">
-                        <div class="status-dot"></div>
-                        Connected
-                    </div>
-                </div>
-
-                <!-- Chat Area -->
-                <div class="chat-area">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <h3>Ask me anything about investments</h3>
-                            <p>Get real-time market data, stock analysis, investment strategies, and personalized financial guidance powered by advanced AI</p>
-                        </div>
-                    </div>
-                    
-                    <div class="typing-indicator" id="typingIndicator">
-                        <div class="message-avatar" style="background: #f8f9fc; color: #007bff; border: 2px solid #007bff;">AI</div>
-                        <div class="typing-bubble">
-                            <div class="typing-dots">
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
-                            </div>
-                        </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="ai-container">
+                    <!-- Header -->
+                    <div class="ai-header">
+                        <h1>AI Investment Advisor</h1>
+                        <p>Get real-time market insights and investment guidance powered by Perplexity AI</p>
                     </div>
 
-                    <div class="chat-input-section">
-                        <div class="prompt-suggestions">
-                            <div class="prompt-suggestion" onclick="sendMessage('What are the best Indian stocks to buy today?')">
-                                📈 Best Indian stocks today
-                            </div>
-                            <div class="prompt-suggestion" onclick="sendMessage('Latest market news and analysis for India')">
-                                📰 Market news India
-                            </div>
-                            <div class="prompt-suggestion" onclick="sendMessage('How to start SIP investment in mutual funds?')">
-                                💰 SIP investment guide
-                            </div>
-                            <div class="prompt-suggestion" onclick="sendMessage('Analyze NIFTY 50 performance today')">
-                                📊 NIFTY analysis
+                    <!-- Chat Interface -->
+                    <div class="chat-card">
+                        <!-- Messages Area -->
+                        <div class="chat-messages-area" id="messagesArea">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h3>Ask anything about investing</h3>
+                                <p>I can help you with market analysis, stock research, investment strategies, portfolio optimization, and real-time financial insights from Indian and global markets.</p>
                             </div>
                         </div>
                         
-                        <div class="chat-input-container">
-                            <textarea class="chat-input" id="messageInput" placeholder="Ask about stocks, market trends, investment strategies..." rows="1"></textarea>
-                            <button class="send-button" id="sendButton" onclick="sendMessage()">
-                                <i class="fas fa-arrow-up"></i>
-                            </button>
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator" id="typingIndicator">
+                            <div class="message-avatar" style="background: #f6f8fa; color: #4a5568; border: 1px solid #e1e7ef;">AI</div>
+                            <div class="typing-bubble">
+                                <span class="typing-text">Thinking</span>
+                                <div class="typing-dots">
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Input Section -->
+                        <div class="chat-input-section">
+                            <div class="suggestions-area" id="suggestionsArea">
+                                <div class="suggestions-grid">
+                                    <div class="suggestion-card" onclick="askQuestion('What are the best performing Indian stocks today?')">
+                                        <div class="suggestion-icon">📈</div>
+                                        <div class="suggestion-title">Top Indian Stocks Today</div>
+                                        <div class="suggestion-desc">Get current best performing stocks in NSE and BSE</div>
+                                    </div>
+                                    <div class="suggestion-card" onclick="askQuestion('Should I invest in mutual funds or direct stocks?')">
+                                        <div class="suggestion-icon">💰</div>
+                                        <div class="suggestion-title">Investment Strategy</div>
+                                        <div class="suggestion-desc">Compare mutual funds vs direct stock investments</div>
+                                    </div>
+                                    <div class="suggestion-card" onclick="askQuestion('Latest market news affecting Indian stocks')">
+                                        <div class="suggestion-icon">📰</div>
+                                        <div class="suggestion-title">Market News</div>
+                                        <div class="suggestion-desc">Current news and events impacting markets</div>
+                                    </div>
+                                    <div class="suggestion-card" onclick="askQuestion('How to build a diversified portfolio for 2025?')">
+                                        <div class="suggestion-icon">🎯</div>
+                                        <div class="suggestion-title">Portfolio Building</div>
+                                        <div class="suggestion-desc">Learn diversification strategies for this year</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="input-container">
+                                <button class="clear-btn" onclick="clearChat()" style="display: none;" id="clearBtn">
+                                    <i class="fas fa-broom"></i>
+                                    Clear
+                                </button>
+                                <div class="chat-input-wrapper">
+                                    <textarea class="chat-textarea" id="messageInput" 
+                                        placeholder="Ask about stocks, market trends, investment strategies, portfolio analysis..."
+                                        rows="1"></textarea>
+                                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -525,21 +566,21 @@
 <script>
 let isProcessing = false;
 let conversationId = null;
+let messageCount = 0;
 
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    initializeChatInput();
+    initializeChat();
 });
 
-function initializeChatInput() {
-    const input = document.getElementById('messageInput');
+function initializeChat() {
+    const textarea = document.getElementById('messageInput');
     
-    input.addEventListener('input', function() {
+    textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
     
-    input.addEventListener('keydown', function(event) {
+    textarea.addEventListener('keydown', function(event) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             sendMessage();
@@ -547,29 +588,39 @@ function initializeChatInput() {
     });
 }
 
-function sendMessage(quickMessage = null) {
+function askQuestion(question) {
+    sendMessage(question);
+}
+
+function sendMessage(predefinedMessage = null) {
     if (isProcessing) return;
     
-    const input = document.getElementById('messageInput');
-    const message = quickMessage || input.value.trim();
+    const textarea = document.getElementById('messageInput');
+    const message = predefinedMessage || textarea.value.trim();
     
     if (!message) return;
     
     if (message.length > 2000) {
-        showError('Message too long. Please keep it under 2000 characters.');
+        showError('Message is too long. Please keep it under 2000 characters.');
         return;
     }
     
     isProcessing = true;
-    const sendBtn = document.getElementById('sendButton');
+    const sendBtn = document.getElementById('sendBtn');
     sendBtn.disabled = true;
+    
+    // Hide suggestions after first message
+    if (messageCount === 0) {
+        hideSuggestions();
+        showClearButton();
+    }
     
     removeEmptyState();
     addMessage('user', message);
     
-    if (!quickMessage) {
-        input.value = '';
-        input.style.height = 'auto';
+    if (!predefinedMessage) {
+        textarea.value = '';
+        textarea.style.height = 'auto';
     }
     
     showTyping();
@@ -593,14 +644,15 @@ function sendMessage(quickMessage = null) {
         if (data.success) {
             conversationId = data.conversation_id;
             addMessage('assistant', data.ai_response);
+            messageCount++;
         } else {
             showError(data.error || 'Something went wrong. Please try again.');
         }
     })
     .catch(error => {
         hideTyping();
-        showError('Failed to send message. Please check your connection and try again.');
-        console.error('Error:', error);
+        showError('Unable to connect. Please check your internet connection and try again.');
+        console.error('Chat error:', error);
     })
     .finally(() => {
         isProcessing = false;
@@ -609,15 +661,28 @@ function sendMessage(quickMessage = null) {
 }
 
 function removeEmptyState() {
-    const container = document.getElementById('chatMessages');
-    const emptyState = container.querySelector('.empty-state');
+    const emptyState = document.querySelector('.empty-state');
     if (emptyState) {
         emptyState.remove();
     }
 }
 
+function hideSuggestions() {
+    const suggestionsArea = document.getElementById('suggestionsArea');
+    if (suggestionsArea) {
+        suggestionsArea.style.display = 'none';
+    }
+}
+
+function showClearButton() {
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+        clearBtn.style.display = 'flex';
+    }
+}
+
 function addMessage(type, content) {
-    const container = document.getElementById('chatMessages');
+    const messagesArea = document.getElementById('messagesArea');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     
@@ -627,25 +692,31 @@ function addMessage(type, content) {
     });
     
     const avatarStyle = type === 'user' 
-        ? 'background: #007bff; color: white;'
-        : 'background: #f8f9fc; color: #007bff; border: 2px solid #007bff;';
+        ? 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;'
+        : 'background: #f6f8fa; color: #4a5568; border: 1px solid #e1e7ef;';
     
     messageDiv.innerHTML = `
-        <div class="message-avatar" style="${avatarStyle}">${type === 'user' ? 'YOU' : 'AI'}</div>
+        <div class="message-avatar" style="${avatarStyle}">${type === 'user' ? 'You' : 'AI'}</div>
         <div class="message-content">
-            <div class="message-bubble">${content.replace(/\n/g, '<br>')}</div>
+            <div class="message-bubble">${formatMessage(content)}</div>
             <div class="message-time">${currentTime}</div>
         </div>
     `;
     
-    container.appendChild(messageDiv);
-    container.scrollTop = container.scrollHeight;
+    messagesArea.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+function formatMessage(content) {
+    return content
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
 }
 
 function showTyping() {
     document.getElementById('typingIndicator').style.display = 'flex';
-    const container = document.getElementById('chatMessages');
-    container.scrollTop = container.scrollHeight;
+    scrollToBottom();
 }
 
 function hideTyping() {
@@ -653,22 +724,43 @@ function hideTyping() {
 }
 
 function showError(message) {
-    addMessage('assistant', `❌ Error: ${message}`);
+    addMessage('assistant', `⚠️ ${message}`);
+}
+
+function scrollToBottom() {
+    const messagesArea = document.getElementById('messagesArea');
+    setTimeout(() => {
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }, 100);
 }
 
 function clearChat() {
-    const container = document.getElementById('chatMessages');
-    container.innerHTML = `
+    const messagesArea = document.getElementById('messagesArea');
+    messagesArea.innerHTML = `
         <div class="empty-state">
             <div class="empty-state-icon">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-chart-line"></i>
             </div>
-            <h3>Ask me anything about investments</h3>
-            <p>Get real-time market data, stock analysis, investment strategies, and personalized financial guidance powered by advanced AI</p>
+            <h3>Ask anything about investing</h3>
+            <p>I can help you with market analysis, stock research, investment strategies, portfolio optimization, and real-time financial insights from Indian and global markets.</p>
         </div>
     `;
     
+    // Show suggestions again
+    const suggestionsArea = document.getElementById('suggestionsArea');
+    if (suggestionsArea) {
+        suggestionsArea.style.display = 'block';
+    }
+    
+    // Hide clear button
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+    
     conversationId = null;
+    messageCount = 0;
+    
     document.getElementById('messageInput').value = '';
 }
 </script>

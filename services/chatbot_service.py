@@ -335,7 +335,12 @@ Remember: You provide educational insights with real-time market context, not gu
             # Generate a title from the first message
             conversation.title = content[:50] + "..." if len(content) > 50 else content
             
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error saving message: {e}")
+            raise
         return message
 
     def get_user_conversations(self, user_id: int, limit: int = 20) -> List[ChatConversation]:

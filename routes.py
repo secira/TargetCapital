@@ -2560,16 +2560,11 @@ def api_ai_chat_send():
         # Save user message
         user_msg = chatbot.save_message(conversation, 'user', user_message)
         
-        # Generate AI response based on mode
-        if mode == 'agentic':
-            # For agentic mode, use the agentic AI coordinator
-            ai_response = f"🤖 Agentic AI Analysis for: '{user_message}'\n\nCurrently processing your request with autonomous decision-making capabilities. This feature integrates real-time market data analysis, risk assessment, and strategic recommendations.\n\n⚡ Key Capabilities:\n- Autonomous portfolio optimization\n- Real-time market sentiment analysis\n- Risk-adjusted strategy recommendations\n- Continuous learning and adaptation\n\nNote: This is an enhanced AI system powered by Perplexity Sonar Pro with access to live market data."
-        else:
-            # For advisor mode, use the standard chatbot with Perplexity
-            ai_response = chatbot.generate_perplexity_response(user_message, current_user.id)
+        # Generate AI response using Perplexity
+        ai_response, usage_info = chatbot.generate_perplexity_response(user_message, conversation, user_context)
         
         # Save AI response
-        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response)
+        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response, usage_info)
         
         return jsonify({
             'success': True,
