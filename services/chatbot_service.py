@@ -85,11 +85,11 @@ Remember: You provide educational insights with real-time market context, not gu
         ).first()
         
         if not conversation:
-            conversation = ChatConversation(
-                user_id=user_id,
-                session_id=session_id,
-                title="New Investment Chat"
-            )
+            conversation = ChatConversation()
+            conversation.user_id = user_id
+            conversation.session_id = session_id
+            conversation.title = "New Investment Chat"
+            conversation.is_active = True
             db.session.add(conversation)
             db.session.commit()
             logger.info(f"Created new conversation {session_id} for user {user_id}")
@@ -175,10 +175,17 @@ Remember: You provide educational insights with real-time market context, not gu
         knowledge_items.sort(key=lambda x: x[0], reverse=True)
         return [item[1] for item in knowledge_items[:limit]]
 
+    def generate_perplexity_response(self, 
+                                    user_message: str, 
+                                    conversation: ChatConversation,
+                                    user_context: Optional[Dict] = None) -> Tuple[str, Dict]:
+        """Generate AI response using Perplexity Sonar"""
+        return self.generate_response(user_message, conversation, user_context)
+    
     def generate_response(self, 
                          user_message: str, 
                          conversation: ChatConversation,
-                         user_context: Dict = None) -> Tuple[str, Dict]:
+                         user_context: Optional[Dict] = None) -> Tuple[str, Dict]:
         """Generate AI response using Perplexity Sonar"""
         if not self.perplexity_api_key:
             return "I'm sorry, the AI service is temporarily unavailable. Please try again later.", {}
@@ -297,16 +304,16 @@ Remember: You provide educational insights with real-time market context, not gu
                     conversation: ChatConversation, 
                     message_type: str, 
                     content: str, 
-                    usage_info: Dict = None) -> ChatMessage:
+                    usage_info: Optional[Dict] = None) -> ChatMessage:
         """Save message to database"""
-        message = ChatMessage(
-            conversation_id=conversation.id,
-            user_id=conversation.user_id,
-            message_type=message_type,
-            content=content,
-            tokens_used=usage_info.get('tokens_used') if usage_info else None,
-            processing_time=usage_info.get('processing_time') if usage_info else None
-        )
+        message = ChatMessage()
+        message.conversation_id = conversation.id
+        message.user_id = conversation.user_id
+        message.message_type = message_type
+        message.content = content
+        if usage_info:
+            message.tokens_used = usage_info.get('tokens_used')
+            message.processing_time = usage_info.get('processing_time')
         
         db.session.add(message)
         
