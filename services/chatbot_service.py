@@ -203,12 +203,24 @@ Remember: You provide educational insights with real-time market context, not gu
                     messages.append({"role": "system", "content": context_message})
             
             # Add recent conversation history (last 6 messages for better performance)
-            recent_messages = conversation.get_recent_messages(6)
-            for msg in recent_messages:
-                messages.append({
-                    "role": msg.message_type,
-                    "content": msg.content
-                })
+            try:
+                recent_messages = conversation.get_recent_messages(6)
+                for msg in recent_messages:
+                    messages.append({
+                        "role": msg.message_type,
+                        "content": msg.content
+                    })
+            except AttributeError:
+                # Fallback if conversation doesn't have get_recent_messages method
+                recent_messages = ChatMessage.query.filter_by(
+                    conversation_id=conversation.id
+                ).order_by(ChatMessage.created_at.desc()).limit(6).all()
+                recent_messages.reverse()  # Show oldest first
+                for msg in recent_messages:
+                    messages.append({
+                        "role": msg.message_type,
+                        "content": msg.content
+                    })
             
             # Add current user message
             messages.append({"role": "user", "content": user_message})
@@ -228,7 +240,7 @@ Remember: You provide educational insights with real-time market context, not gu
             }
             
             payload = {
-                "model": "sonar-pro",  # Using current Perplexity Sonar Pro model
+                "model": "llama-3.1-sonar-small-128k-online",  # Using correct Perplexity model
                 "messages": messages,
                 "max_tokens": 1000,
                 "temperature": 0.7,

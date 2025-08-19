@@ -1,333 +1,69 @@
 {% extends "base.html" %}
 
-{% block title %}AI Advisor - tCapital Dashboard{% endblock %}
+{% block title %}AI Investment Advisor - tCapital Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
-/* AI Advisor Dashboard Styles - Clean Tab Interface */
-.ai-dashboard-container {
+/* AI Investment Advisor - Perplexity.ai Style */
+.ai-advisor-container {
     background: #f8f9fc;
     min-height: calc(100vh - 80px);
+    padding: 20px 0;
 }
 
-.ai-tabs-container {
+.advisor-main {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     overflow: hidden;
-}
-
-.ai-tab-headers {
+    max-width: 900px;
+    margin: 0 auto;
+    height: 650px;
     display: flex;
-    background: #f8f9fc;
-    border-bottom: 1px solid #e8ecf0;
+    flex-direction: column;
 }
 
-.ai-tab-header {
-    flex: 1;
-    padding: 16px 24px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    color: #6c757d;
-}
-
-.ai-tab-header.active {
-    background: white;
-    color: #00091a;
-    border-bottom: 2px solid #007bff;
-}
-
-.ai-tab-header:hover:not(.active) {
-    background: #e9ecef;
-    color: #495057;
-}
-
-.ai-tab-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
+.advisor-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
     color: white;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .advisor-icon {
-    background: #007bff;
-}
-
-.agentic-icon {
-    background: #00091a;
-}
-
-.ai-tab-content {
-    display: none;
-    height: 600px;
-    background: white;
-}
-
-.ai-tab-content.active {
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #fafbfc;
-}
-
-.chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    background: #fafbfc;
-}
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 400px;
-    text-align: center;
-    color: #6c757d;
-}
-
-.empty-state-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    color: white;
-    margin-bottom: 16px;
+    font-size: 18px;
 }
 
-.empty-state h5 {
-    margin-bottom: 8px;
-    color: #1a1a1a;
-    font-weight: 600;
-}
-
-.empty-state p {
+.advisor-title h2 {
     margin: 0;
-    font-size: 14px;
-    max-width: 300px;
-    line-height: 1.4;
-}
-
-.message {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    max-width: 100%;
-}
-
-.message.user {
-    flex-direction: row-reverse;
-}
-
-.message-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
+    font-size: 20px;
     font-weight: 600;
-    flex-shrink: 0;
 }
 
-.message.user .message-avatar {
-    background: #007bff;
-    color: white;
-}
-
-.message.assistant .message-avatar {
-    background: #f1f3f5;
-    color: #495057;
-    border: 1px solid #e8ecf0;
-}
-
-.message-bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 16px;
+.advisor-title p {
+    margin: 4px 0 0 0;
+    opacity: 0.9;
     font-size: 14px;
-    line-height: 1.5;
-    word-wrap: break-word;
 }
 
-.message.user .message-bubble {
-    background: #007bff;
-    color: white;
-    border-bottom-right-radius: 6px;
-}
-
-.message.assistant .message-bubble {
-    background: white;
-    border: 1px solid #e8ecf0;
-    color: #1a1a1a;
-    border-bottom-left-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.chat-input-section {
-    padding: 20px 24px;
-    background: white;
-    border-top: 1px solid #e8ecf0;
-}
-
-.prompt-suggestions {
+.advisor-status {
+    margin-left: auto;
     display: flex;
+    align-items: center;
     gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-}
-
-.prompt-suggestion {
-    background: #f8f9fc;
-    border: 1px solid #e8ecf0;
+    background: rgba(255,255,255,0.15);
+    padding: 6px 12px;
     border-radius: 20px;
-    padding: 8px 14px;
     font-size: 13px;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.prompt-suggestion:hover {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-    transform: translateY(-1px);
-}
-
-.chat-input-container {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    background: #f8f9fc;
-    border: 1px solid #e8ecf0;
-    border-radius: 24px;
-    padding: 12px 16px;
-    transition: all 0.2s;
-}
-
-.chat-input-container:focus-within {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-}
-
-.chat-input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    resize: none;
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    line-height: 1.4;
-    min-height: 22px;
-    max-height: 80px;
-    outline: none;
-    color: #1a1a1a;
-}
-
-.chat-input::placeholder {
-    color: #9ca3af;
-}
-
-.send-button {
-    background: #007bff;
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.send-button:hover:not(:disabled) {
-    background: #0056b3;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
-}
-
-.send-button:disabled {
-    background: #e9ecef;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.typing-indicator {
-    display: none;
-    margin-bottom: 16px;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.typing-bubble {
-    background: white;
-    border: 1px solid #e8ecf0;
-    border-radius: 16px;
-    border-bottom-left-radius: 6px;
-    padding: 12px 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.typing-dots {
-    display: flex;
-    gap: 4px;
-}
-
-.typing-dot {
-    width: 6px;
-    height: 6px;
-    background: #9ca3af;
-    border-radius: 50%;
-    animation: typing 1.4s infinite;
-}
-
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-6px); opacity: 1; }
-}
-
-/* Status indicator */
-.tab-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: 8px;
-    font-size: 11px;
-    color: #28a745;
 }
 
 .status-dot {
@@ -343,19 +79,315 @@
     50% { opacity: 0.6; }
 }
 
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fafbfc;
+    position: relative;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    scroll-behavior: smooth;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #6c757d;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0,123,255,0.3);
+}
+
+.empty-state h3 {
+    margin-bottom: 12px;
+    color: #1a1a1a;
+    font-weight: 600;
+    font-size: 22px;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 15px;
+    max-width: 400px;
+    line-height: 1.5;
+    color: #6c757d;
+}
+
+.message {
+    margin-bottom: 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.message.user .message-avatar {
+    background: #007bff;
+    color: white;
+}
+
+.message.assistant .message-avatar {
+    background: #f8f9fc;
+    color: #007bff;
+    border: 2px solid #007bff;
+}
+
+.message-content {
+    max-width: 75%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.message-bubble {
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.message.user .message-bubble {
+    background: #007bff;
+    color: white;
+    border-bottom-right-radius: 8px;
+}
+
+.message.assistant .message-bubble {
+    background: white;
+    border: 1px solid #e3e6f0;
+    color: #1a1a1a;
+    border-bottom-left-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.message-time {
+    font-size: 12px;
+    color: #9ca3af;
+    padding: 0 4px;
+}
+
+.message.user .message-time {
+    text-align: right;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chat-input-section {
+    padding: 20px 24px;
+    background: white;
+    border-top: 1px solid #e8ecf0;
+}
+
+.prompt-suggestions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.prompt-suggestion {
+    background: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 24px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.prompt-suggestion:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.chat-input-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    background: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    border-radius: 24px;
+    padding: 12px 18px;
+    transition: all 0.2s ease;
+    max-width: 100%;
+}
+
+.chat-input-container:focus-within {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+    background: white;
+}
+
+.chat-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    resize: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    min-height: 24px;
+    max-height: 100px;
+    outline: none;
+    color: #1a1a1a;
+}
+
+.chat-input::placeholder {
+    color: #9ca3af;
+}
+
+.send-button {
+    background: #007bff;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.send-button:hover:not(:disabled) {
+    background: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 4px 16px rgba(0,123,255,0.4);
+}
+
+.send-button:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.typing-indicator {
+    display: none;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    gap: 14px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.typing-bubble {
+    background: white;
+    border: 1px solid #e3e6f0;
+    border-radius: 18px;
+    border-bottom-left-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #007bff;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { 
+        transform: translateY(0); 
+        opacity: 0.4; 
+    }
+    30% { 
+        transform: translateY(-8px); 
+        opacity: 1; 
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    .ai-tab-header {
-        padding: 12px 16px;
-        font-size: 14px;
+    .ai-advisor-container {
+        padding: 10px;
+    }
+    
+    .advisor-main {
+        height: 600px;
+        border-radius: 12px;
+    }
+    
+    .advisor-header {
+        padding: 16px 20px;
+    }
+    
+    .advisor-title h2 {
+        font-size: 18px;
     }
     
     .chat-messages {
-        padding: 16px;
+        padding: 16px 20px;
     }
     
     .chat-input-section {
-        padding: 16px;
+        padding: 16px 20px;
     }
     
     .prompt-suggestions {
@@ -365,21 +397,40 @@
     
     .prompt-suggestion {
         text-align: center;
+        justify-content: center;
     }
     
-    .empty-state {
-        height: 300px;
+    .message-bubble {
+        font-size: 14px;
     }
     
-    .ai-tab-content {
-        height: 500px;
+    .empty-state h3 {
+        font-size: 20px;
+    }
+    
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 576px) {
+    .advisor-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .advisor-status {
+        margin: 0;
     }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid ai-dashboard-container">
+<div class="container-fluid ai-advisor-container">
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-3 col-lg-2 px-0">
@@ -390,138 +441,77 @@
         <div class="col-md-9 col-lg-10">
             <!-- Page Header -->
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="dashboard-heading"><i class="fas fa-robot me-2"></i>AI Advisor</h1>
+                <h1 class="dashboard-heading"><i class="fas fa-brain me-2"></i>AI Investment Advisor</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearCurrentChat()">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearChat()">
                             <i class="fas fa-broom me-1"></i>Clear Chat
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- AI Tabs Container -->
-            <div class="ai-tabs-container">
-                <!-- Tab Headers -->
-                <div class="ai-tab-headers">
-                    <button class="ai-tab-header active" data-tab="advisor" onclick="switchTab('advisor')">
-                        <div class="ai-tab-icon advisor-icon">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <span>AI Investment Advisor</span>
-                        <div class="tab-status">
-                            <div class="status-dot"></div>
-                            Online
-                        </div>
-                    </button>
-                    <button class="ai-tab-header" data-tab="agentic" onclick="switchTab('agentic')">
-                        <div class="ai-tab-icon agentic-icon">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <span>Agentic AI System</span>
-                        <div class="tab-status">
-                            <div class="status-dot"></div>
-                            12 Active
-                        </div>
-                    </button>
-                </div>
-
-                <!-- AI Investment Advisor Tab Content -->
-                <div class="ai-tab-content active" id="advisor-tab">
-                    <div class="chat-area">
-                        <div class="chat-messages" id="advisorMessages">
-                            <div class="empty-state">
-                                <div class="empty-state-icon advisor-icon">
-                                    <i class="fas fa-search"></i>
-                                </div>
-                                <h5>AI Investment Advisor</h5>
-                                <p>Get real-time market insights, stock analysis, and investment guidance powered by advanced AI</p>
-                            </div>
-                        </div>
-                        
-                        <div class="typing-indicator" id="advisorTyping">
-                            <div class="message-avatar" style="background: #f1f3f5; color: #495057; border: 1px solid #e8ecf0;">AI</div>
-                            <div class="typing-bubble">
-                                <div class="typing-dots">
-                                    <div class="typing-dot"></div>
-                                    <div class="typing-dot"></div>
-                                    <div class="typing-dot"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="chat-input-section">
-                            <div class="prompt-suggestions">
-                                <div class="prompt-suggestion" onclick="sendMessage('advisor', 'What are the top performing Indian stocks today?')">
-                                    📈 Top Indian stocks today
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('advisor', 'Latest market news and analysis for India')">
-                                    📰 Market news India
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('advisor', 'Explain SIP investment strategy for beginners')">
-                                    💡 SIP strategy guide
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('advisor', 'How to build a diversified portfolio?')">
-                                    🎯 Portfolio diversification
-                                </div>
-                            </div>
-                            
-                            <div class="chat-input-container">
-                                <textarea class="chat-input" id="advisorInput" placeholder="Ask about investments, market analysis, stock picks..." rows="1"></textarea>
-                                <button class="send-button" id="advisorSendBtn" onclick="sendMessage('advisor')">
-                                    <i class="fas fa-arrow-up"></i>
-                                </button>
-                            </div>
-                        </div>
+            <!-- AI Investment Advisor -->
+            <div class="advisor-main">
+                <!-- Header -->
+                <div class="advisor-header">
+                    <div class="advisor-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="advisor-title">
+                        <h2>AI Investment Advisor</h2>
+                        <p>Real-time market insights powered by Perplexity AI</p>
+                    </div>
+                    <div class="advisor-status">
+                        <div class="status-dot"></div>
+                        Connected
                     </div>
                 </div>
 
-                <!-- Agentic AI System Tab Content -->
-                <div class="ai-tab-content" id="agentic-tab">
-                    <div class="chat-area">
-                        <div class="chat-messages" id="agenticMessages">
-                            <div class="empty-state">
-                                <div class="empty-state-icon agentic-icon">
-                                    <i class="fas fa-cogs"></i>
-                                </div>
-                                <h5>Agentic AI System</h5>
-                                <p>Command autonomous AI agents that learn, reason, act and adapt to optimize your investment portfolio</p>
+                <!-- Chat Area -->
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3>Ask me anything about investments</h3>
+                            <p>Get real-time market data, stock analysis, investment strategies, and personalized financial guidance powered by advanced AI</p>
+                        </div>
+                    </div>
+                    
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="message-avatar" style="background: #f8f9fc; color: #007bff; border: 2px solid #007bff;">AI</div>
+                        <div class="typing-bubble">
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-section">
+                        <div class="prompt-suggestions">
+                            <div class="prompt-suggestion" onclick="sendMessage('What are the best Indian stocks to buy today?')">
+                                📈 Best Indian stocks today
+                            </div>
+                            <div class="prompt-suggestion" onclick="sendMessage('Latest market news and analysis for India')">
+                                📰 Market news India
+                            </div>
+                            <div class="prompt-suggestion" onclick="sendMessage('How to start SIP investment in mutual funds?')">
+                                💰 SIP investment guide
+                            </div>
+                            <div class="prompt-suggestion" onclick="sendMessage('Analyze NIFTY 50 performance today')">
+                                📊 NIFTY analysis
                             </div>
                         </div>
                         
-                        <div class="typing-indicator" id="agenticTyping">
-                            <div class="message-avatar" style="background: #f1f3f5; color: #495057; border: 1px solid #e8ecf0;">AI</div>
-                            <div class="typing-bubble">
-                                <div class="typing-dots">
-                                    <div class="typing-dot"></div>
-                                    <div class="typing-dot"></div>
-                                    <div class="typing-dot"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="chat-input-section">
-                            <div class="prompt-suggestions">
-                                <div class="prompt-suggestion" onclick="sendMessage('agentic', 'Show me recent AI trading decisions and performance')">
-                                    🤖 Recent AI decisions
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('agentic', 'Optimize my portfolio using AI analysis')">
-                                    ⚡ Optimize portfolio
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('agentic', 'Set my risk tolerance to moderate')">
-                                    🎚️ Set risk level
-                                </div>
-                                <div class="prompt-suggestion" onclick="sendMessage('agentic', 'What is the AI system learning from market data?')">
-                                    🧠 AI learning insights
-                                </div>
-                            </div>
-                            
-                            <div class="chat-input-container">
-                                <textarea class="chat-input" id="agenticInput" placeholder="Command AI agents or monitor autonomous decisions..." rows="1"></textarea>
-                                <button class="send-button" id="agenticSendBtn" onclick="sendMessage('agentic')">
-                                    <i class="fas fa-arrow-up"></i>
-                                </button>
-                            </div>
+                        <div class="chat-input-container">
+                            <textarea class="chat-input" id="messageInput" placeholder="Ask about stocks, market trends, investment strategies..." rows="1"></textarea>
+                            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                                <i class="fas fa-arrow-up"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -533,80 +523,56 @@
 
 {% block extra_js %}
 <script>
-let currentTab = 'advisor';
 let isProcessing = false;
-let conversationIds = {
-    advisor: null,
-    agentic: null
-};
+let conversationId = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    initializeChatInputs();
+    initializeChatInput();
 });
 
-function initializeChatInputs() {
-    const advisorInput = document.getElementById('advisorInput');
-    const agenticInput = document.getElementById('agenticInput');
+function initializeChatInput() {
+    const input = document.getElementById('messageInput');
     
-    [advisorInput, agenticInput].forEach(input => {
-        input.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 80) + 'px';
-        });
-        
-        input.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                const mode = input.id.includes('advisor') ? 'advisor' : 'agentic';
-                sendMessage(mode);
-            }
-        });
+    input.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    });
+    
+    input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
     });
 }
 
-function switchTab(tabName) {
-    // Update tab headers
-    document.querySelectorAll('.ai-tab-header').forEach(header => {
-        header.classList.remove('active');
-    });
-    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-    
-    // Update tab content
-    document.querySelectorAll('.ai-tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    document.getElementById(`${tabName}-tab`).classList.add('active');
-    
-    currentTab = tabName;
-}
-
-function sendMessage(mode, quickMessage = null) {
+function sendMessage(quickMessage = null) {
     if (isProcessing) return;
     
-    const input = document.getElementById(`${mode}Input`);
+    const input = document.getElementById('messageInput');
     const message = quickMessage || input.value.trim();
     
     if (!message) return;
     
-    if (message.length > 1500) {
-        showError(mode, 'Message too long. Please keep it under 1500 characters.');
+    if (message.length > 2000) {
+        showError('Message too long. Please keep it under 2000 characters.');
         return;
     }
     
     isProcessing = true;
-    const sendBtn = document.getElementById(`${mode}SendBtn`);
+    const sendBtn = document.getElementById('sendButton');
     sendBtn.disabled = true;
     
-    removeEmptyState(`${mode}Messages`);
-    addMessage(`${mode}Messages`, 'user', message);
+    removeEmptyState();
+    addMessage('user', message);
     
     if (!quickMessage) {
         input.value = '';
         input.style.height = 'auto';
     }
     
-    showTyping(`${mode}Typing`);
+    showTyping();
     
     // Send to API
     fetch('/api/ai-chat/send', {
@@ -616,25 +582,25 @@ function sendMessage(mode, quickMessage = null) {
         },
         body: JSON.stringify({
             message: message,
-            mode: mode,
-            conversation_id: conversationIds[mode]
+            mode: 'advisor',
+            conversation_id: conversationId
         })
     })
     .then(response => response.json())
     .then(data => {
-        hideTyping(`${mode}Typing`);
+        hideTyping();
         
         if (data.success) {
-            conversationIds[mode] = data.conversation_id;
-            addMessage(`${mode}Messages`, 'assistant', data.ai_response);
+            conversationId = data.conversation_id;
+            addMessage('assistant', data.ai_response);
         } else {
-            showError(mode, data.error || 'Something went wrong. Please try again.');
+            showError(data.error || 'Something went wrong. Please try again.');
         }
     })
     .catch(error => {
-        hideTyping(`${mode}Typing`);
-        showError(mode, 'Failed to send message. Please check your connection.');
-        console.error(`${mode} error:`, error);
+        hideTyping();
+        showError('Failed to send message. Please check your connection and try again.');
+        console.error('Error:', error);
     })
     .finally(() => {
         isProcessing = false;
@@ -642,69 +608,68 @@ function sendMessage(mode, quickMessage = null) {
     });
 }
 
-function removeEmptyState(containerId) {
-    const container = document.getElementById(containerId);
+function removeEmptyState() {
+    const container = document.getElementById('chatMessages');
     const emptyState = container.querySelector('.empty-state');
     if (emptyState) {
         emptyState.remove();
     }
 }
 
-function addMessage(containerId, type, content) {
-    const container = document.getElementById(containerId);
+function addMessage(type, content) {
+    const container = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
     
+    const currentTime = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
     const avatarStyle = type === 'user' 
         ? 'background: #007bff; color: white;'
-        : 'background: #f1f3f5; color: #495057; border: 1px solid #e8ecf0;';
+        : 'background: #f8f9fc; color: #007bff; border: 2px solid #007bff;';
     
     messageDiv.innerHTML = `
         <div class="message-avatar" style="${avatarStyle}">${type === 'user' ? 'YOU' : 'AI'}</div>
-        <div class="message-bubble">${content.replace(/\n/g, '<br>')}</div>
+        <div class="message-content">
+            <div class="message-bubble">${content.replace(/\n/g, '<br>')}</div>
+            <div class="message-time">${currentTime}</div>
+        </div>
     `;
     
     container.appendChild(messageDiv);
     container.scrollTop = container.scrollHeight;
 }
 
-function showTyping(indicatorId) {
-    document.getElementById(indicatorId).style.display = 'flex';
-    const container = document.getElementById(indicatorId).parentElement.querySelector('.chat-messages');
+function showTyping() {
+    document.getElementById('typingIndicator').style.display = 'flex';
+    const container = document.getElementById('chatMessages');
     container.scrollTop = container.scrollHeight;
 }
 
-function hideTyping(indicatorId) {
-    document.getElementById(indicatorId).style.display = 'none';
+function hideTyping() {
+    document.getElementById('typingIndicator').style.display = 'none';
 }
 
-function showError(mode, message) {
-    addMessage(`${mode}Messages`, 'assistant', `❌ Error: ${message}`);
+function showError(message) {
+    addMessage('assistant', `❌ Error: ${message}`);
 }
 
-function clearCurrentChat() {
-    const currentMessages = document.getElementById(`${currentTab}Messages`);
-    const emptyStateContent = currentTab === 'advisor' 
-        ? `<div class="empty-state">
-            <div class="empty-state-icon advisor-icon">
+function clearChat() {
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">
                 <i class="fas fa-search"></i>
             </div>
-            <h5>AI Investment Advisor</h5>
-            <p>Get real-time market insights, stock analysis, and investment guidance powered by advanced AI</p>
-        </div>`
-        : `<div class="empty-state">
-            <div class="empty-state-icon agentic-icon">
-                <i class="fas fa-cogs"></i>
-            </div>
-            <h5>Agentic AI System</h5>
-            <p>Command autonomous AI agents that learn, reason, act and adapt to optimize your investment portfolio</p>
-        </div>`;
+            <h3>Ask me anything about investments</h3>
+            <p>Get real-time market data, stock analysis, investment strategies, and personalized financial guidance powered by advanced AI</p>
+        </div>
+    `;
     
-    currentMessages.innerHTML = emptyStateContent;
-    conversationIds[currentTab] = null;
-    
-    // Clear input
-    document.getElementById(`${currentTab}Input`).value = '';
+    conversationId = null;
+    document.getElementById('messageInput').value = '';
 }
 </script>
 {% endblock %}
