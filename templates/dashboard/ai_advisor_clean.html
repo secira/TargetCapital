@@ -388,21 +388,29 @@
             <p>Ask me about stocks, market trends, portfolio strategies, or any investment questions</p>
             
             <div class="ai-advisor-suggestions">
+                <div class="ai-advisor-suggestion" onclick="executeAdvancedFunction('news_impact')">
+                    <div class="ai-advisor-suggestion-title">📰 News Impact Analyzer</div>
+                    <div class="ai-advisor-suggestion-desc">Monitor breaking news and assess impact on your holdings</div>
+                </div>
+                <div class="ai-advisor-suggestion" onclick="executeAdvancedFunction('competitive_comparison')">
+                    <div class="ai-advisor-suggestion-title">⚖️ Stock Comparison</div>
+                    <div class="ai-advisor-suggestion-desc">Compare stocks against top competitors with AI analysis</div>
+                </div>
+                <div class="ai-advisor-suggestion" onclick="executeAdvancedFunction('sector_rotation')">
+                    <div class="ai-advisor-suggestion-title">🔄 Sector Rotation Predictor</div>
+                    <div class="ai-advisor-suggestion-desc">Identify sectors likely to outperform next</div>
+                </div>
+                <div class="ai-advisor-suggestion" onclick="executeAdvancedFunction('crash_opportunities')">
+                    <div class="ai-advisor-suggestion-title">🎯 Crash Opportunities</div>
+                    <div class="ai-advisor-suggestion-desc">Find quality stocks at discounted prices</div>
+                </div>
+                <div class="ai-advisor-suggestion" onclick="executeAdvancedFunction('ipo_analyzer')">
+                    <div class="ai-advisor-suggestion-title">🚀 IPO Analyzer</div>
+                    <div class="ai-advisor-suggestion-desc">Get AI analysis of upcoming IPOs and new listings</div>
+                </div>
                 <div class="ai-advisor-suggestion" onclick="askQuestion('What are the best Indian stocks to buy today?')">
-                    <div class="ai-advisor-suggestion-title">Best Indian stocks today</div>
-                    <div class="ai-advisor-suggestion-desc">Current top performing stocks in NSE and BSE</div>
-                </div>
-                <div class="ai-advisor-suggestion" onclick="askQuestion('Should I invest in mutual funds or direct equity?')">
-                    <div class="ai-advisor-suggestion-title">Mutual funds vs stocks</div>
-                    <div class="ai-advisor-suggestion-desc">Compare investment strategies for beginners</div>
-                </div>
-                <div class="ai-advisor-suggestion" onclick="askQuestion('How to build a diversified portfolio in 2025?')">
-                    <div class="ai-advisor-suggestion-title">Portfolio diversification</div>
-                    <div class="ai-advisor-suggestion-desc">Modern portfolio construction strategies</div>
-                </div>
-                <div class="ai-advisor-suggestion" onclick="askQuestion('Latest market news affecting Indian markets')">
-                    <div class="ai-advisor-suggestion-title">Current market news</div>
-                    <div class="ai-advisor-suggestion-desc">Recent events impacting stock markets</div>
+                    <div class="ai-advisor-suggestion-title">💬 Ask AI Advisor</div>
+                    <div class="ai-advisor-suggestion-desc">Start a conversation about investing and markets</div>
                 </div>
             </div>
         </div>
@@ -480,6 +488,100 @@ function initializeAIAdvisor() {
 
 function askQuestion(question) {
     sendMessage(question);
+}
+
+// Advanced AI Functions
+function executeAdvancedFunction(functionType) {
+    if (isProcessing) return;
+    
+    let parameters = {};
+    let displayName = '';
+    
+    // Get parameters based on function type
+    switch(functionType) {
+        case 'news_impact':
+            displayName = 'News Impact Analysis';
+            // Could prompt for specific stocks, but we'll use portfolio/market-wide for now
+            break;
+        case 'competitive_comparison':
+            displayName = 'Competitive Stock Comparison';
+            const stock = prompt('Enter stock symbol to compare (e.g., RELIANCE, TCS, INFY):');
+            if (!stock) return;
+            parameters.primary_stock = stock.toUpperCase();
+            break;
+        case 'sector_rotation':
+            displayName = 'Sector Rotation Prediction';
+            break;
+        case 'crash_opportunities':
+            displayName = 'Market Crash Opportunities';
+            const risk = prompt('Risk tolerance (conservative/moderate/aggressive):') || 'moderate';
+            parameters.risk_tolerance = risk.toLowerCase();
+            break;
+        case 'ipo_analyzer':
+            displayName = 'IPO & New Listing Analysis';
+            const ipo = prompt('Specific IPO name (leave empty for all upcoming IPOs):');
+            if (ipo) parameters.specific_ipo = ipo;
+            break;
+        default:
+            return;
+    }
+    
+    isProcessing = true;
+    const sendBtn = document.getElementById('sendButton');
+    sendBtn.disabled = true;
+    
+    // Switch to chat view
+    if (messageCount === 0) {
+        switchToChatView();
+    }
+    
+    // Add user message showing function execution
+    addMessage('user', `Execute: ${displayName}`);
+    
+    // Show typing indicator
+    showTyping();
+    
+    // Call advanced function API
+    fetch('/api/ai-advisor/advanced-function', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            function_type: functionType,
+            parameters: parameters
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTyping();
+        
+        if (data.error) {
+            showError(data.error);
+        } else {
+            // Extract the main content based on function type
+            let content = '';
+            if (data.analysis) content = data.analysis;
+            else if (data.comparison) content = data.comparison;
+            else if (data.prediction) content = data.prediction;
+            else if (data.opportunities) content = data.opportunities;
+            else content = data.analysis || 'Analysis completed successfully.';
+            
+            addMessage('assistant', content);
+            conversationId = data.conversation_id || conversationId;
+        }
+        
+        isProcessing = false;
+        sendBtn.disabled = false;
+        document.getElementById('messageInput').focus();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        hideTyping();
+        showError('Failed to execute advanced function. Please try again.');
+        isProcessing = false;
+        sendBtn.disabled = false;
+    });
 }
 
 function sendMessage(predefinedMessage = null) {

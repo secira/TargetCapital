@@ -2543,7 +2543,9 @@ def api_ai_chat_send():
     try:
         # Initialize clean AI chat service
         from services.ai_chat_service import AIChatService
+        from services.advanced_ai_functions import AdvancedAIFunctions
         ai_chat = AIChatService()
+        advanced_ai = AdvancedAIFunctions()
         
         data = request.get_json()
         if not data or not data.get('message'):
@@ -2572,7 +2574,64 @@ def api_ai_chat_send():
         logging.error(f"Error in AI chat endpoint: {e}")
         return jsonify({'error': 'Unable to process your request. Please try again.'}), 500
 
+@app.route('/api/ai-advisor/advanced-function', methods=['POST']) 
+@login_required
+def ai_advisor_advanced_function():
+    """Handle advanced AI function calls"""
+    if not current_user.can_access_menu('ai_advisor'):
+        return jsonify({'error': 'Access denied. Please upgrade your subscription.'}), 403
+    
+    try:
+        from services.advanced_ai_functions import AdvancedAIFunctions
+        advanced_ai = AdvancedAIFunctions()
+        
+        data = request.get_json()
+        function_type = data.get('function_type')
+        parameters = data.get('parameters', {})
+        
+        if function_type == 'news_impact':
+            result = advanced_ai.news_impact_analyzer(
+                stock_symbols=parameters.get('stock_symbols'),
+                portfolio_stocks=parameters.get('portfolio_stocks')
+            )
+        elif function_type == 'competitive_comparison':
+            result = advanced_ai.competitive_stock_comparison(
+                primary_stock=parameters.get('primary_stock'),
+                sector=parameters.get('sector')
+            )
+        elif function_type == 'sector_rotation':
+            result = advanced_ai.sector_rotation_predictor(
+                current_sectors=parameters.get('current_sectors')
+            )
+        elif function_type == 'crash_opportunities':
+            result = advanced_ai.market_crash_opportunity_scanner(
+                risk_tolerance=parameters.get('risk_tolerance', 'moderate')
+            )
+        elif function_type == 'ipo_analyzer':
+            result = advanced_ai.ipo_new_listing_analyzer(
+                specific_ipo=parameters.get('specific_ipo')
+            )
+        else:
+            return jsonify({'error': 'Invalid function type'}), 400
+            
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Error in advanced AI function: {e}")
+        return jsonify({'error': 'Failed to execute AI function'}), 500
 
+@app.route('/api/ai-advisor/functions', methods=['GET'])
+@login_required
+def get_ai_advisor_functions():
+    """Get list of available AI Advisor functions"""
+    try:
+        from services.advanced_ai_functions import AdvancedAIFunctions
+        advanced_ai = AdvancedAIFunctions()
+        functions = advanced_ai.get_available_functions()
+        return jsonify({'functions': functions})
+    except Exception as e:
+        logger.error(f"Error getting AI functions: {e}")
+        return jsonify({'error': 'Failed to get functions'}), 500
 
 @app.route('/api/ai-chat/conversations')
 @login_required 
