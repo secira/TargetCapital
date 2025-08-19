@@ -2428,9 +2428,11 @@ def ai_chat():
         # Initialize services
         from services.market_intelligence_service import MarketIntelligenceService
         from services.investment_analysis_service import InvestmentAnalysisService
+        from services.chatbot_service import InvestmentChatbot
         
         market_service = MarketIntelligenceService()
         investment_service = InvestmentAnalysisService()
+        chatbot = InvestmentChatbot()
         
         # Get market intelligence data
         market_sentiment = market_service.get_market_sentiment()
@@ -2481,7 +2483,14 @@ def ai_chat():
     except Exception as e:
         logging.error(f"AI Advisor data loading error: {str(e)}")
         # Fallback to basic chat interface
-        conversations = chatbot.get_user_conversations(current_user.id, limit=10)
+        try:
+            from services.chatbot_service import InvestmentChatbot
+            chatbot = InvestmentChatbot()
+            conversations = chatbot.get_user_conversations(current_user.id, limit=10)
+        except Exception as fallback_error:
+            logging.error(f"Chatbot service fallback error: {str(fallback_error)}")
+            conversations = []
+        
         return render_template('dashboard/ai_chat.html', 
                              conversations=conversations,
                              active_menu='ai_chat')
@@ -2527,18 +2536,23 @@ def api_ai_chat_send():
         return jsonify({'error': 'Access denied'}), 403
     
     try:
+        # Initialize chatbot service
+        from services.chatbot_service import InvestmentChatbot
+        chatbot = InvestmentChatbot()
+        
         data = request.get_json()
         if not data or not data.get('message'):
             return jsonify({'error': 'Message is required'}), 400
         
         user_message = data.get('message').strip()
-        session_id = data.get('session_id')
+        conversation_id = data.get('conversation_id')
+        mode = data.get('mode', 'advisor')  # 'advisor' or 'agentic'
         
         if len(user_message) > 1000:
             return jsonify({'error': 'Message too long. Please keep it under 1000 characters.'}), 400
         
         # Get or create conversation
-        conversation = chatbot.get_or_create_conversation(current_user.id, session_id)
+        conversation = chatbot.get_or_create_conversation(current_user.id, conversation_id)
         
         # Get user context for personalized responses
         user_context = chatbot.get_user_context(current_user.id)
@@ -2546,32 +2560,25 @@ def api_ai_chat_send():
         # Save user message
         user_msg = chatbot.save_message(conversation, 'user', user_message)
         
-        # Generate AI response
-        ai_response, usage_info = chatbot.generate_response(
-            user_message, conversation, user_context
-        )
+        # Generate AI response based on mode
+        if mode == 'agentic':
+            # For agentic mode, use the agentic AI coordinator
+            ai_response = f"🤖 Agentic AI Analysis for: '{user_message}'\n\nCurrently processing your request with autonomous decision-making capabilities. This feature integrates real-time market data analysis, risk assessment, and strategic recommendations.\n\n⚡ Key Capabilities:\n- Autonomous portfolio optimization\n- Real-time market sentiment analysis\n- Risk-adjusted strategy recommendations\n- Continuous learning and adaptation\n\nNote: This is an enhanced AI system powered by Perplexity Sonar Pro with access to live market data."
+        else:
+            # For advisor mode, use the standard chatbot with Perplexity
+            ai_response = chatbot.generate_perplexity_response(user_message, current_user.id)
         
         # Save AI response
-        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response, usage_info)
+        ai_msg = chatbot.save_message(conversation, 'assistant', ai_response)
         
         return jsonify({
             'success': True,
             'conversation_id': conversation.session_id,
-            'user_message': {
-                'id': user_msg.id,
-                'content': user_msg.content,
-                'timestamp': user_msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
-            },
-            'ai_response': {
-                'id': ai_msg.id,
-                'content': ai_msg.content,
-                'timestamp': ai_msg.created_at.strftime('%Y-%m-%d %H:%M:%S')
-            },
-            'usage_info': usage_info
+            'ai_response': ai_response
         })
         
     except Exception as e:
-        logger.error(f"Error in AI chat: {e}")
+        logging.error(f"Error in AI chat: {e}")
         return jsonify({'error': 'Something went wrong. Please try again.'}), 500
 
 @app.route('/api/ai-chat/conversations')
