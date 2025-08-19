@@ -6,7 +6,7 @@ import logging
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
-from openai import OpenAI
+import requests
 from models import (ChatConversation, ChatMessage, ChatbotKnowledgeBase, 
                    Portfolio, User, AIStockPick)
 from app import db
@@ -14,54 +14,64 @@ from app import db
 logger = logging.getLogger(__name__)
 
 class InvestmentChatbot:
-    """AI-Powered Investment Explanation Chatbot using OpenAI GPT-4"""
+    """AI-Powered Investment Explanation Chatbot using Perplexity Sonar"""
     
     def __init__(self):
-        self.openai_client = None
-        self._initialize_openai()
+        self.perplexity_api_key = os.environ.get('PERPLEXITY_API_KEY')
+        self.base_url = "https://api.perplexity.ai/chat/completions"
         self.system_prompt = self._get_system_prompt()
+        self._initialize_perplexity_api()
         
-    def _initialize_openai(self):
-        """Initialize OpenAI client"""
-        api_key = os.environ.get('OPENAI_API_KEY')
-        if not api_key:
-            logger.error("OPENAI_API_KEY not found in environment variables")
+    def _initialize_perplexity_api(self):
+        """Initialize Perplexity API"""
+        if not self.perplexity_api_key:
+            logger.error("PERPLEXITY_API_KEY not found in environment variables")
             return
             
         try:
-            self.openai_client = OpenAI(api_key=api_key)
-            logger.info("OpenAI client initialized successfully")
+            # Test connection with a simple call
+            headers = {
+                'Authorization': f'Bearer {self.perplexity_api_key}',
+                'Content-Type': 'application/json'
+            }
+            logger.info("Perplexity API initialized successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize OpenAI client: {e}")
+            logger.error(f"Failed to initialize Perplexity API: {e}")
             
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the AI investment chatbot"""
-        return """You are an AI Investment Advisor and Educational Chatbot for tCapital, a leading AI-powered trading platform in India.
+        return """You are an AI Investment Advisor powered by Perplexity for tCapital, India's leading AI-powered trading platform.
 
-Your role is to:
-1. Explain investment concepts in simple, understandable language
-2. Help users understand their portfolios and market data
-3. Provide educational insights about stocks, trading, and financial markets
-4. Answer questions about Indian stock markets, NSE, BSE, and investment strategies
-5. Use context from user's portfolio when available to give personalized advice
+Your expertise includes:
+1. Real-time market analysis and current Indian stock market insights
+2. Educational investment concepts explained in simple language
+3. Portfolio analysis and personalized investment guidance
+4. Current news, trends, and market developments affecting Indian stocks
+5. Live data from NSE, BSE, and global markets impacting Indian investments
+
+Core capabilities:
+- Provide current market data and real-time analysis
+- Explain complex financial concepts with practical examples
+- Offer personalized advice based on user portfolio context
+- Share latest market news, regulatory changes, and sector updates
+- Analyze current economic indicators affecting Indian markets
 
 Guidelines:
-- Always maintain a professional, helpful, and educational tone
-- Explain complex financial terms in simple language
-- Use examples and analogies when helpful
-- Focus on education rather than specific buy/sell recommendations
-- Be transparent about risks and market volatility
-- Reference Indian market context (NSE, BSE, rupees, etc.)
-- Never guarantee returns or make promises about market performance
-- Encourage users to do their own research and consult financial advisors for major decisions
+- Use real-time web data to provide current market insights
+- Reference recent news, earnings, and market developments
+- Focus on educational content while being aware of current market conditions
+- Provide context-aware advice using latest market information
+- Include current prices, trends, and market sentiment in responses
+- Cite sources when referencing specific market data or news
 
-Response format:
-- Keep responses concise but informative
-- Use bullet points for lists when appropriate
-- Include relevant examples when explaining concepts
-- End with a related question to keep the conversation engaging
+Response style:
+- Concise, informative, and data-driven
+- Include current market context and real-time insights
+- Use bullet points for clarity
+- End with engaging follow-up questions
+- Reference Indian market specifics (₹, NSE, BSE, SEBI, etc.)
 
-Remember: You're an educational tool to help users make informed decisions, not a replacement for professional financial advice."""
+Remember: You provide educational insights with real-time market context, not guaranteed investment advice."""
 
     def get_or_create_conversation(self, user_id: int, session_id: str = None) -> ChatConversation:
         """Get existing conversation or create new one"""
@@ -169,8 +179,8 @@ Remember: You're an educational tool to help users make informed decisions, not 
                          user_message: str, 
                          conversation: ChatConversation,
                          user_context: Dict = None) -> Tuple[str, Dict]:
-        """Generate AI response using OpenAI GPT-4"""
-        if not self.openai_client:
+        """Generate AI response using Perplexity Sonar"""
+        if not self.perplexity_api_key:
             return "I'm sorry, the AI service is temporarily unavailable. Please try again later.", {}
             
         start_time = time.time()
@@ -185,8 +195,8 @@ Remember: You're an educational tool to help users make informed decisions, not 
                 if context_message:
                     messages.append({"role": "system", "content": context_message})
             
-            # Add recent conversation history (last 10 messages)
-            recent_messages = conversation.get_recent_messages(10)
+            # Add recent conversation history (last 6 messages for better performance)
+            recent_messages = conversation.get_recent_messages(6)
             for msg in recent_messages:
                 messages.append({
                     "role": msg.message_type,
@@ -204,29 +214,51 @@ Remember: You're an educational tool to help users make informed decisions, not 
                     knowledge_context += f"- {item.topic}: {item.content[:200]}...\n"
                 messages[-1]["content"] += knowledge_context
             
-            # Generate response using OpenAI
-            response = self.openai_client.chat.completions.create(
-                model="gpt-4o",  # Using latest GPT-4o model
-                messages=messages,
-                max_tokens=1000,
-                temperature=0.7,
-                top_p=0.9
-            )
-            
-            ai_response = response.choices[0].message.content
-            processing_time = time.time() - start_time
-            
-            # Extract usage information
-            usage_info = {
-                'tokens_used': response.usage.total_tokens,
-                'processing_time': processing_time,
-                'model': 'gpt-4o'
+            # Generate response using Perplexity Sonar
+            headers = {
+                'Authorization': f'Bearer {self.perplexity_api_key}',
+                'Content-Type': 'application/json'
             }
             
-            logger.info(f"Generated response in {processing_time:.2f}s using {usage_info['tokens_used']} tokens")
+            payload = {
+                "model": "sonar-pro",  # Using current Perplexity Sonar Pro model
+                "messages": messages,
+                "max_tokens": 1000,
+                "temperature": 0.7,
+                "top_p": 0.9,
+                "stream": False,
+                "return_related_questions": False,
+                "search_recency_filter": "month"
+            }
             
-            return ai_response, usage_info
+            response = requests.post(
+                self.base_url, 
+                headers=headers, 
+                json=payload, 
+                timeout=15
+            )
             
+            if response.status_code == 200:
+                data = response.json()
+                ai_response = data['choices'][0]['message']['content']
+                processing_time = time.time() - start_time
+                
+                # Extract usage information
+                usage_info = {
+                    'tokens_used': data.get('usage', {}).get('total_tokens', 0),
+                    'processing_time': processing_time,
+                    'model': 'sonar-pro'
+                }
+                
+                logger.info(f"Generated Perplexity response in {processing_time:.2f}s using {usage_info['tokens_used']} tokens")
+                return ai_response, usage_info
+            else:
+                logger.error(f"Perplexity API error: {response.status_code} - {response.text}")
+                return "I'm sorry, I'm having trouble accessing current market data. Please try again in a moment.", {}
+            
+        except requests.exceptions.Timeout:
+            logger.error("Perplexity API timeout")
+            return "I'm sorry, the response took too long. Please try asking a simpler question.", {}
         except Exception as e:
             logger.error(f"Error generating AI response: {e}")
             return "I'm sorry, I encountered an error while processing your message. Please try again.", {}

@@ -63,6 +63,12 @@ Built detailed stock analysis page following Infosys template format with compre
 Implemented dynamic table for AI stock picks with date picker functionality for historical data
 Added detailed analysis route with sample data for INFY and RELIANCE stocks following document template
 Complete integration between Stock Picker page and detailed analysis functionality
+AI Advisor completely restructured with Perplexity Sonar integration (August 19, 2025)
+Replaced ChatGPT with Perplexity Sonar Pro for real-time market intelligence and current data access
+Created modern dual-mode interface accommodating both AI Advisor and Agentic AI functionality
+Enhanced chatbot service with Perplexity API integration using sonar-pro model for better market insights
+Built user-friendly interface with mode selection, capability cards, and streamlined chat experience
+Improved real-time market data access with current news, sentiment analysis, and live stock information
 Comprehensive Portfolio management system with multi-broker support and database integration (August 17, 2025)
 Created Portfolio database model with comprehensive fields for multi-broker holdings tracking
 Implemented My Portfolio page with four distinct views: Consolidated, Sectorial, Broker, and AI Optimization
