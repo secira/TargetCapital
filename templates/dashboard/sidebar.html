@@ -67,11 +67,11 @@
             </li>
             {% endif %}
             
-            <!-- Premium Feature - Trade Now (only Trader Plus & Premium) -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('trade_now') %}
+            <!-- Premium Feature - Trade Now (only Trader & Premium) -->
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'trade_now' else '' }}" 
-                   href="{{ url_for('trade_now') }}">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" 
+                   href="{{ url_for('dashboard_trade_now') }}">
                     <i class="fas fa-bolt me-2"></i>Trade Now
                 </a>
             </li>

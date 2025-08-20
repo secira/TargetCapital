@@ -1005,7 +1005,8 @@ def get_market_overview():
 def dashboard_trading_signals():
     """Trading signals page for paid users only"""
     # Check if user has paid subscription
-    if current_user.pricing_plan not in ['trader', 'trader_plus', 'premium']:
+    from models import PricingPlan
+    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
         flash('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
@@ -1026,9 +1027,10 @@ def dashboard_trading_signals():
 @app.route('/dashboard/trade-now')
 @login_required  
 def dashboard_trade_now():
-    # Check subscription access for TraderPlus users
-    if current_user.pricing_plan not in ['trader_plus', 'premium']:
-        flash('Trade execution is available for Trader Plus and Premium subscribers only.', 'warning')
+    # Check subscription access for Trader Plus users
+    from models import PricingPlan
+    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
+        flash('Trade execution is available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     """Dashboard Trading Signals page with real data from database"""
     from datetime import date
