@@ -133,8 +133,12 @@ class TradingViewWidget {
      * Create simple embedded chart widget without notifications
      */
     createEmbeddedWidget(containerId, symbol, height = 400) {
+        console.log('Creating embedded widget for:', containerId, 'symbol:', symbol);
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container) {
+            console.error('Container not found:', containerId);
+            return;
+        }
 
         // Create a custom chart display without TradingView notifications
         container.innerHTML = `
@@ -427,6 +431,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     // Load chart after modal is shown
     modal.addEventListener('shown.bs.modal', () => {
         const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
+        console.log('Loading chart for container:', chartContainer, 'symbol:', symbol);
         // Always use the custom embedded widget to avoid notifications
         window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
     });
