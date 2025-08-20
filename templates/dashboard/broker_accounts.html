@@ -1,0 +1,390 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Broker Accounts - tCapital{% endblock %}
+
+{% block dashboard_title %}Broker Account Connections{% endblock %}
+{% block dashboard_subtitle %}Connect your trading accounts for live portfolio analysis and order execution{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- Add Broker Account Button -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">Connected Brokers</h5>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
+        <i class="fas fa-plus me-2"></i>Add Broker Account
+    </button>
+</div>
+
+<!-- Broker Accounts Grid -->
+<div class="row">
+    {% if broker_accounts %}
+        {% for account in broker_accounts %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card broker-account-card" data-account-id="{{ account.id }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h6 class="card-title mb-1">{{ account.broker_name }}</h6>
+                            <small class="text-muted">{{ account.get_credentials()['client_id'][:8] }}...</small>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="syncAccount({{ account.id }})">
+                                    <i class="fas fa-sync me-2"></i>Sync Data
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="testConnection({{ account.id }})">
+                                    <i class="fas fa-wifi me-2"></i>Test Connection
+                                </a></li>
+                                {% if not account.is_primary %}
+                                <li><a class="dropdown-item" href="#" onclick="setPrimary({{ account.id }})">
+                                    <i class="fas fa-star me-2"></i>Set as Primary
+                                </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="removeAccount({{ account.id }})">
+                                    <i class="fas fa-trash me-2"></i>Remove Account
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Connection Status -->
+                    <div class="mb-3">
+                        {% if account.connection_status.value == 'connected' %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Connected
+                            </span>
+                        {% elif account.connection_status.value == 'error' %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-exclamation-circle me-1"></i>Error
+                            </span>
+                        {% else %}
+                            <span class="badge bg-warning">
+                                <i class="fas fa-clock me-1"></i>{{ account.connection_status.value.title() }}
+                            </span>
+                        {% endif %}
+                        
+                        {% if account.is_primary %}
+                            <span class="badge bg-primary ms-2">
+                                <i class="fas fa-star me-1"></i>Primary
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Account Info -->
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <div class="text-muted small">Balance</div>
+                                <div class="fw-bold">₹{{ "{:,.0f}".format(account.account_balance) if account.account_balance else 'N/A' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Last Sync</div>
+                            <div class="fw-bold small">
+                                {% if account.last_sync %}
+                                    {{ account.last_sync.strftime('%d %b, %I:%M %p') }}
+                                {% else %}
+                                    Never
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if account.connection_error %}
+                    <div class="alert alert-danger alert-sm mt-3 mb-0">
+                        <small>{{ account.connection_error }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-link fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Broker Accounts Connected</h5>
+                <p class="text-muted">Connect your trading accounts to access live portfolio data and execute trades.</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
+                    <i class="fas fa-plus me-2"></i>Add Your First Broker
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Supported Brokers Info -->
+<div class="card mt-4">
+    <div class="card-body">
+        <h6 class="card-title">Supported Brokers</h6>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Dhan</div>
+                        <small class="text-muted">Free trading APIs</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Zerodha</div>
+                        <small class="text-muted">Coming Soon</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Angel Broking</div>
+                        <small class="text-muted">Coming Soon</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Upstox</div>
+                        <small class="text-muted">Coming Soon</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Broker Account Modal -->
+<div class="modal fade" id="addBrokerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Broker Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBrokerForm">
+                    <div class="mb-3">
+                        <label for="brokerType" class="form-label">Select Broker</label>
+                        <select class="form-control" id="brokerType" name="broker_type" required>
+                            <option value="">Choose a broker...</option>
+                            {% for broker_type in broker_types %}
+                                {% if broker_type.value == 'dhan' %}
+                                    <option value="{{ broker_type.value }}">{{ broker_type.value.title() }} (Recommended)</option>
+                                {% else %}
+                                    <option value="{{ broker_type.value }}" disabled>{{ broker_type.value.title() }} (Coming Soon)</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div id="dhanCredentials" style="display: none;">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Dhan API Credentials</h6>
+                            <ol class="mb-0">
+                                <li>Login to <a href="https://web.dhan.co" target="_blank">web.dhan.co</a></li>
+                                <li>Go to Profile → "DhanHQ Trading APIs"</li>
+                                <li>Request access if first time, then generate your access token</li>
+                                <li>Copy your Client ID and Access Token below</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="clientId" class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="clientId" name="client_id" placeholder="Your Dhan Client ID" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="accessToken" class="form-label">Access Token</label>
+                            <input type="password" class="form-control" id="accessToken" name="access_token" placeholder="Your Dhan Access Token" required>
+                            <div class="form-text">Your credentials are encrypted and stored securely</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addBrokerAccount()">
+                    <i class="fas fa-link me-2"></i>Connect Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide credentials based on broker selection
+document.getElementById('brokerType').addEventListener('change', function() {
+    const brokerType = this.value;
+    document.getElementById('dhanCredentials').style.display = brokerType === 'dhan' ? 'block' : 'none';
+});
+
+// Add broker account
+function addBrokerAccount() {
+    const form = document.getElementById('addBrokerForm');
+    const formData = new FormData(form);
+    
+    const data = {
+        broker_type: formData.get('broker_type'),
+        client_id: formData.get('client_id'),
+        access_token: formData.get('access_token')
+    };
+    
+    // Validate
+    if (!data.broker_type || !data.client_id || !data.access_token) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
+    
+    fetch('/api/broker/add-account', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Connection failed. Please check your credentials and try again.');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-link me-2"></i>Connect Account';
+    });
+}
+
+// Sync account data
+function syncAccount(accountId) {
+    if (!confirm('Sync latest data from broker?')) return;
+    
+    fetch(`/api/broker/sync-account/${accountId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Sync failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Sync failed. Please try again.');
+    });
+}
+
+// Test connection
+function testConnection(accountId) {
+    fetch(`/api/broker/test-connection/${accountId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Connection successful!');
+        } else {
+            alert('Connection failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Test failed. Please try again.');
+    });
+}
+
+// Set as primary broker
+function setPrimary(accountId) {
+    if (!confirm('Set this as your primary broker for trading?')) return;
+    
+    fetch(`/api/broker/set-primary/${accountId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to set primary broker.');
+    });
+}
+
+// Remove account
+function removeAccount(accountId) {
+    if (!confirm('Are you sure you want to remove this broker account? This will delete all associated data.')) return;
+    
+    fetch(`/api/broker/remove-account/${accountId}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to remove account.');
+    });
+}
+</script>
+
+<style>
+.broker-account-card {
+    transition: transform 0.2s;
+}
+
+.broker-account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.alert-sm {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+}
+</style>
+
+{% endblock %}

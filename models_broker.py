@@ -1,0 +1,313 @@
+from app import db
+from datetime import datetime
+from flask_login import UserMixin
+from enum import Enum
+import json
+from cryptography.fernet import Fernet
+import os
+
+# Broker Types
+class BrokerType(Enum):
+    DHAN = "dhan"
+    ZERODHA = "zerodha"
+    ANGEL_BROKING = "angel_broking"
+    UPSTOX = "upstox"
+    FYERS = "fyers"
+
+class ConnectionStatus(Enum):
+    CONNECTED = "connected"
+    DISCONNECTED = "disconnected"
+    ERROR = "error"
+    PENDING = "pending"
+
+class OrderStatus(Enum):
+    PENDING = "pending"
+    OPEN = "open"
+    COMPLETE = "complete"
+    CANCELLED = "cancelled"
+    REJECTED = "rejected"
+
+class TransactionType(Enum):
+    BUY = "buy"
+    SELL = "sell"
+
+class ProductType(Enum):
+    INTRADAY = "intraday"
+    DELIVERY = "delivery"
+    CNC = "cnc"
+    MIS = "mis"
+
+class OrderType(Enum):
+    MARKET = "market"
+    LIMIT = "limit"
+    SL = "sl"
+    SL_M = "sl_m"
+
+class BrokerAccount(db.Model):
+    """User's broker account connections"""
+    __tablename__ = 'broker_accounts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    broker_type = db.Column(db.Enum(BrokerType), nullable=False)
+    broker_name = db.Column(db.String(50), nullable=False)  # Display name
+    
+    # Encrypted credentials
+    client_id = db.Column(db.Text, nullable=False)  # Encrypted
+    access_token = db.Column(db.Text, nullable=True)  # Encrypted
+    api_secret = db.Column(db.Text, nullable=True)  # Encrypted
+    
+    # Connection details
+    connection_status = db.Column(db.Enum(ConnectionStatus), default=ConnectionStatus.DISCONNECTED)
+    last_connected = db.Column(db.DateTime, nullable=True)
+    connection_error = db.Column(db.Text, nullable=True)
+    
+    # Account information
+    account_name = db.Column(db.String(100), nullable=True)
+    account_balance = db.Column(db.Float, default=0.0)
+    available_margin = db.Column(db.Float, default=0.0)
+    used_margin = db.Column(db.Float, default=0.0)
+    
+    # Settings
+    is_primary = db.Column(db.Boolean, default=False)  # Primary broker for trading
+    is_active = db.Column(db.Boolean, default=True)
+    auto_connect = db.Column(db.Boolean, default=True)
+    
+    # Metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_sync = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='broker_accounts')
+    holdings = db.relationship('BrokerHolding', backref='broker_account', cascade='all, delete-orphan')
+    orders = db.relationship('BrokerOrder', backref='broker_account', cascade='all, delete-orphan')
+    positions = db.relationship('BrokerPosition', backref='broker_account', cascade='all, delete-orphan')
+    
+    def __init__(self, **kwargs):
+        super(BrokerAccount, self).__init__(**kwargs)
+        if not self._encryption_key:
+            self._encryption_key = self._get_encryption_key()
+    
+    @property
+    def _encryption_key(self):
+        """Get or create encryption key for sensitive data"""
+        return getattr(self, '_key', None)
+    
+    @_encryption_key.setter
+    def _encryption_key(self, value):
+        self._key = value
+    
+    def _get_encryption_key(self):
+        """Get encryption key from environment or generate one"""
+        key = os.environ.get('BROKER_ENCRYPTION_KEY')
+        if not key:
+            # Generate a new key (store this securely in production)
+            key = Fernet.generate_key().decode()
+            print(f"Generated new encryption key: {key}")
+            print("Store this key in BROKER_ENCRYPTION_KEY environment variable")
+        return key.encode() if isinstance(key, str) else key
+    
+    def encrypt_data(self, data):
+        """Encrypt sensitive data"""
+        if not data:
+            return None
+        fernet = Fernet(self._get_encryption_key())
+        return fernet.encrypt(data.encode()).decode()
+    
+    def decrypt_data(self, encrypted_data):
+        """Decrypt sensitive data"""
+        if not encrypted_data:
+            return None
+        fernet = Fernet(self._get_encryption_key())
+        return fernet.decrypt(encrypted_data.encode()).decode()
+    
+    def set_credentials(self, client_id, access_token=None, api_secret=None):
+        """Set encrypted credentials"""
+        self.client_id = self.encrypt_data(client_id)
+        if access_token:
+            self.access_token = self.encrypt_data(access_token)
+        if api_secret:
+            self.api_secret = self.encrypt_data(api_secret)
+    
+    def get_credentials(self):
+        """Get decrypted credentials"""
+        return {
+            'client_id': self.decrypt_data(self.client_id),
+            'access_token': self.decrypt_data(self.access_token),
+            'api_secret': self.decrypt_data(self.api_secret)
+        }
+    
+    def update_connection_status(self, status, error_message=None):
+        """Update connection status"""
+        self.connection_status = status
+        if status == ConnectionStatus.CONNECTED:
+            self.last_connected = datetime.utcnow()
+            self.connection_error = None
+        elif status == ConnectionStatus.ERROR:
+            self.connection_error = error_message
+    
+    def set_as_primary(self):
+        """Set this account as primary broker"""
+        # Remove primary flag from other accounts for this user
+        BrokerAccount.query.filter_by(user_id=self.user_id, is_primary=True).update({'is_primary': False})
+        self.is_primary = True
+        db.session.commit()
+
+class BrokerHolding(db.Model):
+    """User's holdings from broker account"""
+    __tablename__ = 'broker_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    
+    # Stock details
+    symbol = db.Column(db.String(20), nullable=False)
+    trading_symbol = db.Column(db.String(50), nullable=False)
+    company_name = db.Column(db.String(200), nullable=True)
+    exchange = db.Column(db.String(10), nullable=False)
+    security_id = db.Column(db.String(20), nullable=True)
+    isin = db.Column(db.String(20), nullable=True)
+    
+    # Quantity details
+    total_quantity = db.Column(db.Integer, default=0)
+    available_quantity = db.Column(db.Integer, default=0)
+    t1_quantity = db.Column(db.Integer, default=0)  # T+1 holdings
+    dp_quantity = db.Column(db.Integer, default=0)  # Demat quantity
+    collateral_quantity = db.Column(db.Integer, default=0)
+    
+    # Price details
+    avg_cost_price = db.Column(db.Float, default=0.0)
+    current_price = db.Column(db.Float, default=0.0)
+    last_trade_price = db.Column(db.Float, default=0.0)
+    
+    # P&L calculations
+    total_value = db.Column(db.Float, default=0.0)
+    investment_value = db.Column(db.Float, default=0.0)
+    pnl = db.Column(db.Float, default=0.0)
+    pnl_percentage = db.Column(db.Float, default=0.0)
+    
+    # Metadata
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def calculate_pnl(self):
+        """Calculate P&L for this holding"""
+        if self.current_price and self.avg_cost_price and self.available_quantity:
+            self.total_value = self.current_price * self.available_quantity
+            self.investment_value = self.avg_cost_price * self.available_quantity
+            self.pnl = self.total_value - self.investment_value
+            self.pnl_percentage = (self.pnl / self.investment_value) * 100 if self.investment_value > 0 else 0
+
+class BrokerPosition(db.Model):
+    """User's positions from broker account"""
+    __tablename__ = 'broker_positions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    
+    # Position details
+    symbol = db.Column(db.String(20), nullable=False)
+    trading_symbol = db.Column(db.String(50), nullable=False)
+    exchange = db.Column(db.String(10), nullable=False)
+    security_id = db.Column(db.String(20), nullable=True)
+    product_type = db.Column(db.Enum(ProductType), nullable=False)
+    
+    # Quantity and price
+    quantity = db.Column(db.Integer, default=0)
+    buy_quantity = db.Column(db.Integer, default=0)
+    sell_quantity = db.Column(db.Integer, default=0)
+    avg_buy_price = db.Column(db.Float, default=0.0)
+    avg_sell_price = db.Column(db.Float, default=0.0)
+    current_price = db.Column(db.Float, default=0.0)
+    
+    # P&L calculations
+    realized_pnl = db.Column(db.Float, default=0.0)
+    unrealized_pnl = db.Column(db.Float, default=0.0)
+    total_pnl = db.Column(db.Float, default=0.0)
+    
+    # Metadata
+    position_date = db.Column(db.Date, default=datetime.utcnow().date)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class BrokerOrder(db.Model):
+    """Orders placed through broker accounts"""
+    __tablename__ = 'broker_orders'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    
+    # Order identification
+    broker_order_id = db.Column(db.String(50), nullable=True)  # Order ID from broker
+    correlation_id = db.Column(db.String(50), nullable=True)  # Our internal correlation ID
+    
+    # Order details
+    symbol = db.Column(db.String(20), nullable=False)
+    trading_symbol = db.Column(db.String(50), nullable=False)
+    exchange = db.Column(db.String(10), nullable=False)
+    security_id = db.Column(db.String(20), nullable=True)
+    
+    # Transaction details
+    transaction_type = db.Column(db.Enum(TransactionType), nullable=False)
+    order_type = db.Column(db.Enum(OrderType), nullable=False)
+    product_type = db.Column(db.Enum(ProductType), nullable=False)
+    
+    # Quantity and price
+    quantity = db.Column(db.Integer, nullable=False)
+    filled_quantity = db.Column(db.Integer, default=0)
+    pending_quantity = db.Column(db.Integer, default=0)
+    price = db.Column(db.Float, default=0.0)
+    trigger_price = db.Column(db.Float, default=0.0)
+    disclosed_quantity = db.Column(db.Integer, default=0)
+    
+    # Order status and execution
+    order_status = db.Column(db.Enum(OrderStatus), default=OrderStatus.PENDING)
+    status_message = db.Column(db.String(200), nullable=True)
+    avg_execution_price = db.Column(db.Float, default=0.0)
+    
+    # Trading signal reference (if from signal)
+    trading_signal_id = db.Column(db.Integer, nullable=True)  # Reference to trading signal if available
+    
+    # Timestamps
+    order_time = db.Column(db.DateTime, default=datetime.utcnow)
+    execution_time = db.Column(db.DateTime, nullable=True)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Note: trading_signal relationship handled in main models.py if needed
+    
+    def calculate_total_value(self):
+        """Calculate total order value"""
+        return self.quantity * self.price if self.price else 0
+    
+    def update_status(self, status, message=None, filled_qty=None, avg_price=None):
+        """Update order status"""
+        self.order_status = status
+        if message:
+            self.status_message = message
+        if filled_qty is not None:
+            self.filled_quantity = filled_qty
+            self.pending_quantity = self.quantity - filled_qty
+        if avg_price:
+            self.avg_execution_price = avg_price
+        if status == OrderStatus.COMPLETE:
+            self.execution_time = datetime.utcnow()
+        self.last_updated = datetime.utcnow()
+
+class BrokerSyncLog(db.Model):
+    """Log of broker data synchronization"""
+    __tablename__ = 'broker_sync_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    
+    sync_type = db.Column(db.String(50), nullable=False)  # holdings, positions, orders, profile
+    sync_status = db.Column(db.String(20), nullable=False)  # success, error, partial
+    records_synced = db.Column(db.Integer, default=0)
+    error_message = db.Column(db.Text, nullable=True)
+    sync_duration = db.Column(db.Float, default=0.0)  # in seconds
+    
+    sync_time = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship
+    broker_account = db.relationship('BrokerAccount', backref='sync_logs')

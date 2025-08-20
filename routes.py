@@ -1044,7 +1044,8 @@ def dashboard_trade_now():
         TradingSignal = None
     
     # Get filter parameters
-    selected_date = request.args.get('date', date.today().strftime('%Y-%m-%d'))
+    selected_date_str = request.args.get('date', date.today().strftime('%Y-%m-%d'))
+    selected_date = date.today()  # Use date object for template
     symbol_type = request.args.get('symbol_type', 'all')
     signal_status = request.args.get('status', 'all')
     
@@ -1057,8 +1058,8 @@ def dashboard_trade_now():
     # Handle trading signals data
     if query is not None:
         # Filter by date
-        if selected_date:
-            query = query.filter(TradingSignal.created_at >= selected_date)
+        if selected_date_str:
+            query = query.filter(TradingSignal.created_at >= selected_date_str)
         
         # Filter by symbol type
         if symbol_type != 'all':
@@ -1095,6 +1096,7 @@ def dashboard_trade_now():
                          active_signals=active_signals,
                          success_rate=success_rate,
                          selected_date=selected_date,
+                         selected_date_str=selected_date_str,
                          symbol_type=symbol_type,
                          signal_status=signal_status,
                          symbol_types=symbol_types,

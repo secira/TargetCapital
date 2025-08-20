@@ -24,4 +24,5 @@ dependencies = [
     "razorpay>=1.4.2",
     "sendgrid>=6.12.4",
     "requests-cache>=1.2.1",
+    "dhanhq>=2.0.2",
 ]

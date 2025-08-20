@@ -5,6 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from enum import Enum
 
+# Import broker models
+from models_broker import BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder
+
 # Pricing Plan Enums
 class PricingPlan(Enum):
     FREE = "free"
@@ -146,9 +149,9 @@ class User(UserMixin, db.Model):
         if self.pricing_plan == PricingPlan.FREE:
             return menu_item in ['dashboard', 'ai_advisor']
         
-        # Trader users can access all except Trade Now
+        # Trader users can access all except Trade Now and Broker Accounts
         elif self.pricing_plan == PricingPlan.TRADER:
-            return menu_item not in ['dashboard_trade_now', 'trade_now']
+            return menu_item not in ['dashboard_trade_now', 'trade_now', 'dashboard_broker_accounts']
         
         # Trader Plus and Premium users can access everything
         elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
