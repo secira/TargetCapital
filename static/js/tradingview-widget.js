@@ -398,16 +398,19 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
         existingModal.remove();
     }
     
-    // Create new modal
+    // Create new modal with proper accessibility
     const modal = document.createElement('div');
     modal.id = modalId;
     modal.className = 'modal fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-labelledby', `${modalId}-title`);
     modal.innerHTML = `
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">${symbol} - Professional Chart</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="${modalId}-title">${symbol} - Professional Chart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
                     <div id="tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}" style="height: 500px;"></div>
@@ -436,15 +439,22 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     
     bsModal.show();
     
-    // Load chart when modal is shown
+    // Handle modal events properly
     modal.addEventListener('shown.bs.modal', () => {
         console.log('Modal shown, loading chart for:', chartContainer, 'symbol:', symbol);
         modal.removeAttribute('aria-hidden');
+        modal.setAttribute('aria-modal', 'true');
         // Create widget instance and load the custom chart interface
         if (!window.TradingViewWidget) {
             window.TradingViewWidget = new TradingViewWidget();
         }
         window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
+    });
+    
+    // Clean up when modal is hidden
+    modal.addEventListener('hidden.bs.modal', () => {
+        modal.setAttribute('aria-hidden', 'true');
+        modal.removeAttribute('aria-modal');
     });
 };
 
