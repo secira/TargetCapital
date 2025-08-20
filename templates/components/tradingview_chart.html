@@ -1,0 +1,271 @@
+<!-- TradingView Chart Component -->
+<!-- Usage: {% include 'components/tradingview_chart.html' with context %} -->
+
+<div class="tradingview-chart-component">
+    <div class="stock-chart-container">
+        <div class="stock-chart-header">
+            <h5 class="stock-chart-title">
+                <i class="fas fa-chart-line me-2"></i>
+                {{ symbol if symbol else 'RELIANCE' }} - Live Chart
+            </h5>
+            <div class="chart-controls">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Chart intervals">
+                    <button type="button" class="btn btn-outline-primary interval-btn active" data-interval="1D">1D</button>
+                    <button type="button" class="btn btn-outline-primary interval-btn" data-interval="1W">1W</button>
+                    <button type="button" class="btn btn-outline-primary interval-btn" data-interval="1M">1M</button>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="refreshChart('{{ symbol if symbol else 'RELIANCE' }}')">
+                    <i class="fas fa-refresh"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="chart-wrapper">
+            <div id="tradingview-chart-{{ symbol if symbol else 'default' }}" class="tradingview-chart" style="height: {{ height if height else 400 }}px;">
+                <!-- Chart will be loaded here -->
+                <div class="chart-loading d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading chart...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading professional chart...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-footer mt-3">
+            <div class="row">
+                <div class="col-md-8">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Real-time data from NSE • Powered by TradingView
+                    </small>
+                </div>
+                <div class="col-md-4 text-end">
+                    <small class="text-muted">
+                        Last updated: <span id="chart-update-time-{{ symbol if symbol else 'default' }}">--</span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTradingViewChart();
+});
+
+function initializeTradingViewChart() {
+    const symbol = '{{ symbol if symbol else "RELIANCE" }}';
+    const containerId = `tradingview-chart-${symbol}`;
+    const height = {{ height if height else 400 }};
+    
+    // Check if TradingView widgets are available
+    if (typeof tCapitalChartWidget !== 'undefined') {
+        // Initialize chart with our custom widget
+        const chartWidget = new tCapitalChartWidget({
+            containerId: containerId,
+            symbol: symbol,
+            height: height,
+            theme: 'light',
+            interval: '1D',
+            onSymbolChange: function(symbolInfo) {
+                updateChartFooter(symbolInfo);
+            }
+        });
+        
+        // Store widget reference for later use
+        window.currentChartWidget = chartWidget;
+        
+        // Set up interval buttons
+        setupIntervalButtons(chartWidget);
+        
+        // Update footer time
+        updateChartFooter();
+        
+    } else {
+        // Fallback: Load TradingView library and initialize
+        loadTradingViewLibrary().then(() => {
+            initializeTradingViewChart();
+        });
+    }
+}
+
+function setupIntervalButtons(chartWidget) {
+    const intervalButtons = document.querySelectorAll('.interval-btn');
+    
+    intervalButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            intervalButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Change chart interval
+            const interval = this.getAttribute('data-interval');
+            if (chartWidget && chartWidget.changeInterval) {
+                chartWidget.changeInterval(interval);
+            }
+        });
+    });
+}
+
+function refreshChart(symbol) {
+    if (window.currentChartWidget && window.currentChartWidget.changeSymbol) {
+        window.currentChartWidget.changeSymbol(symbol);
+        updateChartFooter();
+    }
+}
+
+function updateChartFooter(symbolInfo = null) {
+    const updateTimeElement = document.getElementById('chart-update-time-{{ symbol if symbol else "default" }}');
+    if (updateTimeElement) {
+        updateTimeElement.textContent = new Date().toLocaleTimeString();
+    }
+}
+
+function loadTradingViewLibrary() {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (typeof TradingView !== 'undefined') {
+            resolve();
+            return;
+        }
+        
+        // Load TradingView library (this would need to be the actual library file)
+        const script = document.createElement('script');
+        script.src = '/static/js/tradingview-datafeed.js';
+        script.onload = () => {
+            // Also load the widget script
+            const widgetScript = document.createElement('script');
+            widgetScript.src = '/static/js/tradingview-widget.js';
+            widgetScript.onload = resolve;
+            widgetScript.onerror = reject;
+            document.head.appendChild(widgetScript);
+        };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Change symbol dynamically
+function changeChartSymbol(newSymbol) {
+    if (window.currentChartWidget && window.currentChartWidget.changeSymbol) {
+        window.currentChartWidget.changeSymbol(newSymbol);
+        
+        // Update chart title
+        const titleElement = document.querySelector('.stock-chart-title');
+        if (titleElement) {
+            titleElement.innerHTML = `<i class="fas fa-chart-line me-2"></i>${newSymbol} - Live Chart`;
+        }
+        
+        updateChartFooter();
+    }
+}
+</script>
+
+<style>
+.tradingview-chart-component {
+    margin: 20px 0;
+}
+
+.stock-chart-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e7ef;
+}
+
+.stock-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e1e7ef;
+}
+
+.stock-chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0d1117;
+    margin: 0;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.interval-btn {
+    font-size: 12px;
+    padding: 4px 12px;
+}
+
+.interval-btn.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.tradingview-chart {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e1e7ef;
+    background: #fafafa;
+}
+
+.chart-loading {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.chart-footer {
+    border-top: 1px solid #e1e7ef;
+    padding-top: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stock-chart-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .chart-controls {
+        justify-content: center;
+    }
+    
+    .tradingview-chart {
+        height: 300px !important;
+    }
+    
+    .chart-footer .row {
+        text-align: center;
+    }
+    
+    .chart-footer .col-md-4 {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stock-chart-container {
+        padding: 16px;
+    }
+    
+    .interval-btn {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+    
+    .tradingview-chart {
+        height: 250px !important;
+    }
+}
+</style>

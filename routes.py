@@ -2818,6 +2818,122 @@ def api_ai_agentic_analysis():
         logging.error(f"Agentic AI analysis error: {str(e)}")
         return jsonify({'success': False, 'error': 'Failed to perform agentic analysis'}), 500
 
+# ===== TRADINGVIEW INTEGRATION ROUTES =====
+
+@app.route('/api/tradingview/config')
+def api_tradingview_config():
+    """Get TradingView configuration"""
+    try:
+        from services.tradingview_service import tradingview_service
+        config = tradingview_service.get_config()
+        return jsonify(config)
+    except Exception as e:
+        logging.error(f"TradingView config error: {e}")
+        return jsonify({'error': 'Configuration failed'}), 500
+
+@app.route('/api/tradingview/search')
+def api_tradingview_search():
+    """Search symbols for TradingView"""
+    try:
+        query = request.args.get('query', '')
+        exchange = request.args.get('exchange', '')
+        symbol_type = request.args.get('type', '')
+        limit = int(request.args.get('limit', 30))
+        
+        from services.tradingview_service import tradingview_service
+        symbols = tradingview_service.search_symbols(query, exchange, symbol_type, limit)
+        
+        return jsonify({'symbols': symbols})
+    except Exception as e:
+        logging.error(f"TradingView search error: {e}")
+        return jsonify({'symbols': []})
+
+@app.route('/api/tradingview/symbols')
+def api_tradingview_symbols():
+    """Resolve symbol information"""
+    try:
+        symbol = request.args.get('symbol', '')
+        
+        from services.tradingview_service import tradingview_service
+        symbol_info = tradingview_service.resolve_symbol(symbol)
+        
+        if symbol_info:
+            return jsonify({'symbol': symbol_info})
+        else:
+            return jsonify({'error': 'Symbol not found'}), 404
+    except Exception as e:
+        logging.error(f"TradingView symbol resolution error: {e}")
+        return jsonify({'error': 'Symbol resolution failed'}), 500
+
+@app.route('/api/tradingview/history')
+def api_tradingview_history():
+    """Get historical data for TradingView charts"""
+    try:
+        symbol = request.args.get('symbol', '')
+        resolution = request.args.get('resolution', '1D')
+        from_timestamp = int(request.args.get('from', '0'))
+        to_timestamp = int(request.args.get('to', '0'))
+        
+        from services.tradingview_service import tradingview_service
+        bars, no_data = tradingview_service.get_bars(symbol, resolution, from_timestamp, to_timestamp)
+        
+        if no_data:
+            return jsonify({'s': 'no_data'})
+        
+        # Convert bars to TradingView format
+        times = []
+        opens = []
+        highs = []
+        lows = []
+        closes = []
+        volumes = []
+        
+        for bar in bars:
+            times.append(int(bar['time'] / 1000))  # Convert back to seconds
+            opens.append(bar['open'])
+            highs.append(bar['high'])
+            lows.append(bar['low'])
+            closes.append(bar['close'])
+            volumes.append(bar['volume'])
+        
+        return jsonify({
+            's': 'ok',
+            't': times,
+            'o': opens,
+            'h': highs,
+            'l': lows,
+            'c': closes,
+            'v': volumes
+        })
+        
+    except Exception as e:
+        logging.error(f"TradingView history error: {e}")
+        return jsonify({'s': 'error', 'errmsg': 'Failed to get historical data'})
+
+@app.route('/api/tradingview/realtime')
+def api_tradingview_realtime():
+    """Get real-time price data"""
+    try:
+        symbol = request.args.get('symbol', '')
+        
+        from services.tradingview_service import tradingview_service
+        price_data = tradingview_service.get_real_time_price(symbol)
+        
+        if price_data:
+            return jsonify({
+                'success': True,
+                'price': price_data['price'],
+                'change': price_data['change'],
+                'change_percent': price_data['change_percent'],
+                'volume': price_data['volume']
+            })
+        else:
+            return jsonify({'success': False, 'error': 'No data available'})
+            
+    except Exception as e:
+        logging.error(f"TradingView realtime error: {e}")
+        return jsonify({'success': False, 'error': 'Failed to get real-time data'})
+
 # ===== PERPLEXITY AI INTEGRATION ROUTES =====
 
 @app.route('/api/perplexity/research', methods=['POST'])

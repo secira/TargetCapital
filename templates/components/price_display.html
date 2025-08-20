@@ -1,0 +1,209 @@
+<!-- Real-time Price Display Component -->
+<!-- Usage: {% include 'components/price_display.html' with context %} -->
+
+<div class="price-display-component" id="price-display-{{ symbol if symbol else 'default' }}">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div class="price-info">
+                <h4 class="stock-symbol mb-1">{{ symbol if symbol else 'RELIANCE' }}</h4>
+                <div class="price-details">
+                    <span class="current-price text-dark fw-bold fs-3" id="current-price-{{ symbol if symbol else 'default' }}">
+                        ₹<span class="price-value">Loading...</span>
+                    </span>
+                    <span class="price-change ms-3" id="price-change-{{ symbol if symbol else 'default' }}">
+                        <span class="change-value">--</span>
+                    </span>
+                </div>
+                <div class="price-metadata mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Volume: <span class="volume-value" id="volume-{{ symbol if symbol else 'default' }}">--</span>
+                        <span class="ms-3">
+                            <i class="fas fa-clock me-1"></i>
+                            Updated: <span class="update-time" id="update-time-{{ symbol if symbol else 'default' }}">--</span>
+                        </span>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="price-actions">
+                <button class="btn btn-primary btn-sm me-2" onclick="showTradingViewChart('{{ symbol if symbol else 'RELIANCE' }}')">
+                    <i class="fas fa-chart-line me-1"></i>
+                    View Chart
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="refreshPrice('{{ symbol if symbol else 'RELIANCE' }}')">
+                    <i class="fas fa-refresh me-1"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Price display functionality
+function updatePriceDisplay(symbol, data) {
+    const priceElement = document.getElementById(`current-price-${symbol}`);
+    const changeElement = document.getElementById(`price-change-${symbol}`);
+    const volumeElement = document.getElementById(`volume-${symbol}`);
+    const updateTimeElement = document.getElementById(`update-time-${symbol}`);
+    
+    if (priceElement && data.price) {
+        priceElement.querySelector('.price-value').textContent = data.price.toFixed(2);
+    }
+    
+    if (changeElement && data.change !== undefined) {
+        const isPositive = data.change >= 0;
+        const changeText = `${isPositive ? '+' : ''}${data.change.toFixed(2)} (${isPositive ? '+' : ''}${data.change_percent.toFixed(2)}%)`;
+        
+        changeElement.innerHTML = `<span class="change-value badge ${isPositive ? 'bg-success' : 'bg-danger'}">${changeText}</span>`;
+    }
+    
+    if (volumeElement && data.volume) {
+        volumeElement.textContent = data.volume.toLocaleString();
+    }
+    
+    if (updateTimeElement) {
+        updateTimeElement.textContent = new Date().toLocaleTimeString();
+    }
+}
+
+function refreshPrice(symbol) {
+    fetch(`/api/tradingview/realtime?symbol=${encodeURIComponent(symbol)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updatePriceDisplay(symbol, data);
+            }
+        })
+        .catch(error => {
+            console.error('Price refresh error:', error);
+        });
+}
+
+function showTradingViewChart(symbol) {
+    const modalId = `tradingview-modal-${symbol}`;
+    
+    // Create modal if it doesn't exist
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${symbol} - Professional Chart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div id="tradingview-container-${symbol}" style="height: 500px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <small class="text-muted">Powered by TradingView & NSE Real-time Data</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Initialize chart when modal is shown
+    modal.addEventListener('shown.bs.modal', function() {
+        // Check if chart widget is available
+        if (typeof tCapitalChartWidget !== 'undefined') {
+            new tCapitalChartWidget({
+                containerId: `tradingview-container-${symbol}`,
+                symbol: symbol,
+                height: 500,
+                theme: 'light'
+            });
+        } else {
+            // Fallback: show simple chart placeholder
+            const container = document.getElementById(`tradingview-container-${symbol}`);
+            container.innerHTML = `
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                    <div class="text-center">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Chart Loading...</h5>
+                        <p class="text-muted">Professional charts powered by TradingView</p>
+                    </div>
+                </div>
+            `;
+        }
+    });
+}
+
+// Auto-refresh price every 10 seconds if symbol is provided
+{% if symbol %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial price load
+    refreshPrice('{{ symbol }}');
+    
+    // Set up auto-refresh
+    setInterval(function() {
+        refreshPrice('{{ symbol }}');
+    }, 10000);
+});
+{% endif %}
+</script>
+
+<style>
+.price-display-component {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #e1e7ef;
+    margin: 16px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stock-symbol {
+    color: #0d1117;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.current-price {
+    font-family: 'Inter', monospace;
+    font-size: 32px !important;
+}
+
+.price-change .badge {
+    font-size: 14px;
+    padding: 6px 12px;
+}
+
+.price-metadata {
+    opacity: 0.8;
+}
+
+.price-actions .btn {
+    transition: all 0.2s ease;
+}
+
+.price-actions .btn:hover {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .price-display-component {
+        padding: 16px;
+    }
+    
+    .current-price {
+        font-size: 24px !important;
+    }
+    
+    .price-actions {
+        margin-top: 16px;
+        text-align: center !important;
+    }
+}
+</style>
