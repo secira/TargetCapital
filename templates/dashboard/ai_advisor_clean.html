@@ -251,11 +251,12 @@
     position: relative;
     background: #ffffff;
     border: 2px solid #e5e5e5;
-    border-radius: 12px;
+    border-radius: 16px;
     transition: border-color 0.2s ease;
-    min-height: 56px;
+    min-height: 80px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    padding: 8px;
 }
 
 .ai-advisor-input-container:focus-within {
@@ -266,14 +267,14 @@
     flex: 1;
     border: none;
     outline: none;
-    padding: 16px 20px;
+    padding: 20px 24px;
     font-family: inherit;
     font-size: 16px;
     line-height: 1.5;
     resize: none;
     background: transparent;
-    max-height: 120px;
-    min-height: 24px;
+    max-height: 150px;
+    min-height: 60px;
 }
 
 .ai-advisor-input::placeholder {
@@ -281,11 +282,11 @@
 }
 
 .ai-advisor-send {
-    margin: 8px 12px 8px 8px;
-    width: 40px;
-    height: 40px;
+    margin: 8px 8px 8px 8px;
+    width: 44px;
+    height: 44px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #000000;
     color: white;
     display: flex;
@@ -293,6 +294,8 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    align-self: flex-end;
 }
 
 .ai-advisor-send:hover:not(:disabled) {
@@ -435,8 +438,13 @@
 
 /* Responsive Design */
 @media (max-width: 991px) {
+    .ai-advisor-chat .row {
+        flex-direction: column-reverse;
+    }
+    
     .advanced-functions-sidebar {
-        margin-top: 32px;
+        margin-bottom: 24px;
+        margin-top: 0;
     }
     
     .function-list {
@@ -574,19 +582,66 @@
 
         <!-- Chat Interface -->
         <div class="ai-advisor-chat" id="chatInterface">
-            <div class="ai-advisor-messages" id="chatMessages">
-                <!-- Messages will be added here -->
-            </div>
-            
-            <!-- Typing Indicator -->
-            <div class="ai-advisor-typing" id="typingIndicator">
-                <div class="ai-advisor-avatar" style="background: #f8f9fa; border: 1px solid #e5e5e5; color: #666666;">AI</div>
-                <div class="ai-advisor-typing-bubble">
-                    <span class="ai-advisor-typing-text">Thinking</span>
-                    <div class="ai-advisor-typing-dots">
-                        <div class="ai-advisor-typing-dot"></div>
-                        <div class="ai-advisor-typing-dot"></div>
-                        <div class="ai-advisor-typing-dot"></div>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="ai-advisor-messages" id="chatMessages">
+                        <!-- Messages will be added here -->
+                    </div>
+                    
+                    <!-- Typing Indicator -->
+                    <div class="ai-advisor-typing" id="typingIndicator">
+                        <div class="ai-advisor-typing-bubble">
+                            <span class="ai-advisor-typing-text">Thinking</span>
+                            <div class="ai-advisor-typing-dots">
+                                <div class="ai-advisor-typing-dot"></div>
+                                <div class="ai-advisor-typing-dot"></div>
+                                <div class="ai-advisor-typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Keep Advanced Functions Visible During Chat -->
+                <div class="col-lg-4">
+                    <div class="advanced-functions-sidebar">
+                        <h6 class="mb-3">Advanced AI Functions</h6>
+                        <div class="function-list">
+                            <div class="function-item" onclick="executeAdvancedFunction('news_impact')">
+                                <div class="function-icon">📰</div>
+                                <div class="function-content">
+                                    <div class="function-title">News Impact Analyzer</div>
+                                    <div class="function-desc">Monitor breaking news impact</div>
+                                </div>
+                            </div>
+                            <div class="function-item" onclick="executeAdvancedFunction('competitive_comparison')">
+                                <div class="function-icon">⚖️</div>
+                                <div class="function-content">
+                                    <div class="function-title">Stock Comparison</div>
+                                    <div class="function-desc">Compare against competitors</div>
+                                </div>
+                            </div>
+                            <div class="function-item" onclick="executeAdvancedFunction('sector_rotation')">
+                                <div class="function-icon">🔄</div>
+                                <div class="function-content">
+                                    <div class="function-title">Sector Rotation</div>
+                                    <div class="function-desc">Predict sector opportunities</div>
+                                </div>
+                            </div>
+                            <div class="function-item" onclick="executeAdvancedFunction('crash_opportunities')">
+                                <div class="function-icon">🎯</div>
+                                <div class="function-content">
+                                    <div class="function-title">Crash Opportunities</div>
+                                    <div class="function-desc">Find discounted quality stocks</div>
+                                </div>
+                            </div>
+                            <div class="function-item" onclick="executeAdvancedFunction('ipo_analyzer')">
+                                <div class="function-icon">🚀</div>
+                                <div class="function-content">
+                                    <div class="function-title">IPO Analyzer</div>
+                                    <div class="function-desc">Analyze upcoming IPOs</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -628,7 +683,7 @@ function initializeAIAdvisor() {
     // Auto-resize textarea
     textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
     });
     
     // Send on Enter (without Shift)
@@ -654,7 +709,7 @@ function fillMainInput(text) {
     mainInput.focus();
     // Auto-resize the textarea
     mainInput.style.height = 'auto';
-    mainInput.style.height = Math.min(mainInput.scrollHeight, 120) + 'px';
+    mainInput.style.height = Math.min(mainInput.scrollHeight, 150) + 'px';
 }
 
 // Advanced AI Functions
