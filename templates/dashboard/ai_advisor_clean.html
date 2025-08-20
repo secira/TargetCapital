@@ -45,8 +45,11 @@
 .ai-advisor-content {
     padding: 24px 32px;
     height: calc(80vh - 100px);
+    min-height: calc(80vh - 100px);
+    max-height: calc(80vh - 100px);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .ai-advisor-welcome {
@@ -117,6 +120,9 @@
     flex: 1;
     flex-direction: column;
     height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+    overflow: hidden;
 }
 
 .ai-advisor-messages {
@@ -245,6 +251,8 @@
     padding: 24px 0 0 0;
     border-top: 1px solid #e5e5e5;
     margin-top: auto;
+    flex-shrink: 0;
+    min-height: 140px;
 }
 
 .ai-advisor-input-container {
@@ -275,10 +283,11 @@
     line-height: 1.5;
     resize: none;
     background: transparent;
-    width: 40ch;
+    width: 80ch;
     height: 72px;
     min-height: 72px;
     max-height: 72px;
+    overflow: hidden;
 }
 
 .ai-advisor-input::placeholder {
@@ -841,10 +850,10 @@ function sendMessage(predefinedMessage = null) {
     // Add user message
     addMessage('user', message);
     
-    // Clear input
+    // Clear input - maintain fixed height
     if (!predefinedMessage) {
         textarea.value = '';
-        textarea.style.height = 'auto';
+        // Keep fixed height - don't auto-resize
     }
     
     // Show typing indicator
