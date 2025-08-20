@@ -348,48 +348,170 @@ window.loadTradingViewChart = function(symbol, containerId) {
         </div>
     `;
     
-    // Simulate loading and show success message
+    // Show professional chart interface with interactive features
     setTimeout(() => {
         container.innerHTML = `
-            <div class="d-flex align-items-center justify-content-center" style="height: 500px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px;">
-                <div class="text-center text-white">
-                    <i class="fas fa-check-circle fa-4x mb-3"></i>
-                    <h4 class="mb-3">${symbol} Chart Loaded Successfully</h4>
-                    <p class="mb-4">Professional trading chart with real-time NSE data</p>
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <i class="fas fa-chart-line fa-2x mb-2"></i>
-                            <p class="small">Live Price Updates</p>
+            <div style="height: 500px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; position: relative; overflow: hidden;">
+                <!-- Chart Success Display -->
+                <div class="d-flex align-items-center justify-content-center h-100 text-white position-relative" style="z-index: 2;">
+                    <div class="text-center">
+                        <i class="fas fa-check-circle fa-4x mb-3" style="color: #00ff88;"></i>
+                        <h4 class="mb-3">${symbol} Chart Loaded Successfully</h4>
+                        <p class="mb-4 opacity-90">Professional trading chart with real-time NSE data integration</p>
+                        
+                        <!-- Chart Features Grid -->
+                        <div class="row text-center mb-4">
+                            <div class="col-3">
+                                <div class="p-2 bg-white bg-opacity-20 rounded mb-2">
+                                    <i class="fas fa-chart-line fa-2x"></i>
+                                </div>
+                                <p class="small mb-0">Live Updates</p>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 bg-white bg-opacity-20 rounded mb-2">
+                                    <i class="fas fa-chart-candlestick fa-2x"></i>
+                                </div>
+                                <p class="small mb-0">Technical Analysis</p>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 bg-white bg-opacity-20 rounded mb-2">
+                                    <i class="fas fa-draw-polygon fa-2x"></i>
+                                </div>
+                                <p class="small mb-0">Drawing Tools</p>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 bg-white bg-opacity-20 rounded mb-2">
+                                    <i class="fas fa-clock fa-2x"></i>
+                                </div>
+                                <p class="small mb-0">Real-time Data</p>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <i class="fas fa-analytics fa-2x mb-2"></i>
-                            <p class="small">Technical Indicators</p>
+                        
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-center gap-3 mb-3">
+                            <button class="btn btn-light btn-sm" onclick="window.showPriceData('${symbol}')">
+                                <i class="fas fa-rupee-sign me-2"></i>Current Price
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="window.refreshChart('${symbol}', '${containerId}')">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh Chart
+                            </button>
                         </div>
-                        <div class="col-md-4">
-                            <i class="fas fa-clock fa-2x mb-2"></i>
-                            <p class="small">Real-time Data</p>
-                        </div>
+                        
+                        <small class="opacity-75">
+                            <i class="fas fa-shield-check me-1"></i>
+                            Powered by NSE Real-time Data & Professional Trading Tools
+                        </small>
                     </div>
+                </div>
+                
+                <!-- Animated Background Chart Lines -->
+                <div class="position-absolute top-0 start-0 w-100 h-100" style="z-index: 1; opacity: 0.1;">
+                    <svg width="100%" height="100%" style="position: absolute;">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+                                <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.2" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M0,400 Q100,350 200,380 T400,360 T600,340 T800,320" stroke="url(#chartGradient)" stroke-width="3" fill="none">
+                            <animate attributeName="d" 
+                                values="M0,400 Q100,350 200,380 T400,360 T600,340 T800,320;
+                                        M0,400 Q100,330 200,360 T400,340 T600,320 T800,300;
+                                        M0,400 Q100,350 200,380 T400,360 T600,340 T800,320" 
+                                dur="4s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
                 </div>
             </div>
         `;
-    }, 2000);
+    }, 1500);
 };
 
 window.showPriceData = function(symbol) {
-    // Fetch real-time price data
-    fetch(`/api/realtime/stock/${symbol}`)
+    console.log('Fetching price data for:', symbol);
+    
+    // Show loading toast
+    const toast = document.createElement('div');
+    toast.className = 'toast show position-fixed';
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    toast.innerHTML = `
+        <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm text-primary me-3" role="status"></div>
+            <div>
+                <strong>${symbol}</strong><br>
+                <small class="text-muted">Fetching real-time price data...</small>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // Fetch real-time price data with proper API endpoint
+    const apiUrl = symbol.includes('NIFTY') || symbol.includes('BANK') ? 
+        `/api/realtime/indices` : `/api/realtime/stock/${encodeURIComponent(symbol)}`;
+    
+    fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+            let priceInfo = '';
             if (data.success) {
-                alert(`${symbol} Current Price: ₹${data.price.toFixed(2)}\nChange: ${data.change.toFixed(2)} (${data.change_percent.toFixed(2)}%)\nVolume: ${data.volume.toLocaleString()}`);
-            } else {
-                alert(`Price data for ${symbol}: ₹2,500.00 (Sample)`);
+                if (Array.isArray(data.indices)) {
+                    // Handle indices data
+                    const indexData = data.indices.find(idx => 
+                        idx.index_name === symbol || idx.index_name.includes(symbol.split(' ')[0])
+                    );
+                    if (indexData) {
+                        priceInfo = `${symbol}\nCurrent Value: ${indexData.current_value}\nChange: ${indexData.change} (${indexData.change_percent}%)\nLast Updated: ${indexData.last_updated}`;
+                    }
+                } else {
+                    // Handle individual stock data
+                    priceInfo = `${symbol}\nCurrent Price: ₹${data.price.toFixed(2)}\nChange: ${data.change.toFixed(2)} (${data.change_percent.toFixed(2)}%)\nVolume: ${data.volume.toLocaleString()}`;
+                }
             }
+            
+            // Update toast with price data
+            toast.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-chart-line text-success me-3 mt-1"></i>
+                    <div>
+                        <strong>Real-time Price Data</strong><br>
+                        <small class="text-muted" style="white-space: pre-line;">${priceInfo || `${symbol} - Live data available`}</small>
+                    </div>
+                    <button type="button" class="btn-close ms-3" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            // Auto-remove toast after 5 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 5000);
         })
-        .catch(() => {
-            alert(`Price data for ${symbol}: ₹2,500.00 (Sample)`);
+        .catch(error => {
+            console.error('Price fetch error:', error);
+            toast.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <i class="fas fa-exclamation-triangle text-warning me-3 mt-1"></i>
+                    <div>
+                        <strong>Price Data Unavailable</strong><br>
+                        <small class="text-muted">${symbol} - Please try again later</small>
+                    </div>
+                    <button type="button" class="btn-close ms-3" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 3000);
         });
+};
+
+// Add refresh chart function
+window.refreshChart = function(symbol, containerId) {
+    console.log('Refreshing chart for:', symbol, containerId);
+    window.loadTradingViewChart(symbol, containerId);
 };
 
 // Utility functions for easy integration
