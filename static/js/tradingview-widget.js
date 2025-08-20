@@ -427,10 +427,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     // Load chart after modal is shown
     modal.addEventListener('shown.bs.modal', () => {
         const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
-        if (type === 'index') {
-            window.TradingViewWidget.createIndexWidget(chartContainer, symbol);
-        } else {
-            window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
-        }
+        // Always use the custom embedded widget to avoid notifications
+        window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
     });
 };

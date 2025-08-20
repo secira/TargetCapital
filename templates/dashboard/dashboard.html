@@ -385,16 +385,16 @@ setInterval(() => {
 
 // Index chart functionality
 function showIndexChart(indexName, price, change) {
-    // Use the TradingView widget for index charts
+    // Use the notification-free TradingView widget for index charts
     if (typeof window.showTradingViewChart === 'function') {
-        window.showTradingViewChart(indexName, 'index');
+        window.showTradingViewChart(indexName, 'stock');
     } else {
         // Load the TradingView widget script if not already loaded
         const script = document.createElement('script');
         script.src = '/static/js/tradingview-widget.js';
         script.onload = () => {
             setTimeout(() => {
-                window.showTradingViewChart(indexName, 'index');
+                window.showTradingViewChart(indexName, 'stock');
             }, 500);
         };
         document.head.appendChild(script);
