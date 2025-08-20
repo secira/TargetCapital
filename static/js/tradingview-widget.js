@@ -424,26 +424,29 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     
     document.body.appendChild(modal);
     
+    // Load chart immediately after adding modal to DOM
+    const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
+    
     // Show modal with proper accessibility
     const bsModal = new bootstrap.Modal(modal, {
         backdrop: true,
         keyboard: true,
         focus: true
     });
+    
     bsModal.show();
     
-    // Fix accessibility issue by removing aria-hidden when modal is shown
+    // Load chart when modal is shown
     modal.addEventListener('shown.bs.modal', () => {
+        console.log('Modal shown, loading chart for:', chartContainer, 'symbol:', symbol);
         modal.removeAttribute('aria-hidden');
+        // Create widget instance and load the custom chart interface
+        if (!window.TradingViewWidget) {
+            window.TradingViewWidget = new TradingViewWidget();
+        }
+        window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
     });
-    
-    // Load chart after modal is fully shown
-    setTimeout(() => {
-        modal.addEventListener('shown.bs.modal', () => {
-            const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
-            console.log('Loading chart for container:', chartContainer, 'symbol:', symbol);
-            // Always use the custom embedded widget to avoid notifications
-            window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
-        });
-    }, 100);
 };
+
+// Initialize TradingView widget instance globally
+window.TradingViewWidget = new TradingViewWidget();
