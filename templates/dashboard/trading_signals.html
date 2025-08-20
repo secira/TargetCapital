@@ -1,356 +1,283 @@
-{% extends "base.html" %}
+{% extends "dashboard/base.html" %}
 
 {% block title %}Trading Signals - tCapital Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
+<div class="dashboard-page">
+    <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="dashboard-heading">Trading Signals</h1>
+            <p class="text-muted">Daily recommendations from our expert analysts</p>
         </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2"><i class="fas fa-chart-line me-2"></i>Trading Signals</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshSignals()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
-                </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="refreshSignals()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="filterSignals('all')">All Signals</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterSignals('stock')">Stocks</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterSignals('option')">Options</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="filterSignals('index_future')">Index Futures</a></li>
+                </ul>
             </div>
+        </div>
+    </div>
 
-            <!-- Trading Signals Summary Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Total Signals</h6>
-                                    <h5 class="mb-0 text-dark" id="total-signals">{{ total_signals }}</h5>
-                                    <small class="text-muted">{{ selected_date }}</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-signal fa-lg text-primary"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Active Signals</h6>
-                                    <h5 class="mb-0 text-dark" id="active-signals">{{ active_signals }}</h5>
-                                    <small class="text-success">Currently running</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-play-circle fa-lg text-success"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Success Rate</h6>
-                                    <h5 class="mb-0 text-dark" id="success-rate">{{ "%.1f"|format(success_rate) }}%</h5>
-                                    <small class="text-muted">Closed signals</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-trophy fa-lg text-warning"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">AI Accuracy</h6>
-                                    <h5 class="mb-0 text-dark" id="ai-accuracy">87.2%</h5>
-                                    <small class="text-muted">Prediction rate</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-brain fa-lg text-info"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Subscription Notice -->
+    {% if current_user.pricing_plan == 'free' %}
+    <div class="alert alert-warning border-0 rounded-3 shadow-sm mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-lock fa-2x text-warning me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Premium Feature</h5>
+                <p class="mb-2">Trading signals are available for Trader, Trader Plus, and Premium subscribers.</p>
+                <a href="{{ url_for('pricing') }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-upgrade me-1"></i>Upgrade Now
+                </a>
             </div>
+        </div>
+    </div>
+    {% endif %}
 
-            <!-- Date Picker and Filters -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <form method="GET" action="{{ url_for('dashboard_trading_signals') }}" class="row">
-                                <div class="col-md-3">
-                                    <label class="form-label">Select Date</label>
-                                    <input type="date" class="form-control" name="date" value="{{ selected_date }}" onchange="this.form.submit()">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Symbol Type</label>
-                                    <select class="form-select" name="symbol_type" onchange="this.form.submit()">
-                                        <option value="all" {% if symbol_type == 'all' %}selected{% endif %}>All Types</option>
-                                        {% for st in symbol_types %}
-                                        <option value="{{ st }}" {% if symbol_type == st %}selected{% endif %}>{{ st.title() }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Signal Status</label>
-                                    <select class="form-select" name="status" onchange="this.form.submit()">
-                                        <option value="all" {% if signal_status == 'all' %}selected{% endif %}>All Status</option>
-                                        <option value="Active" {% if signal_status == 'Active' %}selected{% endif %}>Active</option>
-                                        <option value="Closed" {% if signal_status == 'Closed' %}selected{% endif %}>Closed</option>
-                                        <option value="Stopped" {% if signal_status == 'Stopped' %}selected{% endif %}>Stopped</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Quick Actions</label>
-                                    <div class="btn-group w-100" role="group">
-                                        <a href="{{ url_for('dashboard_trading_signals', date=today.strftime('%Y-%m-%d')) }}" class="btn btn-outline-primary btn-sm">Today</a>
-                                        {% if current_user.is_admin %}
-                                        <a href="{{ url_for('create_trading_signal') }}" class="btn btn-success btn-sm">Add Signal</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trading Signals Table -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-signal me-2"></i>Trading Signals</h5>
-                            <span class="badge bg-primary">{{ trading_signals|length }} signals</span>
-                        </div>
-                        <div class="card-body">
-                            {% if trading_signals %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Symbol</th>
-                                            <th>Type</th>
-                                            <th>Direction</th>
-                                            <th>Entry Price</th>
-                                            <th>Current Price</th>
-                                            <th>Units</th>
-                                            <th>P&L</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for signal in trading_signals %}
-                                        <tr>
-                                            <td>{{ signal.open_date.strftime('%m/%d') }}</td>
-                                            <td><strong>{{ signal.ticker_symbol }}</strong></td>
-                                            <td>
-                                                <span class="badge bg-light text-dark">{{ signal.symbol_type.title() }}</span>
-                                                {% if signal.option_type %}
-                                                <small class="text-muted d-block">{{ signal.option_type.title() }}</small>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <span class="badge {% if signal.trade_direction == 'Long' %}bg-success{% else %}bg-danger{% endif %}">
-                                                    {% if signal.trade_direction == 'Long' %}
-                                                    <i class="fas fa-arrow-up"></i> {{ signal.trade_direction }}
-                                                    {% else %}
-                                                    <i class="fas fa-arrow-down"></i> {{ signal.trade_direction }}
-                                                    {% endif %}
-                                                </span>
-                                            </td>
-                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
-                                            <td>
-                                                {% if signal.current_price %}
-                                                ₹{{ "%.2f"|format(signal.current_price) }}
-                                                {% else %}
-                                                <span class="text-muted">-</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ signal.number_of_units }}</td>
-                                            <td>
-                                                {% set pnl_amount, pnl_percentage = signal.calculate_pnl() %}
-                                                <span class="{{ signal.get_pnl_class() }}">
-                                                    ₹{{ "%.0f"|format(pnl_amount) }}
-                                                    {% if pnl_percentage != 0 %}
-                                                    <small>({{ "%.1f"|format(pnl_percentage) }}%)</small>
-                                                    {% endif %}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="badge {{ signal.get_status_badge_class() }}">
-                                                    {{ signal.signal_status }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetails({{ signal.id }})">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                {% if current_user.is_admin %}
-                                                <button class="btn btn-sm btn-outline-warning" onclick="editSignal({{ signal.id }})">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-5">
-                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No trading signals found</h5>
-                                <p class="text-muted">Try selecting a different date or check back later.</p>
-                                {% if current_user.is_admin %}
-                                <a href="{{ url_for('create_trading_signal') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus me-2"></i>Create Trading Signal
-                                </a>
+    <!-- Trading Signals Grid -->
+    <div class="row" id="signals-container">
+        {% if signals %}
+            {% for signal in signals %}
+            <div class="col-md-6 col-lg-4 mb-4 signal-card" data-type="{{ signal.signal_type }}">
+                <div class="card h-100 border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title mb-1">{{ signal.symbol }}</h5>
+                                {% if signal.company_name %}
+                                    <small class="text-muted">{{ signal.company_name }}</small>
                                 {% endif %}
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }} bg-opacity-20 text-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }}">
+                                    {{ signal.action }}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ signal.signal_type.title() }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Price Information -->
+                        <div class="row mb-3">
+                            {% if signal.entry_price %}
+                            <div class="col-4">
+                                <div class="text-center p-2 bg-light rounded">
+                                    <small class="text-muted d-block">Entry</small>
+                                    <strong>₹{{ "{:.2f}".format(signal.entry_price) }}</strong>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if signal.target_price %}
+                            <div class="col-4">
+                                <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                    <small class="text-muted d-block">Target</small>
+                                    <strong class="text-success">₹{{ "{:.2f}".format(signal.target_price) }}</strong>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if signal.stop_loss %}
+                            <div class="col-4">
+                                <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
+                                    <small class="text-muted d-block">Stop Loss</small>
+                                    <strong class="text-danger">₹{{ "{:.2f}".format(signal.stop_loss) }}</strong>
+                                </div>
                             </div>
                             {% endif %}
                         </div>
+                        
+                        <!-- Signal Details -->
+                        <div class="row mb-3">
+                            {% if signal.quantity %}
+                            <div class="col-6">
+                                <small class="text-muted">Quantity</small>
+                                <div><strong>{{ signal.quantity }}</strong></div>
+                            </div>
+                            {% endif %}
+                            {% if signal.risk_level %}
+                            <div class="col-6">
+                                <small class="text-muted">Risk Level</small>
+                                <div>
+                                    <span class="badge bg-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }} bg-opacity-20 text-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }}">
+                                        {{ signal.risk_level }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if signal.time_frame %}
+                        <div class="mb-3">
+                            <small class="text-muted">Time Frame</small>
+                            <div><strong>{{ signal.time_frame }}</strong></div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if signal.strategy_name %}
+                        <div class="mb-3">
+                            <small class="text-muted">Strategy</small>
+                            <div><em>{{ signal.strategy_name }}</em></div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if signal.notes %}
+                        <div class="mb-3">
+                            <small class="text-muted">Analysis</small>
+                            <div class="small">{{ signal.notes[:100] }}{% if signal.notes|length > 100 %}...{% endif %}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Potential Return -->
+                        {% if signal.entry_price and signal.target_price %}
+                        <div class="alert alert-info border-0 bg-primary bg-opacity-10 mb-3">
+                            <small>
+                                <i class="fas fa-chart-line me-1"></i>
+                                <strong>Potential Return: {{ "{:.1f}".format(signal.potential_return) }}%</strong>
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-footer bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ signal.created_at.strftime('%b %d, %Y %I:%M %p') }}
+                            </small>
+                            {% if current_user.pricing_plan in ['trader_plus', 'premium'] %}
+                            <button class="btn btn-primary btn-sm" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}')">
+                                <i class="fas fa-play me-1"></i>Execute
+                            </button>
+                            {% endif %}
+                        </div>
+                        
+                        {% if signal.expires_at %}
+                        <div class="mt-2">
+                            <small class="text-warning">
+                                <i class="fas fa-clock me-1"></i>
+                                Expires: {{ signal.expires_at.strftime('%b %d, %Y') }}
+                            </small>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Trading Signals Available</h4>
+                    <p class="text-muted">Our analysts haven't posted any signals today. Check back later for new recommendations.</p>
+                    <button class="btn btn-primary" onclick="refreshSignals()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh Signals
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 
-            <!-- AI Insights Panel -->
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <div class="card border-info">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI Market Insights</h5>
+    <!-- Signal Information Panel -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-gradient-primary text-white border-0">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>How to Use Trading Signals
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                                <h6>1. Review</h6>
+                                <small class="text-muted">Analyze the signal details, entry price, and strategy</small>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6>Market Sentiment</h6>
-                                    <div class="progress mb-3" style="height: 25px;">
-                                        <div class="progress-bar bg-success" style="width: 65%">Bullish 65%</div>
-                                    </div>
-                                    <p class="small text-muted">AI analysis suggests moderate bullish sentiment based on technical indicators and news analysis.</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>Top Sectors to Watch</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <span class="badge bg-primary">Information Technology</span>
-                                        <span class="badge bg-success">Banking</span>
-                                        <span class="badge bg-warning">Pharmaceuticals</span>
-                                        <span class="badge bg-info">FMCG</span>
-                                    </div>
-                                    <p class="small text-muted mt-2">These sectors show strong technical patterns and positive momentum.</p>
-                                </div>
+                        <div class="col-md-3">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-calculator fa-2x text-info mb-2"></i>
+                                <h6>2. Calculate</h6>
+                                <small class="text-muted">Determine position size based on your risk tolerance</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-play fa-2x text-success mb-2"></i>
+                                <h6>3. Execute</h6>
+                                <small class="text-muted">Place the trade with your connected broker</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+                                <h6>4. Monitor</h6>
+                                <small class="text-muted">Track performance and manage exits</small>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="alert alert-warning border-0 bg-warning bg-opacity-10 mt-3">
+                        <small>
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <strong>Risk Disclaimer:</strong> Trading signals are for educational purposes. Past performance doesn't guarantee future results. Trade at your own risk and never invest more than you can afford to lose.
+                        </small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Signal Details Modal -->
-<div class="modal fade" id="signalDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Signal Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="signalDetailsBody">
-                <!-- Signal details will be loaded here -->
-            </div>
-        </div>
-    </div>
-</div>
-
+{% block extra_js %}
 <script>
 function refreshSignals() {
-    // Implement signal refresh functionality
-    console.log('Refreshing trading signals...');
-    // TODO: Fetch latest signals from API
+    location.reload();
 }
 
-function viewSignalDetails(signalId) {
-    // Show detailed analysis for the trading signal
-    document.getElementById('signalDetailsBody').innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Signal Information</h6>
-                <p>Loading signal details for ID: ${signalId}...</p>
-                <p>This will show comprehensive signal analysis including entry/exit details, P&L calculations, and trade timeline.</p>
-            </div>
-            <div class="col-md-6">
-                <h6>AI Analysis</h6>
-                <p>AI-generated reasoning and market analysis for this specific signal will be displayed here.</p>
-            </div>
-        </div>
-    `;
-    new bootstrap.Modal(document.getElementById('signalDetailsModal')).show();
+function filterSignals(type) {
+    const signalCards = document.querySelectorAll('.signal-card');
+    
+    signalCards.forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 
-function editSignal(signalId) {
-    // Admin function to edit signal
-    const modal = new bootstrap.Modal(document.getElementById('editSignalModal'));
-    // Load signal data and show edit form
-    console.log('Editing signal:', signalId);
-    modal.show();
+function executeSignal(signalId, symbol) {
+    // Check if user has connected broker
+    {% if current_user.pricing_plan in ['trader_plus', 'premium'] %}
+        // Redirect to trade execution page
+        window.location.href = `/dashboard/trade-now?signal=${signalId}&symbol=${symbol}`;
+    {% else %}
+        alert('Trade execution is available for Trader Plus and Premium subscribers only.');
+    {% endif %}
 }
 
-// Auto-refresh signals every 30 seconds
-setInterval(refreshSignals, 30000);
+// Auto-refresh signals every 5 minutes
+setInterval(function() {
+    if (document.hasFocus()) {
+        const signalsContainer = document.getElementById('signals-container');
+        if (signalsContainer) {
+            console.log('Auto-refreshing trading signals...');
+            // Could implement AJAX refresh here instead of full page reload
+        }
+    }
+}, 300000); // 5 minutes
 </script>
-
-<style>
-.card {
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-}
-
-.progress {
-    border-radius: 10px;
-}
-
-.badge {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-    color: #495057;
-    background-color: #f8f9fa;
-}
-
-.btn-toolbar .btn-group {
-    margin-right: 0.5rem;
-}
-</style>
 {% endblock %}

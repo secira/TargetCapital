@@ -625,7 +625,15 @@ class UserBroker(db.Model):
     access_token = db.Column(db.String(256), nullable=True)
     redirect_url = db.Column(db.String(500), nullable=True)
     is_active = db.Column(db.Boolean, default=True)
+    
+    # Primary broker and connection status
+    is_primary = db.Column(db.Boolean, default=False)
+    connection_status = db.Column(db.String(20), default='DISCONNECTED')  # 'CONNECTED', 'DISCONNECTED'
+    account_balance = db.Column(db.Numeric(12, 2), default=0.0)
+    margin_available = db.Column(db.Numeric(12, 2), default=0.0)
+    
     last_token_refresh = db.Column(db.DateTime, nullable=True)
+    last_connected = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -634,8 +642,18 @@ class UserBroker(db.Model):
     
     @property
     def status(self):
-        """Get connection status based on token availability"""
-        return 'Connected' if self.access_token else 'Disconnected'
+        """Get connection status based on token availability and connection_status"""
+        if self.connection_status == 'CONNECTED' and self.access_token:
+            return 'Connected'
+        return 'Disconnected'
+    
+    def set_as_primary(self):
+        """Set this broker as primary and unset others for this user"""
+        # First, unset all other primary brokers for this user
+        UserBroker.query.filter_by(user_id=self.user_id, is_primary=True).update({'is_primary': False})
+        # Set this broker as primary
+        self.is_primary = True
+        db.session.commit()
     
     def get_redirect_url_template(self):
         """Generate redirect URL template for this broker"""
@@ -703,5 +721,180 @@ class OAuth(OAuthConsumerMixin, db.Model):
     provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship("User")
+
+
+# Admin Models for Trading Signal Management
+class Admin(UserMixin, db.Model):
+    __tablename__ = 'admins'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    first_name = db.Column(db.String(80), nullable=True)
+    last_name = db.Column(db.String(80), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    is_super_admin = db.Column(db.Boolean, default=False)
+    last_login = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def set_password(self, password):
+        """Set password hash"""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        """Check password against hash"""
+        return check_password_hash(self.password_hash, password)
+    
+    @property
+    def full_name(self):
+        """Return full name"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.username
+
+
+# Enhanced Trading Signal Model
+class TradingSignal(db.Model):
+    __tablename__ = 'trading_signals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    signal_type = db.Column(db.String(20), nullable=False)  # 'stock', 'strategy', 'index_future', 'option'
+    symbol = db.Column(db.String(50), nullable=False)
+    company_name = db.Column(db.String(200), nullable=True)
+    action = db.Column(db.String(10), nullable=False)  # 'BUY', 'SELL', 'HOLD'
+    entry_price = db.Column(db.Numeric(10, 2), nullable=True)
+    target_price = db.Column(db.Numeric(10, 2), nullable=True)
+    stop_loss = db.Column(db.Numeric(10, 2), nullable=True)
+    quantity = db.Column(db.Integer, nullable=True)
+    risk_level = db.Column(db.String(10), nullable=True)  # 'LOW', 'MEDIUM', 'HIGH'
+    time_frame = db.Column(db.String(20), nullable=True)  # 'INTRADAY', 'SWING', 'POSITIONAL'
+    strategy_name = db.Column(db.String(100), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='ACTIVE')  # 'ACTIVE', 'EXPIRED', 'ACHIEVED', 'STOPPED'
+    
+    # Admin who created the signal
+    created_by = db.Column(db.Integer, db.ForeignKey('admins.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=True)
+    
+    # WhatsApp/Telegram sharing
+    shared_whatsapp = db.Column(db.Boolean, default=False)
+    shared_telegram = db.Column(db.Boolean, default=False)
+    whatsapp_shared_at = db.Column(db.DateTime, nullable=True)
+    telegram_shared_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    admin = db.relationship('Admin', backref='trading_signals')
+    
+    @property
+    def potential_return(self):
+        """Calculate potential return percentage"""
+        if self.entry_price and self.target_price:
+            return ((float(self.target_price) - float(self.entry_price)) / float(self.entry_price)) * 100
+        return 0
+    
+    @property
+    def risk_amount(self):
+        """Calculate risk amount per share"""
+        if self.entry_price and self.stop_loss:
+            return float(self.entry_price) - float(self.stop_loss)
+        return 0
+    
+    @property
+    def is_expired(self):
+        """Check if signal is expired"""
+        if self.expires_at:
+            return datetime.utcnow() > self.expires_at
+        return False
+
+
+# Enhanced Broker Management - Update existing UserBroker model
+# Note: We'll modify the existing UserBroker to add primary broker functionality
+# Add these fields to the existing UserBroker model:
+# - is_primary = db.Column(db.Boolean, default=False)
+# - connection_status = db.Column(db.String(20), default='DISCONNECTED')
+
+# Trade Execution Models
+class ExecutedTrade(db.Model):
+    __tablename__ = 'executed_trades'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
+    broker_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    
+    # Trade details
+    symbol = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # 'BUY', 'SELL'
+    quantity = db.Column(db.Integer, nullable=False)
+    executed_price = db.Column(db.Numeric(10, 2), nullable=False)
+    total_amount = db.Column(db.Numeric(12, 2), nullable=False)
+    
+    # Broker order details
+    broker_order_id = db.Column(db.String(100), nullable=True)
+    order_status = db.Column(db.String(20), default='PENDING')  # 'PENDING', 'EXECUTED', 'CANCELLED', 'REJECTED'
+    
+    # P&L tracking
+    current_price = db.Column(db.Numeric(10, 2), nullable=True)
+    unrealized_pnl = db.Column(db.Numeric(10, 2), default=0.0)
+    realized_pnl = db.Column(db.Numeric(10, 2), default=0.0)
+    
+    executed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='executed_trades')
+    trading_signal = db.relationship('TradingSignal', backref='executions')
+    broker = db.relationship('UserBroker', backref='executed_trades')
+    
+    @property
+    def current_value(self):
+        """Calculate current value of the position"""
+        if self.current_price:
+            return float(self.current_price) * self.quantity
+        return float(self.executed_price) * self.quantity
+
+
+# Payment Tracking for Admin Dashboard
+class UserPayment(db.Model):
+    __tablename__ = 'user_payments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Payment details
+    amount = db.Column(db.Numeric(10, 2), nullable=False)
+    currency = db.Column(db.String(3), default='INR')
+    plan = db.Column(db.String(20), nullable=False)  # 'TRADER', 'TRADER_PLUS', 'PREMIUM'
+    payment_method = db.Column(db.String(50), nullable=True)
+    
+    # Razorpay details
+    razorpay_order_id = db.Column(db.String(100), nullable=True)
+    razorpay_payment_id = db.Column(db.String(100), nullable=True)
+    razorpay_signature = db.Column(db.String(200), nullable=True)
+    
+    # Status tracking
+    status = db.Column(db.String(20), default='PENDING')  # 'PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'
+    
+    # Subscription details
+    subscription_start = db.Column(db.DateTime, nullable=True)
+    subscription_end = db.Column(db.DateTime, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='user_payments')
+    
+    @property
+    def is_active_subscription(self):
+        """Check if subscription is currently active"""
+        if self.subscription_start and self.subscription_end:
+            now = datetime.utcnow()
+            return self.subscription_start <= now <= self.subscription_end
+        return False
 
 

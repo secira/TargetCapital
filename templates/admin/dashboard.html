@@ -1,161 +1,252 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block title %}Admin Dashboard | tCapital{% endblock %}
+{% block title %}Admin Dashboard - tCapital{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2">
-            <div class="bg-light rounded p-3">
-                <h5 class="mb-3">Admin Panel</h5>
-                <nav class="nav flex-column">
-                    <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                    <a class="nav-link" href="{{ url_for('admin_blog_list') }}">
-                        <i class="fas fa-blog me-2"></i>Blog Posts
-                    </a>
-                    <a class="nav-link" href="{{ url_for('admin_blog_new') }}">
-                        <i class="fas fa-plus me-2"></i>New Post
-                    </a>
-                    <a class="nav-link" href="{{ url_for('dashboard') }}">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Site
-                    </a>
-                </nav>
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="admin-stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_users }}</h3>
+                    <p class="mb-0">Total Users</p>
+                </div>
+                <i class="fas fa-users fa-2x"></i>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Admin Dashboard</h2>
-                <a href="{{ url_for('admin_blog_new') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>New Blog Post
-                </a>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ active_signals }}</h3>
+                    <p class="mb-0">Active Signals</p>
+                </div>
+                <i class="fas fa-chart-line fa-2x"></i>
             </div>
-
-            <!-- Stats Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h3 class="mb-0">{{ total_posts }}</h3>
-                                    <p class="mb-0">Total Posts</p>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-blog fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-stat-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ today_payments }}</h3>
+                    <p class="mb-0">Today's Payments</p>
                 </div>
-                
-                <div class="col-md-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h3 class="mb-0">{{ published_posts }}</h3>
-                                    <p class="mb-0">Published</p>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-check-circle fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-3">
-                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h3 class="mb-0">{{ draft_posts }}</h3>
-                                    <p class="mb-0">Drafts</p>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-edit fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h3 class="mb-0">{{ total_posts - draft_posts - published_posts }}</h3>
-                                    <p class="mb-0">Archived</p>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-archive fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <i class="fas fa-credit-card fa-2x"></i>
             </div>
-
-            <!-- Recent Posts -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Blog Posts</h5>
-                    <a href="{{ url_for('admin_blog_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="admin-stat-card danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">₹{{ "{:,.0f}".format(monthly_revenue) }}</h3>
+                    <p class="mb-0">Monthly Revenue</p>
                 </div>
-                <div class="card-body">
-                    {% if recent_posts %}
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Author</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for post in recent_posts %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ post.title }}</strong>
-                                            {% if post.is_featured %}
-                                                <span class="badge bg-warning ms-2">Featured</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ post.author_name }}</td>
-                                        <td>
-                                            {% if post.status == 'published' %}
-                                                <span class="badge bg-success">Published</span>
-                                            {% elif post.status == 'draft' %}
-                                                <span class="badge bg-warning">Draft</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">{{ post.status.title() }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ post.created_at.strftime('%Y-%m-%d') }}</td>
-                                        <td>
-                                            <a href="{{ url_for('admin_blog_edit', post_id=post.id) }}" 
-                                               class="btn btn-sm btn-outline-primary">Edit</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">No blog posts yet. <a href="{{ url_for('admin_blog_new') }}">Create your first post</a>.</p>
-                    {% endif %}
+                <i class="fas fa-rupee-sign fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.add_trading_signal') }}" class="btn btn-success admin-btn w-100 mb-2">
+                            <i class="fas fa-plus me-2"></i>Add Trading Signal
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.trading_signals') }}" class="btn btn-info admin-btn w-100 mb-2">
+                            <i class="fas fa-chart-line me-2"></i>Manage Signals
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-warning admin-btn w-100 mb-2">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('admin.payments') }}" class="btn btn-secondary admin-btn w-100 mb-2">
+                            <i class="fas fa-credit-card me-2"></i>View Payments
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Recent Trading Signals -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Recent Trading Signals
+                </h5>
+                <a href="{{ url_for('admin.trading_signals') }}" class="btn btn-sm btn-light">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_signals %}
+                    <div class="table-responsive">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                    <th>Entry Price</th>
+                                    <th>Target</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for signal in recent_signals %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ signal.symbol }}</strong>
+                                        {% if signal.company_name %}
+                                            <br><small class="text-muted">{{ signal.company_name }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="signal-type-badge bg-info text-white">
+                                            {{ signal.signal_type.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="signal-type-badge action-{{ signal.action.lower() }}">
+                                            {{ signal.action }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if signal.entry_price %}
+                                            ₹{{ "{:.2f}".format(signal.entry_price) }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if signal.target_price %}
+                                            ₹{{ "{:.2f}".format(signal.target_price) }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if signal.status == 'ACTIVE' else 'secondary' }}">
+                                            {{ signal.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small>{{ signal.created_at.strftime('%m/%d %H:%M') }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No trading signals created yet.</p>
+                        <a href="{{ url_for('admin.add_trading_signal') }}" class="btn btn-primary admin-btn">
+                            <i class="fas fa-plus me-2"></i>Create First Signal
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Information -->
+    <div class="col-md-4">
+        <div class="card admin-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">System Status</h6>
+                    <span class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i>All Systems Operational
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Last Signal Created</h6>
+                    {% if recent_signals %}
+                        <small>{{ recent_signals[0].created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                    {% else %}
+                        <small>No signals created yet</small>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="text-muted">Admin Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm admin-btn" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh Data
+                        </button>
+                        <button class="btn btn-outline-info btn-sm admin-btn" onclick="exportData()">
+                            <i class="fas fa-download me-1"></i>Export Reports
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-lightbulb me-1"></i>
+                        <strong>Tip:</strong> Use the Quick Actions above to manage trading signals efficiently.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshDashboard() {
+    location.reload();
+}
+
+function exportData() {
+    // TODO: Implement data export functionality
+    alert('Data export functionality will be implemented soon.');
+}
+
+// Auto-refresh dashboard every 5 minutes
+setInterval(function() {
+    // Only refresh if user is active (to avoid disrupting work)
+    if (document.hasFocus()) {
+        fetch('{{ url_for("admin.api_signals_today") }}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Dashboard data refreshed:', data.length + ' signals today');
+            })
+            .catch(error => console.error('Error refreshing dashboard:', error));
+    }
+}, 300000); // 5 minutes
+</script>
 {% endblock %}

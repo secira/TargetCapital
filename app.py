@@ -51,5 +51,12 @@ from oauth_auth import google_bp, facebook_bp
 app.register_blueprint(google_bp, url_prefix="/auth")
 app.register_blueprint(facebook_bp, url_prefix="/auth")
 
+# Register admin blueprint (import after routes to avoid conflicts)
+try:
+    from admin_routes import admin_bp
+    app.register_blueprint(admin_bp)
+except ImportError as e:
+    logging.warning(f"Admin blueprint not available: {e}")
+
 # Import routes
 import routes

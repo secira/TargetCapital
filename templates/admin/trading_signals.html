@@ -1,0 +1,290 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Trading Signals Management - tCapital Admin{% endblock %}
+{% block page_title %}Trading Signals Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted">Manage daily trading recommendations for your subscribers</p>
+    </div>
+    <a href="{{ url_for('admin.add_trading_signal') }}" class="btn btn-success admin-btn">
+        <i class="fas fa-plus me-2"></i>Add New Signal
+    </a>
+</div>
+
+<!-- Signals Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ signals.total }}</h4>
+                        <p class="mb-0">Total Signals</p>
+                    </div>
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ signals.items | selectattr('status', 'equalto', 'ACTIVE') | list | length }}</h4>
+                        <p class="mb-0">Active Signals</p>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ signals.items | selectattr('shared_whatsapp', 'equalto', True) | list | length }}</h4>
+                        <p class="mb-0">WhatsApp Shared</p>
+                    </div>
+                    <i class="fab fa-whatsapp fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ signals.items | selectattr('shared_telegram', 'equalto', True) | list | length }}</h4>
+                        <p class="mb-0">Telegram Shared</p>
+                    </div>
+                    <i class="fab fa-telegram fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Trading Signals Table -->
+<div class="card admin-card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>Trading Signals
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if signals.items %}
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                            <th>Entry Price</th>
+                            <th>Target</th>
+                            <th>Stop Loss</th>
+                            <th>Risk</th>
+                            <th>Status</th>
+                            <th>Shared</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for signal in signals.items %}
+                        <tr>
+                            <td>
+                                <strong>{{ signal.symbol }}</strong>
+                                {% if signal.company_name %}
+                                    <br><small class="text-muted">{{ signal.company_name }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="signal-type-badge bg-info text-white">
+                                    {{ signal.signal_type.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="signal-type-badge action-{{ signal.action.lower() }}">
+                                    {{ signal.action }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if signal.entry_price %}
+                                    ₹{{ "{:.2f}".format(signal.entry_price) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signal.target_price %}
+                                    ₹{{ "{:.2f}".format(signal.target_price) }}
+                                    {% if signal.entry_price and signal.target_price %}
+                                        <br><small class="text-success">+{{ "{:.1f}".format(signal.potential_return) }}%</small>
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signal.stop_loss %}
+                                    ₹{{ "{:.2f}".format(signal.stop_loss) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signal.risk_level %}
+                                    <span class="signal-type-badge risk-{{ signal.risk_level.lower() }}">
+                                        {{ signal.risk_level }}
+                                    </span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if signal.status == 'ACTIVE' else 'secondary' }}">
+                                    {{ signal.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    {% if signal.shared_whatsapp %}
+                                        <i class="fab fa-whatsapp text-success" title="Shared to WhatsApp"></i>
+                                    {% endif %}
+                                    {% if signal.shared_telegram %}
+                                        <i class="fab fa-telegram text-info" title="Shared to Telegram"></i>
+                                    {% endif %}
+                                    {% if not signal.shared_whatsapp and not signal.shared_telegram %}
+                                        <small class="text-muted">Not shared</small>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <small>
+                                    {{ signal.created_at.strftime('%m/%d/%Y') }}<br>
+                                    {{ signal.created_at.strftime('%I:%M %p') }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ url_for('admin.edit_trading_signal', signal_id=signal.id) }}">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        {% if not signal.shared_whatsapp %}
+                                            <li><a class="dropdown-item" href="#" onclick="shareSignal({{ signal.id }}, 'whatsapp')">
+                                                <i class="fab fa-whatsapp me-1"></i>Share to WhatsApp
+                                            </a></li>
+                                        {% endif %}
+                                        {% if not signal.shared_telegram %}
+                                            <li><a class="dropdown-item" href="#" onclick="shareSignal({{ signal.id }}, 'telegram')">
+                                                <i class="fab fa-telegram me-1"></i>Share to Telegram
+                                            </a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('admin.delete_trading_signal', signal_id=signal.id) }}" class="m-0">
+                                                <button type="submit" class="dropdown-item text-danger" onclick="return confirmDelete('trading signal')">
+                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if signals.pages > 1 %}
+                <nav aria-label="Signals pagination" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        {% if signals.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.trading_signals', page=signals.prev_num) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in signals.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != signals.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.trading_signals', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if signals.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.trading_signals', page=signals.next_num) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Trading Signals Created</h4>
+                <p class="text-muted">Start by creating your first trading signal for subscribers.</p>
+                <a href="{{ url_for('admin.add_trading_signal') }}" class="btn btn-success admin-btn">
+                    <i class="fas fa-plus me-2"></i>Create First Signal
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function shareSignal(signalId, platform) {
+    if (confirm(`Share this signal to ${platform.charAt(0).toUpperCase() + platform.slice(1)}?`)) {
+        fetch('{{ url_for("admin.api_share_signal", signal_id=0) }}'.replace('0', signalId), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                platform: platform
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error sharing signal. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Trading Signal - tCapital Admin{% endblock %}
+{% block page_title %}Add New Trading Signal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card admin-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>Create Trading Signal
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="signal_type" class="form-label">Signal Type</label>
+                                <select class="form-select" id="signal_type" name="signal_type" required>
+                                    <option value="">Select Signal Type</option>
+                                    <option value="stock">Stock</option>
+                                    <option value="strategy">Strategy</option>
+                                    <option value="index_future">Index Future</option>
+                                    <option value="option">Option</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="symbol" class="form-label">Symbol</label>
+                                <input type="text" class="form-control" id="symbol" name="symbol" placeholder="e.g., RELIANCE, NIFTY" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="company_name" class="form-label">Company Name (Optional)</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name" placeholder="e.g., Reliance Industries Ltd">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="action" class="form-label">Action</label>
+                                <select class="form-select" id="action" name="action" required>
+                                    <option value="">Select Action</option>
+                                    <option value="BUY">BUY</option>
+                                    <option value="SELL">SELL</option>
+                                    <option value="HOLD">HOLD</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="entry_price" class="form-label">Entry Price (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="entry_price" name="entry_price" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="target_price" class="form-label">Target Price (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="target_price" name="target_price" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="stop_loss" class="form-label">Stop Loss (₹)</label>
+                                <input type="number" step="0.01" class="form-control" id="stop_loss" name="stop_loss" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" placeholder="100">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="risk_level" class="form-label">Risk Level</label>
+                                <select class="form-select" id="risk_level" name="risk_level">
+                                    <option value="">Select Risk</option>
+                                    <option value="LOW">Low</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HIGH">High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="time_frame" class="form-label">Time Frame</label>
+                                <select class="form-select" id="time_frame" name="time_frame">
+                                    <option value="">Select Time Frame</option>
+                                    <option value="INTRADAY">Intraday</option>
+                                    <option value="SWING">Swing</option>
+                                    <option value="POSITIONAL">Positional</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="expires_date" class="form-label">Expires Date</label>
+                                <input type="date" class="form-control" id="expires_date" name="expires_date">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="strategy_name" class="form-label">Strategy Name (Optional)</label>
+                        <input type="text" class="form-control" id="strategy_name" name="strategy_name" placeholder="e.g., Breakout Strategy, Moving Average Crossover">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes & Analysis</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Add detailed analysis, rationale, and any additional information..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="share_whatsapp" name="share_whatsapp">
+                                <label class="form-check-label" for="share_whatsapp">
+                                    <i class="fab fa-whatsapp text-success me-1"></i>Share to WhatsApp Group
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="share_telegram" name="share_telegram">
+                                <label class="form-check-label" for="share_telegram">
+                                    <i class="fab fa-telegram text-info me-1"></i>Share to Telegram Channel
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.trading_signals') }}" class="btn btn-secondary admin-btn">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success admin-btn">
+                            <i class="fas fa-save me-2"></i>Create Trading Signal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card admin-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Quick Tips
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-lightbulb me-1"></i>Signal Guidelines</h6>
+                    <ul class="small mb-0">
+                        <li>Use accurate symbol names (NSE format)</li>
+                        <li>Provide realistic entry and target prices</li>
+                        <li>Set appropriate stop loss levels</li>
+                        <li>Add detailed analysis in notes</li>
+                        <li>Choose correct risk level for the trade</li>
+                    </ul>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-1"></i>Sharing Options</h6>
+                    <small>
+                        Signals will be automatically shared to selected channels once created. 
+                        Ensure all details are accurate before creating.
+                    </small>
+                </div>
+                
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-users me-1"></i>Visibility</h6>
+                    <small>
+                        Trading signals are visible to:
+                        <br>• Trader plan subscribers
+                        <br>• Trader Plus subscribers  
+                        <br>• Premium subscribers
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-calculate potential return
+function calculateReturn() {
+    const entryPrice = parseFloat(document.getElementById('entry_price').value) || 0;
+    const targetPrice = parseFloat(document.getElementById('target_price').value) || 0;
+    
+    if (entryPrice > 0 && targetPrice > 0) {
+        const returnPct = ((targetPrice - entryPrice) / entryPrice * 100).toFixed(2);
+        console.log('Potential return:', returnPct + '%');
+    }
+}
+
+document.getElementById('entry_price').addEventListener('input', calculateReturn);
+document.getElementById('target_price').addEventListener('input', calculateReturn);
+
+// Auto-uppercase symbol
+document.getElementById('symbol').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+// Set default expiry date to today + 7 days
+document.addEventListener('DOMContentLoaded', function() {
+    const expiryDate = document.getElementById('expires_date');
+    const today = new Date();
+    today.setDate(today.getDate() + 7);
+    expiryDate.value = today.toISOString().split('T')[0];
+});
+</script>
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends "admin/base.html" %}
+
+{% block title %}User Management - tCapital Admin{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted">Monitor and manage platform users</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary admin-btn" onclick="exportUsers()">
+            <i class="fas fa-download me-2"></i>Export Users
+        </button>
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle admin-btn" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-filter me-2"></i>Filter
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">All Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=premium">Premium Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=trader_plus">Trader Plus Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=trader">Trader Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=free">Free Users</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- User Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="admin-stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ users.total }}</h3>
+                    <p class="mb-0">Total Users</p>
+                </div>
+                <i class="fas fa-users fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ users.items | selectattr('pricing_plan', 'in', ['premium', 'trader_plus', 'trader']) | list | length }}</h3>
+                    <p class="mb-0">Paid Users</p>
+                </div>
+                <i class="fas fa-crown fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ users.items | selectattr('pricing_plan', 'equalto', 'free') | list | length }}</h3>
+                    <p class="mb-0">Free Users</p>
+                </div>
+                <i class="fas fa-user fa-2x"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="admin-stat-card danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ users.items | selectattr('last_login', 'none') | list | length }}</h3>
+                    <p class="mb-0">Never Logged In</p>
+                </div>
+                <i class="fas fa-user-times fa-2x"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card admin-card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-users me-2"></i>Registered Users
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if users.items %}
+            <div class="table-responsive">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Plan</th>
+                            <th>Registration</th>
+                            <th>Last Login</th>
+                            <th>Brokers</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile_image_url %}
+                                        <img src="{{ user.profile_image_url }}" alt="{{ user.username }}" class="rounded-circle me-2" width="32" height="32" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                            {{ user.username[0].upper() }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ user.username }}</strong>
+                                        <br><small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.pricing_plan == 'premium' %}
+                                    <span class="badge bg-danger">Premium</span>
+                                {% elif user.pricing_plan == 'trader_plus' %}
+                                    <span class="badge bg-warning">Trader Plus</span>
+                                {% elif user.pricing_plan == 'trader' %}
+                                    <span class="badge bg-info">Trader</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Free</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>
+                                    {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A' }}
+                                </small>
+                            </td>
+                            <td>
+                                {% if user.last_login %}
+                                    <small>{{ user.last_login.strftime('%b %d, %Y %I:%M %p') }}</small>
+                                {% else %}
+                                    <small class="text-muted">Never</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.brokers %}
+                                    <div class="d-flex gap-1">
+                                        {% for broker in user.brokers %}
+                                            <span class="badge bg-{{ 'success' if broker.status == 'Connected' else 'secondary' }} text-white">
+                                                {{ broker.broker_name }}
+                                                {% if broker.is_primary %}*{% endif %}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <small class="text-muted">No brokers</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.subscription_status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif user.subscription_status == 'expired' %}
+                                    <span class="badge bg-warning">Expired</span>
+                                {% elif user.subscription_status == 'cancelled' %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-primary admin-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-info admin-btn" onclick="sendMessage({{ user.id }}, '{{ user.username }}')">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if users.pages > 1 %}
+                <nav aria-label="Users pagination" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        {% if users.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.users', page=users.prev_num) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in users.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num != users.page %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('admin.users', page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if users.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.users', page=users.next_num) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Users Found</h4>
+                <p class="text-muted">No users match the current filter criteria.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function exportUsers() {
+    // TODO: Implement user export functionality
+    alert('User export functionality will be implemented soon.');
+}
+
+function sendMessage(userId, username) {
+    // TODO: Implement user messaging functionality
+    alert(`Send message to ${username} (ID: ${userId}) - Feature coming soon.`);
+}
+</script>
+{% endblock %}

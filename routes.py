@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
-                   AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio,
+                   AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker,
                    ChatConversation, ChatMessage, ChatbotKnowledgeBase)
 from services.nse_service import nse_service
@@ -995,9 +995,32 @@ def get_market_overview():
 @app.route('/dashboard/trading-signals')
 @login_required
 def dashboard_trading_signals():
-    # Check subscription access
-    if not current_user.can_access_menu('dashboard_trading_signals'):
-        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
+    """Trading signals page for paid users only"""
+    # Check if user has paid subscription
+    if current_user.pricing_plan not in ['trader', 'trader_plus', 'premium']:
+        flash('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
+        return redirect(url_for('pricing'))
+    
+    # Get active trading signals from admin
+    try:
+        from models import TradingSignal
+        from sqlalchemy import func, desc
+        today = datetime.utcnow().date()
+        signals = TradingSignal.query.filter(
+            TradingSignal.status == 'ACTIVE',
+            func.date(TradingSignal.created_at) >= today - timedelta(days=7)  # Last 7 days
+        ).order_by(desc(TradingSignal.created_at)).all()
+    except ImportError:
+        signals = []  # Fallback if TradingSignal not available
+    
+    return render_template('dashboard/trading_signals.html', signals=signals)
+
+@app.route('/dashboard/trade-now')
+@login_required  
+def dashboard_trade_now():
+    # Check subscription access for TraderPlus users
+    if current_user.pricing_plan not in ['trader_plus', 'premium']:
+        flash('Trade execution is available for Trader Plus and Premium subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     """Dashboard Trading Signals page with real data from database"""
     from datetime import date
