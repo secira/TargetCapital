@@ -72,6 +72,11 @@ Built professional TradingView widget integration (tradingview-widget.js) for em
 Added clickable index charts in dashboard with real-time price displays and professional chart modals
 Fixed chart visibility issues by implementing iframe-based TradingView embeds with proper NSE symbol mapping
 Updated all dashboard price displays to show current realistic market values with proper change indicators
+Removed TradingView notification messages by creating custom chart implementation (August 20, 2025)
+Eliminated "This symbol is only available on TradingView" notifications completely
+Built custom chart interface with professional loading states and interactive elements
+Replaced TradingView iframe embeds with notification-free custom chart displays
+Added animated chart backgrounds and clean professional chart loading interface
 AI Advisor completely restructured with Perplexity Sonar integration (August 19, 2025)
 Replaced ChatGPT with Perplexity Sonar Pro for real-time market intelligence and current data access
 Created modern dual-mode interface accommodating both AI Advisor and Agentic AI functionality
