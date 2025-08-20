@@ -6,6 +6,7 @@ from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, Stoc
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker,
                    ChatConversation, ChatMessage, ChatbotKnowledgeBase)
 from services.nse_service import nse_service
+from services.nse_realtime_service import get_live_market_data, get_stock_quote
 from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
 from services.chatbot_service import chatbot
@@ -813,6 +814,33 @@ def dashboard_stock_analysis():
     # Get all stock analyses
     analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).all()
     return render_template('dashboard/stock_analysis.html', analyses=analyses)
+
+# Real-time market data API endpoints
+@app.route('/api/realtime/indices')
+def api_realtime_indices():
+    """API endpoint for real-time NSE indices data"""
+    try:
+        data = get_live_market_data()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
+
+@app.route('/api/realtime/stock/<symbol>')
+def api_realtime_stock(symbol):
+    """API endpoint for real-time stock data"""
+    try:
+        data = get_stock_quote(symbol.upper())
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }), 500
 
 
 
