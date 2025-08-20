@@ -49,21 +49,7 @@
             </li>
             {% endif %}
             
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_stock_analysis') %}
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_stock_analysis' else '' }}" 
-                   href="{{ url_for('dashboard_stock_analysis') }}">
-                    <i class="fas fa-chart-bar me-2"></i>Stock Analysis
-                </a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-bar me-2"></i>Stock Analysis</span>
-                    <i class="fas fa-lock small" title="Upgrade to access"></i>
-                </span>
-            </li>
-            {% endif %}
+            <!-- Stock Analysis menu removed - charts now work everywhere stocks/indices are displayed -->
             
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
             <li class="nav-item">
