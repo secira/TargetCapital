@@ -136,22 +136,22 @@
             <div class="col-md-3 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
-                        <i class="fas fa-clock text-warning"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
                     <div>
                         <div class="fw-bold">Zerodha</div>
-                        <small class="text-muted">Coming Soon</small>
+                        <small class="text-muted">Kite Connect API</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
-                        <i class="fas fa-clock text-warning"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">Angel Broking</div>
-                        <small class="text-muted">Coming Soon</small>
+                        <div class="fw-bold">Angel One</div>
+                        <small class="text-muted">SmartAPI</small>
                     </div>
                 </div>
             </div>
@@ -185,8 +185,18 @@
                         <select class="form-control" id="brokerType" name="broker_type" required>
                             <option value="">Choose a broker...</option>
                             {% for broker_type in broker_types %}
-                                {% if broker_type.value == 'dhan' %}
-                                    <option value="{{ broker_type.value }}">{{ broker_type.value.title() }} (Recommended)</option>
+                                {% if broker_type.value in ['dhan', 'zerodha', 'angel_broking'] %}
+                                    <option value="{{ broker_type.value }}">
+                                        {% if broker_type.value == 'dhan' %}
+                                            Dhan (Free APIs)
+                                        {% elif broker_type.value == 'zerodha' %}
+                                            Zerodha Kite Connect
+                                        {% elif broker_type.value == 'angel_broking' %}
+                                            Angel One SmartAPI
+                                        {% else %}
+                                            {{ broker_type.value.title() }}
+                                        {% endif %}
+                                    </option>
                                 {% else %}
                                     <option value="{{ broker_type.value }}" disabled>{{ broker_type.value.title() }} (Coming Soon)</option>
                                 {% endif %}
@@ -194,6 +204,7 @@
                         </select>
                     </div>
                     
+                    <!-- Dhan Credentials -->
                     <div id="dhanCredentials" style="display: none;">
                         <div class="alert alert-info">
                             <h6><i class="fas fa-info-circle me-2"></i>Get Your Dhan API Credentials</h6>
@@ -206,14 +217,68 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="clientId" class="form-label">Client ID</label>
-                            <input type="text" class="form-control" id="clientId" name="client_id" placeholder="Your Dhan Client ID" required>
+                            <label for="dhanClientId" class="form-label">Client ID</label>
+                            <input type="text" class="form-control" id="dhanClientId" name="client_id" placeholder="Your Dhan Client ID">
                         </div>
                         
                         <div class="mb-3">
-                            <label for="accessToken" class="form-label">Access Token</label>
-                            <input type="password" class="form-control" id="accessToken" name="access_token" placeholder="Your Dhan Access Token" required>
+                            <label for="dhanAccessToken" class="form-label">Access Token</label>
+                            <input type="password" class="form-control" id="dhanAccessToken" name="access_token" placeholder="Your Dhan Access Token">
                             <div class="form-text">Your credentials are encrypted and stored securely</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zerodha Credentials -->
+                    <div id="zerodhaCredentials" style="display: none;">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Zerodha Kite Connect API Credentials</h6>
+                            <ol class="mb-0">
+                                <li>Go to <a href="https://developers.kite.trade" target="_blank">developers.kite.trade</a></li>
+                                <li>Login with your Zerodha credentials and create an app</li>
+                                <li>Get your API Key and API Secret</li>
+                                <li>Generate access token using the login flow</li>
+                                <li><strong>Note:</strong> Kite Connect costs ₹500/month</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="zerodhaApiKey" class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="zerodhaApiKey" name="client_id" placeholder="Your Zerodha API Key">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="zerodhaAccessToken" class="form-label">Access Token</label>
+                            <input type="password" class="form-control" id="zerodhaAccessToken" name="access_token" placeholder="Your Zerodha Access Token">
+                            <div class="form-text">Generate this through Zerodha login flow</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Angel One Credentials -->
+                    <div id="angelCredentials" style="display: none;">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Angel One SmartAPI Credentials</h6>
+                            <ol class="mb-0">
+                                <li>Go to <a href="https://smartapi.angelone.in" target="_blank">smartapi.angelone.in</a></li>
+                                <li>Register with your Angel One client details</li>
+                                <li>Generate API Key and enable TOTP</li>
+                                <li>Use your client code and trading PIN below</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="angelApiKey" class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="angelApiKey" name="client_id" placeholder="Your Angel One API Key">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="angelClientCode" class="form-label">Client Code</label>
+                            <input type="text" class="form-control" id="angelClientCode" name="access_token" placeholder="Your Angel One Client Code">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="angelPin" class="form-label">Trading PIN</label>
+                            <input type="password" class="form-control" id="angelPin" name="api_secret" placeholder="Your Angel One Trading PIN">
+                            <div class="form-text">Your trading PIN (not login password)</div>
                         </div>
                     </div>
                 </form>
@@ -232,7 +297,20 @@
 // Show/hide credentials based on broker selection
 document.getElementById('brokerType').addEventListener('change', function() {
     const brokerType = this.value;
-    document.getElementById('dhanCredentials').style.display = brokerType === 'dhan' ? 'block' : 'none';
+    
+    // Hide all credential forms
+    document.getElementById('dhanCredentials').style.display = 'none';
+    document.getElementById('zerodhaCredentials').style.display = 'none';
+    document.getElementById('angelCredentials').style.display = 'none';
+    
+    // Show selected broker credentials
+    if (brokerType === 'dhan') {
+        document.getElementById('dhanCredentials').style.display = 'block';
+    } else if (brokerType === 'zerodha') {
+        document.getElementById('zerodhaCredentials').style.display = 'block';
+    } else if (brokerType === 'angel_broking') {
+        document.getElementById('angelCredentials').style.display = 'block';
+    }
 });
 
 // Add broker account

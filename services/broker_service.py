@@ -17,6 +17,22 @@ except ImportError:
     DHAN_AVAILABLE = False
     dhanhq = None
 
+try:
+    from kiteconnect import KiteConnect
+    ZERODHA_AVAILABLE = True
+except ImportError:
+    ZERODHA_AVAILABLE = False
+    KiteConnect = None
+
+try:
+    from SmartApi import SmartConnect
+    import pyotp
+    ANGEL_AVAILABLE = True
+except ImportError:
+    ANGEL_AVAILABLE = False
+    SmartConnect = None
+    pyotp = None
+
 from models_broker import (
     BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder, BrokerSyncLog,
     BrokerType, ConnectionStatus, OrderStatus, TransactionType, 
@@ -348,6 +364,586 @@ class DhanBrokerClient(BaseBrokerClient):
         except:
             return datetime.utcnow()
 
+class ZerodhaBrokerClient(BaseBrokerClient):
+    """Zerodha Kite Connect broker client implementation"""
+    
+    def __init__(self, broker_account: BrokerAccount):
+        super().__init__(broker_account)
+        if not ZERODHA_AVAILABLE:
+            raise BrokerAPIError("Zerodha library not available. Install with: pip install kiteconnect")
+    
+    def connect(self) -> bool:
+        """Connect to Zerodha Kite API"""
+        try:
+            api_key = self.credentials.get('client_id')  # API Key
+            access_token = self.credentials.get('access_token')
+            
+            if not api_key or not access_token:
+                raise BrokerAPIError("Missing Zerodha credentials")
+            
+            self._client = KiteConnect(api_key=api_key)
+            self._client.set_access_token(access_token)
+            
+            # Test connection by getting profile
+            profile = self._client.profile()
+            if profile and profile.get('user_id'):
+                self.broker_account.update_connection_status(ConnectionStatus.CONNECTED)
+                logger.info(f"Successfully connected to Zerodha for account {api_key}")
+                return True
+            else:
+                raise BrokerAPIError("Invalid response from Zerodha API")
+                
+        except Exception as e:
+            error_msg = f"Failed to connect to Zerodha: {str(e)}"
+            self.broker_account.update_connection_status(ConnectionStatus.ERROR, error_msg)
+            logger.error(error_msg)
+            return False
+    
+    def get_holdings(self) -> List[Dict]:
+        """Get Zerodha holdings"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            holdings = self._client.holdings()
+            return self._normalize_zerodha_holdings(holdings)
+        except Exception as e:
+            logger.error(f"Error fetching Zerodha holdings: {e}")
+            raise BrokerAPIError(f"Failed to fetch holdings: {e}")
+    
+    def get_positions(self) -> List[Dict]:
+        """Get Zerodha positions"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            positions = self._client.positions()
+            # Zerodha returns both 'net' and 'day' positions
+            net_positions = positions.get('net', [])
+            return self._normalize_zerodha_positions(net_positions)
+        except Exception as e:
+            logger.error(f"Error fetching Zerodha positions: {e}")
+            raise BrokerAPIError(f"Failed to fetch positions: {e}")
+    
+    def get_orders(self) -> List[Dict]:
+        """Get Zerodha orders"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            orders = self._client.orders()
+            return self._normalize_zerodha_orders(orders)
+        except Exception as e:
+            logger.error(f"Error fetching Zerodha orders: {e}")
+            raise BrokerAPIError(f"Failed to fetch orders: {e}")
+    
+    def place_order(self, order_data: Dict) -> Dict:
+        """Place order with Zerodha"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            # Convert our order format to Zerodha format
+            zerodha_order = self._convert_to_zerodha_order(order_data)
+            order_id = self._client.place_order(**zerodha_order)
+            return {'status': 'success', 'order_id': order_id, 'message': 'Order placed successfully'}
+        except Exception as e:
+            logger.error(f"Error placing Zerodha order: {e}")
+            raise BrokerAPIError(f"Failed to place order: {e}")
+    
+    def cancel_order(self, order_id: str) -> Dict:
+        """Cancel Zerodha order"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            result = self._client.cancel_order(variety=self._client.VARIETY_REGULAR, order_id=order_id)
+            return {'status': 'success', 'message': 'Order cancelled', 'data': result}
+        except Exception as e:
+            logger.error(f"Error cancelling Zerodha order: {e}")
+            raise BrokerAPIError(f"Failed to cancel order: {e}")
+    
+    def get_profile(self) -> Dict:
+        """Get Zerodha profile"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Zerodha")
+        
+        try:
+            profile = self._client.profile()
+            margins = self._client.margins()
+            return self._normalize_zerodha_profile(profile, margins)
+        except Exception as e:
+            logger.error(f"Error fetching Zerodha profile: {e}")
+            raise BrokerAPIError(f"Failed to fetch profile: {e}")
+    
+    def _normalize_zerodha_holdings(self, holdings: List) -> List[Dict]:
+        """Normalize Zerodha holdings to our format"""
+        normalized = []
+        for holding in holdings or []:
+            normalized.append({
+                'symbol': holding.get('tradingsymbol', ''),
+                'trading_symbol': holding.get('tradingsymbol', ''),
+                'company_name': holding.get('tradingsymbol', ''),  # Zerodha doesn't provide company name
+                'exchange': holding.get('exchange', 'NSE'),
+                'security_id': holding.get('instrument_token', ''),
+                'isin': holding.get('isin', ''),
+                'total_quantity': holding.get('quantity', 0),
+                'available_quantity': holding.get('quantity', 0),
+                't1_quantity': holding.get('t1_quantity', 0),
+                'dp_quantity': holding.get('quantity', 0),
+                'collateral_quantity': holding.get('collateral_quantity', 0),
+                'avg_cost_price': holding.get('average_price', 0.0),
+                'current_price': holding.get('last_price', 0.0),
+                'last_trade_price': holding.get('last_price', 0.0)
+            })
+        return normalized
+    
+    def _normalize_zerodha_positions(self, positions: List) -> List[Dict]:
+        """Normalize Zerodha positions to our format"""
+        normalized = []
+        for position in positions or []:
+            normalized.append({
+                'symbol': position.get('tradingsymbol', ''),
+                'trading_symbol': position.get('tradingsymbol', ''),
+                'exchange': position.get('exchange', 'NSE'),
+                'security_id': position.get('instrument_token', ''),
+                'product_type': self._map_zerodha_product_type(position.get('product', '')),
+                'quantity': position.get('quantity', 0),
+                'buy_quantity': position.get('buy_quantity', 0),
+                'sell_quantity': position.get('sell_quantity', 0),
+                'avg_buy_price': position.get('buy_price', 0.0),
+                'avg_sell_price': position.get('sell_price', 0.0),
+                'current_price': position.get('last_price', 0.0),
+                'realized_pnl': position.get('realised', 0.0),
+                'unrealized_pnl': position.get('unrealised', 0.0),
+                'total_pnl': position.get('pnl', 0.0)
+            })
+        return normalized
+    
+    def _normalize_zerodha_orders(self, orders: List) -> List[Dict]:
+        """Normalize Zerodha orders to our format"""
+        normalized = []
+        for order in orders or []:
+            normalized.append({
+                'broker_order_id': order.get('order_id', ''),
+                'symbol': order.get('tradingsymbol', ''),
+                'trading_symbol': order.get('tradingsymbol', ''),
+                'exchange': order.get('exchange', 'NSE'),
+                'security_id': order.get('instrument_token', ''),
+                'transaction_type': TransactionType.BUY if order.get('transaction_type') == 'BUY' else TransactionType.SELL,
+                'order_type': self._map_zerodha_order_type(order.get('order_type', '')),
+                'product_type': self._map_zerodha_product_type(order.get('product', '')),
+                'quantity': order.get('quantity', 0),
+                'filled_quantity': order.get('filled_quantity', 0),
+                'pending_quantity': order.get('pending_quantity', 0),
+                'price': order.get('price', 0.0),
+                'trigger_price': order.get('trigger_price', 0.0),
+                'order_status': self._map_zerodha_order_status(order.get('status', '')),
+                'avg_execution_price': order.get('average_price', 0.0),
+                'order_time': self._parse_zerodha_datetime(order.get('order_timestamp')),
+                'status_message': order.get('status_message', '')
+            })
+        return normalized
+    
+    def _normalize_zerodha_profile(self, profile: Dict, margins: Dict) -> Dict:
+        """Normalize Zerodha profile to our format"""
+        equity_margin = margins.get('equity', {})
+        return {
+            'client_id': profile.get('user_id', ''),
+            'account_name': profile.get('user_name', ''),
+            'email': profile.get('email', ''),
+            'mobile': profile.get('phone', ''),
+            'available_balance': equity_margin.get('available', {}).get('cash', 0.0),
+            'used_margin': equity_margin.get('utilised', {}).get('debits', 0.0)
+        }
+    
+    def _convert_to_zerodha_order(self, order_data: Dict) -> Dict:
+        """Convert our order format to Zerodha API format"""
+        transaction_type_map = {
+            TransactionType.BUY: self._client.TRANSACTION_TYPE_BUY,
+            TransactionType.SELL: self._client.TRANSACTION_TYPE_SELL
+        }
+        
+        order_type_map = {
+            OrderType.MARKET: self._client.ORDER_TYPE_MARKET,
+            OrderType.LIMIT: self._client.ORDER_TYPE_LIMIT,
+            OrderType.SL: self._client.ORDER_TYPE_SL,
+            OrderType.SL_M: self._client.ORDER_TYPE_SLM
+        }
+        
+        product_type_map = {
+            ProductType.INTRADAY: self._client.PRODUCT_MIS,
+            ProductType.DELIVERY: self._client.PRODUCT_CNC,
+            ProductType.CNC: self._client.PRODUCT_CNC,
+            ProductType.MIS: self._client.PRODUCT_MIS
+        }
+        
+        return {
+            'tradingsymbol': order_data.get('trading_symbol'),
+            'exchange': order_data.get('exchange', self._client.EXCHANGE_NSE),
+            'transaction_type': transaction_type_map.get(order_data.get('transaction_type')),
+            'quantity': order_data.get('quantity'),
+            'order_type': order_type_map.get(order_data.get('order_type')),
+            'product': product_type_map.get(order_data.get('product_type')),
+            'price': order_data.get('price', 0),
+            'trigger_price': order_data.get('trigger_price', 0),
+            'disclosed_quantity': order_data.get('disclosed_quantity', 0),
+            'validity': order_data.get('validity', self._client.VALIDITY_DAY),
+            'variety': self._client.VARIETY_REGULAR
+        }
+    
+    def _map_zerodha_product_type(self, zerodha_product: str) -> ProductType:
+        """Map Zerodha product type to our enum"""
+        mapping = {
+            'MIS': ProductType.INTRADAY,
+            'CNC': ProductType.CNC,
+            'NRML': ProductType.DELIVERY
+        }
+        return mapping.get(zerodha_product, ProductType.INTRADAY)
+    
+    def _map_zerodha_order_type(self, zerodha_type: str) -> OrderType:
+        """Map Zerodha order type to our enum"""
+        mapping = {
+            'MARKET': OrderType.MARKET,
+            'LIMIT': OrderType.LIMIT,
+            'SL': OrderType.SL,
+            'SL-M': OrderType.SL_M
+        }
+        return mapping.get(zerodha_type, OrderType.MARKET)
+    
+    def _map_zerodha_order_status(self, zerodha_status: str) -> OrderStatus:
+        """Map Zerodha order status to our enum"""
+        mapping = {
+            'OPEN': OrderStatus.OPEN,
+            'COMPLETE': OrderStatus.COMPLETE,
+            'CANCELLED': OrderStatus.CANCELLED,
+            'REJECTED': OrderStatus.REJECTED,
+            'PUT ORDER REQ RECEIVED': OrderStatus.PENDING
+        }
+        return mapping.get(zerodha_status, OrderStatus.PENDING)
+    
+    def _parse_zerodha_datetime(self, dt_string: str) -> datetime:
+        """Parse Zerodha datetime string"""
+        if not dt_string:
+            return datetime.utcnow()
+        try:
+            return datetime.fromisoformat(dt_string.replace('Z', '+00:00'))
+        except:
+            return datetime.utcnow()
+
+class AngelBrokerClient(BaseBrokerClient):
+    """Angel One SmartAPI broker client implementation"""
+    
+    def __init__(self, broker_account: BrokerAccount):
+        super().__init__(broker_account)
+        if not ANGEL_AVAILABLE:
+            raise BrokerAPIError("Angel One library not available. Install with: pip install smartapi-python pyotp")
+    
+    def connect(self) -> bool:
+        """Connect to Angel One SmartAPI"""
+        try:
+            api_key = self.credentials.get('client_id')  # API Key
+            username = self.credentials.get('access_token')  # Client Code
+            password = self.credentials.get('api_secret')  # Trading PIN
+            totp_secret = self.credentials.get('totp_secret')  # TOTP Secret
+            
+            if not api_key or not username or not password:
+                raise BrokerAPIError("Missing Angel One credentials")
+            
+            self._client = SmartConnect(api_key)
+            
+            # Generate TOTP if available
+            totp = None
+            if totp_secret:
+                try:
+                    totp = pyotp.TOTP(totp_secret).now()
+                except:
+                    pass
+            
+            if not totp:
+                # Use static TOTP for now (user needs to provide current TOTP)
+                totp = password[-6:] if len(password) > 6 else "123456"
+            
+            # Generate session
+            data = self._client.generateSession(username, password, totp)
+            
+            if data.get('status') == False:
+                raise BrokerAPIError(f"Angel One login failed: {data.get('message', 'Authentication failed')}")
+            
+            # Store tokens
+            self._auth_token = data['data']['jwtToken']
+            self._refresh_token = data['data']['refreshToken']
+            self._feed_token = self._client.getfeedToken()
+            
+            # Test connection with profile
+            profile = self._client.getProfile(self._refresh_token)
+            if profile and profile.get('status'):
+                self.broker_account.update_connection_status(ConnectionStatus.CONNECTED)
+                logger.info(f"Successfully connected to Angel One for account {username}")
+                return True
+            else:
+                raise BrokerAPIError("Failed to get Angel One profile")
+                
+        except Exception as e:
+            error_msg = f"Failed to connect to Angel One: {str(e)}"
+            self.broker_account.update_connection_status(ConnectionStatus.ERROR, error_msg)
+            logger.error(error_msg)
+            return False
+    
+    def get_holdings(self) -> List[Dict]:
+        """Get Angel One holdings"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            holdings = self._client.holding()
+            if holdings.get('status'):
+                return self._normalize_angel_holdings(holdings.get('data', []))
+            else:
+                raise BrokerAPIError(f"Failed to fetch holdings: {holdings.get('message')}")
+        except Exception as e:
+            logger.error(f"Error fetching Angel One holdings: {e}")
+            raise BrokerAPIError(f"Failed to fetch holdings: {e}")
+    
+    def get_positions(self) -> List[Dict]:
+        """Get Angel One positions"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            positions = self._client.position()
+            if positions.get('status'):
+                return self._normalize_angel_positions(positions.get('data', []))
+            else:
+                raise BrokerAPIError(f"Failed to fetch positions: {positions.get('message')}")
+        except Exception as e:
+            logger.error(f"Error fetching Angel One positions: {e}")
+            raise BrokerAPIError(f"Failed to fetch positions: {e}")
+    
+    def get_orders(self) -> List[Dict]:
+        """Get Angel One orders"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            orders = self._client.orderBook()
+            if orders.get('status'):
+                return self._normalize_angel_orders(orders.get('data', []))
+            else:
+                raise BrokerAPIError(f"Failed to fetch orders: {orders.get('message')}")
+        except Exception as e:
+            logger.error(f"Error fetching Angel One orders: {e}")
+            raise BrokerAPIError(f"Failed to fetch orders: {e}")
+    
+    def place_order(self, order_data: Dict) -> Dict:
+        """Place order with Angel One"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            # Convert our order format to Angel One format
+            angel_order = self._convert_to_angel_order(order_data)
+            result = self._client.placeOrder(angel_order)
+            
+            if result.get('status'):
+                return {
+                    'status': 'success', 
+                    'order_id': result.get('data', {}).get('orderid'),
+                    'message': 'Order placed successfully'
+                }
+            else:
+                raise BrokerAPIError(f"Order placement failed: {result.get('message')}")
+        except Exception as e:
+            logger.error(f"Error placing Angel One order: {e}")
+            raise BrokerAPIError(f"Failed to place order: {e}")
+    
+    def cancel_order(self, order_id: str) -> Dict:
+        """Cancel Angel One order"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            result = self._client.cancelOrder(order_id, "NORMAL")
+            return {'status': 'success', 'message': 'Order cancelled', 'data': result}
+        except Exception as e:
+            logger.error(f"Error cancelling Angel One order: {e}")
+            raise BrokerAPIError(f"Failed to cancel order: {e}")
+    
+    def get_profile(self) -> Dict:
+        """Get Angel One profile"""
+        if not self._client:
+            raise BrokerAPIError("Not connected to Angel One")
+        
+        try:
+            profile = self._client.getProfile(self._refresh_token)
+            rms = self._client.rmsLimit()
+            return self._normalize_angel_profile(profile, rms)
+        except Exception as e:
+            logger.error(f"Error fetching Angel One profile: {e}")
+            raise BrokerAPIError(f"Failed to fetch profile: {e}")
+    
+    def _normalize_angel_holdings(self, holdings: List) -> List[Dict]:
+        """Normalize Angel One holdings to our format"""
+        normalized = []
+        for holding in holdings or []:
+            normalized.append({
+                'symbol': holding.get('tradingsymbol', ''),
+                'trading_symbol': holding.get('tradingsymbol', ''),
+                'company_name': holding.get('symbolname', ''),
+                'exchange': holding.get('exchange', 'NSE'),
+                'security_id': holding.get('symboltoken', ''),
+                'isin': holding.get('isin', ''),
+                'total_quantity': int(holding.get('quantity', 0)),
+                'available_quantity': int(holding.get('quantity', 0)),
+                't1_quantity': int(holding.get('t1quantity', 0)),
+                'dp_quantity': int(holding.get('quantity', 0)),
+                'collateral_quantity': int(holding.get('collateralquantity', 0)),
+                'avg_cost_price': float(holding.get('averageprice', 0.0)),
+                'current_price': float(holding.get('ltp', 0.0)),
+                'last_trade_price': float(holding.get('ltp', 0.0))
+            })
+        return normalized
+    
+    def _normalize_angel_positions(self, positions: List) -> List[Dict]:
+        """Normalize Angel One positions to our format"""
+        normalized = []
+        for position in positions or []:
+            normalized.append({
+                'symbol': position.get('tradingsymbol', ''),
+                'trading_symbol': position.get('tradingsymbol', ''),
+                'exchange': position.get('exchange', 'NSE'),
+                'security_id': position.get('symboltoken', ''),
+                'product_type': self._map_angel_product_type(position.get('producttype', '')),
+                'quantity': int(position.get('netqty', 0)),
+                'buy_quantity': int(position.get('buyqty', 0)),
+                'sell_quantity': int(position.get('sellqty', 0)),
+                'avg_buy_price': float(position.get('buyavgprice', 0.0)),
+                'avg_sell_price': float(position.get('sellavgprice', 0.0)),
+                'current_price': float(position.get('ltp', 0.0)),
+                'realized_pnl': float(position.get('realised', 0.0)),
+                'unrealized_pnl': float(position.get('unrealised', 0.0)),
+                'total_pnl': float(position.get('pnl', 0.0))
+            })
+        return normalized
+    
+    def _normalize_angel_orders(self, orders: List) -> List[Dict]:
+        """Normalize Angel One orders to our format"""
+        normalized = []
+        for order in orders or []:
+            normalized.append({
+                'broker_order_id': order.get('orderid', ''),
+                'symbol': order.get('tradingsymbol', ''),
+                'trading_symbol': order.get('tradingsymbol', ''),
+                'exchange': order.get('exchange', 'NSE'),
+                'security_id': order.get('symboltoken', ''),
+                'transaction_type': TransactionType.BUY if order.get('transactiontype') == 'BUY' else TransactionType.SELL,
+                'order_type': self._map_angel_order_type(order.get('ordertype', '')),
+                'product_type': self._map_angel_product_type(order.get('producttype', '')),
+                'quantity': int(order.get('quantity', 0)),
+                'filled_quantity': int(order.get('filledshares', 0)),
+                'pending_quantity': int(order.get('unfilledshares', 0)),
+                'price': float(order.get('price', 0.0)),
+                'trigger_price': float(order.get('triggerprice', 0.0)),
+                'order_status': self._map_angel_order_status(order.get('orderstatus', '')),
+                'avg_execution_price': float(order.get('averageprice', 0.0)),
+                'order_time': self._parse_angel_datetime(order.get('ordertime')),
+                'status_message': order.get('text', '')
+            })
+        return normalized
+    
+    def _normalize_angel_profile(self, profile: Dict, rms: Dict) -> Dict:
+        """Normalize Angel One profile to our format"""
+        profile_data = profile.get('data', {}) if profile.get('status') else {}
+        rms_data = rms.get('data', {}) if rms.get('status') else {}
+        
+        return {
+            'client_id': profile_data.get('clientcode', ''),
+            'account_name': profile_data.get('name', ''),
+            'email': profile_data.get('email', ''),
+            'mobile': profile_data.get('mobileno', ''),
+            'available_balance': float(rms_data.get('availablecash', 0.0)),
+            'used_margin': float(rms_data.get('utilisedmargin', 0.0))
+        }
+    
+    def _convert_to_angel_order(self, order_data: Dict) -> Dict:
+        """Convert our order format to Angel One API format"""
+        transaction_type_map = {
+            TransactionType.BUY: "BUY",
+            TransactionType.SELL: "SELL"
+        }
+        
+        order_type_map = {
+            OrderType.MARKET: "MARKET",
+            OrderType.LIMIT: "LIMIT",
+            OrderType.SL: "STOPLOSS_LIMIT",
+            OrderType.SL_M: "STOPLOSS_MARKET"
+        }
+        
+        product_type_map = {
+            ProductType.INTRADAY: "INTRADAY",
+            ProductType.DELIVERY: "DELIVERY",
+            ProductType.CNC: "DELIVERY",
+            ProductType.MIS: "INTRADAY"
+        }
+        
+        return {
+            "variety": "NORMAL",
+            "tradingsymbol": order_data.get('trading_symbol'),
+            "symboltoken": order_data.get('security_id', ''),
+            "transactiontype": transaction_type_map.get(order_data.get('transaction_type')),
+            "exchange": order_data.get('exchange', 'NSE'),
+            "ordertype": order_type_map.get(order_data.get('order_type')),
+            "producttype": product_type_map.get(order_data.get('product_type')),
+            "duration": "DAY",
+            "price": str(order_data.get('price', 0)),
+            "squareoff": "0",
+            "stoploss": "0",
+            "quantity": str(order_data.get('quantity'))
+        }
+    
+    def _map_angel_product_type(self, angel_product: str) -> ProductType:
+        """Map Angel One product type to our enum"""
+        mapping = {
+            'INTRADAY': ProductType.INTRADAY,
+            'DELIVERY': ProductType.DELIVERY,
+            'MARGIN': ProductType.MIS
+        }
+        return mapping.get(angel_product, ProductType.INTRADAY)
+    
+    def _map_angel_order_type(self, angel_type: str) -> OrderType:
+        """Map Angel One order type to our enum"""
+        mapping = {
+            'MARKET': OrderType.MARKET,
+            'LIMIT': OrderType.LIMIT,
+            'STOPLOSS_LIMIT': OrderType.SL,
+            'STOPLOSS_MARKET': OrderType.SL_M
+        }
+        return mapping.get(angel_type, OrderType.MARKET)
+    
+    def _map_angel_order_status(self, angel_status: str) -> OrderStatus:
+        """Map Angel One order status to our enum"""
+        mapping = {
+            'open': OrderStatus.OPEN,
+            'complete': OrderStatus.COMPLETE,
+            'cancelled': OrderStatus.CANCELLED,
+            'rejected': OrderStatus.REJECTED,
+            'pending': OrderStatus.PENDING
+        }
+        return mapping.get(angel_status.lower(), OrderStatus.PENDING)
+    
+    def _parse_angel_datetime(self, dt_string: str) -> datetime:
+        """Parse Angel One datetime string"""
+        if not dt_string:
+            return datetime.utcnow()
+        try:
+            # Angel One typically returns datetime in DD-MMM-YYYY HH:MM:SS format
+            return datetime.strptime(dt_string, "%d-%b-%Y %H:%M:%S")
+        except:
+            try:
+                return datetime.fromisoformat(dt_string.replace('Z', '+00:00'))
+            except:
+                return datetime.utcnow()
+
 class BrokerService:
     """Main service for managing multiple broker connections"""
     
@@ -356,9 +952,10 @@ class BrokerService:
         """Get appropriate broker client for account"""
         if broker_account.broker_type == BrokerType.DHAN:
             return DhanBrokerClient(broker_account)
-        # Add other brokers here
-        # elif broker_account.broker_type == BrokerType.ZERODHA:
-        #     return ZerodhaBrokerClient(broker_account)
+        elif broker_account.broker_type == BrokerType.ZERODHA:
+            return ZerodhaBrokerClient(broker_account)
+        elif broker_account.broker_type == BrokerType.ANGEL_BROKING:
+            return AngelBrokerClient(broker_account)
         else:
             raise BrokerAPIError(f"Unsupported broker type: {broker_account.broker_type}")
     

@@ -50,11 +50,12 @@ def api_add_broker_account():
         except ValueError:
             return jsonify({'success': False, 'message': 'Invalid broker type'}), 400
         
-        # Prepare credentials
+        # Prepare credentials based on broker type
         credentials = {
             'client_id': data['client_id'],
             'access_token': data['access_token'],
-            'api_secret': data.get('api_secret')
+            'api_secret': data.get('api_secret'),
+            'totp_secret': data.get('totp_secret')
         }
         
         # Add broker account
@@ -370,3 +371,71 @@ def api_test_broker_connection(account_id):
     except Exception as e:
         logger.error(f"Error testing connection: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/broker/sync-all', methods=['POST'])
+@login_required
+def api_sync_all_brokers():
+    """Sync all user's broker accounts"""
+    try:
+        broker_accounts = BrokerAccount.query.filter_by(
+            user_id=current_user.id,
+            is_active=True
+        ).all()
+        
+        if not broker_accounts:
+            return jsonify({'success': False, 'message': 'No broker accounts found'}), 404
+        
+        results = {}
+        for account in broker_accounts:
+            try:
+                sync_result = BrokerService.sync_broker_data(account)
+                results[account.broker_name] = sync_result
+            except Exception as e:
+                results[account.broker_name] = {'error': str(e)}
+        
+        return jsonify({
+            'success': True,
+            'message': f'Synced {len(broker_accounts)} broker accounts',
+            'results': results
+        })
+        
+    except Exception as e:
+        logger.error(f"Error syncing all brokers: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/broker/cancel-order/<order_id>', methods=['POST'])
+@login_required
+def api_cancel_broker_order(order_id):
+    """Cancel order by broker order ID"""
+    try:
+        # Find the order
+        order = BrokerOrder.query.join(BrokerAccount).filter(
+            BrokerOrder.broker_order_id == order_id,
+            BrokerAccount.user_id == current_user.id
+        ).first()
+        
+        if not order:
+            return jsonify({'success': False, 'message': 'Order not found'}), 404
+        
+        # Get broker client and cancel order
+        client = BrokerService.get_broker_client(order.broker_account)
+        if not client.connect():
+            return jsonify({'success': False, 'message': 'Failed to connect to broker'}), 400
+        
+        result = client.cancel_order(order_id)
+        
+        if result.get('status') == 'success':
+            # Update order status in database
+            order.update_status(OrderStatus.CANCELLED, 'Order cancelled by user')
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Order cancelled successfully'
+            })
+        else:
+            return jsonify({'success': False, 'message': result.get('message', 'Failed to cancel order')}), 400
+            
+    except Exception as e:
+        logger.error(f"Error cancelling order: {e}")
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500

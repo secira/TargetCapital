@@ -122,20 +122,32 @@ class BrokerAccount(db.Model):
         fernet = Fernet(self._get_encryption_key())
         return fernet.decrypt(encrypted_data.encode()).decode()
     
-    def set_credentials(self, client_id, access_token=None, api_secret=None):
+    def set_credentials(self, client_id, access_token=None, api_secret=None, totp_secret=None):
         """Set encrypted credentials"""
         self.client_id = self.encrypt_data(client_id)
         if access_token:
             self.access_token = self.encrypt_data(access_token)
         if api_secret:
             self.api_secret = self.encrypt_data(api_secret)
+        # Store TOTP secret in api_secret field for Angel One (separated by |)
+        if totp_secret and api_secret:
+            combined_secret = f"{api_secret}|{totp_secret}"
+            self.api_secret = self.encrypt_data(combined_secret)
     
     def get_credentials(self):
         """Get decrypted credentials"""
+        api_secret = self.decrypt_data(self.api_secret)
+        totp_secret = None
+        
+        # Extract TOTP secret for Angel One (stored as secret|totp)
+        if api_secret and '|' in api_secret:
+            api_secret, totp_secret = api_secret.split('|', 1)
+        
         return {
             'client_id': self.decrypt_data(self.client_id),
             'access_token': self.decrypt_data(self.access_token),
-            'api_secret': self.decrypt_data(self.api_secret)
+            'api_secret': api_secret,
+            'totp_secret': totp_secret
         }
     
     def update_connection_status(self, status, error_message=None):
