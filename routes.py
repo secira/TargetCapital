@@ -740,8 +740,12 @@ def profile():
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('profile'))
     
-    # Get user statistics
-    trading_signals_count = TradingSignal.query.filter_by(user_id=current_user.id).count()
+    # Get user statistics with safe imports
+    try:
+        from models import TradingSignal
+        trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
+    except (ImportError, AttributeError):
+        trading_signals_count = 0
     analyses_count = StockAnalysis.query.count()  # Could be user-specific in future
     
     return render_template('auth/profile.html', 
@@ -775,9 +779,13 @@ def dashboard():
     # Get recent stock analyses
     recent_analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).limit(10).all()
     
-    # Calculate user statistics
+    # Calculate user statistics with safe imports
     days_active = (datetime.utcnow() - current_user.created_at).days
-    trading_signals_count = TradingSignal.query.filter_by(user_id=current_user.id).count()
+    try:
+        from models import TradingSignal
+        trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
+    except (ImportError, AttributeError):
+        trading_signals_count = 0
     
     # Calculate user level based on trading activity
     if trading_signals_count >= 20:

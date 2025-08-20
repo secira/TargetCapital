@@ -9,10 +9,14 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
 from app import db
-from models import (
-    Admin, TradingSignal, User, UserPayment, ExecutedTrade, 
-    UserBroker, PricingPlan
-)
+from models import Admin, User, UserBroker, PricingPlan
+# Import with safe fallback for optional models
+try:
+    from models import TradingSignal, UserPayment, ExecutedTrade
+    TRADING_SIGNALS_AVAILABLE = True
+except ImportError:
+    TRADING_SIGNALS_AVAILABLE = False
+    TradingSignal = UserPayment = ExecutedTrade = None
 
 # Create admin blueprint
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
