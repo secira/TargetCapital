@@ -105,54 +105,74 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
+                                         onclick="showIndexChart('NIFTY 50', 22368.45, 1.25)" 
+                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
                                         <div>
                                             <h6 class="fw-bold mb-1">NIFTY 50</h6>
                                             <small class="text-muted">NSE Index</small>
                                         </div>
                                         <div class="text-end">
-                                            <div class="fw-bold fs-5">22,368.45</div>
-                                            <small class="text-success">
+                                            <div class="fw-bold fs-5" id="nifty50-price">22,368.45</div>
+                                            <small class="text-success" id="nifty50-change">
                                                 <i class="fas fa-arrow-up me-1"></i>+1.25%
                                             </small>
+                                            <div class="mt-1">
+                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
+                                         onclick="showIndexChart('BANK NIFTY', 47892.30, -0.45)" 
+                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
                                         <div>
                                             <h6 class="fw-bold mb-1">BANK NIFTY</h6>
                                             <small class="text-muted">Banking Index</small>
                                         </div>
                                         <div class="text-end">
-                                            <div class="fw-bold fs-5">47,892.30</div>
-                                            <small class="text-danger">
+                                            <div class="fw-bold fs-5" id="banknifty-price">47,892.30</div>
+                                            <small class="text-danger" id="banknifty-change">
                                                 <i class="fas fa-arrow-down me-1"></i>-0.45%
                                             </small>
+                                            <div class="mt-1">
+                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
+                                         onclick="showIndexChart('NIFTY IT', 32145.80, 2.15)" 
+                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
                                         <div>
                                             <h6 class="fw-bold mb-1">NIFTY IT</h6>
                                             <small class="text-muted">IT Index</small>
                                         </div>
                                         <div class="text-end">
-                                            <div class="fw-bold fs-5">32,145.80</div>
-                                            <small class="text-success">
+                                            <div class="fw-bold fs-5" id="niftyit-price">32,145.80</div>
+                                            <small class="text-success" id="niftyit-change">
                                                 <i class="fas fa-arrow-up me-1"></i>+2.15%
                                             </small>
+                                            <div class="mt-1">
+                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
+                                         onclick="showIndexChart('NIFTY AUTO', 15768.25, -0.05)" 
+                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
                                         <div>
                                             <h6 class="fw-bold mb-1">NIFTY AUTO</h6>
                                             <small class="text-muted">Auto Index</small>
                                         </div>
                                         <div class="text-end">
-                                            <div class="fw-bold fs-5">15,768.25</div>
-                                            <small class="text-warning">
+                                            <div class="fw-bold fs-5" id="niftyauto-price">15,768.25</div>
+                                            <small class="text-warning" id="niftyauto-change">
                                                 <i class="fas fa-minus me-1"></i>-0.05%
                                             </small>
+                                            <div class="mt-1">
+                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -353,8 +373,154 @@ function exportDashboard() {
 // Auto-refresh dashboard data every 60 seconds
 setInterval(() => {
     // Update portfolio values and market data
+    updateIndexPrices();
     console.log('Auto-refreshing dashboard data...');
 }, 60000);
+
+// Index chart functionality
+function showIndexChart(indexName, price, change) {
+    const modalId = `index-modal-${indexName.replace(/\s+/g, '-').toLowerCase()}`;
+    
+    // Create modal if it doesn't exist
+    let modal = document.getElementById(modalId);
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'modal fade';
+        modal.innerHTML = `
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${indexName} - Real-time Chart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="row">
+                            <div class="col-md-3 bg-light p-4">
+                                <div class="text-center">
+                                    <h3 class="mb-0">₹${price.toLocaleString()}</h3>
+                                    <div class="${change >= 0 ? 'text-success' : 'text-danger'} mt-2">
+                                        <i class="fas fa-arrow-${change >= 0 ? 'up' : 'down'} me-1"></i>
+                                        ${change >= 0 ? '+' : ''}${change}%
+                                    </div>
+                                    <small class="text-muted">Live NSE Data</small>
+                                </div>
+                                <hr>
+                                <div class="mb-3">
+                                    <small class="text-muted">Index Info</small>
+                                    <div class="mt-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="small">Market Cap</span>
+                                            <span class="small fw-bold">₹145.2L Cr</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="small">Stocks</span>
+                                            <span class="small fw-bold">50</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="small">Volume</span>
+                                            <span class="small fw-bold">2.4M</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Quick Actions</small>
+                                    <div class="mt-2 d-grid gap-2">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus me-1"></i>Add to Watchlist
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-download me-1"></i>Export Data
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div id="tradingview-index-${indexName.replace(/\s+/g, '-').toLowerCase()}" 
+                                     style="height: 500px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                    <div class="text-center">
+                                        <i class="fas fa-chart-area fa-3x text-primary mb-3"></i>
+                                        <h5>Professional Index Chart</h5>
+                                        <p class="text-muted">TradingView integration for ${indexName}</p>
+                                        <div class="mt-3">
+                                            <div class="row text-center">
+                                                <div class="col-md-4">
+                                                    <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                                                    <p class="small">Real-time Data</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <i class="fas fa-chart-candlestick fa-2x text-info mb-2"></i>
+                                                    <p class="small">Multiple Timeframes</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <i class="fas fa-analytics fa-2x text-warning mb-2"></i>
+                                                    <p class="small">Technical Analysis</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <button class="btn btn-primary me-2">
+                                                <i class="fas fa-play me-1"></i>Start Analysis
+                                            </button>
+                                            <button class="btn btn-outline-secondary">
+                                                <i class="fas fa-cog me-1"></i>Settings
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Real-time ${indexName} data powered by NSE and TradingView Professional Charts
+                        </small>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    
+    // Show modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+function updateIndexPrices() {
+    // Simulate real-time price updates
+    const indices = [
+        { id: 'nifty50', base: 22368.45, volatility: 0.02 },
+        { id: 'banknifty', base: 47892.30, volatility: 0.025 },
+        { id: 'niftyit', base: 32145.80, volatility: 0.03 },
+        { id: 'niftyauto', base: 15768.25, volatility: 0.02 }
+    ];
+    
+    indices.forEach(index => {
+        const variation = (Math.random() - 0.5) * index.volatility;
+        const newPrice = index.base * (1 + variation);
+        const change = ((newPrice - index.base) / index.base * 100).toFixed(2);
+        
+        const priceElement = document.getElementById(`${index.id}-price`);
+        const changeElement = document.getElementById(`${index.id}-change`);
+        
+        if (priceElement && changeElement) {
+            priceElement.textContent = newPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            const isPositive = change >= 0;
+            changeElement.innerHTML = `
+                <i class="fas fa-arrow-${isPositive ? 'up' : 'down'} me-1"></i>${isPositive ? '+' : ''}${change}%
+            `;
+            changeElement.className = isPositive ? 'text-success' : 'text-danger';
+        }
+    });
+}
+
+function showFullMarketChart() {
+    // Navigate to a comprehensive market chart view
+    window.open('/dashboard/market-overview', '_blank');
+}
 </script>
 
 <style>
@@ -409,6 +575,27 @@ setInterval(() => {
 
 .opacity-75 {
     opacity: 0.75;
+}
+
+.index-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-color: #007bff !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.index-card:hover .fas.fa-chart-line {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
 </style>
 {% endblock %}

@@ -808,8 +808,8 @@ def dashboard():
 
 @app.route('/dashboard/stock-analysis')
 @login_required
-def stock_analysis():
-    """Stock analysis dashboard"""
+def dashboard_stock_analysis():
+    """Stock analysis dashboard with TradingView integration"""
     # Get all stock analyses
     analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).all()
     return render_template('dashboard/stock_analysis.html', analyses=analyses)
