@@ -329,8 +329,12 @@ window.TradingViewWidget = new TradingViewWidget();
 
 // Global functions for chart interactions
 window.loadTradingViewChart = function(symbol, containerId) {
+    console.log('loadTradingViewChart called with:', symbol, containerId);
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!container) {
+        console.error('Container not found for loadTradingViewChart:', containerId);
+        return;
+    }
     
     // Show loading state
     container.innerHTML = `
