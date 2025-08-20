@@ -83,61 +83,12 @@ function refreshPrice(symbol) {
 }
 
 function showTradingViewChart(symbol) {
-    const modalId = `tradingview-modal-${symbol}`;
-    
-    // Create modal if it doesn't exist
-    let modal = document.getElementById(modalId);
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = modalId;
-        modal.className = 'modal fade';
-        modal.innerHTML = `
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">${symbol} - Professional Chart</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body p-0">
-                        <div id="tradingview-container-${symbol}" style="height: 500px;"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <small class="text-muted">Powered by TradingView & NSE Real-time Data</small>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
+    // Use the global chart function from tradingview-widget.js
+    if (typeof window.showTradingViewChart === 'function') {
+        window.showTradingViewChart(symbol, 'stock');
+    } else {
+        console.error('TradingView widget not loaded');
     }
-    
-    // Show modal
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    
-    // Initialize chart when modal is shown
-    modal.addEventListener('shown.bs.modal', function() {
-        // Check if chart widget is available
-        if (typeof tCapitalChartWidget !== 'undefined') {
-            new tCapitalChartWidget({
-                containerId: `tradingview-container-${symbol}`,
-                symbol: symbol,
-                height: 500,
-                theme: 'light'
-            });
-        } else {
-            // Fallback: show simple chart placeholder
-            const container = document.getElementById(`tradingview-container-${symbol}`);
-            container.innerHTML = `
-                <div class="d-flex align-items-center justify-content-center h-100 bg-light">
-                    <div class="text-center">
-                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">Chart Loading...</h5>
-                        <p class="text-muted">Professional charts powered by TradingView</p>
-                    </div>
-                </div>
-            `;
-        }
-    });
 }
 
 // Auto-refresh price every 10 seconds if symbol is provided

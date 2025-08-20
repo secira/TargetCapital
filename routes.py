@@ -807,13 +807,7 @@ def dashboard():
                          user_level=user_level,
                          level_progress=level_progress)
 
-@app.route('/dashboard/stock-analysis')
-@login_required
-def dashboard_stock_analysis():
-    """Stock analysis dashboard with TradingView integration"""
-    # Get all stock analyses
-    analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).all()
-    return render_template('dashboard/stock_analysis.html', analyses=analyses)
+# Stock Analysis route removed as requested by user
 
 # Real-time market data API endpoints
 @app.route('/api/realtime/indices')
