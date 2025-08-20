@@ -99,8 +99,8 @@
             {% endif %}
             
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint in ['ai_advisor', 'ai_chat'] else '' }}" 
-                   href="{{ url_for('ai_chat') }}">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" 
+                   href="{{ url_for('ai_advisor') }}">
                     <i class="fas fa-robot me-2"></i>AI Advisor
                 </a>
             </li>

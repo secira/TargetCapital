@@ -85,6 +85,7 @@ Moved AI Advisor menu item below Account Handling in sidebar navigation as reque
 Restructured AI Advisor interface layout: search input as main focal point, advanced functions moved to right sidebar (August 20, 2025)
 Removed redundant welcome screen text box to eliminate user confusion - now uses single text input box at bottom consistently (August 20, 2025)
 UI/UX improvements for AI Advisor text input: 40 characters width, 3 lines height, fixed size to prevent collapse, removed "Thinking" text, colorful "New Chat" button below text box, changed up arrow to "Send" button (August 20, 2025)
+Fixed sidebar navigation to correctly point to AI Advisor (/dashboard/ai-advisor) instead of AI Chat - ensuring users access the proper Perplexity-style interface (August 20, 2025)
 UI/UX improvements: Removed Market Opportunities and Risk Factors sections from Stock Picker page (August 17, 2025)
 Streamlined dashboard interface by removing Quick Actions section from main dashboard
 Cleaned up Trade Now page by removing duplicate Refresh and Algo Setup buttons
