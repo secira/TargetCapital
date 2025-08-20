@@ -330,50 +330,21 @@
     padding: 0;
 }
 
-.large-input-container {
-    position: relative;
+.welcome-message-container {
     margin-bottom: 24px;
-}
-
-.large-search-input {
-    width: 100%;
-    padding: 20px 24px;
-    border: 2px solid #e5e5e5;
-    border-radius: 16px;
-    font-size: 16px;
-    line-height: 1.5;
-    resize: vertical;
-    min-height: 120px;
-    font-family: inherit;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.large-search-input:focus {
-    outline: none;
-    border-color: #000000;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-}
-
-.large-search-btn {
-    margin-top: 16px;
-    padding: 14px 32px;
-    background: #000000;
-    color: white;
-    border: none;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
     border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
+    text-align: center;
 }
 
-.large-search-btn:hover {
-    background: #333333;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+.welcome-instruction {
+    color: #666666;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .quick-examples {
@@ -488,14 +459,7 @@
         font-size: 16px;
     }
     
-    .large-search-input {
-        min-height: 100px;
-        font-size: 16px;
-        padding: 16px 20px;
-    }
-    
-    .large-search-btn {
-        padding: 12px 24px;
+    .welcome-instruction {
         font-size: 15px;
     }
     
@@ -542,23 +506,21 @@
                         <h1 class="mb-3">AI Investment Advisor</h1>
                         <p class="mb-4 text-muted">Ask me about stocks, market trends, portfolio strategies, or any investment questions</p>
                         
-                        <!-- Large Input Area -->
-                        <div class="large-input-container">
-                            <textarea class="large-search-input" id="welcomeInput" 
-                                placeholder="Ask me anything about investing, stocks, or market analysis..."
-                                rows="4"></textarea>
-                            <button class="large-search-btn" onclick="sendWelcomeMessage()">
-                                <i class="fas fa-search me-2"></i>Get AI Analysis
-                            </button>
+                        <!-- Welcome Message -->
+                        <div class="welcome-message-container">
+                            <div class="welcome-instruction">
+                                <i class="fas fa-arrow-down text-muted me-2"></i>
+                                <span>Use the text box at the bottom to start asking questions</span>
+                            </div>
                         </div>
                         
                         <!-- Quick Examples -->
                         <div class="quick-examples mt-3">
                             <small class="text-muted d-block mb-2">Try asking:</small>
                             <div class="example-chips">
-                                <span class="example-chip" onclick="fillWelcomeInput('What are the best Indian stocks to buy today?')">Best stocks today</span>
-                                <span class="example-chip" onclick="fillWelcomeInput('Should I invest in IT sector now?')">IT sector analysis</span>
-                                <span class="example-chip" onclick="fillWelcomeInput('Portfolio diversification strategy')">Portfolio tips</span>
+                                <span class="example-chip" onclick="fillMainInput('What are the best Indian stocks to buy today?')">Best stocks today</span>
+                                <span class="example-chip" onclick="fillMainInput('Should I invest in IT sector now?')">IT sector analysis</span>
+                                <span class="example-chip" onclick="fillMainInput('Portfolio diversification strategy')">Portfolio tips</span>
                             </div>
                         </div>
                     </div>
@@ -686,32 +648,14 @@ function askQuestion(question) {
 }
 
 // Welcome screen functions
-function sendWelcomeMessage() {
-    const input = document.getElementById('welcomeInput');
-    const message = input.value.trim();
-    if (message) {
-        sendMessage(message);
-        input.value = '';
-    }
+function fillMainInput(text) {
+    const mainInput = document.getElementById('messageInput');
+    mainInput.value = text;
+    mainInput.focus();
+    // Auto-resize the textarea
+    mainInput.style.height = 'auto';
+    mainInput.style.height = Math.min(mainInput.scrollHeight, 120) + 'px';
 }
-
-function fillWelcomeInput(text) {
-    document.getElementById('welcomeInput').value = text;
-    document.getElementById('welcomeInput').focus();
-}
-
-// Enter key support for welcome input
-document.addEventListener('DOMContentLoaded', function() {
-    const welcomeInput = document.getElementById('welcomeInput');
-    if (welcomeInput) {
-        welcomeInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendWelcomeMessage();
-            }
-        });
-    }
-});
 
 // Advanced AI Functions
 function executeAdvancedFunction(functionType) {

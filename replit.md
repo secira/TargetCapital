@@ -82,6 +82,8 @@ Unified dashboard navigation with consistent left sidebar layout across all menu
 Updated Trade Now page template structure to match other dashboard pages for visual consistency
 Fixed routing issues and template structure alignment across dashboard components
 Moved AI Advisor menu item below Account Handling in sidebar navigation as requested (August 20, 2025)
+Restructured AI Advisor interface layout: search input as main focal point, advanced functions moved to right sidebar (August 20, 2025)
+Removed redundant welcome screen text box to eliminate user confusion - now uses single text input box at bottom consistently (August 20, 2025)
 UI/UX improvements: Removed Market Opportunities and Risk Factors sections from Stock Picker page (August 17, 2025)
 Streamlined dashboard interface by removing Quick Actions section from main dashboard
 Cleaned up Trade Now page by removing duplicate Refresh and Algo Setup buttons
