@@ -15,12 +15,6 @@
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint in ['ai_advisor', 'ai_chat'] else '' }}" 
-                   href="{{ url_for('ai_chat') }}">
-                    <i class="fas fa-robot me-2"></i>AI Advisor
-                </a>
-            </li>
             
             <!-- Trader+ Features (not available to Free users) -->
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
@@ -103,6 +97,13 @@
                 </span>
             </li>
             {% endif %}
+            
+            <li class="nav-item">
+                <a class="nav-link text-white {{ 'active' if request.endpoint in ['ai_advisor', 'ai_chat'] else '' }}" 
+                   href="{{ url_for('ai_chat') }}">
+                    <i class="fas fa-robot me-2"></i>AI Advisor
+                </a>
+            </li>
 
         </ul>
         
