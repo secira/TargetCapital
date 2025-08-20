@@ -168,10 +168,10 @@ class TradingViewWidget {
                             </div>
                         </div>
                         <div class="d-flex justify-content-center gap-3 mb-3">
-                            <button class="btn btn-primary btn-sm" onclick="loadTradingViewChart('${symbol}', '${containerId}')">
+                            <button class="btn btn-primary btn-sm" onclick="window.loadTradingViewChart('${symbol}', '${containerId}')">
                                 <i class="fas fa-play me-2"></i>Load Professional Chart
                             </button>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="showPriceData('${symbol}')">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="window.showPriceData('${symbol}')">
                                 <i class="fas fa-list me-2"></i>View Price Data
                             </button>
                         </div>
