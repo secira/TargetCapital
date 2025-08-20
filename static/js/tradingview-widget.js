@@ -424,15 +424,26 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     
     document.body.appendChild(modal);
     
-    // Show modal
-    const bsModal = new bootstrap.Modal(modal);
+    // Show modal with proper accessibility
+    const bsModal = new bootstrap.Modal(modal, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+    });
     bsModal.show();
     
-    // Load chart after modal is shown
+    // Fix accessibility issue by removing aria-hidden when modal is shown
     modal.addEventListener('shown.bs.modal', () => {
-        const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
-        console.log('Loading chart for container:', chartContainer, 'symbol:', symbol);
-        // Always use the custom embedded widget to avoid notifications
-        window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
+        modal.removeAttribute('aria-hidden');
     });
+    
+    // Load chart after modal is fully shown
+    setTimeout(() => {
+        modal.addEventListener('shown.bs.modal', () => {
+            const chartContainer = `tradingview-chart-${symbol.replace(/\s+/g, '-').toLowerCase()}`;
+            console.log('Loading chart for container:', chartContainer, 'symbol:', symbol);
+            // Always use the custom embedded widget to avoid notifications
+            window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
+        });
+    }, 100);
 };

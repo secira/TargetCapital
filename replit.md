@@ -77,6 +77,7 @@ Eliminated "This symbol is only available on TradingView" notifications complete
 Built custom chart interface with professional loading states and interactive elements
 Replaced TradingView iframe embeds with notification-free custom chart displays
 Added animated chart backgrounds and clean professional chart loading interface
+Fixed accessibility issues with modal aria-hidden attributes for better user experience
 AI Advisor completely restructured with Perplexity Sonar integration (August 19, 2025)
 Replaced ChatGPT with Perplexity Sonar Pro for real-time market intelligence and current data access
 Created modern dual-mode interface accommodating both AI Advisor and Agentic AI functionality
