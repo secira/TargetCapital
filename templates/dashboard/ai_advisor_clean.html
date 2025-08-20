@@ -253,7 +253,9 @@
     border: 2px solid #e5e5e5;
     border-radius: 16px;
     transition: border-color 0.2s ease;
-    min-height: 80px;
+    height: 96px;
+    min-height: 96px;
+    max-height: 96px;
     display: flex;
     align-items: flex-start;
     padding: 8px;
@@ -273,8 +275,10 @@
     line-height: 1.5;
     resize: none;
     background: transparent;
-    max-height: 150px;
-    min-height: 60px;
+    width: 40ch;
+    height: 72px;
+    min-height: 72px;
+    max-height: 72px;
 }
 
 .ai-advisor-input::placeholder {
@@ -283,7 +287,7 @@
 
 .ai-advisor-send {
     margin: 8px 8px 8px 8px;
-    width: 44px;
+    padding: 8px 16px;
     height: 44px;
     border: none;
     border-radius: 10px;
@@ -296,6 +300,8 @@
     transition: all 0.2s ease;
     flex-shrink: 0;
     align-self: flex-end;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .ai-advisor-send:hover:not(:disabled) {
@@ -308,24 +314,31 @@
     cursor: not-allowed;
 }
 
-.ai-advisor-clear {
-    position: absolute;
-    top: -48px;
-    right: 0;
-    background: #f8f9fa;
-    border: 1px solid #e5e5e5;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    color: #666666;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    gap: 4px;
+.new-chat-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
 }
 
-.ai-advisor-clear:hover {
-    background: #f1f3f4;
+.new-chat-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.new-chat-button:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
 /* Main search area styling */
@@ -591,7 +604,6 @@
                     <!-- Typing Indicator -->
                     <div class="ai-advisor-typing" id="typingIndicator">
                         <div class="ai-advisor-typing-bubble">
-                            <span class="ai-advisor-typing-text">Thinking</span>
                             <div class="ai-advisor-typing-dots">
                                 <div class="ai-advisor-typing-dot"></div>
                                 <div class="ai-advisor-typing-dot"></div>
@@ -650,15 +662,18 @@
         <!-- Input Area -->
         <div class="ai-advisor-input-area">
             <div class="ai-advisor-input-container">
-                <button class="ai-advisor-clear" onclick="clearChat()" id="clearButton">
-                    <i class="fas fa-refresh"></i>
-                    New chat
-                </button>
                 <textarea class="ai-advisor-input" id="messageInput" 
                     placeholder="Ask me anything about investing, markets, or stocks..."
-                    rows="1"></textarea>
+                    rows="3"></textarea>
                 <button class="ai-advisor-send" id="sendButton" onclick="sendMessage()">
-                    <i class="fas fa-arrow-up"></i>
+                    Send
+                </button>
+            </div>
+            <!-- New Chat Button Below Text Box -->
+            <div class="new-chat-container">
+                <button class="new-chat-button" onclick="clearChat()" id="clearButton">
+                    <i class="fas fa-plus me-2"></i>
+                    New Chat
                 </button>
             </div>
         </div>
@@ -680,11 +695,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeAIAdvisor() {
     const textarea = document.getElementById('messageInput');
     
-    // Auto-resize textarea
-    textarea.addEventListener('input', function() {
-        this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 150) + 'px';
-    });
+    // Keep textarea height fixed - no auto-resize
+    // This maintains consistent size as requested
     
     // Send on Enter (without Shift)
     textarea.addEventListener('keydown', function(event) {
@@ -707,9 +719,7 @@ function fillMainInput(text) {
     const mainInput = document.getElementById('messageInput');
     mainInput.value = text;
     mainInput.focus();
-    // Auto-resize the textarea
-    mainInput.style.height = 'auto';
-    mainInput.style.height = Math.min(mainInput.scrollHeight, 150) + 'px';
+    // No auto-resize - maintain fixed size
 }
 
 // Advanced AI Functions
