@@ -1032,46 +1032,64 @@ def dashboard_trade_now():
     if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
         flash('Trade execution is available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
         return redirect(url_for('pricing'))
-    """Dashboard Trading Signals page with real data from database"""
+    """Trade Now page for executing live trades"""
     from datetime import date
+    
+    # Import TradingSignal with safe fallback
+    try:
+        from models import TradingSignal
+        signals_available = True
+    except ImportError:
+        signals_available = False
+        TradingSignal = None
     
     # Get filter parameters
     selected_date = request.args.get('date', date.today().strftime('%Y-%m-%d'))
     symbol_type = request.args.get('symbol_type', 'all')
     signal_status = request.args.get('status', 'all')
     
-    # Build query for trading signals
-    query = TradingSignal.query
+    # Build query for trading signals if available
+    if signals_available and TradingSignal:
+        query = TradingSignal.query
+    else:
+        query = None
     
-    # Filter by date
-    if selected_date:
-        query = query.filter(TradingSignal.open_date == selected_date)
-    
-    # Filter by symbol type
-    if symbol_type != 'all':
-        query = query.filter(TradingSignal.symbol_type == symbol_type)
-    
-    # Filter by status
-    if signal_status != 'all':
-        query = query.filter(TradingSignal.signal_status == signal_status)
-    
-    # Get signals ordered by creation date
-    trading_signals = query.order_by(TradingSignal.creation_date.desc()).all()
+    # Handle trading signals data
+    if query is not None:
+        # Filter by date
+        if selected_date:
+            query = query.filter(TradingSignal.created_at >= selected_date)
+        
+        # Filter by symbol type
+        if symbol_type != 'all':
+            query = query.filter(TradingSignal.signal_type == symbol_type)
+        
+        # Filter by status
+        if signal_status != 'all':
+            query = query.filter(TradingSignal.status == signal_status)
+        
+        # Get signals ordered by creation date
+        trading_signals = query.order_by(TradingSignal.created_at.desc()).all()
+    else:
+        trading_signals = []
     
     # Calculate summary statistics
     total_signals = len(trading_signals)
-    active_signals = len([s for s in trading_signals if s.signal_status == 'Active'])
-    closed_signals = len([s for s in trading_signals if s.signal_status == 'Closed'])
+    active_signals = len([s for s in trading_signals if s.status == 'ACTIVE'])
+    closed_signals = len([s for s in trading_signals if s.status == 'CLOSED'])
     
     # Calculate success rate for closed signals
-    profitable_signals = len([s for s in trading_signals if s.signal_status == 'Closed' and s.calculate_pnl()[0] > 0])
+    profitable_signals = len([s for s in trading_signals if s.status == 'CLOSED' and hasattr(s, 'potential_return') and s.potential_return > 0])
     success_rate = (profitable_signals / closed_signals * 100) if closed_signals > 0 else 0
     
     # Get unique symbol types for filter dropdown
-    symbol_types = db.session.query(TradingSignal.symbol_type).distinct().all()
-    symbol_types = [st[0] for st in symbol_types]
+    if signals_available and TradingSignal:
+        symbol_types = db.session.query(TradingSignal.signal_type).distinct().all()
+        symbol_types = [st[0] for st in symbol_types if st[0]]
+    else:
+        symbol_types = ['stock', 'options', 'futures']
     
-    return render_template('dashboard/trading_signals.html',
+    return render_template('dashboard/trade_now.html',
                          trading_signals=trading_signals,
                          total_signals=total_signals,
                          active_signals=active_signals,
