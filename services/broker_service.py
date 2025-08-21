@@ -1002,14 +1002,19 @@ class BrokerService:
     def add_broker_account(user_id: int, broker_type: BrokerType, credentials: Dict) -> BrokerAccount:
         """Add a new broker account for user"""
         try:
+            # Handle None values properly for api_secret
+            api_secret = credentials.get('api_secret')
+            if api_secret is not None and api_secret.strip() == '':
+                api_secret = None
+                
             # Create broker account
             broker_account = BrokerAccount(
                 user_id=user_id,
                 broker_type=broker_type,
-                broker_name=broker_type.value.title(),
+                broker_name=broker_type.value.replace('_', ' ').title(),
                 api_key=credentials.get('client_id'),
                 access_token=credentials.get('access_token'),
-                api_secret=credentials.get('api_secret'),
+                api_secret=api_secret,
                 connection_status='disconnected',
                 is_active=True
             )

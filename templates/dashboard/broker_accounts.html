@@ -338,7 +338,8 @@ function addBrokerAccount() {
     const data = {
         broker_type: formData.get('broker_type'),
         client_id: formData.get('client_id'),
-        access_token: formData.get('access_token')
+        access_token: formData.get('access_token'),
+        api_secret: formData.get('api_secret') || null
     };
     
     // Validate
