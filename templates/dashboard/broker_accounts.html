@@ -1,11 +1,15 @@
 {% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Broker Accounts - tCapital{% endblock %}
+{% block title %}Broker Management - tCapital{% endblock %}
 
-{% block dashboard_title %}Broker Account Connections{% endblock %}
+{% block dashboard_title %}Broker Management{% endblock %}
 {% block dashboard_subtitle %}Connect your trading accounts for live portfolio analysis and order execution{% endblock %}
 
 {% block dashboard_content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Full width content without sidebar -->
+        <div class="col-12">
 
 <!-- Add Broker Account Button -->
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -465,4 +469,7 @@ function removeAccount(accountId) {
 }
 </style>
 
+        </div>
+    </div>
+</div>
 {% endblock %}
