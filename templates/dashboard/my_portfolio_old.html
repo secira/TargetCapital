@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}My Portfolio - tCapital Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="dashboard-heading"><i class="fas fa-briefcase me-2"></i>My Portfolio</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showUploadModal()">
+                            <i class="fas fa-upload me-1"></i>Upload Portfolio
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshPortfolio()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-white shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title text-muted">Total Investment</h6>
+                                    <h5 class="mb-0 text-dark">₹{{ "%.0f"|format(total_investment) }}</h5>
+                                    <small class="text-muted">Purchase value</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-wallet fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-white shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title text-muted">Current Value</h6>
+                                    <h5 class="mb-0 text-dark">₹{{ "%.0f"|format(total_current_value) }}</h5>
+                                    <small class="text-muted">Market value</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-chart-line fa-2x text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-white shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title text-muted">Total P&L</h6>
+                                    <h5 class="mb-0 {{ 'text-success' if total_pnl >= 0 else 'text-danger' }}">
+                                        {{ '+' if total_pnl >= 0 else '' }}₹{{ "%.0f"|format(total_pnl) }}
+                                    </h5>
+                                    <small class="{{ 'text-success' if total_pnl >= 0 else 'text-danger' }}">
+                                        {{ '+' if total_pnl_percentage >= 0 else '' }}{{ "%.2f"|format(total_pnl_percentage) }}%
+                                    </small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-{{ 'arrow-up' if total_pnl >= 0 else 'arrow-down' }} fa-2x {{ 'text-success' if total_pnl >= 0 else 'text-danger' }}"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-white shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title text-muted">Total Holdings</h6>
+                                    <h5 class="mb-0 text-dark">{{ portfolio_holdings|length }}</h5>
+                                    <small class="text-muted">Across {{ sector_analysis|length }} sectors</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="fas fa-layer-group fa-2x text-warning"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Upload Section -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-cloud-upload-alt me-2"></i>Broker Integration</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23387ed1'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='12'>Zerodha</text></svg>" alt="Zerodha" class="mb-2">
+                                        <h6>Zerodha</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('zerodha')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23e74c3c'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='10'>Angel One</text></svg>" alt="Angel Broking" class="mb-2">
+                                        <h6>Angel One</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('angel')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-muted"><i class="fas fa-times-circle me-1"></i>Not Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-3 border rounded">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='40' viewBox='0 0 60 40'><rect width='60' height='40' fill='%23ff9500'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='14'>Dhan</text></svg>" alt="Dhan" class="mb-2">
+                                        <h6>Dhan</h6>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="connectBroker('dhan')">
+                                            <i class="fas fa-link me-1"></i>Connect
+                                        </button>
+                                        <div class="mt-2">
+                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>Connected</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Connect your broker accounts for automatic portfolio synchronization. All data is encrypted and secure.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Views Tabs -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" id="portfolioTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="consolidated-tab" data-bs-toggle="tab" data-bs-target="#consolidated" type="button" role="tab">
+                                        <i class="fas fa-chart-line me-1"></i>Consolidated View
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="sectorial-tab" data-bs-toggle="tab" data-bs-target="#sectorial" type="button" role="tab">
+                                        <i class="fas fa-chart-pie me-1"></i>Sectorial View
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="broker-tab" data-bs-toggle="tab" data-bs-target="#broker" type="button" role="tab">
+                                        <i class="fas fa-building me-1"></i>Broker View
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="optimization-tab" data-bs-toggle="tab" data-bs-target="#optimization" type="button" role="tab">
+                                        <i class="fas fa-brain me-1"></i>AI Optimization
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content" id="portfolioTabsContent">
+                                
+                                <!-- Consolidated View -->
+                                <div class="tab-pane fade show active" id="consolidated" role="tabpanel">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Stock</th>
+                                                    <th>Broker</th>
+                                                    <th>Quantity</th>
+                                                    <th>Purchase Price</th>
+                                                    <th>Current Price</th>
+                                                    <th>Investment</th>
+                                                    <th>Current Value</th>
+                                                    <th>P&L</th>
+                                                    <th>%</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for holding in portfolio_holdings %}
+                                                <tr>
+                                                    <td>
+                                                        <div>
+                                                            <strong>{{ holding.ticker_symbol }}</strong>
+                                                            <br><small class="text-muted">{{ holding.stock_name }}</small>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ holding.broker_id.title() }}</span>
+                                                    </td>
+                                                    <td>{{ holding.quantity }}</td>
+                                                    <td>₹{{ "%.2f"|format(holding.purchase_price) }}</td>
+                                                    <td>₹{{ "%.2f"|format(holding.current_price or holding.purchase_price) }}</td>
+                                                    <td>₹{{ "%.0f"|format(holding.purchased_value) }}</td>
+                                                    <td>₹{{ "%.0f"|format(holding.current_value or holding.purchased_value) }}</td>
+                                                    <td class="{{ holding.get_pnl_class() }}">
+                                                        {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
+                                                    </td>
+                                                    <td class="{{ holding.get_pnl_class() }}">
+                                                        {{ '+' if holding.pnl_percentage >= 0 else '' }}{{ "%.2f"|format(holding.pnl_percentage) }}%
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sectorial View -->
+                                <div class="tab-pane fade" id="sectorial" role="tabpanel">
+                                    <div class="row">
+                                        {% for sector, data in sector_analysis.items() %}
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">{{ sector }}</h6>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <small class="text-muted">Investment</small>
+                                                            <div class="fw-bold">₹{{ "%.0f"|format(data.investment) }}</div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted">Current Value</small>
+                                                            <div class="fw-bold">₹{{ "%.0f"|format(data.current_value) }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <small class="text-muted">{{ data.holdings_count }} holdings</small>
+                                                        <div class="progress mt-1" style="height: 6px;">
+                                                            <div class="progress-bar" role="progressbar" 
+                                                                 style="width: {{ (data.current_value / total_current_value * 100)|round(1) }}%">
+                                                            </div>
+                                                        </div>
+                                                        <small class="text-muted">{{ (data.current_value / total_current_value * 100)|round(1) }}% of portfolio</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Broker View -->
+                                <div class="tab-pane fade" id="broker" role="tabpanel">
+                                    {% for broker_id, data in broker_analysis.items() %}
+                                    <div class="card mb-3">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">{{ data.name }} - {{ data.holdings_count }} holdings</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row mb-3">
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">Investment</small>
+                                                    <div class="h6">₹{{ "%.0f"|format(data.investment) }}</div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">Current Value</small>
+                                                    <div class="h6">₹{{ "%.0f"|format(data.current_value) }}</div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">P&L</small>
+                                                    <div class="h6 {{ 'text-success' if (data.current_value - data.investment) >= 0 else 'text-danger' }}">
+                                                        {{ '+' if (data.current_value - data.investment) >= 0 else '' }}₹{{ "%.0f"|format(data.current_value - data.investment) }}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">Allocation</small>
+                                                    <div class="h6">{{ (data.current_value / total_current_value * 100)|round(1) }}%</div>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Stock</th>
+                                                            <th>Qty</th>
+                                                            <th>Investment</th>
+                                                            <th>Current Value</th>
+                                                            <th>P&L</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for holding in data.holdings %}
+                                                        <tr>
+                                                            <td>{{ holding.ticker_symbol }}</td>
+                                                            <td>{{ holding.quantity }}</td>
+                                                            <td>₹{{ "%.0f"|format(holding.purchased_value) }}</td>
+                                                            <td>₹{{ "%.0f"|format(holding.current_value or holding.purchased_value) }}</td>
+                                                            <td class="{{ holding.get_pnl_class() }}">
+                                                                {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- AI Portfolio Optimization -->
+                                <div class="tab-pane fade" id="optimization" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="card bg-light">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0"><i class="fas fa-robot me-2"></i>AI Portfolio Analysis</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="alert alert-info">
+                                                        <h6><i class="fas fa-lightbulb me-2"></i>Portfolio Optimization Recommendations</h6>
+                                                        <ul class="mb-0">
+                                                            <li><strong>Diversification:</strong> Consider reducing concentration in Information Technology sector ({{ ((sector_analysis.get('Information Technology', {}).get('current_value', 0) / total_current_value) * 100)|round(1) }}% of portfolio)</li>
+                                                            <li><strong>Sector Balance:</strong> Add exposure to Healthcare and Consumer Goods sectors for better balance</li>
+                                                            <li><strong>Risk Management:</strong> Consider taking some profits from {{ portfolio_holdings|selectattr('pnl_percentage', '>', 15)|list|length }} positions with 15%+ gains</li>
+                                                            <li><strong>Rebalancing:</strong> Current allocation appears well-distributed across brokers</li>
+                                                        </ul>
+                                                    </div>
+                                                    
+                                                    <h6 class="mt-4">Suggested Actions</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="card border-success">
+                                                                <div class="card-body">
+                                                                    <h6 class="text-success"><i class="fas fa-plus-circle me-1"></i>Consider Buying</h6>
+                                                                    <ul class="mb-0 small">
+                                                                        <li>Healthcare sector exposure (Apollo Hospitals, Dr. Reddy's)</li>
+                                                                        <li>FMCG stocks (Hindustan Unilever, Nestle India)</li>
+                                                                        <li>Defensive plays for stability</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="card border-warning">
+                                                                <div class="card-body">
+                                                                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Monitor Closely</h6>
+                                                                    <ul class="mb-0 small">
+                                                                        <li>IT sector concentration risk</li>
+                                                                        <li>Market correlation between holdings</li>
+                                                                        <li>Stop-loss levels for volatile positions</li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 class="mb-0">Portfolio Score</h6>
+                                                </div>
+                                                <div class="card-body text-center">
+                                                    <div class="display-4 text-success">7.8</div>
+                                                    <p class="mb-2">out of 10</p>
+                                                    <div class="progress mb-3" style="height: 10px;">
+                                                        <div class="progress-bar bg-success" role="progressbar" style="width: 78%"></div>
+                                                    </div>
+                                                    <small class="text-muted">Good diversification with room for improvement in sector allocation</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="card mt-3">
+                                                <div class="card-body">
+                                                    <h6>Quick Actions</h6>
+                                                    <div class="d-grid gap-2">
+                                                        <button class="btn btn-outline-primary btn-sm" onclick="generateOptimizationReport()">
+                                                            <i class="fas fa-file-alt me-1"></i>Generate Report
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm" onclick="rebalancePortfolio()">
+                                                            <i class="fas fa-balance-scale me-1"></i>Auto Rebalance
+                                                        </button>
+                                                        <button class="btn btn-outline-info btn-sm" onclick="setAlerts()">
+                                                            <i class="fas fa-bell me-1"></i>Set Alerts
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Portfolio Management JavaScript Functions
+function showUploadModal() {
+    alert('Portfolio upload functionality will be implemented with broker API integration.');
+}
+
+function refreshPortfolio() {
+    location.reload();
+}
+
+function connectBroker(brokerId) {
+    alert(`Connecting to ${brokerId}... This will redirect to broker authentication.`);
+    // Implementation will include OAuth flow for broker connections
+}
+
+function generateOptimizationReport() {
+    alert('Generating detailed portfolio optimization report with AI recommendations...');
+    // This will call the AI optimization service
+}
+
+function rebalancePortfolio() {
+    if (confirm('This will suggest portfolio rebalancing based on AI analysis. Continue?')) {
+        alert('AI Portfolio rebalancing recommendations will be generated.');
+        // Implementation will include AI-driven rebalancing logic
+    }
+}
+
+function setAlerts() {
+    alert('Portfolio alert system will be configured to monitor your holdings.');
+    // Implementation will include alert configuration
+}
+
+function exportPortfolio() {
+    alert('Exporting portfolio data to CSV/Excel format...');
+    // Implementation will include data export functionality
+}
+
+function optimizePortfolio() {
+    alert('Running AI optimization analysis on your portfolio...');
+    // Implementation will include comprehensive AI analysis
+}
+
+// Initialize portfolio page
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tabs
+    var triggerTabList = [].slice.call(document.querySelectorAll('#portfolioTabs button'))
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl)
+        
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    })
+});
+</script>
+
+{% endblock %}

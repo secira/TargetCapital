@@ -151,7 +151,7 @@ class User(UserMixin, db.Model):
         
         # Trader users can access all except Trade Now and Broker features
         elif self.pricing_plan == PricingPlan.TRADER:
-            return menu_item not in ['dashboard_trade_now', 'trade_now', 'dashboard_broker_accounts', 'dashboard_live_portfolio', 'dashboard_broker_trading']
+            return menu_item not in ['dashboard_trade_now', 'trade_now', 'dashboard_broker_accounts']
         
         # Trader Plus and Premium users can access everything
         elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:

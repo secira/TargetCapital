@@ -15,9 +15,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Removed duplicate route definition
-
-# These routes are already defined above - removing duplicates
+# Main broker routes - integrated into existing dashboard pages
 
 @app.route('/dashboard/broker-accounts')
 @login_required

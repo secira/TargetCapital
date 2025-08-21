@@ -3,26 +3,247 @@
 {% block title %}Trade Now - tCapital{% endblock %}
 
 {% block dashboard_title %}Trade Now{% endblock %}
-{% block dashboard_subtitle %}Algorithmic trading signals and multi-broker execution{% endblock %}
+{% block dashboard_subtitle %}{% if current_user.can_access_menu('dashboard_broker_accounts') %}Execute trades directly through your connected broker accounts{% else %}Advanced trading signals and market intelligence{% endif %}{% endblock %}
 
 {% block dashboard_content %}
-<!-- Date Picker and Quick Actions -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <label class="form-label">Select Date</label>
-        <input type="date" class="form-control" id="datePicker" 
-               value="{{ selected_date_str }}" 
-               onchange="changeDate()" style="width: 200px;">
+
+{% if current_user.can_access_menu('dashboard_broker_accounts') %}
+<!-- Enhanced Trading with Broker Integration (TraderPlus/Premium) -->
+
+<!-- Broker Selection and Status -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Connected Brokers</h6>
+            </div>
+            <div class="card-body">
+                {% if broker_accounts %}
+                <div class="row">
+                    {% for account in broker_accounts %}
+                    <div class="col-md-6 mb-3">
+                        <div class="broker-card p-3 border rounded {{ 'border-success' if account.is_primary else 'border-secondary' }}" 
+                             onclick="selectBroker({{ account.id }})">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">{{ account.broker_name }}</div>
+                                    <small class="text-muted">{{ account.get_credentials()['client_id'][:8] }}...</small>
+                                    {% if account.is_primary %}
+                                        <span class="badge bg-primary ms-2">Primary</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <i class="fas fa-check-circle text-success fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Balance: ₹{{ "{:,.0f}".format(account.account_balance) if account.account_balance else 'N/A' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3">
+                    <i class="fas fa-unlink fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-2">No brokers connected</p>
+                    <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Connect Broker
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    <div>
-        <button class="btn btn-outline-primary me-2" onclick="refreshSignals()">
-            <i class="fas fa-sync-alt me-1"></i>Refresh
-        </button>
-        <button class="btn btn-primary" onclick="showAlgoSetup()">
-            <i class="fas fa-robot me-1"></i>Algo Setup
-        </button>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Quick Market Data</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-2">
+                        <div class="fw-bold text-success">NIFTY 50</div>
+                        <div class="text-muted">25,041.10</div>
+                        <small class="text-success">+0.8%</small>
+                    </div>
+                    <div class="col-6 mb-2">
+                        <div class="fw-bold text-danger">SENSEX</div>
+                        <div class="text-muted">81,741.34</div>
+                        <small class="text-danger">-0.2%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Order Placement Form -->
+{% if broker_accounts %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Place Order</h6>
+            </div>
+            <div class="card-body">
+                <form id="orderForm">
+                    <div class="mb-3">
+                        <label for="orderSymbol" class="form-label">Symbol</label>
+                        <input type="text" class="form-control" id="orderSymbol" placeholder="e.g., RELIANCE, INFY" required>
+                        <div class="form-text">Enter NSE stock symbol</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="transactionType" class="form-label">Type</label>
+                            <select class="form-control" id="transactionType" required>
+                                <option value="buy">BUY</option>
+                                <option value="sell">SELL</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="orderType" class="form-label">Order Type</label>
+                            <select class="form-control" id="orderType" required>
+                                <option value="market">MARKET</option>
+                                <option value="limit">LIMIT</option>
+                                <option value="sl">STOP LOSS</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="productType" class="form-label">Product</label>
+                            <select class="form-control" id="productType" required>
+                                <option value="intraday">INTRADAY</option>
+                                <option value="delivery">DELIVERY</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="priceField" style="display: none;">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" step="0.01">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="brokerAccount" class="form-label">Broker Account</label>
+                        <select class="form-control" id="brokerAccount">
+                            {% for account in broker_accounts %}
+                            <option value="{{ account.id }}" {{ 'selected' if account.is_primary else '' }}>
+                                {{ account.broker_name }} ({{ account.get_credentials()['client_id'][:8] }}...)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-bolt me-2"></i>Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Order Preview</h6>
+            </div>
+            <div class="card-body">
+                <div id="orderPreview">
+                    <div class="text-muted text-center py-4">
+                        Fill in order details to see preview
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Orders -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">Recent Orders</h6>
+        <button class="btn btn-outline-primary btn-sm" onclick="refreshOrders()">
+            <i class="fas fa-sync me-2"></i>Refresh
+        </button>
+    </div>
+    <div class="card-body">
+        {% if recent_orders %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Broker</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>{{ order.order_time.strftime('%H:%M') }}</td>
+                        <td>{{ order.symbol }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if order.transaction_type.value == 'buy' else 'bg-danger' }}">
+                                {{ order.transaction_type.value.upper() }}
+                            </span>
+                        </td>
+                        <td>{{ order.quantity }}</td>
+                        <td>
+                            {% if order.order_type.value == 'market' %}
+                                Market
+                            {% else %}
+                                ₹{{ "{:,.2f}".format(order.price) }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set status_class = {
+                                'complete': 'bg-success',
+                                'open': 'bg-primary', 
+                                'cancelled': 'bg-warning',
+                                'rejected': 'bg-danger',
+                                'pending': 'bg-info'
+                            } %}
+                            <span class="badge {{ status_class.get(order.order_status.value, 'bg-secondary') }}">
+                                {{ order.order_status.value.upper() }}
+                            </span>
+                        </td>
+                        <td>{{ order.broker_account.broker_name }}</td>
+                        <td>
+                            {% if order.order_status.value in ['open', 'pending'] %}
+                                <button class="btn btn-sm btn-outline-danger" onclick="cancelOrder('{{ order.broker_order_id }}')">
+                                    Cancel
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-receipt fa-2x text-muted mb-2"></i>
+            <p class="text-muted">No recent orders</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% else %}
+<!-- Standard Trading Signals View (Free/Trader users) -->
 
 <!-- Quick Stats Row -->
 <div class="row mb-4">
@@ -30,7 +251,7 @@
         <div class="card bg-primary bg-opacity-10 border-primary">
             <div class="card-body text-center">
                 <i class="fas fa-signal text-primary fa-2x mb-2"></i>
-                <h4 class="fw-bold text-primary">{{ total_signals }}</h4>
+                <h4 class="fw-bold text-primary">{{ total_signals|default(0) }}</h4>
                 <small class="text-muted">Total Signals</small>
             </div>
         </div>
@@ -39,7 +260,7 @@
         <div class="card bg-success bg-opacity-10 border-success">
             <div class="card-body text-center">
                 <i class="fas fa-arrow-up text-success fa-2x mb-2"></i>
-                <h4 class="fw-bold text-success">{{ buy_signals }}</h4>
+                <h4 class="fw-bold text-success">{{ buy_signals|default(0) }}</h4>
                 <small class="text-muted">Buy Signals</small>
             </div>
         </div>
@@ -48,7 +269,7 @@
         <div class="card bg-danger bg-opacity-10 border-danger">
             <div class="card-body text-center">
                 <i class="fas fa-arrow-down text-danger fa-2x mb-2"></i>
-                <h4 class="fw-bold text-danger">{{ sell_signals }}</h4>
+                <h4 class="fw-bold text-danger">{{ sell_signals|default(0) }}</h4>
                 <small class="text-muted">Sell Signals</small>
             </div>
         </div>
@@ -57,655 +278,215 @@
         <div class="card bg-info bg-opacity-10 border-info">
             <div class="card-body text-center">
                 <i class="fas fa-chart-line text-info fa-2x mb-2"></i>
-                <h4 class="fw-bold text-info">{{ "%.0f"|format(avg_confidence) }}%</h4>
+                <h4 class="fw-bold text-info">{{ "%.0f"|format(avg_confidence|default(0)) }}%</h4>
                 <small class="text-muted">Avg Confidence</small>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Broker Selection -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <label class="form-label">Active Broker</label>
-        <select class="form-select" id="brokerSelect">
-            {% for broker in brokers %}
-            <option value="{{ broker.broker_id }}">{{ broker.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-6">
-        <label class="form-label">Quick Actions</label>
-        <div class="d-flex gap-2">
-            <button class="btn btn-success" onclick="executeAllBuySignals()">
-                <i class="fas fa-play me-1"></i>Execute All Buys
-            </button>
-            <button class="btn btn-warning" onclick="setStopLossAll()">
-                <i class="fas fa-shield-alt me-1"></i>Set Stop Loss
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Trading Signal Tabs -->
+<!-- Trading Signals Table -->
 <div class="card">
     <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs" id="tradingTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="stocks-tab" data-bs-toggle="tab" data-bs-target="#stocks" type="button" role="tab">
-                    <i class="fas fa-chart-line me-1"></i>Stocks ({{ signals_by_type.Stocks|length }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="options-tab" data-bs-toggle="tab" data-bs-target="#options" type="button" role="tab">
-                    <i class="fas fa-code-branch me-1"></i>Options ({{ signals_by_type.Options|length }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="futures-tab" data-bs-toggle="tab" data-bs-target="#futures" type="button" role="tab">
-                    <i class="fas fa-forward me-1"></i>Futures ({{ signals_by_type.Futures|length }})
-                </button>
-            </li>
-        </ul>
+        <h6 class="mb-0">Latest Trading Signals</h6>
     </div>
     <div class="card-body">
-        <div class="tab-content" id="tradingTabsContent">
-                        
-                        <!-- Stocks Tab -->
-                        <div class="tab-pane fade show active" id="stocks" role="tabpanel">
-                            {% if signals_by_type.Stocks %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Symbol</th>
-                                            <th>Action</th>
-                                            <th>Entry Price</th>
-                                            <th>Target</th>
-                                            <th>Stop Loss</th>
-                                            <th>Quantity</th>
-                                            <th>Strategy</th>
-                                            <th>Confidence</th>
-                                            <th>Risk</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for signal in signals_by_type.Stocks %}
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold">{{ signal.symbol }}</div>
-                                                <small class="text-muted">{{ signal.time_frame }}</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
-                                                    {{ signal.action }}
-                                                </span>
-                                            </td>
-                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
-                                            <td>{{ signal.quantity }}</td>
-                                            <td>
-                                                <small>{{ signal.strategy }}</small>
-                                            </td>
-                                            <td>
-                                                <div class="progress" style="width: 60px; height: 20px;">
-                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
-                                                         style="width: {{ signal.confidence }}%">
-                                                        {{ "%.0f"|format(signal.confidence) }}%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
-                                                    {{ signal.risk_level }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
-                                                        <i class="fas fa-play"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
-                                                        <i class="fas fa-info"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+        {% if trading_signals %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>Price</th>
+                        <th>Target</th>
+                        <th>Stop Loss</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for signal in trading_signals %}
+                    <tr>
+                        <td>{{ signal.symbol }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if signal.signal_type == 'BUY' else 'bg-danger' }}">
+                                {{ signal.signal_type }}
+                            </span>
+                        </td>
+                        <td>₹{{ "{:,.2f}".format(signal.entry_price) }}</td>
+                        <td>₹{{ "{:,.2f}".format(signal.target_price) }}</td>
+                        <td>₹{{ "{:,.2f}".format(signal.stop_loss) }}</td>
+                        <td>
+                            <div class="progress" style="width: 60px;">
+                                <div class="progress-bar bg-info" style="width: {{ signal.confidence_score }}%"></div>
                             </div>
-                            {% else %}
-                            <div class="text-center py-5">
-                                <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No Stock Signals Available</h5>
-                                <p class="text-muted">No stock trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Options Tab -->
-                        <div class="tab-pane fade" id="options" role="tabpanel">
-                            {% if signals_by_type.Options %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Symbol</th>
-                                            <th>Action</th>
-                                            <th>Entry Price</th>
-                                            <th>Target</th>
-                                            <th>Stop Loss</th>
-                                            <th>Lots</th>
-                                            <th>Strategy</th>
-                                            <th>Confidence</th>
-                                            <th>Risk</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for signal in signals_by_type.Options %}
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold">{{ signal.symbol }}</div>
-                                                <small class="text-muted">{{ signal.time_frame }}</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
-                                                    {{ signal.action }}
-                                                </span>
-                                            </td>
-                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
-                                            <td>{{ signal.quantity }}</td>
-                                            <td>
-                                                <small>{{ signal.strategy }}</small>
-                                            </td>
-                                            <td>
-                                                <div class="progress" style="width: 60px; height: 20px;">
-                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
-                                                         style="width: {{ signal.confidence }}%">
-                                                        {{ "%.0f"|format(signal.confidence) }}%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
-                                                    {{ signal.risk_level }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
-                                                        <i class="fas fa-play"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
-                                                        <i class="fas fa-info"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-5">
-                                <i class="fas fa-code-branch fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No Options Signals Available</h5>
-                                <p class="text-muted">No options trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Futures Tab -->
-                        <div class="tab-pane fade" id="futures" role="tabpanel">
-                            {% if signals_by_type.Futures %}
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Symbol</th>
-                                            <th>Action</th>
-                                            <th>Entry Price</th>
-                                            <th>Target</th>
-                                            <th>Stop Loss</th>
-                                            <th>Lots</th>
-                                            <th>Strategy</th>
-                                            <th>Confidence</th>
-                                            <th>Risk</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for signal in signals_by_type.Futures %}
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold">{{ signal.symbol }}</div>
-                                                <small class="text-muted">{{ signal.time_frame }}</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' }}">
-                                                    {{ signal.action }}
-                                                </span>
-                                            </td>
-                                            <td>₹{{ "%.2f"|format(signal.entry_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.target_price) }}</td>
-                                            <td>₹{{ "%.2f"|format(signal.stop_loss) }}</td>
-                                            <td>{{ signal.quantity }}</td>
-                                            <td>
-                                                <small>{{ signal.strategy }}</small>
-                                            </td>
-                                            <td>
-                                                <div class="progress" style="width: 60px; height: 20px;">
-                                                    <div class="progress-bar bg-{{ 'success' if signal.confidence >= 80 else 'warning' if signal.confidence >= 60 else 'danger' }}" 
-                                                         style="width: {{ signal.confidence }}%">
-                                                        {{ "%.0f"|format(signal.confidence) }}%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-{{ 'danger' if signal.risk_level == 'High' else 'warning' if signal.risk_level == 'Medium' else 'success' }}">
-                                                    {{ signal.risk_level }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <button class="btn btn-sm btn-success" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}', '{{ signal.action }}')">
-                                                        <i class="fas fa-play"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info" onclick="showSignalDetails({{ signal.id }})">
-                                                        <i class="fas fa-info"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-warning" onclick="customizeSignal({{ signal.id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="text-center py-5">
-                                <i class="fas fa-forward fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No Futures Signals Available</h5>
-                                <p class="text-muted">No futures trading signals for {{ selected_date.strftime('%B %d, %Y') }}</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                    </div>
-                </div>
-            </div>
+                            {{ signal.confidence_score }}%
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ signal.status }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-chart-line fa-2x text-muted mb-2"></i>
+            <p class="text-muted">No trading signals available</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Signal Details Modal -->
-<div class="modal fade" id="signalDetailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Signal Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="signalDetailsContent">
-                <!-- Dynamic content will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" onclick="executeFromModal()">Execute Trade</button>
-            </div>
-        </div>
+<!-- Upgrade Prompt for Live Trading -->
+<div class="card border-warning mt-4">
+    <div class="card-body text-center">
+        <i class="fas fa-bolt fa-2x text-warning mb-2"></i>
+        <h6 class="fw-bold">Upgrade to TraderPlus for Live Trading</h6>
+        <p class="text-muted">Connect your broker accounts and execute trades directly from our platform with real-time order management.</p>
+        <a href="{{ url_for('pricing') }}" class="btn btn-warning">
+            <i class="fas fa-arrow-up me-2"></i>Upgrade Now
+        </a>
     </div>
 </div>
 
-<!-- Algo Setup Modal -->
-<div class="modal fade" id="algoSetupModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Algorithmic Trading Setup</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Strategy Selection</h6>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="straddle">
-                            <label class="form-check-label" for="straddle">
-                                <strong>Long Straddle</strong>
-                                <small class="d-block text-muted">Buy call + put at same strike</small>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="strangle">
-                            <label class="form-check-label" for="strangle">
-                                <strong>Long Strangle</strong>
-                                <small class="d-block text-muted">Buy call + put at different strikes</small>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="butterfly">
-                            <label class="form-check-label" for="butterfly">
-                                <strong>Butterfly Spread</strong>
-                                <small class="d-block text-muted">Limited risk/reward strategy</small>
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="coveredCall">
-                            <label class="form-check-label" for="coveredCall">
-                                <strong>Covered Call</strong>
-                                <small class="d-block text-muted">Own stock + sell call</small>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Execution Parameters</h6>
-                        <div class="mb-3">
-                            <label class="form-label">Maximum Position Size</label>
-                            <input type="number" class="form-control" placeholder="100000" id="maxPosition">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Risk Per Trade (%)</label>
-                            <input type="number" class="form-control" placeholder="2" id="riskPercent" max="10">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Auto-execution</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="autoExecution">
-                                <label class="form-check-label" for="autoExecution">
-                                    Enable automatic trade execution
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="saveAlgoSetup()">Save Configuration</button>
-            </div>
-        </div>
-    </div>
-</div>
+{% endif %}
 
 <script>
-// Date change functionality
-function changeDate() {
-    const selectedDate = document.getElementById('datePicker').value;
-    window.location.href = `/dashboard/trade-now?date=${selectedDate}`;
-}
+// Enhanced Trading Functionality for Broker Users
+{% if current_user.can_access_menu('dashboard_broker_accounts') %}
+let selectedBrokerId = {{ broker_accounts[0].id if broker_accounts else 'null' }};
 
-// Trading signal execution
-function executeSignal(signalId, symbol, action) {
-    const brokerId = document.getElementById('brokerSelect').value;
+function selectBroker(brokerId) {
+    selectedBrokerId = brokerId;
+    document.getElementById('brokerAccount').value = brokerId;
     
-    if (confirm(`Execute ${action} order for ${symbol}?`)) {
-        // Here you would implement the actual order execution
-        alert(`${action} order for ${symbol} placed successfully via broker ${brokerId}!`);
-        console.log(`Executing signal ${signalId}: ${action} ${symbol} via broker ${brokerId}`);
-    }
+    // Update visual selection
+    document.querySelectorAll('.broker-card').forEach(card => {
+        card.classList.remove('border-primary');
+        card.classList.add('border-secondary');
+    });
+    event.target.closest('.broker-card').classList.remove('border-secondary');
+    event.target.closest('.broker-card').classList.add('border-primary');
 }
 
-// Show signal details in modal
-function showSignalDetails(signalId) {
-    // This would fetch detailed signal information
-    const detailsContent = `
-        <div class="row">
-            <div class="col-md-6">
-                <h6>Signal Information</h6>
-                <p><strong>Signal ID:</strong> ${signalId}</p>
-                <p><strong>Generated:</strong> {{ selected_date.strftime('%Y-%m-%d %H:%M') }}</p>
-                <p><strong>Last Updated:</strong> Just now</p>
+// Order type change handler
+document.getElementById('orderType').addEventListener('change', function() {
+    const priceField = document.getElementById('priceField');
+    if (this.value === 'limit' || this.value === 'sl') {
+        priceField.style.display = 'block';
+        document.getElementById('price').required = true;
+    } else {
+        priceField.style.display = 'none';
+        document.getElementById('price').required = false;
+    }
+    updateOrderPreview();
+});
+
+// Update order preview
+function updateOrderPreview() {
+    const symbol = document.getElementById('orderSymbol').value;
+    const type = document.getElementById('transactionType').value;
+    const qty = document.getElementById('quantity').value;
+    const orderType = document.getElementById('orderType').value;
+    const productType = document.getElementById('productType').value;
+    const price = document.getElementById('price').value;
+    
+    if (!symbol || !qty) {
+        document.getElementById('orderPreview').innerHTML = 
+            '<div class="text-muted text-center py-4">Fill in order details to see preview</div>';
+        return;
+    }
+    
+    const previewHtml = `
+        <div class="border rounded p-3">
+            <h6 class="fw-bold text-${type === 'buy' ? 'success' : 'danger'}">${type.toUpperCase()} ${symbol}</h6>
+            <div class="row">
+                <div class="col-6">
+                    <small class="text-muted">Quantity:</small>
+                    <div class="fw-bold">${qty}</div>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted">Type:</small>
+                    <div class="fw-bold">${orderType.toUpperCase()}</div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <h6>Technical Analysis</h6>
-                <p><strong>RSI:</strong> 65.2</p>
-                <p><strong>MACD:</strong> Bullish crossover</p>
-                <p><strong>Volume:</strong> Above average</p>
+            <div class="row mt-2">
+                <div class="col-6">
+                    <small class="text-muted">Product:</small>
+                    <div class="fw-bold">${productType.toUpperCase()}</div>
+                </div>
+                <div class="col-6">
+                    <small class="text-muted">Price:</small>
+                    <div class="fw-bold">${orderType === 'market' ? 'Market' : '₹' + (price || '0.00')}</div>
+                </div>
             </div>
+            ${orderType !== 'market' && price ? 
+                `<div class="mt-2 text-muted">
+                    <small>Estimated Value: ₹${(parseFloat(price) * parseInt(qty)).toLocaleString()}</small>
+                </div>` : ''
+            }
         </div>
-        <hr>
-        <h6>AI Analysis Notes</h6>
-        <p class="text-muted">Detailed analysis notes would appear here...</p>
     `;
     
-    document.getElementById('signalDetailsContent').innerHTML = detailsContent;
-    new bootstrap.Modal(document.getElementById('signalDetailsModal')).show();
+    document.getElementById('orderPreview').innerHTML = previewHtml;
 }
 
-// Customize signal parameters
-function customizeSignal(signalId) {
-    alert(`Opening customization for signal ${signalId}...`);
-    // Implementation for signal customization
-}
-
-// Execute all buy signals
-function executeAllBuySignals() {
-    if (confirm('Execute all BUY signals for today?')) {
-        alert('Executing all buy signals...');
-        // Implementation for bulk execution
+// Add event listeners for form inputs
+['orderSymbol', 'transactionType', 'quantity', 'orderType', 'productType', 'price'].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener('input', updateOrderPreview);
+        element.addEventListener('change', updateOrderPreview);
     }
-}
+});
 
-// Set stop loss for all positions
-function setStopLossAll() {
-    alert('Setting stop loss for all open positions...');
-    // Implementation for bulk stop loss setting
-}
-
-// Refresh signals
-function refreshSignals() {
-    alert('Refreshing trading signals...');
+function refreshOrders() {
     location.reload();
 }
 
-// Show algorithmic setup modal
-function showAlgoSetup() {
-    new bootstrap.Modal(document.getElementById('algoSetupModal')).show();
-}
-
-// Save algorithmic trading configuration
-function saveAlgoSetup() {
-    const config = {
-        strategies: {
-            straddle: document.getElementById('straddle').checked,
-            strangle: document.getElementById('strangle').checked,
-            butterfly: document.getElementById('butterfly').checked,
-            coveredCall: document.getElementById('coveredCall').checked
-        },
-        maxPosition: document.getElementById('maxPosition').value,
-        riskPercent: document.getElementById('riskPercent').value,
-        autoExecution: document.getElementById('autoExecution').checked
-    };
+function cancelOrder(orderId) {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
     
-    console.log('Saving algo configuration:', config);
-    alert('Algorithmic trading configuration saved successfully!');
-    bootstrap.Modal.getInstance(document.getElementById('algoSetupModal')).hide();
-}
-
-// Execute trade from modal
-function executeFromModal() {
-    alert('Executing trade from modal...');
-    bootstrap.Modal.getInstance(document.getElementById('signalDetailsModal')).hide();
-}
-
-// View portfolio
-function viewPortfolio() {
-    window.location.href = '/dashboard/my-portfolio';
-}
-
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Bootstrap tabs
-    var triggerTabList = [].slice.call(document.querySelectorAll('#tradingTabs button'))
-    triggerTabList.forEach(function (triggerEl) {
-        var tabTrigger = new bootstrap.Tab(triggerEl)
-        
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
-        })
+    fetch(`/api/broker/cancel-order/${orderId}`, {
+        method: 'POST'
     })
-    
-    // Set up periodic refresh (every 30 seconds)
-    setInterval(function() {
-        // Update signal data without full page reload
-        console.log('Auto-refreshing signal data...');
-    }, 30000);
-});
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Order cancelled successfully');
+            refreshOrders();
+        } else {
+            alert('Failed to cancel order: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to cancel order. Please try again.');
+    });
+}
+{% endif %}
 </script>
 
 <style>
-.sidebar {
-    border-radius: 0 15px 15px 0;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+.broker-card {
+    cursor: pointer;
+    transition: all 0.2s;
 }
-
-.main-content {
+.broker-card:hover {
     background-color: #f8f9fa;
-    min-height: 100vh;
 }
-
-.card {
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    border: none;
-}
-
 .table th {
-    border-top: none;
     font-weight: 600;
-    color: #495057;
-    font-size: 0.9rem;
+    background-color: #f8f9fa;
+    border-top: none;
 }
-
-.progress {
-    border-radius: 10px;
-}
-
-.btn-group .btn {
-    padding: 0.25rem 0.5rem;
-}
-
-.badge {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.6rem;
-}
-
-/* Custom styling for confidence progress bars */
-.table .progress {
-    margin: 0;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .sidebar {
-        min-height: auto !important;
-        border-radius: 0;
-    }
-    
-    .main-content {
-        padding: 1rem !important;
-    }
-    
-    .table-responsive {
-        font-size: 0.85rem;
-    }
-    
-    .btn-group .btn {
-        padding: 0.2rem 0.4rem;
-    }
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
 }
 </style>
 
-{% endblock %}
-
-{% block right_sidebar %}
-<!-- Broker Connection Status -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-link text-primary me-2"></i>Broker Status
-        </h6>
-    </div>
-    <div class="card-body">
-        {% for broker in brokers %}
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="small">{{ broker.name }}</span>
-            <span class="badge bg-success">Connected</span>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-<!-- Today's Performance -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-chart-bar text-success me-2"></i>Today's Performance
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-6 mb-3">
-                <div class="p-2 bg-success bg-opacity-10 rounded">
-                    <h6 class="fw-bold text-success mb-1">₹12,450</h6>
-                    <small class="text-muted">Executed</small>
-                </div>
-            </div>
-            <div class="col-6 mb-3">
-                <div class="p-2 bg-warning bg-opacity-10 rounded">
-                    <h6 class="fw-bold text-warning mb-1">₹8,320</h6>
-                    <small class="text-muted">Pending</small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Risk Management -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h6 class="card-title mb-0">
-            <i class="fas fa-shield-alt text-warning me-2"></i>Risk Management
-        </h6>
-    </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-                <small>Daily Risk Usage</small>
-                <small>45%</small>
-            </div>
-            <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-warning" style="width: 45%"></div>
-            </div>
-        </div>
-        <div class="mb-3">
-            <div class="d-flex justify-content-between mb-1">
-                <small>Max Drawdown</small>
-                <small>2.3%</small>
-            </div>
-            <div class="progress" style="height: 6px;">
-                <div class="progress-bar bg-danger" style="width: 23%"></div>
-            </div>
-        </div>
-        <button class="btn btn-sm btn-outline-warning w-100">
-            <i class="fas fa-cog me-1"></i>Risk Settings
-        </button>
-    </div>
-</div>
 {% endblock %}

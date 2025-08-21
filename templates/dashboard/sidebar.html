@@ -92,18 +92,7 @@
                     <i class="fas fa-link me-2"></i>Broker Accounts
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_live_portfolio' else '' }}" 
-                   href="{{ url_for('dashboard_live_portfolio') }}">
-                    <i class="fas fa-chart-area me-2"></i>Live Portfolio
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_broker_trading' else '' }}" 
-                   href="{{ url_for('dashboard_broker_trading') }}">
-                    <i class="fas fa-bolt me-2"></i>Live Trading
-                </a>
-            </li>
+
             {% else %}
             <li class="nav-item">
                 <span class="nav-link text-muted d-flex justify-content-between align-items-center">
@@ -111,18 +100,7 @@
                     <i class="fas fa-crown small text-warning" title="Premium feature"></i>
                 </span>
             </li>
-            <li class="nav-item">
-                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-area me-2"></i>Live Portfolio</span>
-                    <i class="fas fa-crown small text-warning" title="Premium feature"></i>
-                </span>
-            </li>
-            <li class="nav-item">
-                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-bolt me-2"></i>Live Trading</span>
-                    <i class="fas fa-crown small text-warning" title="Premium feature"></i>
-                </span>
-            </li>
+
             {% endif %}
             
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
