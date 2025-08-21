@@ -25,7 +25,7 @@ Full backend implementation for agentic AI-powered investment analysis
 Perplexity AI integration completed for Stock Picker enhanced Indian market research
 Enhanced dashboard completely redesigned with dynamic financial overview
 New dashboard sidebar with broker connection status and AI monitoring features
-Comprehensive 10-broker integration system implemented with full API support
+Comprehensive 12-broker integration system implemented with full API support
 Portfolio overview cards showing total value, algo trades, active strategies, and account handling
 Real-time Indian market overview with NSE indices and performance tracking
 Top holdings display with portfolio allocation percentages and progress bars
@@ -80,7 +80,7 @@ Complete Trading Signal System with Admin Module and WhatsApp/Telegram Integrati
 
 ### Key Features & Design Patterns
 - **Agentic AI Tools**: Fully autonomous AI system with OpenAI and Perplexity integration for stock analysis, real-time research, portfolio optimization, and adaptive decision-making with n8n workflow coordination.
-- **Multi-Broker Integration**: Complete support for 10 major Indian brokers with unified API interface: Dhan (free API), Zerodha (₹500/month), Angel One (free API), Upstox (official SDK), FYERS (official SDK), Groww (REST API), ICICIDirect (REST API), HDFC Securities (REST API), Kotak Securities (REST API), and 5Paisa (free API).
+- **Multi-Broker Integration**: Complete support for 12 major Indian brokers with unified API interface: Dhan (free API), Zerodha (₹500/month), Angel One (free API), Upstox (official SDK), FYERS (official SDK), Groww (REST API), ICICIDirect (REST API), HDFC Securities (REST API), Kotak Securities (REST API), 5Paisa (free API), Choice India (REST API), and Goodwill (REST API). Broker Management is now accessible to all user types without subscription restrictions.
 - **Trading Infrastructure**: Direct order execution, portfolio synchronization, and real-time balance tracking across all connected broker accounts with encrypted credential storage.
 - **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages.
 - **Navigation**: Enhanced menu structure with dropdowns, dedicated pricing link, and professional organization.

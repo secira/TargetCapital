@@ -20,12 +20,7 @@ logger = logging.getLogger(__name__)
 @app.route('/dashboard/broker-accounts')
 @login_required
 def dashboard_broker_accounts():
-    """Broker accounts management page"""
-    # Check subscription access - broker connections require Trader+ or Premium
-    from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
-        flash('Broker account connections are available for Trader Plus and Premium subscribers only.', 'warning')
-        return redirect(url_for('pricing'))
+    """Broker accounts management page - Available to all users"""
     
     broker_accounts = BrokerAccount.query.filter_by(user_id=current_user.id).all()
     

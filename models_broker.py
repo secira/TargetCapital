@@ -18,6 +18,8 @@ class BrokerType(Enum):
     HDFC_SECURITIES = "hdfc_securities"
     KOTAK_SECURITIES = "kotak_securities"
     FIVE_PAISA = "5paisa"
+    CHOICE_INDIA = "choice_india"
+    GOODWILL = "goodwill"
 
 class ConnectionStatus(Enum):
     CONNECTED = "connected"
@@ -65,6 +67,7 @@ class BrokerAccount(db.Model):
     # Connection details (match existing table structure)
     connection_status = db.Column(db.String(20), default='disconnected')
     last_connected = db.Column(db.DateTime, nullable=True)
+    last_sync = db.Column(db.DateTime, nullable=True)
     
     # Account information
     account_balance = db.Column(db.Float, default=0.0)

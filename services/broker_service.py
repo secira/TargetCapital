@@ -989,6 +989,10 @@ class BrokerService:
             return KotakSecuritiesBrokerClient(broker_account)
         elif broker_account.broker_type == BrokerType.FIVE_PAISA:
             return FivePaisaBrokerClient(broker_account)
+        elif broker_account.broker_type == BrokerType.CHOICE_INDIA:
+            return ChoiceIndiaBrokerClient(broker_account)
+        elif broker_account.broker_type == BrokerType.GOODWILL:
+            return GoodwillBrokerClient(broker_account)
         elif broker_account.broker_type == BrokerType.ANGEL_BROKING:
             return AngelBrokerClient(broker_account)
         else:
@@ -2130,3 +2134,57 @@ class BaseBrokerClient:
             'available_balance': 100000.0,
             'used_margin': 0.0
         }
+
+
+class ChoiceIndiaBrokerClient(BaseBrokerClient):
+    """Choice India broker client implementation"""
+    
+    BASE_URL = "https://api.choiceindia.com"
+    
+    def connect(self) -> bool:
+        return self._generic_rest_connect("Choice India")
+    
+    def get_holdings(self) -> List[Dict]:
+        return self._generic_rest_holdings("Choice India")
+    
+    def get_positions(self) -> List[Dict]:
+        return self._generic_rest_positions("Choice India")
+    
+    def get_orders(self) -> List[Dict]:
+        return self._generic_rest_orders("Choice India")
+    
+    def place_order(self, order_data: Dict) -> Dict:
+        return self._generic_rest_place_order(order_data, "Choice India")
+    
+    def cancel_order(self, order_id: str) -> Dict:
+        return self._generic_rest_cancel_order(order_id, "Choice India")
+    
+    def get_profile(self) -> Dict:
+        return self._generic_rest_profile("Choice India")
+
+
+class GoodwillBrokerClient(BaseBrokerClient):
+    """Goodwill broker client implementation"""
+    
+    BASE_URL = "https://api.goodwillcomm.com"
+    
+    def connect(self) -> bool:
+        return self._generic_rest_connect("Goodwill")
+    
+    def get_holdings(self) -> List[Dict]:
+        return self._generic_rest_holdings("Goodwill")
+    
+    def get_positions(self) -> List[Dict]:
+        return self._generic_rest_positions("Goodwill")
+    
+    def get_orders(self) -> List[Dict]:
+        return self._generic_rest_orders("Goodwill")
+    
+    def place_order(self, order_data: Dict) -> Dict:
+        return self._generic_rest_place_order(order_data, "Goodwill")
+    
+    def cancel_order(self, order_id: str) -> Dict:
+        return self._generic_rest_cancel_order(order_id, "Goodwill")
+    
+    def get_profile(self) -> Dict:
+        return self._generic_rest_profile("Goodwill")

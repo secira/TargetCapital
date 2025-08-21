@@ -111,8 +111,7 @@
 
         </ul>
         
-        <!-- Broker Status with Management -->
-        {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_broker_accounts') %}
+        <!-- Broker Management - Available to all users -->
         <div class="mt-4 p-3 border-top border-secondary">
             <h6 class="text-white small">
                 <a href="{{ url_for('dashboard_broker_accounts') }}" class="text-white text-decoration-none">
@@ -123,8 +122,8 @@
                 {% for account in broker_accounts %}
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="small">{{ account.broker_name }}</span>
-                    <span class="badge {{ 'bg-success' if account.connection_status.value == 'connected' else 'bg-secondary' }}">
-                        {{ account.connection_status.value.title() }}
+                    <span class="badge {{ 'bg-success' if account.connection_status == 'connected' else 'bg-secondary' }}">
+                        {{ account.connection_status.title() }}
                     </span>
                 </div>
                 {% endfor %}
@@ -139,22 +138,6 @@
                 </div>
             {% endif %}
         </div>
-        {% else %}
-        <div class="mt-4 p-3 border-top border-secondary">
-            <h6 class="text-muted small">
-                <i class="fas fa-link me-1"></i>Broker Status
-                <i class="fas fa-crown small text-warning ms-2" title="Premium feature"></i>
-            </h6>
-            <div class="text-center py-2">
-                <small class="text-muted">Upgrade to connect brokers</small>
-                <div class="mt-1">
-                    <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-outline-warning">
-                        <i class="fas fa-arrow-up me-1"></i>Upgrade
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         
         <!-- AI Status -->
         <!-- User Plan Status -->
