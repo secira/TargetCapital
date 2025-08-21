@@ -2293,6 +2293,7 @@ def api_ai_trading_signals(symbol):
 def account_profile():
     """User profile management"""
     # Get user statistics for display
+    from models import TradingSignal
     trading_signals_count = TradingSignal.query.count()
     return render_template('account/profile.html', 
                          active_section='profile',

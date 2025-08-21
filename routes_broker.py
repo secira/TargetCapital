@@ -15,6 +15,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Removed duplicate route definition
+
+# These routes are already defined above - removing duplicates
+
 @app.route('/dashboard/broker-accounts')
 @login_required
 def dashboard_broker_accounts():
@@ -186,8 +190,18 @@ def dashboard_live_portfolio():
         flash('Live portfolio access requires Trader subscription or higher.', 'warning')
         return redirect(url_for('pricing'))
     
-    # Get portfolio summary
-    portfolio_summary = BrokerService.get_user_portfolio_summary(current_user.id)
+    # Get portfolio summary with error handling
+    try:
+        from services.broker_service_helpers import get_portfolio_summary
+        portfolio_summary = get_portfolio_summary(current_user.id)
+    except:
+        portfolio_summary = {
+            'total_value': 0,
+            'total_pnl': 0, 
+            'holdings_count': 0,
+            'brokers_count': 0,
+            'broker_accounts': []
+        }
     
     # Get all holdings across brokers
     broker_accounts = BrokerAccount.query.filter_by(user_id=current_user.id, is_active=True).all()
@@ -388,7 +402,8 @@ def api_sync_all_brokers():
         results = {}
         for account in broker_accounts:
             try:
-                sync_result = BrokerService.sync_broker_data(account)
+                from services.broker_service_helpers import sync_broker_data
+                sync_result = sync_broker_data(account)
                 results[account.broker_name] = sync_result
             except Exception as e:
                 results[account.broker_name] = {'error': str(e)}
