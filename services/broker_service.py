@@ -969,32 +969,30 @@ class BrokerService:
     @staticmethod
     def get_broker_client(broker_account: BrokerAccount) -> BaseBrokerClient:
         """Get appropriate broker client for account"""
-        if broker_account.broker_type == BrokerType.DHAN:
+        if broker_account.broker_type == BrokerType.DHAN.value:
             return DhanBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.ZERODHA:
+        elif broker_account.broker_type == BrokerType.ZERODHA.value:
             return ZerodhaBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.ANGEL_BROKING:
+        elif broker_account.broker_type == BrokerType.ANGEL_BROKING.value:
             return AngelBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.UPSTOX:
+        elif broker_account.broker_type == BrokerType.UPSTOX.value:
             return UpstoxBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.FYERS:
+        elif broker_account.broker_type == BrokerType.FYERS.value:
             return FyersBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.GROWW:
+        elif broker_account.broker_type == BrokerType.GROWW.value:
             return GrowwBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.ICICIDIRECT:
+        elif broker_account.broker_type == BrokerType.ICICIDIRECT.value:
             return ICICIDirectBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.HDFC_SECURITIES:
+        elif broker_account.broker_type == BrokerType.HDFC_SECURITIES.value:
             return HDFCSecuritiesBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.KOTAK_SECURITIES:
+        elif broker_account.broker_type == BrokerType.KOTAK_SECURITIES.value:
             return KotakSecuritiesBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.FIVE_PAISA:
+        elif broker_account.broker_type == BrokerType.FIVE_PAISA.value:
             return FivePaisaBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.CHOICE_INDIA:
+        elif broker_account.broker_type == BrokerType.CHOICE_INDIA.value:
             return ChoiceIndiaBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.GOODWILL:
+        elif broker_account.broker_type == BrokerType.GOODWILL.value:
             return GoodwillBrokerClient(broker_account)
-        elif broker_account.broker_type == BrokerType.ANGEL_BROKING:
-            return AngelBrokerClient(broker_account)
         else:
             raise BrokerAPIError(f"Unsupported broker type: {broker_account.broker_type}")
     
@@ -1010,7 +1008,7 @@ class BrokerService:
             # Create broker account
             broker_account = BrokerAccount(
                 user_id=user_id,
-                broker_type=broker_type,
+                broker_type=broker_type.value,  # Store enum value as string
                 broker_name=broker_type.value.replace('_', ' ').title(),
                 api_key=credentials.get('client_id'),
                 access_token=credentials.get('access_token'),
@@ -1049,8 +1047,11 @@ class BrokerService:
                 
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Error adding broker account: {e}")
-            raise BrokerAPIError(f"Failed to add broker account: {e}")
+            import traceback
+            error_msg = str(e) if str(e) else f"Unknown error: {type(e).__name__}"
+            logger.error(f"Error adding broker account: {error_msg}")
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+            raise BrokerAPIError(f"Failed to add broker account: {error_msg}")
     
     @staticmethod
     def sync_broker_data(broker_account: BrokerAccount, data_types: List[str] = None) -> Dict:

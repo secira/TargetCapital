@@ -56,7 +56,7 @@ class BrokerAccount(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    broker_type = db.Column(db.Enum(BrokerType), nullable=False)
+    broker_type = db.Column(db.String(50), nullable=False)  # Store as string, not enum
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
     
     # Encrypted credentials
@@ -92,8 +92,7 @@ class BrokerAccount(db.Model):
     
     def __init__(self, **kwargs):
         super(BrokerAccount, self).__init__(**kwargs)
-        if not self._encryption_key:
-            self._encryption_key = self._get_encryption_key()
+        # Initialize encryption key only when needed
     
     @property
     def _encryption_key(self):
