@@ -66,7 +66,7 @@
                     
                     <!-- Trade Now - Available for Trader Plus and Premium only -->
                     {% if current_user.can_access_menu('trade_now') %}
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
                     {% else %}
@@ -103,7 +103,7 @@
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'trade_now' else '' }}" href="{{ url_for('trade_now') }}" data-bs-dismiss="offcanvas">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}" data-bs-dismiss="offcanvas">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
                     <a class="nav-link {{ 'active' if request.endpoint == 'account_handling' else '' }}" href="{{ url_for('account_handling') }}" data-bs-dismiss="offcanvas">

@@ -25,7 +25,7 @@
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h6 class="card-title mb-1">{{ account.broker_name }}</h6>
-                            <small class="text-muted">{{ account.get_credentials()['client_id'][:8] }}...</small>
+                            <small class="text-muted">{{ account.broker_type.value }}</small>
                         </div>
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
@@ -53,17 +53,17 @@
                     
                     <!-- Connection Status -->
                     <div class="mb-3">
-                        {% if account.connection_status.value == 'connected' %}
+                        {% if account.connection_status == 'connected' %}
                             <span class="badge bg-success">
                                 <i class="fas fa-check-circle me-1"></i>Connected
                             </span>
-                        {% elif account.connection_status.value == 'error' %}
+                        {% elif account.connection_status == 'error' %}
                             <span class="badge bg-danger">
                                 <i class="fas fa-exclamation-circle me-1"></i>Error
                             </span>
                         {% else %}
                             <span class="badge bg-warning">
-                                <i class="fas fa-clock me-1"></i>{{ account.connection_status.value.title() }}
+                                <i class="fas fa-clock me-1"></i>{{ account.connection_status.title() }}
                             </span>
                         {% endif %}
                         
