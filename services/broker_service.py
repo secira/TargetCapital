@@ -1049,6 +1049,16 @@ class BrokerService:
                     broker_account.set_as_primary()
                 
                 logger.info(f"Successfully added {broker_type.value} account for user {user_id}")
+                
+                # Skip auto-sync for test accounts to avoid API errors
+                if 'test' not in credentials.get('client_id', '').lower():
+                    # Only sync real accounts with proper credentials
+                    try:
+                        BrokerService.sync_broker_data(broker_account)
+                    except Exception as e:
+                        logger.warning(f"Initial sync failed for {broker_type.value}: {e}")
+                        # Don't fail account creation due to sync issues
+                        
                 return broker_account
             else:
                 # Connection failed, remove account

@@ -62,23 +62,13 @@ def api_add_broker_account():
             credentials=credentials
         )
         
-        # Perform initial sync
-        try:
-            sync_results = BrokerService.sync_broker_data(broker_account)
+        return jsonify({
+            'success': True,
+            'message': f'{broker_type.value.title()} account connected successfully. You can sync data manually using the sync button.',
+            'account_id': broker_account.id
+        })
             
-            return jsonify({
-                'success': True,
-                'message': f'{broker_type.value.title()} account connected successfully',
-                'account_id': broker_account.id,
-                'sync_results': sync_results
-            })
-        except BrokerAPIError as e:
-            logger.error(f"BrokerAPIError: {str(e)}")
-            return jsonify({
-                'success': False,
-                'message': f'Broker API Error: {str(e)}'
-            }), 400
-        except Exception as e:
+    except Exception as e:
             logger.error(f"Unexpected error in add_broker_account: {str(e)}")
             return jsonify({
                 'success': False, 

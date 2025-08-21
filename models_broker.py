@@ -177,7 +177,7 @@ class BrokerHolding(db.Model):
     __tablename__ = 'broker_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
     
     # Stock details
     symbol = db.Column(db.String(20), nullable=False)
@@ -222,7 +222,7 @@ class BrokerPosition(db.Model):
     __tablename__ = 'broker_positions'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
     
     # Position details
     symbol = db.Column(db.String(20), nullable=False)
@@ -254,7 +254,7 @@ class BrokerOrder(db.Model):
     __tablename__ = 'broker_orders'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
     
     # Order identification
     broker_order_id = db.Column(db.String(50), nullable=True)  # Order ID from broker
