@@ -45,7 +45,7 @@ class OrderType(Enum):
 
 class BrokerAccount(db.Model):
     """User's broker account connections"""
-    __tablename__ = 'broker_accounts'
+    __tablename__ = 'user_brokers'
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -53,36 +53,34 @@ class BrokerAccount(db.Model):
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
     
     # Encrypted credentials
-    client_id = db.Column(db.Text, nullable=False)  # Encrypted
+    api_key = db.Column(db.Text, nullable=False)  # Encrypted (was client_id)
     access_token = db.Column(db.Text, nullable=True)  # Encrypted
     api_secret = db.Column(db.Text, nullable=True)  # Encrypted
     
-    # Connection details
-    connection_status = db.Column(db.Enum(ConnectionStatus), default=ConnectionStatus.DISCONNECTED)
+    # Connection details (match existing table structure)
+    connection_status = db.Column(db.String(20), default='disconnected')
     last_connected = db.Column(db.DateTime, nullable=True)
-    connection_error = db.Column(db.Text, nullable=True)
     
     # Account information
-    account_name = db.Column(db.String(100), nullable=True)
     account_balance = db.Column(db.Float, default=0.0)
-    available_margin = db.Column(db.Float, default=0.0)
-    used_margin = db.Column(db.Float, default=0.0)
+    margin_available = db.Column(db.Float, default=0.0)  # Match existing column name
     
     # Settings
     is_primary = db.Column(db.Boolean, default=False)  # Primary broker for trading
     is_active = db.Column(db.Boolean, default=True)
-    auto_connect = db.Column(db.Boolean, default=True)
+    
+    # Other existing columns
+    request_token = db.Column(db.Text, nullable=True)
+    redirect_url = db.Column(db.Text, nullable=True)
+    last_token_refresh = db.Column(db.DateTime, nullable=True)
     
     # Metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_sync = db.Column(db.DateTime, nullable=True)
     
-    # Relationships
+    # Relationships - only basic user relationship for now
     user = db.relationship('User', backref='broker_accounts')
-    holdings = db.relationship('BrokerHolding', backref='broker_account', cascade='all, delete-orphan')
-    orders = db.relationship('BrokerOrder', backref='broker_account', cascade='all, delete-orphan')
-    positions = db.relationship('BrokerPosition', backref='broker_account', cascade='all, delete-orphan')
     
     def __init__(self, **kwargs):
         super(BrokerAccount, self).__init__(**kwargs)
@@ -311,7 +309,7 @@ class BrokerSyncLog(db.Model):
     __tablename__ = 'broker_sync_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('broker_accounts.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
     
     sync_type = db.Column(db.String(50), nullable=False)  # holdings, positions, orders, profile
     sync_status = db.Column(db.String(20), nullable=False)  # success, error, partial
@@ -321,5 +319,4 @@ class BrokerSyncLog(db.Model):
     
     sync_time = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationship
-    broker_account = db.relationship('BrokerAccount', backref='sync_logs')
+    # Remove problematic relationship for now

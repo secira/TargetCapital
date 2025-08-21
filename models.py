@@ -615,53 +615,7 @@ class TradeLeg(db.Model):
     trade_position = db.relationship('TradePosition', backref='trade_legs')
 
 
-class UserBroker(db.Model):
-    """User's broker configurations for API trading access"""
-    __tablename__ = 'user_brokers'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    broker_name = db.Column(db.String(50), nullable=False)  # Zerodha, Dhan, Angel One, etc.
-    api_key = db.Column(db.String(256), nullable=False)
-    api_secret = db.Column(db.String(256), nullable=False)
-    request_token = db.Column(db.String(256), nullable=True)
-    access_token = db.Column(db.String(256), nullable=True)
-    redirect_url = db.Column(db.String(500), nullable=True)
-    is_active = db.Column(db.Boolean, default=True)
-    
-    # Primary broker and connection status
-    is_primary = db.Column(db.Boolean, default=False)
-    connection_status = db.Column(db.String(20), default='DISCONNECTED')  # 'CONNECTED', 'DISCONNECTED'
-    account_balance = db.Column(db.Numeric(12, 2), default=0.0)
-    margin_available = db.Column(db.Numeric(12, 2), default=0.0)
-    
-    last_token_refresh = db.Column(db.DateTime, nullable=True)
-    last_connected = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationship to user
-    user = db.relationship('User', backref='brokers')
-    
-    @property
-    def status(self):
-        """Get connection status based on token availability and connection_status"""
-        if self.connection_status == 'CONNECTED' and self.access_token:
-            return 'Connected'
-        return 'Disconnected'
-    
-    def set_as_primary(self):
-        """Set this broker as primary and unset others for this user"""
-        # First, unset all other primary brokers for this user
-        UserBroker.query.filter_by(user_id=self.user_id, is_primary=True).update({'is_primary': False})
-        # Set this broker as primary
-        self.is_primary = True
-        db.session.commit()
-    
-    def get_redirect_url_template(self):
-        """Generate redirect URL template for this broker"""
-        base_url = "https://your-domain.replit.app/broker-callback"
-        return f"{base_url}?broker={self.broker_name.lower()}&user_id={self.user_id}"
+# UserBroker class removed - using BrokerAccount from models_broker.py instead
 
 class Broker(db.Model):
     __tablename__ = 'brokers'
@@ -851,7 +805,7 @@ class ExecutedTrade(db.Model):
     # Relationships
     user = db.relationship('User', backref='executed_trades')
     trading_signal = db.relationship('TradingSignal', backref='executions')
-    broker = db.relationship('UserBroker', backref='executed_trades')
+    broker = db.relationship('BrokerAccount', backref='executed_trades')
     
     @property
     def current_value(self):

@@ -9,7 +9,8 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
 from app import db
-from models import Admin, User, UserBroker, PricingPlan
+from models import Admin, User, PricingPlan
+from models_broker import BrokerAccount
 # Import with safe fallback for optional models
 try:
     from models import TradingSignal, UserPayment, ExecutedTrade

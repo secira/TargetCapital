@@ -44,6 +44,7 @@ def load_user(user_id):
 with app.app_context():
     # Import models
     import models
+    import models_broker  # Import broker models too
     db.create_all()
 
 # Import OAuth blueprints and register them

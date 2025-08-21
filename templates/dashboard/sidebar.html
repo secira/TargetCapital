@@ -84,24 +84,7 @@
             </li>
             {% endif %}
             
-            <!-- Broker Accounts (Trader Plus & Premium only) -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_broker_accounts') %}
-            <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" 
-                   href="{{ url_for('dashboard_broker_accounts') }}">
-                    <i class="fas fa-link me-2"></i>Broker Accounts
-                </a>
-            </li>
 
-            {% else %}
-            <li class="nav-item">
-                <span class="nav-link text-muted d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-link me-2"></i>Broker Accounts</span>
-                    <i class="fas fa-crown small text-warning" title="Premium feature"></i>
-                </span>
-            </li>
-
-            {% endif %}
             
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
             <li class="nav-item">
@@ -128,26 +111,50 @@
 
         </ul>
         
-        <!-- Broker Status -->
+        <!-- Broker Status with Management -->
+        {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_broker_accounts') %}
         <div class="mt-4 p-3 border-top border-secondary">
             <h6 class="text-white small">
-                <a href="{{ url_for('broker_management') }}" class="text-white text-decoration-none">
-                    Broker Status <i class="fas fa-external-link-alt ms-1 small"></i>
+                <a href="{{ url_for('dashboard_broker_accounts') }}" class="text-white text-decoration-none">
+                    Broker Management <i class="fas fa-cog ms-1 small"></i>
                 </a>
             </h6>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small">Zerodha</span>
-                <span class="badge bg-success">Connected</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="small">Dhan</span>
-                <span class="badge bg-success">Connected</span>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <span class="small">Angel One</span>
-                <span class="badge bg-secondary">Disconnected</span>
+            {% if broker_accounts %}
+                {% for account in broker_accounts %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">{{ account.broker_name }}</span>
+                    <span class="badge {{ 'bg-success' if account.connection_status.value == 'connected' else 'bg-secondary' }}">
+                        {{ account.connection_status.value.title() }}
+                    </span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-2">
+                    <small class="text-muted">No brokers connected</small>
+                    <div class="mt-1">
+                        <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Connect
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="mt-4 p-3 border-top border-secondary">
+            <h6 class="text-muted small">
+                <i class="fas fa-link me-1"></i>Broker Status
+                <i class="fas fa-crown small text-warning ms-2" title="Premium feature"></i>
+            </h6>
+            <div class="text-center py-2">
+                <small class="text-muted">Upgrade to connect brokers</small>
+                <div class="mt-1">
+                    <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-arrow-up me-1"></i>Upgrade
+                    </a>
+                </div>
             </div>
         </div>
+        {% endif %}
         
         <!-- AI Status -->
         <!-- User Plan Status -->

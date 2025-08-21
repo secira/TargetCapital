@@ -3,8 +3,9 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
-                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage, UserBroker,
+                   PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
                    ChatConversation, ChatMessage, ChatbotKnowledgeBase)
+from models_broker import BrokerAccount
 from services.nse_service import nse_service
 from services.nse_realtime_service import get_live_market_data, get_stock_quote
 from services.market_data_service import market_data_service
@@ -201,7 +202,7 @@ def cancellation_refund_policy():
 @login_required
 def broker_management():
     """Broker Management page"""
-    brokers = UserBroker.query.filter_by(user_id=current_user.id).all()
+    brokers = BrokerAccount.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard/broker_management.html', 
                          active_section='broker_management',
                          brokers=brokers)
@@ -1682,6 +1683,10 @@ def dashboard_account_handling():
     """Dashboard Account Handling page"""
     from datetime import date
     return render_template('dashboard/account_handling.html', today=date.today())
+
+# Dashboard route handlers already exist above, removing duplicate definitions
+
+# Stock picker route already exists above
 
 
 
