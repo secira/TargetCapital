@@ -7,59 +7,59 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Left Sidebar -->
-            <div class="col-12 col-md-3 col-lg-3 col-xl-2 py-4 dashboard-sidebar-left border-end bg-light">
+            <div class="col-12 col-md-3 col-lg-3 col-xl-2 py-4 dashboard-sidebar-left border-end" style="background-color: #00091a !important; min-height: calc(100vh - 200px);">
                 <div class="d-flex align-items-center mb-4">
                     <button class="btn btn-outline-primary d-md-none me-3" data-bs-toggle="offcanvas" data-bs-target="#mobileDashboardSidebar">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h5 class="mb-0">Trading Menu</h5>
+                    <h5 class="mb-0 text-white">Trading Menu</h5>
                 </div>
                 
                 <nav class="nav nav-pills flex-column">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
                     
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_stock_picker' else '' }}" href="{{ url_for('dashboard_stock_picker') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_stock_picker' else '' }}" href="{{ url_for('dashboard_stock_picker') }}">
                         <i class="fas fa-chart-line me-2"></i>Stock Picker
                     </a>
                     
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_nse_stocks' else '' }}" href="{{ url_for('dashboard_nse_stocks') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_nse_stocks' else '' }}" href="{{ url_for('dashboard_nse_stocks') }}">
                         <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
                     </a>
                     
                     <!-- Trading Signals -->
                     {% if current_user.can_access_menu('trading_signals') %}
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}">
                         <i class="fas fa-signal me-2"></i>Trading Signals
                     </a>
                     {% endif %}
                     
                     <!-- Portfolio -->
                     {% if current_user.can_access_menu('portfolio') %}
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}">
                         <i class="fas fa-briefcase me-2"></i>My Portfolio
                     </a>
                     {% endif %}
                     
                     <!-- Trade Now -->
                     {% if current_user.can_access_menu('trade_now') %}
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}">
                         <i class="fas fa-exchange-alt me-2"></i>Trade Now
                     </a>
                     {% endif %}
                     
                     <!-- Account Management -->
-                    <div class="mt-3 pt-3 border-top">
-                        <small class="text-muted fw-bold">ACCOUNT</small>
+                    <div class="mt-3 pt-3 border-top border-secondary">
+                        <small class="text-white-50 fw-bold">ACCOUNT</small>
                     </div>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" href="{{ url_for('dashboard_broker_accounts') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_broker_accounts' else '' }}" href="{{ url_for('dashboard_broker_accounts') }}">
                         <i class="fas fa-university me-2"></i>Broker Management
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint.startswith('account_') else '' }}" href="{{ url_for('account_profile') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint.startswith('account_') else '' }}" href="{{ url_for('account_profile') }}">
                         <i class="fas fa-user-cog me-2"></i>Account Settings
                     </a>
-                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
+                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
                         <i class="fas fa-robot me-2"></i>AI Advisor
                     </a>
                 </nav>
