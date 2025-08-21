@@ -1006,15 +1006,21 @@ class BrokerService:
             broker_account = BrokerAccount(
                 user_id=user_id,
                 broker_type=broker_type,
-                broker_name=broker_type.value.title()
+                broker_name=broker_type.value.title(),
+                api_key=credentials.get('client_id'),
+                access_token=credentials.get('access_token'),
+                api_secret=credentials.get('api_secret'),
+                connection_status='disconnected',
+                is_active=True
             )
             
-            # Set credentials
-            broker_account.set_credentials(
-                client_id=credentials.get('client_id'),
-                access_token=credentials.get('access_token'),
-                api_secret=credentials.get('api_secret')
-            )
+            # Set credentials using encryption if available
+            if hasattr(broker_account, 'set_credentials'):
+                broker_account.set_credentials(
+                    client_id=credentials.get('client_id'),
+                    access_token=credentials.get('access_token'),
+                    api_secret=credentials.get('api_secret')
+                )
             
             # Save to database
             db.session.add(broker_account)

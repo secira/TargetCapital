@@ -73,13 +73,17 @@ def api_add_broker_account():
                 'sync_results': sync_results
             })
         except BrokerAPIError as e:
-            # Account connected but sync failed
+            logger.error(f"BrokerAPIError: {str(e)}")
             return jsonify({
-                'success': True,
-                'message': f'{broker_type.value.title()} account connected but sync failed: {str(e)}',
-                'account_id': broker_account.id,
-                'sync_error': str(e)
-            })
+                'success': False,
+                'message': f'Broker API Error: {str(e)}'
+            }), 400
+        except Exception as e:
+            logger.error(f"Unexpected error in add_broker_account: {str(e)}")
+            return jsonify({
+                'success': False, 
+                'message': f'Unexpected error: {str(e)}'
+            }), 500
             
     except BrokerAPIError as e:
         return jsonify({'success': False, 'message': str(e)}), 400

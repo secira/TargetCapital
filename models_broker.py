@@ -60,7 +60,7 @@ class BrokerAccount(db.Model):
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
     
     # Encrypted credentials
-    api_key = db.Column(db.Text, nullable=False)  # Encrypted (was client_id)
+    api_key = db.Column(db.Text, nullable=True)  # Encrypted (was client_id)
     access_token = db.Column(db.Text, nullable=True)  # Encrypted
     api_secret = db.Column(db.Text, nullable=True)  # Encrypted
     
