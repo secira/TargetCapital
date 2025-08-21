@@ -104,13 +104,14 @@ class BrokerAccount(db.Model):
         self._key = value
     
     def _get_encryption_key(self):
-        """Get encryption key from environment or generate one"""
+        """Get encryption key from environment or use a default for development"""
         key = os.environ.get('BROKER_ENCRYPTION_KEY')
         if not key:
-            # Generate a new key (store this securely in production)
-            key = Fernet.generate_key().decode()
-            print(f"Generated new encryption key: {key}")
-            print("Store this key in BROKER_ENCRYPTION_KEY environment variable")
+            # Use a fixed development key for testing (NEVER use in production)
+            key = "tCapital_Dev_Key_32_Chars_Long_123="
+            # Convert to proper Fernet key format
+            import base64
+            key = base64.urlsafe_b64encode(key.encode()[:32].ljust(32, b'0'))
         return key.encode() if isinstance(key, str) else key
     
     def encrypt_data(self, data):
@@ -129,7 +130,7 @@ class BrokerAccount(db.Model):
     
     def set_credentials(self, client_id, access_token=None, api_secret=None, totp_secret=None):
         """Set encrypted credentials"""
-        self.client_id = self.encrypt_data(client_id)
+        self.api_key = self.encrypt_data(client_id)  # Use api_key field instead of client_id
         if access_token:
             self.access_token = self.encrypt_data(access_token)
         if api_secret:
@@ -149,7 +150,7 @@ class BrokerAccount(db.Model):
             api_secret, totp_secret = api_secret.split('|', 1)
         
         return {
-            'client_id': self.decrypt_data(self.client_id),
+            'client_id': self.decrypt_data(self.api_key),  # Use api_key field instead of client_id
             'access_token': self.decrypt_data(self.access_token),
             'api_secret': api_secret,
             'totp_secret': totp_secret
