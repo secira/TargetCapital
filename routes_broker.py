@@ -55,6 +55,18 @@ def api_add_broker_account():
             'totp_secret': data.get('totp_secret')
         }
         
+        # Check if user already has an account with this broker
+        existing_account = BrokerAccount.query.filter_by(
+            user_id=current_user.id, 
+            broker_type=broker_type.value
+        ).first()
+        
+        if existing_account:
+            return jsonify({
+                'success': False,
+                'message': 'User can create only connection with each broker'
+            }), 400
+        
         # Add broker account
         broker_account = BrokerService.add_broker_account(
             user_id=current_user.id,

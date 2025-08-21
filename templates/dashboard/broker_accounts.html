@@ -175,11 +175,99 @@
             <div class="col-md-3 mb-3">
                 <div class="d-flex align-items-center">
                     <div class="me-3">
-                        <i class="fas fa-clock text-warning"></i>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
                     <div>
                         <div class="fw-bold">Upstox</div>
-                        <small class="text-muted">Coming Soon</small>
+                        <small class="text-muted">Official SDK</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">FYERS</div>
+                        <small class="text-muted">Official SDK</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Groww</div>
+                        <small class="text-muted">REST API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">ICICI Direct</div>
+                        <small class="text-muted">REST API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">HDFC Securities</div>
+                        <small class="text-muted">REST API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Kotak Securities</div>
+                        <small class="text-muted">REST API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">5Paisa</div>
+                        <small class="text-muted">Free API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Choice India</div>
+                        <small class="text-muted">REST API</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Goodwill</div>
+                        <small class="text-muted">REST API</small>
                     </div>
                 </div>
             </div>
@@ -202,21 +290,35 @@
                         <select class="form-control" id="brokerType" name="broker_type" required>
                             <option value="">Choose a broker...</option>
                             {% for broker_type in broker_types %}
-                                {% if broker_type.value in ['dhan', 'zerodha', 'angel_broking'] %}
-                                    <option value="{{ broker_type.value }}">
-                                        {% if broker_type.value == 'dhan' %}
-                                            Dhan (Free APIs)
-                                        {% elif broker_type.value == 'zerodha' %}
-                                            Zerodha Kite Connect
-                                        {% elif broker_type.value == 'angel_broking' %}
-                                            Angel One SmartAPI
-                                        {% else %}
-                                            {{ broker_type.value.title() }}
-                                        {% endif %}
-                                    </option>
-                                {% else %}
-                                    <option value="{{ broker_type.value }}" disabled>{{ broker_type.value.title() }} (Coming Soon)</option>
-                                {% endif %}
+                                <option value="{{ broker_type.value }}">
+                                    {% if broker_type.value == 'dhan' %}
+                                        Dhan (Free APIs)
+                                    {% elif broker_type.value == 'zerodha' %}
+                                        Zerodha Kite Connect (₹500/month)
+                                    {% elif broker_type.value == 'angel_broking' %}
+                                        Angel One SmartAPI (Free)
+                                    {% elif broker_type.value == 'upstox' %}
+                                        Upstox (Official SDK)
+                                    {% elif broker_type.value == 'fyers' %}
+                                        FYERS (Official SDK)
+                                    {% elif broker_type.value == 'groww' %}
+                                        Groww (REST API)
+                                    {% elif broker_type.value == 'icicidirect' %}
+                                        ICICI Direct (REST API)
+                                    {% elif broker_type.value == 'hdfc_securities' %}
+                                        HDFC Securities (REST API)
+                                    {% elif broker_type.value == 'kotak_securities' %}
+                                        Kotak Securities (REST API)
+                                    {% elif broker_type.value == '5paisa' %}
+                                        5Paisa (Free API)
+                                    {% elif broker_type.value == 'choice_india' %}
+                                        Choice India (REST API)
+                                    {% elif broker_type.value == 'goodwill' %}
+                                        Goodwill (REST API)
+                                    {% else %}
+                                        {{ broker_type.value.title() }}
+                                    {% endif %}
+                                </option>
                             {% endfor %}
                         </select>
                     </div>
