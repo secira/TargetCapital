@@ -6,82 +6,31 @@
 <div class="dashboard-container">
     <div class="container-fluid">
         <div class="row">
-            <!-- Left Sidebar -->
-            <div class="col-12 col-md-3 col-lg-3 col-xl-2 py-4 dashboard-sidebar-left border-end" style="background-color: #00091a !important; min-height: calc(100vh - 200px);">
-                <div class="d-flex align-items-center mb-4">
-                    <button class="btn btn-outline-primary d-md-none me-3" data-bs-toggle="offcanvas" data-bs-target="#mobileDashboardSidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h5 class="mb-0 text-white">Trading Menu</h5>
-                </div>
-                
-                <nav class="nav nav-pills flex-column">
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                    
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_stock_picker' else '' }}" href="{{ url_for('dashboard_stock_picker') }}">
-                        <i class="fas fa-chart-line me-2"></i>Stock Picker
-                    </a>
-                    
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_nse_stocks' else '' }}" href="{{ url_for('dashboard_nse_stocks') }}">
-                        <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
-                    </a>
-                    
-                    <!-- Trading Signals -->
-                    {% if current_user.can_access_menu('trading_signals') %}
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_trading_signals' else '' }}" href="{{ url_for('dashboard_trading_signals') }}">
-                        <i class="fas fa-signal me-2"></i>Trading Signals
-                    </a>
-                    {% endif %}
-                    
-                    <!-- Portfolio -->
-                    {% if current_user.can_access_menu('portfolio') %}
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_my_portfolio' else '' }}" href="{{ url_for('dashboard_my_portfolio') }}">
-                        <i class="fas fa-briefcase me-2"></i>My Portfolio
-                    </a>
-                    {% endif %}
-                    
-                    <!-- Trade Now -->
-                    {% if current_user.can_access_menu('trade_now') %}
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_trade_now' else '' }}" href="{{ url_for('dashboard_trade_now') }}">
-                        <i class="fas fa-exchange-alt me-2"></i>Trade Now
-                    </a>
-                    {% endif %}
-                    
-                    <!-- Account Management -->
-                    <div class="mt-3 pt-3 border-top border-secondary">
-                        <small class="text-white-50 fw-bold">ACCOUNT</small>
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 px-0">
+            {% include 'dashboard/sidebar.html' %}
+        </div>
+
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="dashboard-heading"><i class="fas fa-university me-2"></i>Broker Management</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
+                            <i class="fas fa-plus me-1"></i>Add Broker
+                        </button>
                     </div>
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'dashboard_broker_accounts' else '' }}" href="{{ url_for('dashboard_broker_accounts') }}">
-                        <i class="fas fa-university me-2"></i>Broker Management
-                    </a>
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint.startswith('account_') else '' }}" href="{{ url_for('account_profile') }}">
-                        <i class="fas fa-user-cog me-2"></i>Account Settings
-                    </a>
-                    <a class="nav-link text-white {{ 'active bg-primary' if request.endpoint == 'ai_advisor' else '' }}" href="{{ url_for('ai_advisor') }}">
-                        <i class="fas fa-robot me-2"></i>AI Advisor
-                    </a>
-                </nav>
+                </div>
             </div>
 
-            <!-- Main Content Area - Full Width -->
-            <div class="col-12 col-md-9 col-lg-9 col-xl-10 py-4">
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="h4 mb-1">Broker Management</h2>
-                        <p class="text-muted mb-0">Connect your trading accounts for live portfolio analysis and order execution</p>
-                    </div>
+            <!-- Connected Brokers Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="mb-3">Connected Brokers</h5>
                 </div>
-
-<!-- Add Broker Account Button -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h5 class="mb-0">Connected Brokers</h5>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-        <i class="fas fa-plus me-2"></i>Add Broker Account
-    </button>
-</div>
+            </div>
 
 <!-- Broker Accounts Grid -->
 <div class="row">
@@ -535,51 +484,6 @@ function removeAccount(accountId) {
 
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Mobile Offcanvas Sidebar -->
-<div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileDashboardSidebar">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Trading Menu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body">
-        <nav class="nav nav-pills flex-column">
-            <a class="nav-link" href="{{ url_for('dashboard') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-            </a>
-            <a class="nav-link" href="{{ url_for('dashboard_stock_picker') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-chart-line me-2"></i>Stock Picker
-            </a>
-            <a class="nav-link" href="{{ url_for('dashboard_nse_stocks') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-flag-checkered me-2"></i>NSE India Stocks
-            </a>
-            {% if current_user.can_access_menu('trading_signals') %}
-            <a class="nav-link" href="{{ url_for('dashboard_trading_signals') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-signal me-2"></i>Trading Signals
-            </a>
-            {% endif %}
-            {% if current_user.can_access_menu('portfolio') %}
-            <a class="nav-link" href="{{ url_for('dashboard_my_portfolio') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-briefcase me-2"></i>My Portfolio
-            </a>
-            {% endif %}
-            {% if current_user.can_access_menu('trade_now') %}
-            <a class="nav-link" href="{{ url_for('dashboard_trade_now') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-exchange-alt me-2"></i>Trade Now
-            </a>
-            {% endif %}
-            <a class="nav-link active" href="{{ url_for('dashboard_broker_accounts') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-university me-2"></i>Broker Management
-            </a>
-            <a class="nav-link" href="{{ url_for('account_profile') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-user-cog me-2"></i>Account Settings
-            </a>
-            <a class="nav-link" href="{{ url_for('ai_advisor') }}" data-bs-dismiss="offcanvas">
-                <i class="fas fa-robot me-2"></i>AI Advisor
-            </a>
-        </nav>
     </div>
 </div>
 
