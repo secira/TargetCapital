@@ -13,6 +13,11 @@ class BrokerType(Enum):
     ANGEL_BROKING = "angel_broking"
     UPSTOX = "upstox"
     FYERS = "fyers"
+    GROWW = "groww"
+    ICICIDIRECT = "icicidirect"
+    HDFC_SECURITIES = "hdfc_securities"
+    KOTAK_SECURITIES = "kotak_securities"
+    FIVE_PAISA = "5paisa"
 
 class ConnectionStatus(Enum):
     CONNECTED = "connected"

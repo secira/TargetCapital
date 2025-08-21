@@ -1,7 +1,7 @@
 # tCapital - Flask Web Application
 
 ## Overview
-tCapital is a Flask-based web application providing an advanced Agentic AI-powered stock trading platform. Its core purpose is to offer autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform emphasizes true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making.
+tCapital is a Flask-based web application providing an advanced Agentic AI-powered stock trading platform. Its core purpose is to offer autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform emphasizes true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making. The project vision includes significant market potential for intelligent, adaptive financial decision-making tools.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -14,108 +14,42 @@ Core Concept: Agentic AI represents shift from passive automation to true autono
 Agentic AI Implementation: Complete integration with OpenAI (GPT-4) and Perplexity APIs for real-time reasoning and research capabilities
 n8n Integration: Workflow automation for continuous monitoring and autonomous decision-making triggers
 Dashboard Layout: Two-column layout with left sidebar for trading tools navigation
-Recent Updates: Landing page images replaced with fresh SVG assets (August 16, 2025)
 Manual changes accepted for project integration and navigation structure
-All manual changes saved and accepted (August 16, 2025)
-Comprehensive mobile and tablet compatibility enhancement completed (August 16, 2025)
+Comprehensive mobile and tablet compatibility enhancement
 Mobile responsive design improvements with detailed breakpoints implemented
-Fixed mobile header font sizing and dropdown menu functionality
-JavaScript errors resolved for better mobile performance
-Typography standardization implemented across all dashboard pages (August 18, 2025)
-Updated typography for better readability: H1=26px, H2=22px, H3=20px, H4=18px, H5=17px, H6=16px
-Body text increased to 16px minimum with improved line heights and readability
-Created dashboard.css for unified typography standards
-Updated all dashboard page headings to use consistent .dashboard-heading class
-Font sizes optimized for better user experience and accessibility
-Comprehensive Agentic AI system implemented with OpenAI and Perplexity integration (August 16, 2025)
+Typography standardization implemented across all dashboard pages
+Comprehensive Agentic AI system implemented with OpenAI and Perplexity integration
 n8n workflow integration added for autonomous AI decision-making and monitoring
 AI Advisor dashboard enhanced with real-time workflow triggers and status monitoring
-Full backend implementation for agentic AI-powered investment analysis completed (August 19, 2025)
-Created MarketIntelligenceService for real-time market sentiment, sector performance, and economic indicators
-Built InvestmentAnalysisService with comprehensive stock analysis using AI and market data integration
-Implemented AgenticAICoordinator with learn-reason-act-adapt cycle for autonomous investment decisions
-Added specialized AI agents: ResearchAgent, AnalysisAgent, DecisionAgent, and LearningAgent
-Enhanced AI Advisor interface with unified chat and market intelligence dashboard
-Perplexity AI integration completed for Stock Picker enhanced Indian market research (August 19, 2025)
-Integrated Perplexity API service for "Start AI Research" and "Generate AI Picks" features
-Created comprehensive PerplexityService with real-time Indian stock market research capabilities
-Added specialized API endpoints for Perplexity research, picks generation, and market insights
-Enhanced Stock Picker interface with Perplexity-powered research and intelligent fallback data
-Improved research quality specifically for Indian stock market using Perplexity's online models
-Enhanced dashboard completely redesigned with dynamic financial overview (August 16, 2025)
+Full backend implementation for agentic AI-powered investment analysis
+Perplexity AI integration completed for Stock Picker enhanced Indian market research
+Enhanced dashboard completely redesigned with dynamic financial overview
 New dashboard sidebar with broker connection status and AI monitoring features
+Comprehensive 10-broker integration system implemented with full API support
 Portfolio overview cards showing total value, algo trades, active strategies, and account handling
 Real-time Indian market overview with NSE indices and performance tracking
 Top holdings display with portfolio allocation percentages and progress bars
 AI market intelligence with sentiment analysis and automated recommendations
 Quick actions panel for streamlined navigation to key trading functions
-AI-Powered Investment Explanation Chatbot implemented with comprehensive features (August 19, 2025)
-Created ChatConversation, ChatMessage, and ChatbotKnowledgeBase database models for chat functionality
-Built InvestmentChatbot service with OpenAI GPT-4o integration for intelligent responses
-Implemented personalized chat responses using user portfolio context and market data
-Added conversation history management with persistent chat sessions and message threading
-Created responsive chat interface with typing indicators, quick actions, and mobile optimization
-Integrated knowledge base system with pre-loaded investment concepts and terminology explanations
-Added subscription-based access control ensuring chatbot availability for appropriate user tiers
-Enhanced Stock Picker page with two comprehensive sections: AI Stock Picker and Today's Top AI Picks (August 17, 2025)
-Created AIStockPick database model for daily stock recommendations with date filtering capability
-Built detailed stock analysis page following Infosys template format with comprehensive financial data
-Implemented dynamic table for AI stock picks with date picker functionality for historical data
-Added detailed analysis route with sample data for INFY and RELIANCE stocks following document template
-Complete integration between Stock Picker page and detailed analysis functionality
-Real-time NSE Data Integration and TradingView Professional Charts Implementation (August 20, 2025)
-Created comprehensive NSE real-time service (nse_realtime_service.py) for live market data fetching
-Updated dashboard with real-time NIFTY values showing current market prices (NIFTY 50: 25,041.10)
-Implemented API endpoints /api/realtime/indices and /api/realtime/stock/<symbol> for live data access
-Enhanced Stock Analysis page with real-time price updates using NSE API integration
-Built professional TradingView widget integration (tradingview-widget.js) for embedded charts without requiring API credentials
-Added clickable index charts in dashboard with real-time price displays and professional chart modals
-Fixed chart visibility issues by implementing iframe-based TradingView embeds with proper NSE symbol mapping
-Updated all dashboard price displays to show current realistic market values with proper change indicators
-Removed TradingView notification messages by creating custom chart implementation (August 20, 2025)
-Eliminated "This symbol is only available on TradingView" notifications completely
-Built custom chart interface with professional loading states and interactive elements
-Replaced TradingView iframe embeds with notification-free custom chart displays
-Added animated chart backgrounds and clean professional chart loading interface
-Fixed accessibility issues with modal aria-hidden attributes for better user experience
-AI Advisor completely restructured with Perplexity Sonar integration (August 19, 2025)
-Replaced ChatGPT with Perplexity Sonar Pro for real-time market intelligence and current data access
-Created modern dual-mode interface accommodating both AI Advisor and Agentic AI functionality
-Enhanced chatbot service with Perplexity API integration using sonar-pro model for better market insights
-Built user-friendly interface with mode selection, capability cards, and streamlined chat experience
-Improved real-time market data access with current news, sentiment analysis, and live stock information
-Fixed Perplexity API message alternation format and successfully connected to real-time market data (August 19, 2025)
-Comprehensive Portfolio management system with multi-broker support and database integration (August 17, 2025)
-Created Portfolio database model with comprehensive fields for multi-broker holdings tracking
-Implemented My Portfolio page with four distinct views: Consolidated, Sectorial, Broker, and AI Optimization
-Added real-time portfolio calculation features including P&L, allocation percentages, and performance metrics
-Built sample portfolio data system with holdings from Zerodha, Angel Broking, and Dhan for testing
-Enhanced portfolio analytics with sector-wise analysis and broker-wise breakdown capabilities
-Integrated AI portfolio optimization recommendations with actionable insights and portfolio scoring
-Dashboard system cleanup: Removed Watchlist menu item and functionality as requested by user (August 17, 2025)
+AI-Powered Investment Explanation Chatbot implemented with comprehensive features
+Enhanced Stock Picker page with two comprehensive sections: AI Stock Picker and Today's Top AI Picks
+Real-time NSE Data Integration and TradingView Professional Charts Implementation
+Removed TradingView notification messages by creating custom chart implementation
+AI Advisor completely restructured with Perplexity Sonar integration
+Comprehensive Portfolio management system with multi-broker support and database integration
+Dashboard system cleanup: Removed Watchlist menu item and functionality
 Unified dashboard navigation with consistent left sidebar layout across all menu items
 Updated Trade Now page template structure to match other dashboard pages for visual consistency
-Fixed routing issues and template structure alignment across dashboard components
-Removed Stock Analysis menu and functionality - charts now work wherever stocks/indices are displayed (August 20, 2025)
-Moved AI Advisor menu item below Account Handling in sidebar navigation as requested (August 20, 2025)
-Restructured AI Advisor interface layout: search input as main focal point, advanced functions moved to right sidebar (August 20, 2025)
-Removed redundant welcome screen text box to eliminate user confusion - now uses single text input box at bottom consistently (August 20, 2025)
-UI/UX improvements for AI Advisor text input: 40 characters width, 3 lines height, fixed size to prevent collapse, removed "Thinking" text, colorful "New Chat" button below text box, changed up arrow to "Send" button (August 20, 2025)
-Fixed sidebar navigation to correctly point to AI Advisor (/dashboard/ai-advisor) instead of AI Chat - ensuring users access the proper Perplexity-style interface (August 20, 2025)
-UI/UX improvements: Removed Market Opportunities and Risk Factors sections from Stock Picker page (August 17, 2025)
+Removed Stock Analysis menu and functionality - charts now work wherever stocks/indices are displayed
+Moved AI Advisor menu item below Account Handling in sidebar navigation
+Restructured AI Advisor interface layout: search input as main focal point, advanced functions moved to right sidebar
+Removed redundant welcome screen text box to eliminate user confusion - now uses single text input box at bottom consistently
+UI/UX improvements for AI Advisor text input: 40 characters width, 3 lines height, fixed size to prevent collapse, removed "Thinking" text, colorful "New Chat" button below text box, changed up arrow to "Send" button
+Fixed sidebar navigation to correctly point to AI Advisor (/dashboard/ai-advisor) instead of AI Chat - ensuring users access the proper Perplexity-style interface
+UI/UX improvements: Removed Market Opportunities and Risk Factors sections from Stock Picker page
 Streamlined dashboard interface by removing Quick Actions section from main dashboard
 Cleaned up Trade Now page by removing duplicate Refresh and Algo Setup buttons
-All manual changes accepted and integrated into project architecture (August 18, 2025)
-Complete Trading Signal System with Admin Module and WhatsApp/Telegram Integration implemented (August 20, 2025)
-Created comprehensive admin authentication system with separate login at /admin/login (admin/admin123)
-Built complete trading signal management with daily signal creation, sharing, and subscriber access controls
-Implemented WhatsApp Business API and Telegram Bot integration for automatic signal sharing to groups/channels
-Added primary broker selection system for trade execution with paid user access tiers
-Fixed all database model conflicts and import issues for stable production deployment
-Created detailed setup guides for WhatsApp Business API and Telegram Bot configuration
-Added comprehensive admin dashboard with user management, payment tracking, and signal analytics
-Enhanced user dashboard with trading signals page showing only signals for paid subscribers (Trader/Trader Plus/Premium)
-Built complete messaging infrastructure with formatted signal templates and delivery tracking
+Complete Trading Signal System with Admin Module and WhatsApp/Telegram Integration implemented
 
 ## System Architecture
 ### Backend Architecture
@@ -138,14 +72,16 @@ Built complete messaging infrastructure with formatted signal templates and deli
 ### Application Structure
 - **Entry Point**: `main.py`
 - **Application Factory**: `app.py`
-- **Models**: `models.py` (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio)
-- **Routes**: `routes.py`
+- **Models**: `models.py` (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, AIAnalysis, PortfolioOptimization, TradingSignal, AIStockPick, Portfolio), `models_broker.py` (BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder, BrokerSyncLog, ExecutedTrade)
+- **Routes**: `routes.py`, `routes_broker.py`
 - **Services**: `/services/` (nse_service.py, market_data_service.py, ai_agent_service.py with full Agentic AI coordinator)
 - **Templates**: `/templates/`
 - **Static Assets**: `/static/` (includes mobile-responsive.js for enhanced mobile interactions)
 
 ### Key Features & Design Patterns
 - **Agentic AI Tools**: Fully autonomous AI system with OpenAI and Perplexity integration for stock analysis, real-time research, portfolio optimization, and adaptive decision-making with n8n workflow coordination.
+- **Multi-Broker Integration**: Complete support for 10 major Indian brokers with unified API interface: Dhan (free API), Zerodha (₹500/month), Angel One (free API), Upstox (official SDK), FYERS (official SDK), Groww (REST API), ICICIDirect (REST API), HDFC Securities (REST API), Kotak Securities (REST API), and 5Paisa (free API).
+- **Trading Infrastructure**: Direct order execution, portfolio synchronization, and real-time balance tracking across all connected broker accounts with encrypted credential storage.
 - **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages.
 - **Navigation**: Enhanced menu structure with dropdowns, dedicated pricing link, and professional organization.
 - **Data Flow**: Flask's URL routing, SQLAlchemy for database operations, Jinja2 for rendering, and JavaScript for client-side interactions.
@@ -167,3 +103,9 @@ Built complete messaging infrastructure with formatted signal templates and deli
 ### Infrastructure Dependencies
 - Database: SQLite (development) / PostgreSQL (production)
 - Web server: Any WSGI-compatible server
+- OpenAI API
+- Perplexity API
+- n8n
+- WhatsApp Business API
+- Telegram Bot API
+- TradingView (for charts, though custom implementation avoids direct API credentials)
