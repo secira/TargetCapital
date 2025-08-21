@@ -1473,19 +1473,44 @@ def dashboard_my_portfolio():
         broker_analysis[broker]['holdings_count'] += 1
         broker_analysis[broker]['holdings'].append(holding)
     
-    return render_template('dashboard/my_portfolio.html',
-                         current_user=current_user,
-                         portfolio_holdings=portfolio_holdings,
-                         total_investment=total_investment,
-                         total_current_value=total_current_value,
-                         total_pnl=total_pnl,
-                         total_pnl_percentage=total_pnl_percentage,
-                         sector_analysis=sector_analysis,
-                         broker_analysis=broker_analysis)
+    # Check if user has broker access (TraderPlus/Premium)
+    if current_user.can_access_menu('dashboard_broker_accounts'):
+        try:
+            # Get portfolio summary with error handling
+            from services.broker_service_helpers import get_portfolio_summary, get_consolidated_holdings
+            portfolio_summary = get_portfolio_summary(current_user.id)
+            holdings = get_consolidated_holdings(current_user.id)
+        except:
+            portfolio_summary = {
+                'total_value': total_current_value,
+                'total_pnl': total_pnl,
+                'holdings_count': len(portfolio_holdings),
+                'brokers_count': 0,
+                'broker_accounts': []
+            }
+            holdings = []
+        
+        return render_template('dashboard/my_portfolio.html',
+                             current_user=current_user,
+                             portfolio_summary=portfolio_summary,
+                             holdings=holdings,
+                             broker_accounts=[])
+    else:
+        # Regular portfolio view for Free/Trader users
+        return render_template('dashboard/my_portfolio.html',
+                             current_user=current_user,
+                             portfolio_data=portfolio_holdings,
+                             total_investment=total_investment,
+                             total_current_value=total_current_value,
+                             total_pnl=total_pnl,
+                             total_pnl_percentage=total_pnl_percentage,
+                             total_holdings=len(portfolio_holdings),
+                             sector_analysis=sector_analysis,
+                             broker_analysis=broker_analysis)
 
 @app.route('/dashboard/trade-now')
 @login_required
-def trade_now():
+def dashboard_trade_now_merged():
     # Check subscription access
     if not current_user.can_access_menu('trade_now'):
         flash('This feature requires Trader Plus or Premium subscription. Please upgrade your account.', 'warning')
@@ -1606,16 +1631,46 @@ def trade_now():
         {'broker_id': 'dhan', 'name': 'Dhan'}
     ]
     
-    return render_template('dashboard/trade_now_simple.html',
-                         current_user=current_user,
-                         selected_date=selected_date,
+    # Check if user has broker access (TraderPlus/Premium)
+    if current_user.can_access_menu('dashboard_broker_accounts'):
+        try:
+            # Get user's connected broker accounts
+            from models_broker import BrokerAccount, BrokerOrder, ConnectionStatus
+            broker_accounts = BrokerAccount.query.filter_by(
+                user_id=current_user.id,
+                is_active=True,
+                connection_status=ConnectionStatus.CONNECTED
+            ).all()
+            
+            # Get recent orders (last 10)
+            recent_orders = BrokerOrder.query.join(BrokerAccount).filter(
+                BrokerAccount.user_id == current_user.id
+            ).order_by(BrokerOrder.order_time.desc()).limit(10).all()
+            
+            return render_template('dashboard/trade_now.html',
+                                 broker_accounts=broker_accounts,
+                                 recent_orders=recent_orders,
+                                 trading_signals=[],
+                                 total_signals=0,
+                                 buy_signals=0,
+                                 sell_signals=0,
+                                 avg_confidence=0)
+                                 
+        except Exception as e:
+            logger.error(f"Error loading broker trading: {e}")
+            # Fall back to regular trading signals view
+            pass
+    
+    # Regular trading signals view 
+    return render_template('dashboard/trade_now.html',
                          trading_signals=trading_signals,
-                         signals_by_type=signals_by_type,
                          total_signals=total_signals,
                          buy_signals=buy_signals,
                          sell_signals=sell_signals,
                          avg_confidence=avg_confidence,
-                         brokers=brokers)
+                         broker_accounts=[],
+                         recent_orders=[],
+                         selected_date=selected_date)
 
 @app.route('/dashboard/account-handling')
 @login_required
