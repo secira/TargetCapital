@@ -1,4 +1,4 @@
-{% extends "dashboard/dashboard_base.html" %}
+{% include "dashboard/my_portfolio_enhanced.html" %}
 
 {% block title %}My Portfolio - tCapital{% endblock %}
 
@@ -321,17 +321,17 @@
                             {% for holding in portfolio_data %}
                             <tr>
                                 <td>
-                                    <div class="fw-bold">{{ holding.symbol }}</div>
+                                    <div class="fw-bold">{{ holding.ticker_symbol }}</div>
                                     <small class="text-muted">{{ holding.sector }}</small>
                                 </td>
-                                <td>{{ holding.company_name }}</td>
+                                <td>{{ holding.stock_name }}</td>
                                 <td>{{ holding.quantity }}</td>
-                                <td>₹{{ "%.2f"|format(holding.avg_price) }}</td>
+                                <td>₹{{ "%.2f"|format(holding.purchase_price) }}</td>
                                 <td>₹{{ "%.2f"|format(holding.current_price) }}</td>
-                                <td>₹{{ "%.0f"|format(holding.investment_value) }}</td>
+                                <td>₹{{ "%.0f"|format(holding.purchased_value) }}</td>
                                 <td>₹{{ "%.0f"|format(holding.current_value) }}</td>
-                                <td class="{{ 'text-success' if holding.pnl >= 0 else 'text-danger' }}">
-                                    {{ '+' if holding.pnl >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl) }}
+                                <td class="{{ 'text-success' if holding.pnl_amount >= 0 else 'text-danger' }}">
+                                    {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
                                 </td>
                                 <td>
                                     <span class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}">

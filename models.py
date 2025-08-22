@@ -422,10 +422,11 @@ class Portfolio(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    broker_id = db.Column(db.String(50), nullable=False)  # zerodha, angel, dhan, etc.
+    broker_id = db.Column(db.String(50), nullable=True)  # zerodha, angel, dhan, etc. (null for manual uploads)
     ticker_symbol = db.Column(db.String(20), nullable=False)
     stock_name = db.Column(db.String(200), nullable=False)
-    asset_type = db.Column(db.String(20), nullable=False)  # Stocks, MF, ETF, Bonds
+    asset_type = db.Column(db.String(20), nullable=False)  # Stocks, MF, ETF, Bonds, Gold, Crypto, ESOP, PrivateEquity
+    asset_category = db.Column(db.String(50), nullable=True)  # Equity, Debt, Commodities, Alternative
     quantity = db.Column(db.Float, nullable=False)
     date_purchased = db.Column(db.Date, nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)  # Price per unit when purchased
@@ -435,6 +436,9 @@ class Portfolio(db.Model):
     sector = db.Column(db.String(100), nullable=True)  # IT, Banking, Pharma, etc.
     exchange = db.Column(db.String(10), nullable=True)  # NSE, BSE
     isin = db.Column(db.String(20), nullable=True)  # ISIN code for unique identification
+    trade_type = db.Column(db.String(20), nullable=False, default='long_term')  # intraday, short_term, long_term
+    data_source = db.Column(db.String(20), nullable=False, default='broker')  # broker, manual_upload, api_sync
+    last_sync_date = db.Column(db.DateTime, nullable=True)  # Last time data was synced from broker
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -474,6 +478,99 @@ class Portfolio(db.Model):
     
     def __repr__(self):
         return f'<Portfolio {self.ticker_symbol} - {self.quantity} units>'
+
+class RiskProfile(db.Model):
+    __tablename__ = 'risk_profiles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    age_group = db.Column(db.String(20), nullable=False)  # 18-25, 26-35, 36-45, 46-55, 55+
+    investment_goal = db.Column(db.String(50), nullable=False)  # wealth_creation, retirement, children_education, etc.
+    investment_horizon = db.Column(db.String(20), nullable=False)  # short_term, medium_term, long_term
+    risk_tolerance = db.Column(db.String(20), nullable=False)  # conservative, moderate, aggressive
+    loss_tolerance = db.Column(db.Integer, nullable=False)  # Percentage willing to lose (5, 10, 15, 20, 25+)
+    monthly_income = db.Column(db.String(20), nullable=True)  # <50k, 50k-1L, 1L-2L, 2L-5L, 5L+
+    monthly_savings = db.Column(db.String(20), nullable=True)  # <10k, 10k-25k, 25k-50k, 50k+
+    investment_experience = db.Column(db.String(20), nullable=False)  # beginner, intermediate, advanced
+    preferred_sectors = db.Column(db.Text, nullable=True)  # JSON array of preferred sectors
+    risk_score = db.Column(db.Integer, nullable=True)  # Calculated risk score 1-100
+    risk_category = db.Column(db.String(20), nullable=True)  # Conservative, Balanced, Aggressive
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='risk_profile', uselist=False)
+
+class PortfolioAnalysis(db.Model):
+    __tablename__ = 'portfolio_analyses'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    analysis_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    
+    # Portfolio Metrics
+    total_portfolio_value = db.Column(db.Float, nullable=False)
+    total_invested_amount = db.Column(db.Float, nullable=False)
+    total_pnl = db.Column(db.Float, nullable=False)
+    total_pnl_percentage = db.Column(db.Float, nullable=False)
+    number_of_holdings = db.Column(db.Integer, nullable=False)
+    number_of_brokers = db.Column(db.Integer, nullable=False)
+    
+    # Risk Metrics
+    portfolio_volatility = db.Column(db.Float, nullable=True)
+    sharpe_ratio = db.Column(db.Float, nullable=True)
+    portfolio_beta = db.Column(db.Float, nullable=True)
+    max_drawdown = db.Column(db.Float, nullable=True)
+    
+    # Diversification Analysis
+    sector_concentration = db.Column(db.Text, nullable=True)  # JSON: {sector: percentage}
+    asset_allocation = db.Column(db.Text, nullable=True)  # JSON: {asset_type: percentage}
+    top_holdings = db.Column(db.Text, nullable=True)  # JSON: [{symbol, percentage}]
+    
+    # Risk Flags
+    concentration_risk = db.Column(db.Boolean, default=False)
+    under_diversified = db.Column(db.Boolean, default=False)
+    high_volatility_warning = db.Column(db.Boolean, default=False)
+    sector_over_concentration = db.Column(db.Boolean, default=False)
+    
+    # AI Recommendations
+    ai_health_score = db.Column(db.Integer, nullable=True)  # 1-100
+    ai_risk_assessment = db.Column(db.String(20), nullable=True)  # Low, Medium, High
+    ai_suggestions = db.Column(db.Text, nullable=True)  # JSON array of suggestions
+    rebalance_recommendations = db.Column(db.Text, nullable=True)  # JSON array
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='portfolio_analyses')
+
+class PortfolioRecommendation(db.Model):
+    __tablename__ = 'portfolio_recommendations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    analysis_id = db.Column(db.Integer, db.ForeignKey('portfolio_analyses.id'), nullable=False)
+    
+    recommendation_type = db.Column(db.String(20), nullable=False)  # BUY, SELL, HOLD, REBALANCE
+    ticker_symbol = db.Column(db.String(20), nullable=False)
+    stock_name = db.Column(db.String(200), nullable=False)
+    action_priority = db.Column(db.String(10), nullable=False)  # HIGH, MEDIUM, LOW
+    recommended_quantity = db.Column(db.Float, nullable=True)
+    target_allocation = db.Column(db.Float, nullable=True)  # Percentage
+    reasoning = db.Column(db.Text, nullable=False)
+    confidence_score = db.Column(db.Integer, nullable=False, default=75)  # 1-100
+    
+    # Risk-based recommendations
+    user_risk_alignment = db.Column(db.Boolean, default=True)
+    sector_rebalance = db.Column(db.Boolean, default=False)
+    
+    is_implemented = db.Column(db.Boolean, default=False)
+    implementation_date = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='portfolio_recommendations')
+    analysis = db.relationship('PortfolioAnalysis', backref='recommendations')
 
 
 class ChatConversation(db.Model):

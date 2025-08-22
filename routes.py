@@ -1337,14 +1337,27 @@ def dashboard_my_portfolio():
     if not current_user.can_access_menu('dashboard_my_portfolio'):
         flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
         return redirect(url_for('pricing'))
-    """Portfolio management with unified broker view and real data"""
+    """Unified Portfolio Analyzer with AI-powered insights and multi-broker integration"""
     from datetime import date, datetime
     from sqlalchemy import func
+    from services.portfolio_analyzer_service import PortfolioAnalyzerService
     
-    # Get user's portfolio holdings
+    # Initialize portfolio analyzer
+    analyzer = PortfolioAnalyzerService(current_user.id)
+    
+    # Get comprehensive portfolio analysis
+    analysis_result = analyzer.analyze_portfolio()
+    
+    if not analysis_result['success']:
+        flash(f'Portfolio analysis error: {analysis_result.get("error", "Unknown error")}', 'error')
+        analysis_result = analyzer._generate_empty_portfolio_analysis()
+    
+    portfolio_analysis = analysis_result['analysis']
+    
+    # Get actual holdings for display
     portfolio_holdings = Portfolio.query.filter_by(user_id=current_user.id).all()
     
-    # If no data exists, create sample portfolio for demonstration
+    # If no real data exists, create sample portfolio for demonstration
     if not portfolio_holdings:
         sample_data = [
             {
@@ -1493,21 +1506,154 @@ def dashboard_my_portfolio():
         
         return render_template('dashboard/my_portfolio.html',
                              current_user=current_user,
-                             portfolio_summary=portfolio_summary,
-                             holdings=holdings,
-                             broker_accounts=[])
+                             portfolio_data=portfolio_holdings,
+                             portfolio_analysis=portfolio_analysis,
+                             has_broker_access=True)
     else:
-        # Regular portfolio view for Free/Trader users
+        # Enhanced portfolio view with AI analysis
         return render_template('dashboard/my_portfolio.html',
                              current_user=current_user,
                              portfolio_data=portfolio_holdings,
-                             total_investment=total_investment,
-                             total_current_value=total_current_value,
-                             total_pnl=total_pnl,
-                             total_pnl_percentage=total_pnl_percentage,
-                             total_holdings=len(portfolio_holdings),
-                             sector_analysis=sector_analysis,
-                             broker_analysis=broker_analysis)
+                             portfolio_analysis=portfolio_analysis,
+                             has_broker_access=False)
+
+@app.route('/portfolio/sync-brokers', methods=['POST'])
+@login_required
+def portfolio_sync_brokers():
+    """Sync portfolio data from connected broker accounts"""
+    if not current_user.can_access_menu('dashboard_broker_accounts'):
+        return jsonify({'success': False, 'error': 'Broker access required'})
+    
+    try:
+        from services.portfolio_analyzer_service import PortfolioAnalyzerService
+        analyzer = PortfolioAnalyzerService(current_user.id)
+        result = analyzer.sync_broker_data()
+        
+        if result['success']:
+            flash(f'Successfully synced {result["total_holdings"]} holdings from {len(result["synced_brokers"])} brokers', 'success')
+        else:
+            flash(f'Sync completed with errors: {"; ".join(result.get("errors", []))}', 'warning')
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/portfolio/upload-holdings', methods=['POST'])
+@login_required
+def portfolio_upload_holdings():
+    """Upload manual holdings via CSV/Excel"""
+    if request.method == 'POST':
+        try:
+            # Process uploaded file
+            if 'holdings_file' not in request.files:
+                flash('No file uploaded', 'error')
+                return redirect(url_for('dashboard_my_portfolio'))
+            
+            file = request.files['holdings_file']
+            if file.filename == '':
+                flash('No file selected', 'error')
+                return redirect(url_for('dashboard_my_portfolio'))
+            
+            # Parse CSV/Excel file
+            import pandas as pd
+            if file.filename.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif file.filename.endswith(('.xlsx', '.xls')):
+                df = pd.read_excel(file)
+            else:
+                flash('Please upload a CSV or Excel file', 'error')
+                return redirect(url_for('dashboard_my_portfolio'))
+            
+            # Convert DataFrame to list of dictionaries
+            holdings_data = df.to_dict('records')
+            
+            # Process holdings
+            from services.portfolio_analyzer_service import PortfolioAnalyzerService
+            analyzer = PortfolioAnalyzerService(current_user.id)
+            result = analyzer.upload_manual_holdings(holdings_data)
+            
+            if result['success']:
+                flash(f'Successfully processed {result["processed"]} holdings. Skipped: {result["skipped"]}', 'success')
+            else:
+                flash(f'Upload failed: {result.get("error", "Unknown error")}', 'error')
+            
+            return redirect(url_for('dashboard_my_portfolio'))
+            
+        except Exception as e:
+            flash(f'Error processing file: {str(e)}', 'error')
+            return redirect(url_for('dashboard_my_portfolio'))
+
+@app.route('/portfolio/risk-profile', methods=['GET', 'POST'])
+@login_required
+def portfolio_risk_profile():
+    """Risk profiling questionnaire"""
+    from models import RiskProfile
+    
+    if request.method == 'POST':
+        try:
+            # Calculate risk score based on responses
+            age_score = {'18-25': 25, '26-35': 20, '36-45': 15, '46-55': 10, '55+': 5}
+            goal_score = {'wealth_creation': 25, 'retirement': 15, 'children_education': 10, 'house_purchase': 10}
+            horizon_score = {'short_term': 5, 'medium_term': 15, 'long_term': 25}
+            tolerance_score = {'conservative': 5, 'moderate': 15, 'aggressive': 25}
+            experience_score = {'beginner': 5, 'intermediate': 15, 'advanced': 25}
+            
+            risk_score = (
+                age_score.get(request.form.get('age_group'), 15) +
+                goal_score.get(request.form.get('investment_goal'), 15) +
+                horizon_score.get(request.form.get('investment_horizon'), 15) +
+                tolerance_score.get(request.form.get('risk_tolerance'), 15) +
+                experience_score.get(request.form.get('investment_experience'), 15) +
+                int(request.form.get('loss_tolerance', 10))
+            )
+            
+            # Determine risk category
+            if risk_score <= 40:
+                risk_category = 'Conservative'
+            elif risk_score <= 70:
+                risk_category = 'Balanced'
+            else:
+                risk_category = 'Aggressive'
+            
+            # Update or create risk profile
+            risk_profile = RiskProfile.query.filter_by(user_id=current_user.id).first()
+            if risk_profile:
+                risk_profile.age_group = request.form.get('age_group')
+                risk_profile.investment_goal = request.form.get('investment_goal')
+                risk_profile.investment_horizon = request.form.get('investment_horizon')
+                risk_profile.risk_tolerance = request.form.get('risk_tolerance')
+                risk_profile.loss_tolerance = int(request.form.get('loss_tolerance', 10))
+                risk_profile.investment_experience = request.form.get('investment_experience')
+                risk_profile.risk_score = risk_score
+                risk_profile.risk_category = risk_category
+                risk_profile.updated_at = datetime.utcnow()
+            else:
+                risk_profile = RiskProfile(
+                    user_id=current_user.id,
+                    age_group=request.form.get('age_group'),
+                    investment_goal=request.form.get('investment_goal'),
+                    investment_horizon=request.form.get('investment_horizon'),
+                    risk_tolerance=request.form.get('risk_tolerance'),
+                    loss_tolerance=int(request.form.get('loss_tolerance', 10)),
+                    investment_experience=request.form.get('investment_experience'),
+                    risk_score=risk_score,
+                    risk_category=risk_category
+                )
+                db.session.add(risk_profile)
+            
+            db.session.commit()
+            flash(f'Risk profile updated. Your category: {risk_category} (Score: {risk_score})', 'success')
+            return redirect(url_for('dashboard_my_portfolio'))
+            
+        except Exception as e:
+            flash(f'Error saving risk profile: {str(e)}', 'error')
+    
+    # Get existing risk profile if any
+    risk_profile = RiskProfile.query.filter_by(user_id=current_user.id).first()
+    
+    return render_template('dashboard/risk_profile.html', 
+                         current_user=current_user,
+                         risk_profile=risk_profile)
 
 @app.route('/dashboard/trade-now')
 @login_required

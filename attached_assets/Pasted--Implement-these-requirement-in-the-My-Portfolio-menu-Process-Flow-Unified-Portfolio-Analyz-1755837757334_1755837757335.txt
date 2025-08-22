@@ -1,0 +1,47 @@
+ 
+Implement these requirement in the “My Portfolio”  menu. 
+Process Flow: Unified Portfolio Analyzer
+1. Data Acquisition
+1a. Download from Brokerage Accounts
+•	Use the pre connected brokers. 
+•	Platform fetches latest holdings, positions, transactions, and balances from each broker.
+•	Handles multiple brokers—Zerodha, ICICI, HDFC, Upstox, etc.—using standardized data adapters.
+1b. Upload Individual Holdings
+•	Users manually upload holdings not tracked by brokers (private equity, ESOPs, physical gold, etc.) via CSV/Excel templates or user interface.
+•	System validates formats and maps user entries to recognized asset categories.
+ 
+2. Data Aggregation and Normalization
+•	All positions and transactions from brokers and uploads are consolidated. Store the data in user portfolio table with the user id,  asset id, asset name,  quantity, date of  purchase, total value, type of purchase like intraday or long term, which brokerage account.
+•	Data cleaned and standardized: duplicates, mismatches, and outdated entries resolved. If the user mistakenly upload the same file or load the portfolio after few days, please make sure no duplicates are entered. 
+•	Universal portfolio view constructed with sectors, asset classes, values, and returns.
+ 
+3. AI-Based Portfolio Analysis
+3a. Portfolio Breakdown
+•	Multi-level views:
+o	High-level: Asset allocation by category (Equity, Debt, Gold, MF, Crypto, etc.).
+o	Mid-level: Sector/industry weights, top holdings, recent performance.
+o	Drill-down: Account-wise positions, transaction history, instrument-level details.
+•	Performance metrics: Total returns, volatility, Sharpe ratio, beta, drawdown.
+3b. Risk Profiling
+•	User answers risk profile questionnaire (age, goals, loss tolerance, time horizon).
+•	AI benchmarks current asset allocation and performance versus user risk level and market standards.
+3c. Health Check & Diagnostic
+•	AI detects concentration risks, under-diversified exposures, outdated or loss-heavy positions.
+•	Scenario analysis for market shocks, sector swings, currency moves.
+ 
+4. Portfolio Optimization & Recommendation
+•	AI simulates optimized allocations aligning with user’s risk level:
+o	Conservative: More bonds, stable bluechips, less equity/cycles.
+o	Balanced: Growth and stability blend.
+o	Aggressive: Higher growth assets, sector tilts, global allocation, new-age themes.
+•	Recommends sell/hold/buy actions based on model-driven forecasts and personal risk settings.
+ 
+5. Output & Reporting
+•	Multi-level dashboard view: summary, segment details, actionable insights, performance charts.
+•	Downloadable reports in PDF/Excel formats.
+•	Optional: One-click actions to rebalance through linked brokerage APIs.
+ 
+Process Steps (User View)
+1.	Connect brokers & upload holdings → Aggregate & clean data → Analyze portfolio with AI → View portfolio breakdown & risk diagnostics → See AI-recommended portfolio and rebalance suggestions → Export or automate actions
+ 
+This flow enables retail or HNI investors to analyze and optimize their total wealth at a glance, bridging multiple accounts and asset classes, guided by AI and tailored to individual risk levels.

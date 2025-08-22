@@ -1,0 +1,497 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}My Portfolio - tCapital{% endblock %}
+
+{% block dashboard_title %}Unified Portfolio Analyzer{% endblock %}
+{% block dashboard_subtitle %}
+    {% if has_broker_access %}
+        AI-powered comprehensive portfolio analysis with multi-broker integration
+    {% else %}
+        Advanced portfolio insights with AI-driven recommendations
+    {% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+
+<!-- AI Portfolio Health Score -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="position-relative d-inline-block">
+                            <svg width="120" height="120" class="rotating-circle">
+                                <circle cx="60" cy="60" r="45" stroke="#e9ecef" stroke-width="8" fill="none"/>
+                                <circle cx="60" cy="60" r="45" stroke="#28a745" stroke-width="8" fill="none" 
+                                        stroke-dasharray="283" stroke-dashoffset="{{ 283 - (283 * (portfolio_analysis.ai_assessment.health_score or 75) / 100) }}"
+                                        transform="rotate(-90 60 60)"/>
+                            </svg>
+                            <div class="position-absolute top-50 start-50 translate-middle text-center">
+                                <h3 class="fw-bold mb-0">{{ portfolio_analysis.ai_assessment.health_score or 75 }}</h3>
+                                <small class="text-muted">Health Score</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-bold mb-2">Portfolio Health Assessment</h5>
+                        <p class="text-muted mb-3">
+                            Risk Level: <span class="badge bg-{{ 'success' if portfolio_analysis.ai_assessment.risk_level == 'Low' else 'warning' if portfolio_analysis.ai_assessment.risk_level == 'Medium' else 'danger' }}">
+                                {{ portfolio_analysis.ai_assessment.risk_level }}
+                            </span>
+                        </p>
+                        <div class="ai-suggestions">
+                            {% for suggestion in portfolio_analysis.ai_assessment.suggestions[:2] %}
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                <small>{{ suggestion }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid gap-2">
+                            {% if has_broker_access %}
+                            <button class="btn btn-primary" onclick="syncBrokerData()">
+                                <i class="fas fa-sync me-2"></i>Sync Brokers
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <i class="fas fa-upload me-2"></i>Upload Holdings
+                            </button>
+                            <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-outline-success">
+                                <i class="fas fa-user-check me-2"></i>Risk Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-gradient-primary text-white border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Total Value</h6>
+                        <h4 class="mb-0">₹{{ "{:,.0f}".format(portfolio_analysis.portfolio_summary.total_value) }}</h4>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-wallet fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-gradient-{{ 'success' if portfolio_analysis.portfolio_summary.total_pnl >= 0 else 'danger' }} text-white border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Total P&L</h6>
+                        <h4 class="mb-0">
+                            {{ '+' if portfolio_analysis.portfolio_summary.total_pnl >= 0 else '' }}₹{{ "{:,.0f}".format(portfolio_analysis.portfolio_summary.total_pnl) }}
+                        </h4>
+                        <small class="opacity-75">
+                            {{ '+' if portfolio_analysis.portfolio_summary.total_pnl_percentage >= 0 else '' }}{{ "%.2f"|format(portfolio_analysis.portfolio_summary.total_pnl_percentage) }}%
+                        </small>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-gradient-info text-white border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Holdings</h6>
+                        <h4 class="mb-0">{{ portfolio_analysis.portfolio_summary.holdings_count }}</h4>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-building fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-gradient-warning text-white border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1 opacity-75">Brokers</h6>
+                        <h4 class="mb-0">{{ portfolio_analysis.portfolio_summary.brokers_count }}</h4>
+                    </div>
+                    <div class="opacity-75">
+                        <i class="fas fa-link fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Analysis Tabs -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <ul class="nav nav-tabs card-header-tabs" id="portfolioTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="holdings-tab" data-bs-toggle="tab" data-bs-target="#holdings" type="button">
+                            <i class="fas fa-list me-2"></i>Holdings
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="allocation-tab" data-bs-toggle="tab" data-bs-target="#allocation" type="button">
+                            <i class="fas fa-chart-pie me-2"></i>Asset Allocation
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="risk-tab" data-bs-toggle="tab" data-bs-target="#risk" type="button">
+                            <i class="fas fa-shield-alt me-2"></i>Risk Analysis
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="recommendations-tab" data-bs-toggle="tab" data-bs-target="#recommendations" type="button">
+                            <i class="fas fa-lightbulb me-2"></i>AI Recommendations
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card-body">
+                <div class="tab-content" id="portfolioTabContent">
+                    <!-- Holdings Tab -->
+                    <div class="tab-pane fade show active" id="holdings" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Company</th>
+                                        <th>Quantity</th>
+                                        <th>Avg Price</th>
+                                        <th>Current Price</th>
+                                        <th>Investment</th>
+                                        <th>Current Value</th>
+                                        <th>P&L</th>
+                                        <th>P&L %</th>
+                                        <th>Allocation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for holding in portfolio_data %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">{{ holding.ticker_symbol }}</div>
+                                            <small class="text-muted">{{ holding.sector }}</small>
+                                        </td>
+                                        <td>{{ holding.stock_name }}</td>
+                                        <td>{{ holding.quantity }}</td>
+                                        <td>₹{{ "%.2f"|format(holding.purchase_price) }}</td>
+                                        <td>₹{{ "%.2f"|format(holding.current_price) }}</td>
+                                        <td>₹{{ "%.0f"|format(holding.purchased_value) }}</td>
+                                        <td>₹{{ "%.0f"|format(holding.current_value) }}</td>
+                                        <td class="{{ holding.get_pnl_class() }}">
+                                            {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}">
+                                                {{ '+' if holding.pnl_percentage >= 0 else '' }}{{ "%.2f"|format(holding.pnl_percentage) }}%
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="width: 60px; height: 15px;">
+                                                <div class="progress-bar bg-primary" style="width: {{ holding.allocation_percentage }}%"></div>
+                                            </div>
+                                            <small>{{ "%.1f"|format(holding.allocation_percentage) }}%</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Asset Allocation Tab -->
+                    <div class="tab-pane fade" id="allocation" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Sector Allocation</h6>
+                                <div class="sector-allocation">
+                                    {% for sector, percentage in portfolio_analysis.sector_allocation.items() %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <strong>{{ sector }}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-primary">{{ "%.1f"|format(percentage) }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 8px;">
+                                        <div class="progress-bar" style="width: {{ percentage }}%"></div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold mb-3">Asset Category Allocation</h6>
+                                <div class="asset-allocation">
+                                    {% for asset_type, percentage in portfolio_analysis.asset_allocation.items() %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <strong>{{ asset_type }}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success">{{ "%.1f"|format(percentage) }}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {{ percentage }}%"></div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Analysis Tab -->
+                    <div class="tab-pane fade" id="risk" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="fw-bold mb-3">Risk Metrics</h6>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5>{{ "%.1f"|format((portfolio_analysis.risk_metrics.volatility or 0.2) * 100) }}%</h5>
+                                                <small class="text-muted">Portfolio Volatility</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5>{{ portfolio_analysis.risk_metrics.sharpe_ratio or 1.0 }}</h5>
+                                                <small class="text-muted">Sharpe Ratio</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5>{{ portfolio_analysis.risk_metrics.beta or 1.0 }}</h5>
+                                                <small class="text-muted">Portfolio Beta</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h5>{{ "%.1f"|format((portfolio_analysis.risk_metrics.max_drawdown or 0.15) * 100) }}%</h5>
+                                                <small class="text-muted">Max Drawdown</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="fw-bold mb-3">Risk Flags</h6>
+                                <div class="risk-flags">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-{{ 'exclamation-triangle text-warning' if portfolio_analysis.ai_assessment.concentration_risk else 'check-circle text-success' }} me-2"></i>
+                                        <span>Concentration Risk</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-{{ 'exclamation-triangle text-warning' if portfolio_analysis.ai_assessment.sector_concentration else 'check-circle text-success' }} me-2"></i>
+                                        <span>Sector Concentration</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-{{ 'exclamation-triangle text-warning' if portfolio_analysis.ai_assessment.under_diversified else 'check-circle text-success' }} me-2"></i>
+                                        <span>Diversification</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-{{ 'exclamation-triangle text-warning' if portfolio_analysis.ai_assessment.high_volatility else 'check-circle text-success' }} me-2"></i>
+                                        <span>Volatility Level</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Recommendations Tab -->
+                    <div class="tab-pane fade" id="recommendations" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6 class="fw-bold mb-3">AI-Generated Suggestions</h6>
+                                {% for suggestion in portfolio_analysis.ai_assessment.suggestions %}
+                                <div class="alert alert-info d-flex align-items-center" role="alert">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    {{ suggestion }}
+                                </div>
+                                {% endfor %}
+                                
+                                {% if portfolio_analysis.ai_assessment.rebalance_actions %}
+                                <h6 class="fw-bold mb-3 mt-4">Recommended Actions</h6>
+                                {% for action in portfolio_analysis.ai_assessment.rebalance_actions %}
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ action.action }}</strong>
+                                                <p class="mb-0 text-muted">{{ action.reason }}</p>
+                                            </div>
+                                            <span class="badge bg-{{ 'danger' if action.priority == 'HIGH' else 'warning' if action.priority == 'MEDIUM' else 'info' }}">
+                                                {{ action.priority }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6 class="fw-bold">Need Personalized Advice?</h6>
+                                        <p class="small text-muted">Get risk-aligned recommendations based on your investment profile</p>
+                                        <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-primary btn-sm">
+                                            Complete Risk Assessment
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Holdings Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Holdings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('portfolio_upload_holdings') }}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="holdings_file" class="form-label">Select CSV or Excel file</label>
+                        <input type="file" class="form-control" id="holdings_file" name="holdings_file" accept=".csv,.xlsx,.xls" required>
+                        <div class="form-text">
+                            File should contain columns: symbol, company_name, quantity, purchase_price, purchase_date, sector, asset_type
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Supported formats:</strong> CSV, Excel (.xlsx, .xls)<br>
+                        <strong>Data types:</strong> Stocks, MF, ETF, Bonds, Gold, Crypto, ESOP, Private Equity
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function syncBrokerData() {
+    const button = event.target;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Syncing...';
+    
+    fetch('{{ url_for("portfolio_sync_brokers") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Sync failed: ' + (data.error || 'Unknown error'));
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-sync me-2"></i>Sync Brokers';
+        }
+    })
+    .catch(error => {
+        alert('Sync failed: ' + error);
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-sync me-2"></i>Sync Brokers';
+    });
+}
+</script>
+
+<style>
+.rotating-circle {
+    transform: rotate(-90deg);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #333 !important;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+}
+</style>
+
+{% endblock %}
