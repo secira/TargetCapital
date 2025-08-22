@@ -1,4 +1,5 @@
 from app import app
+import routes_payment  # noqa: F401
 import routes  # noqa: F401
 import routes_broker  # noqa: F401
 

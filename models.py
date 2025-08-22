@@ -122,6 +122,7 @@ class User(UserMixin, db.Model):
     subscription_status = db.Column(db.Enum(SubscriptionStatus), default=SubscriptionStatus.INACTIVE, nullable=False)
     subscription_start_date = db.Column(db.DateTime, nullable=True)
     subscription_end_date = db.Column(db.DateTime, nullable=True)
+    subscription_expires_at = db.Column(db.DateTime, nullable=True)  # Alias for payment system compatibility
     razorpay_customer_id = db.Column(db.String(100), nullable=True)
     razorpay_subscription_id = db.Column(db.String(100), nullable=True)
     billing_cycle = db.Column(db.String(20), default="monthly", nullable=True)  # monthly, yearly

@@ -122,8 +122,22 @@ def blog_post(post_id):
 
 @app.route('/pricing')
 def pricing():
-    """Pricing page route"""
-    return render_template('pricing.html')
+    """Pricing page with subscription plans"""
+    from services.razorpay_service import razorpay_service
+    
+    plans = razorpay_service.get_subscription_plans()
+    
+    # Get user's current subscription if logged in
+    current_subscription = None
+    if current_user.is_authenticated:
+        current_subscription = {
+            'plan': current_user.pricing_plan.value if current_user.pricing_plan else 'FREE',
+            'expires_at': getattr(current_user, 'subscription_expires_at', None)
+        }
+    
+    return render_template('pricing.html', 
+                         plans=plans, 
+                         current_subscription=current_subscription)
 
 
 

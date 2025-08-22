@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - {{ plan.name }} - tCapital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .checkout-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .plan-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .plan-duration {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            color: #495057;
+        }
+        
+        .features-list li i {
+            color: #28a745;
+            margin-right: 10px;
+        }
+        
+        .payment-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            width: 100%;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .secure-payment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .secure-payment i {
+            margin-right: 8px;
+            color: #28a745;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <div class="plan-header">
+            <div class="plan-name">{{ plan.name }}</div>
+            <div class="plan-price">₹{{ plan.price }}</div>
+            <div class="plan-duration">
+                {% if plan.duration_days == 30 %}per month{% elif plan.duration_days == 365 %}per year{% else %}{{ plan.duration_days }} days{% endif %}
+            </div>
+        </div>
+        
+        <div class="plan-features">
+            <h5 class="fw-bold mb-3">What's included:</h5>
+            <ul class="features-list">
+                {% for feature in plan.features %}
+                <li><i class="fas fa-check"></i>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="payment-section">
+            <button id="payButton" class="payment-btn">
+                <i class="fas fa-credit-card me-2"></i>
+                Pay ₹{{ plan.price }} Now
+            </button>
+            
+            <div class="secure-payment">
+                <i class="fas fa-shield-alt"></i>
+                Secured by Razorpay
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('pricing') }}" class="text-decoration-none">
+                <i class="fas fa-arrow-left me-2"></i>Back to Plans
+            </a>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h5>Processing Payment...</h5>
+            <p class="text-muted">Please wait while we process your payment securely.</p>
+        </div>
+    </div>
+
+    <!-- Razorpay Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <script>
+        document.getElementById('payButton').onclick = function(e) {
+            e.preventDefault();
+            
+            // Show loading overlay
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            
+            var options = {
+                "key": "{{ order.key_id }}",
+                "amount": {{ order.amount * 100 }}, // Amount in paise
+                "currency": "{{ order.currency }}",
+                "name": "tCapital",
+                "description": "{{ plan.name }} Subscription",
+                "image": "/static/images/logo.png",
+                "order_id": "{{ order.order_id }}",
+                "handler": function(response) {
+                    // Payment successful, verify on server
+                    verifyPayment(response);
+                },
+                "prefill": {
+                    "name": "{{ user.username }}",
+                    "email": "{{ user.email }}",
+                    "contact": "{{ user.phone_number or '' }}"
+                },
+                "notes": {
+                    "plan_type": "{{ plan.name }}",
+                    "user_id": "{{ user.id }}"
+                },
+                "theme": {
+                    "color": "#667eea"
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        // Hide loading overlay if payment is cancelled
+                        document.getElementById('loadingOverlay').style.display = 'none';
+                    }
+                }
+            };
+            
+            var rzp = new Razorpay(options);
+            
+            rzp.on('payment.failed', function(response) {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                alert('Payment failed: ' + response.error.description);
+                window.location.href = "{{ url_for('payment_failed') }}";
+            });
+            
+            rzp.open();
+        };
+        
+        function verifyPayment(response) {
+            // Create form data
+            var formData = new FormData();
+            formData.append('razorpay_order_id', response.razorpay_order_id);
+            formData.append('razorpay_payment_id', response.razorpay_payment_id);
+            formData.append('razorpay_signature', response.razorpay_signature);
+            
+            // Send verification request
+            fetch('/payment/verify', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                if (data.success) {
+                    // Redirect to success page
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Payment verification failed: ' + data.error);
+                    window.location.href = "{{ url_for('payment_failed') }}";
+                }
+            })
+            .catch(error => {
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                console.error('Error:', error);
+                alert('An error occurred during payment verification.');
+                window.location.href = "{{ url_for('payment_failed') }}";
+            });
+        }
+    </script>
+</body>
+</html>

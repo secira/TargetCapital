@@ -64,9 +64,17 @@
                             </ul>
                         </div>
                         
-                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">
-                            Get Started
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            {% if current_subscription and current_subscription.plan == 'FREE' %}
+                                <a href="{{ url_for('subscribe', plan_type='trader') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
+                            {% elif current_subscription and current_subscription.plan == 'TRADER' %}
+                                <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                            {% else %}
+                                <a href="{{ url_for('subscribe', plan_type='trader') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Select Plan</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">Get Started</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -106,9 +114,15 @@
                             </ul>
                         </div>
                         
-                        <a href="{{ url_for('register') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">
-                          Get Started
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            {% if current_subscription and current_subscription.plan == 'TRADER_PLUS' %}
+                                <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                            {% else %}
+                                <a href="{{ url_for('subscribe', plan_type='trader_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Get Started</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
