@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const strategyInfo = document.getElementById('strategyInfo');
     
     // Available strategies data
-    const strategies = {{ strategies | tojsonfilter }};
+    const strategies = {{ strategies | tojson }};
     
     // Handle asset selection
     assetSelect.addEventListener('change', function() {
