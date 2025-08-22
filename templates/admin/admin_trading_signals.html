@@ -1,0 +1,322 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Trading Signals Management - tCapital Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-chart-line me-2"></i>Trading Signals</h1>
+            <p class="text-muted mb-0">Manage daily trading recommendations</p>
+        </div>
+        <a href="{{ url_for('admin_add_signal') }}" class="btn btn-admin">
+            <i class="fas fa-plus me-1"></i>Add New Signal
+        </a>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-primary">
+                <i class="fas fa-signal"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ signals|length }}</h3>
+                <p>Total Signals</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ signals|selectattr('is_active')|list|length }}</h3>
+                <p>Active Signals</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-info">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ signals|selectattr('sent_to_whatsapp')|list|length }}</h3>
+                <p>Sent to WhatsApp</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-warning">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ signals|selectattr('sent_to_telegram')|list|length }}</h3>
+                <p>Sent to Telegram</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Signals Table -->
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h5><i class="fas fa-list me-2"></i>All Trading Signals</h5>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary" onclick="filterSignals('all')">All</button>
+            <button class="btn btn-outline-secondary" onclick="filterSignals('stock')">Stocks</button>
+            <button class="btn btn-outline-secondary" onclick="filterSignals('option')">Options</button>
+            <button class="btn btn-outline-secondary" onclick="filterSignals('index_future')">Futures</button>
+        </div>
+    </div>
+    <div class="admin-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Action</th>
+                        <th>Entry</th>
+                        <th>Target</th>
+                        <th>Stop Loss</th>
+                        <th>Return %</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                        <th>Messaging</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for signal in signals %}
+                    <tr class="signal-row" data-type="{{ signal.signal_type }}">
+                        <td>
+                            <div>
+                                <strong>{{ signal.symbol }}</strong>
+                                {% if signal.company_name %}
+                                <br><small class="text-muted">{{ signal.company_name }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ signal.signal_type.replace('_', ' ').title() }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }}">
+                                {{ signal.action }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if signal.entry_price %}
+                                ₹{{ "{:.2f}".format(signal.entry_price) }}
+                            {% else %}
+                                <span class="text-muted">Market</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if signal.target_price %}
+                                ₹{{ "{:.2f}".format(signal.target_price) }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if signal.stop_loss %}
+                                ₹{{ "{:.2f}".format(signal.stop_loss) }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if signal.potential_return %}
+                                <span class="text-{{ 'success' if signal.potential_return > 0 else 'danger' }}">
+                                    {{ "{:.1f}".format(signal.potential_return) }}%
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if signal.risk_level %}
+                                <span class="badge bg-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }} bg-opacity-20 text-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }}">
+                                    {{ signal.risk_level }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if signal.is_active %}
+                                {% if signal.expires_at and signal.expires_at < moment().utc() %}
+                                    <span class="badge bg-warning">Expired</span>
+                                {% else %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                {% if signal.sent_to_whatsapp %}
+                                    <span class="badge bg-success bg-opacity-20 text-success" title="Sent to WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </span>
+                                {% endif %}
+                                {% if signal.sent_to_telegram %}
+                                    <span class="badge bg-info bg-opacity-20 text-info" title="Sent to Telegram">
+                                        <i class="fab fa-telegram"></i>
+                                    </span>
+                                {% endif %}
+                                {% if not signal.sent_to_whatsapp and not signal.sent_to_telegram %}
+                                    <span class="text-muted small">Not sent</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <small class="text-muted">
+                                {{ signal.created_at.strftime('%b %d, %Y') }}<br>
+                                {{ signal.created_at.strftime('%I:%M %p') }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary btn-sm" onclick="viewSignal({{ signal.id }})" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if not signal.sent_to_whatsapp or not signal.sent_to_telegram %}
+                                <button class="btn btn-outline-success btn-sm" onclick="resendSignal({{ signal.id }})" title="Resend to Groups">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('admin_delete_signal', signal_id=signal.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this signal?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="12" class="text-center py-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No trading signals found</h5>
+                            <p class="text-muted">Start by adding your first trading signal</p>
+                            <a href="{{ url_for('admin_add_signal') }}" class="btn btn-admin">
+                                <i class="fas fa-plus me-1"></i>Add Signal
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Signal Details Modal -->
+<div class="modal fade" id="signalModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Signal Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="signalDetails">
+                <!-- Signal details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterSignals(type) {
+    const rows = document.querySelectorAll('.signal-row');
+    
+    rows.forEach(row => {
+        if (type === 'all' || row.dataset.type === type) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Update active button
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function viewSignal(signalId) {
+    // Fetch signal details and show in modal
+    fetch(`/admin/trading-signals/${signalId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('signalDetails').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Basic Information</h6>
+                        <p><strong>Symbol:</strong> ${data.symbol}</p>
+                        <p><strong>Company:</strong> ${data.company_name || 'N/A'}</p>
+                        <p><strong>Type:</strong> ${data.signal_type}</p>
+                        <p><strong>Action:</strong> ${data.action}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Price Information</h6>
+                        <p><strong>Entry:</strong> ₹${data.entry_price || 'Market'}</p>
+                        <p><strong>Target:</strong> ₹${data.target_price || 'TBD'}</p>
+                        <p><strong>Stop Loss:</strong> ₹${data.stop_loss || 'TBD'}</p>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <h6>Additional Details</h6>
+                        <p><strong>Strategy:</strong> ${data.strategy_name || 'N/A'}</p>
+                        <p><strong>Notes:</strong> ${data.notes || 'No notes'}</p>
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('signalModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error fetching signal details:', error);
+        });
+}
+
+function resendSignal(signalId) {
+    if (confirm('Resend this signal to WhatsApp and Telegram groups?')) {
+        fetch(`/admin/trading-signals/${signalId}/resend`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Signal sent successfully!');
+                location.reload();
+            } else {
+                alert('Error sending signal: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error resending signal:', error);
+            alert('Error sending signal. Please try again.');
+        });
+    }
+}
+</script>
+{% endblock %}

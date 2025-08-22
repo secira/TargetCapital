@@ -1,0 +1,253 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Add Trading Signal - tCapital Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-plus-circle me-2"></i>Add Trading Signal</h1>
+            <p class="text-muted mb-0">Create new daily trading recommendation</p>
+        </div>
+        <a href="{{ url_for('admin_trading_signals') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Signals
+        </a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5><i class="fas fa-chart-line me-2"></i>Signal Details</h5>
+    </div>
+    <div class="admin-card-body">
+        <form method="POST" id="signalForm">
+            <div class="row">
+                <!-- Basic Information -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Symbol *</label>
+                        <input type="text" class="form-control" name="symbol" placeholder="e.g., RELIANCE, BANKNIFTY" required>
+                        <small class="text-muted">Stock symbol or index name</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Company Name</label>
+                        <input type="text" class="form-control" name="company_name" placeholder="e.g., Reliance Industries Ltd">
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Signal Type *</label>
+                        <select class="form-control" name="signal_type" required>
+                            <option value="">Select Type</option>
+                            <option value="stock">Stock</option>
+                            <option value="option">Option</option>
+                            <option value="index_future">Index Future</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Action *</label>
+                        <select class="form-control" name="action" required>
+                            <option value="">Select Action</option>
+                            <option value="BUY">BUY</option>
+                            <option value="SELL">SELL</option>
+                            <option value="HOLD">HOLD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Price Information -->
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Entry Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" name="entry_price" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Target Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" name="target_price" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Stop Loss</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" name="stop_loss" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trading Details -->
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quantity</label>
+                        <input type="number" class="form-control" name="quantity" placeholder="100">
+                        <small class="text-muted">Recommended position size</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Time Frame</label>
+                        <select class="form-control" name="time_frame">
+                            <option value="">Select Time Frame</option>
+                            <option value="INTRADAY">Intraday</option>
+                            <option value="SWING">Swing (2-5 days)</option>
+                            <option value="POSITIONAL">Positional (weeks/months)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Risk Level</label>
+                        <select class="form-control" name="risk_level">
+                            <option value="">Select Risk Level</option>
+                            <option value="LOW">Low Risk</option>
+                            <option value="MEDIUM">Medium Risk</option>
+                            <option value="HIGH">High Risk</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Strategy Name</label>
+                        <input type="text" class="form-control" name="strategy_name" placeholder="e.g., Breakout Strategy, Mean Reversion">
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Expires On</label>
+                        <input type="date" class="form-control" name="expires_at">
+                        <small class="text-muted">When this signal expires</small>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Analysis & Notes</label>
+                        <textarea class="form-control" name="notes" rows="4" placeholder="Detailed analysis, rationale, and additional notes for the signal..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="alert alert-info border-0 bg-info bg-opacity-10" id="signalPreview" style="display: none;">
+                <h6><i class="fas fa-eye me-2"></i>Signal Preview</h6>
+                <div id="previewContent"></div>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sendToMessaging" checked>
+                    <label class="form-check-label" for="sendToMessaging">
+                        Send to WhatsApp & Telegram groups
+                    </label>
+                </div>
+                
+                <div>
+                    <button type="button" class="btn btn-outline-primary me-2" onclick="previewSignal()">
+                        <i class="fas fa-eye me-1"></i>Preview
+                    </button>
+                    <button type="submit" class="btn btn-admin">
+                        <i class="fas fa-plus me-1"></i>Add Trading Signal
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewSignal() {
+    const form = document.getElementById('signalForm');
+    const formData = new FormData(form);
+    
+    const symbol = formData.get('symbol') || 'SYMBOL';
+    const action = formData.get('action') || 'ACTION';
+    const signalType = formData.get('signal_type') || 'type';
+    const entryPrice = formData.get('entry_price') || '0';
+    const targetPrice = formData.get('target_price') || '0';
+    const stopLoss = formData.get('stop_loss') || '0';
+    
+    let potentialReturn = 0;
+    if (entryPrice && targetPrice && entryPrice > 0 && targetPrice > 0) {
+        if (action === 'BUY') {
+            potentialReturn = ((targetPrice - entryPrice) / entryPrice * 100).toFixed(2);
+        } else if (action === 'SELL') {
+            potentialReturn = ((entryPrice - targetPrice) / entryPrice * 100).toFixed(2);
+        }
+    }
+    
+    const previewHtml = `
+        <div class="row">
+            <div class="col-md-6">
+                <strong>${symbol}</strong> - ${signalType.toUpperCase()}<br>
+                <span class="badge bg-${action === 'BUY' ? 'success' : action === 'SELL' ? 'danger' : 'warning'}">${action}</span>
+            </div>
+            <div class="col-md-6">
+                Entry: ₹${entryPrice} | Target: ₹${targetPrice} | SL: ₹${stopLoss}<br>
+                <small class="text-success">Potential Return: ${potentialReturn}%</small>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('previewContent').innerHTML = previewHtml;
+    document.getElementById('signalPreview').style.display = 'block';
+}
+
+// Auto-calculate potential return
+document.addEventListener('DOMContentLoaded', function() {
+    const entryPrice = document.querySelector('input[name="entry_price"]');
+    const targetPrice = document.querySelector('input[name="target_price"]');
+    const action = document.querySelector('select[name="action"]');
+    
+    function updateReturn() {
+        if (entryPrice.value && targetPrice.value && action.value) {
+            const entry = parseFloat(entryPrice.value);
+            const target = parseFloat(targetPrice.value);
+            
+            if (entry > 0 && target > 0) {
+                let potentialReturn = 0;
+                if (action.value === 'BUY') {
+                    potentialReturn = ((target - entry) / entry * 100).toFixed(2);
+                } else if (action.value === 'SELL') {
+                    potentialReturn = ((entry - target) / entry * 100).toFixed(2);
+                }
+                
+                // Show potential return near target price
+                let returnDisplay = targetPrice.parentElement.querySelector('.return-display');
+                if (!returnDisplay) {
+                    returnDisplay = document.createElement('small');
+                    returnDisplay.className = 'text-success return-display d-block';
+                    targetPrice.parentElement.appendChild(returnDisplay);
+                }
+                returnDisplay.textContent = `Potential Return: ${potentialReturn}%`;
+            }
+        }
+    }
+    
+    entryPrice.addEventListener('input', updateReturn);
+    targetPrice.addEventListener('input', updateReturn);
+    action.addEventListener('change', updateReturn);
+});
+</script>
+{% endblock %}

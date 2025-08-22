@@ -66,6 +66,7 @@ class BrokerAccount(db.Model):
     
     # Connection details (match existing table structure)
     connection_status = db.Column(db.String(20), default='disconnected')
+    is_primary = db.Column(db.Boolean, default=False)  # Primary broker for trading
     last_connected = db.Column(db.DateTime, nullable=True)
     last_sync = db.Column(db.DateTime, nullable=True)
     
