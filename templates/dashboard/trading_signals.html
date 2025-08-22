@@ -2,30 +2,31 @@
 
 {% block title %}Trading Signals - tCapital Dashboard{% endblock %}
 
-{% block content %}
-<div class="dashboard-page">
-    <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="dashboard-heading">Trading Signals</h1>
-            <p class="text-muted">Daily recommendations from our expert analysts</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary" onclick="refreshSignals()">
-                <i class="fas fa-sync-alt me-2"></i>Refresh
+{% block dashboard_title %}Trading Signals{% endblock %}
+{% block dashboard_subtitle %}Daily recommendations from our expert analysts{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="btn-toolbar mb-2 mb-md-0">
+    <div class="btn-group me-2">
+        <button class="btn btn-sm btn-outline-primary" onclick="refreshSignals()">
+            <i class="fas fa-sync-alt me-1"></i>Refresh
+        </button>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-filter me-1"></i>Filter
             </button>
-            <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-filter me-2"></i>Filter
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" onclick="filterSignals('all')">All Signals</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="filterSignals('stock')">Stocks</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="filterSignals('option')">Options</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="filterSignals('index_future')">Index Futures</a></li>
-                </ul>
-            </div>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="filterSignals('all')">All Signals</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterSignals('stock')">Stocks</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterSignals('option')">Options</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterSignals('index_future')">Index Futures</a></li>
+            </ul>
         </div>
     </div>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
 
     <!-- Subscription Notice -->
     {% if current_user.pricing_plan == 'free' %}
@@ -238,7 +239,7 @@
             </div>
         </div>
     </div>
-</div>
+
 {% endblock %}
 
 {% block extra_js %}
