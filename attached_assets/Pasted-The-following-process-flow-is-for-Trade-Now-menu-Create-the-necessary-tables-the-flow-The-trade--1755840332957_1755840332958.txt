@@ -1,0 +1,70 @@
+The following process flow is for “Trade Now” menu. Create the necessary tables the flow. The trade data is very sensitive and user privacy should be protected. User can see only their trades. Trade data tables, add user id as one of the field to store data at user level. 
+System Overview
+A unified trade recommendation platform offering prebuilt, back tested strategies for various asset classes (stocks, options, futures, mutual funds, crypto). The system analyzes market direction and recommends optimized strategies for users to execute trades through their connected brokerage accounts. Execution is routed to the broker; the system itself does NOT place trades directly.
+ 
+Core Requirements
+1. User Onboarding & Broker Integration
+•	Broker Connection: Use the pre connected broker account to execute the trade. Right now we restrict to trade only with the Primary Brokerage account. 
+•	Account Sync: System fetches real-time holdings, margin, and available asset classes.
+2. Asset & Instrument Management
+•	Supports:
+o	Stocks
+o	Options (single, multi-leg, combo strategies)
+o	Futures
+o	Mutual Funds
+o	Crypto
+•	Users select the asset/instrument (e.g., NIFTY, RELIANCE, BTC) from a searchable dropdown or table.
+3. Strategy Recommendation Engine
+•	Market Analysis: System scans real-time market data to detect direction (bullish, bearish, sideways).
+•	Strategy Selection: Recommends best-fit strategies per market conditions and asset type.
+•	Strategy Library: Popular prebuilt strategies 
+o	Covered Call
+o	Mean Reversal
+o	Pivot Reversal Universal
+o	Momentum Strategy
+o	Directional Index
+o	EMA-based
+o	Super Trend
+o	Straddle, Strangle, Butterfly, etc. (Options only)
+
+4. Trade Recommendation Screen
+Key fields/features:
+•	Asset (Symbol): Select instrument (e.g., NIFTY, RELIANCE)
+•	Quantity/Lot Size: Number of shares/lots/contracts
+•	Expiry: Option expiry date (if applicable)
+•	Strike Price: (Options)
+•	Order Type: Market/Limit
+•	Strategy: Dropdown with list of prebuilt strategies (see image: Pivot, Mean, Momentum, Trend, etc.)
+•	Product Type: MIS/CNC/NRML (brokerage product)
+•	Max Loss/Max Profit/Stop Loss: Risk parameters
+•	Trading View: Analysis context or signals used
+•	Deploy Button: Pushes recommended strategy and parameters to user’s broker for execution
+5. Execution Workflow
+•	Preview Trade: Show full breakdown (legs, risk, reward, expected outcomes)
+•	User Action: User reviews and confirms; platform routes parameters to broker via API
+•	Confirmation: Broker confirms execution and returns order/trade status
+•	Trade Tracker: System updates execution status, P&L, and trade logs in the dashboard.
+6. Reporting & Ongoing Monitoring
+•	Trade Summary: Track active and closed trades, strategies used, execution broker, and real-time P&L.
+•	Daily/Weekly/Monthly Reports: Insights into strategy performance and recommendations for improvement.
+•	Risk Alerts: Warns users if trade/risk exceeds user profile or platform thresholds.
+ 
+Process Flow Diagram
+1.	User Connected Broker → Selects Asset/Strategy → System Analyzes Market → Displays Recommended Strategy & Parameters → User Reviews/Confirms → System Routes Trade to Broker → Broker Executes Trade → System Monitors Trade Status/P&L
+ 
+Screen Design Features 
+•	Multi-field Table/Grid: One row per asset/strategy; columns for order parameters and strategies.
+•	Dropdown for Strategy: Rich preset menu.
+•	Live Edit Fields: Quantity, expiry, strike, order type, product type, max loss/profit.
+•	Deploy/Execute Action: Clearly marked action button per row.
+•	Strategy Info Popover: On-hover or click, display description, backtest, risk metrics.
+•	Multi-asset List: Allow parallel review/trading on multiple instruments.
+ 
+Additional Features
+•	Adaptive Recommendations: Dynamically suggest bullish/bearish/neutral strategies based on real-time market scan.
+•	One-click Execution: Minimize steps to implement optimal strategy.
+•	Audit & Compliance: Store trade recommendations, user choices, broker responses for review.
+ 
+Goal:
+Maximize user success and minimize loss through AI-powered trade recommendations, optimal strategy selection, and seamless broker-side execution—while keeping user control and transparency at every step.
+

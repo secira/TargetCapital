@@ -1091,17 +1091,44 @@ def dashboard_trade_now():
     else:
         symbol_types = ['stock', 'options', 'futures']
     
+    # Initialize trading service
+    from services.trading_service import TradingService
+    try:
+        from models_broker import BrokerAccount
+        broker_model_available = True
+    except ImportError:
+        broker_model_available = False
+    
+    trading_service = TradingService()
+    
+    # Get user's broker connection status
+    primary_broker = None
+    if broker_model_available:
+        try:
+            primary_broker = BrokerAccount.query.filter_by(
+                user_id=current_user.id,
+                is_primary=True
+            ).first()
+        except:
+            primary_broker = None
+    
+    # Get available assets and strategies
+    assets = trading_service.get_all_assets()
+    strategies = trading_service.get_all_strategies()
+    
+    # Get user's current trades
+    user_trades = trading_service.get_user_trades(current_user.id)
+    
     return render_template('dashboard/trade_now.html',
-                         trading_signals=trading_signals,
-                         total_signals=total_signals,
-                         active_signals=active_signals,
-                         success_rate=success_rate,
-                         selected_date=selected_date,
-                         selected_date_str=selected_date_str,
-                         symbol_type=symbol_type,
-                         signal_status=signal_status,
-                         symbol_types=symbol_types,
-                         today=date.today())
+                         current_user=current_user,
+                         primary_broker=primary_broker,
+                         assets=assets,
+                         strategies=strategies,
+                         user_trades=user_trades['data'] if user_trades['success'] else {
+                             'active_trades': [],
+                             'recent_history': [],
+                             'recommendations': []
+                         })
 
 @app.route('/admin/trading-signals/create', methods=['GET', 'POST'])
 @login_required
@@ -1655,123 +1682,63 @@ def portfolio_risk_profile():
                          current_user=current_user,
                          risk_profile=risk_profile)
 
-@app.route('/dashboard/trade-now')
+# Duplicate route removed - using existing dashboard_trade_now above
+
+# Add trading-related API routes
+@app.route('/api/trade/recommend', methods=['POST'])
+@login_required  
+def api_create_trade_recommendation():
+    """Create trade recommendation"""
+    try:
+        from services.trading_service import TradingService
+        trading_service = TradingService()
+        
+        data = request.get_json()
+        result = trading_service.create_trade_recommendation(current_user.id, data)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/trade/deploy/<int:recommendation_id>', methods=['POST'])
 @login_required
-def dashboard_trade_now_merged():
-    # Check subscription access
-    if not current_user.can_access_menu('trade_now'):
-        flash('This feature requires Trader Plus or Premium subscription. Please upgrade your account.', 'warning')
-        return redirect(url_for('pricing'))
-    """Trade execution page with algorithmic trading signals"""
-    from datetime import datetime, date
-    
-    # Get selected date from query parameter or use today
-    selected_date_str = request.args.get('date')
-    if selected_date_str:
-        try:
-            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            selected_date = date.today()
-    else:
-        selected_date = date.today()
-    
-    # Get trading signals for selected date
-    trading_signals = TradingSignal.query.filter(
-        db.func.date(TradingSignal.creation_date) == selected_date
-    ).all()
-    
-    # If no signals for today, create sample data for demo
-    if not trading_signals and selected_date == date.today():
-        sample_signals = [
-            TradingSignal(
-                user_id=current_user.id,
-                open_date=selected_date,
-                symbol_type='stocks',
-                ticker_symbol='RELIANCE',
-                trade_direction='Long',
-                entry_price=2450.50,
-                number_of_units=50,
-                capital_risk=122525.00,
-                signal_status='Active',
-                trading_account='Zerodha'
-            ),
-            TradingSignal(
-                user_id=current_user.id,
-                open_date=selected_date,
-                symbol_type='stocks',
-                ticker_symbol='TCS',
-                trade_direction='Long',
-                entry_price=3420.75,
-                number_of_units=30,
-                capital_risk=102622.50,
-                signal_status='Active',
-                trading_account='Angel One'
-            ),
-            TradingSignal(
-                user_id=current_user.id,
-                open_date=selected_date,
-                symbol_type='stocks',
-                ticker_symbol='HDFCBANK',
-                trade_direction='Short',
-                entry_price=1680.25,
-                number_of_units=40,
-                capital_risk=67210.00,
-                signal_status='Active',
-                trading_account='Dhan'
-            ),
-            TradingSignal(
-                user_id=current_user.id,
-                open_date=selected_date,
-                symbol_type='futures',
-                ticker_symbol='NIFTY24DEC',
-                trade_direction='Long',
-                entry_price=24850.00,
-                number_of_units=1,
-                capital_risk=24850.00,
-                signal_status='Active',
-                trading_account='Zerodha'
-            ),
-            TradingSignal(
-                user_id=current_user.id,
-                open_date=selected_date,
-                symbol_type='options',
-                ticker_symbol='RELIANCE',
-                option_type='call',
-                strike_price=2500.00,
-                trade_direction='Long',
-                entry_price=45.50,
-                number_of_units=100,
-                capital_risk=4550.00,
-                signal_status='Active',
-                trading_account='Angel One'
-            )
-        ]
+def api_deploy_trade(recommendation_id):
+    """Deploy trade to broker"""
+    try:
+        from services.trading_service import TradingService
+        trading_service = TradingService()
         
-        for signal in sample_signals:
-            db.session.add(signal)
+        result = trading_service.deploy_trade(current_user.id, recommendation_id)
         
-        try:
-            db.session.commit()
-            trading_signals = sample_signals
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error creating sample signals: {e}")
-            trading_signals = []
-    
-    # Organize signals by type
-    signals_by_type = {
-        'Stocks': [s for s in trading_signals if s.symbol_type == 'stocks'],
-        'Options': [s for s in trading_signals if s.symbol_type == 'options'],
-        'Futures': [s for s in trading_signals if s.symbol_type == 'futures']
-    }
-    
-    # Calculate statistics
-    total_signals = len(trading_signals)
-    buy_signals = len([s for s in trading_signals if s.trade_direction == 'Long'])
-    sell_signals = len([s for s in trading_signals if s.trade_direction == 'Short'])
-    avg_confidence = 78.5  # Mock average confidence score
-    
-    # Mock broker data - replace with actual broker integration
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/market/analyze/<symbol>')
+@login_required
+def api_market_analysis(symbol):
+    """Get market analysis for symbol"""
+    try:
+        from services.trading_service import TradingService
+        trading_service = TradingService()
+        
+        analysis = trading_service.get_market_analysis(symbol)
+        return jsonify({'success': True, 'data': analysis})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/strategies/recommend/<symbol>/<asset_class>')
+@login_required
+def api_strategy_recommendations(symbol, asset_class):
+    """Get strategy recommendations"""
+    try:
+        from services.trading_service import TradingService
+        trading_service = TradingService()
+        
+        recommendations = trading_service.get_strategy_recommendations(symbol, asset_class)
+        return jsonify({'success': True, 'data': recommendations})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
     brokers = [
         {'broker_id': 'zerodha', 'name': 'Zerodha'},
         {'broker_id': 'angel', 'name': 'Angel Broking'},

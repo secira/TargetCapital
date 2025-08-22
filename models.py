@@ -572,6 +572,217 @@ class PortfolioRecommendation(db.Model):
     user = db.relationship('User', backref='portfolio_recommendations')
     analysis = db.relationship('PortfolioAnalysis', backref='recommendations')
 
+class TradingAsset(db.Model):
+    __tablename__ = 'trading_assets'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(50), nullable=False, unique=True)
+    company_name = db.Column(db.String(200), nullable=False)
+    asset_class = db.Column(db.String(20), nullable=False)  # stocks, options, futures, mutual_funds, crypto
+    exchange = db.Column(db.String(10), nullable=False)  # NSE, BSE, MCX
+    sector = db.Column(db.String(100), nullable=True)
+    current_price = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    lot_size = db.Column(db.Integer, default=1)  # For futures/options
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class TradingStrategy(db.Model):
+    __tablename__ = 'trading_strategies'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    strategy_type = db.Column(db.String(50), nullable=False)  # directional, non_directional, arbitrage
+    asset_classes = db.Column(db.Text, nullable=False)  # JSON array of supported asset classes
+    market_conditions = db.Column(db.Text, nullable=False)  # JSON: bullish, bearish, sideways
+    risk_level = db.Column(db.String(10), nullable=False)  # LOW, MEDIUM, HIGH
+    min_capital = db.Column(db.Float, nullable=True)
+    max_loss_percentage = db.Column(db.Float, nullable=True)
+    max_profit_percentage = db.Column(db.Float, nullable=True)
+    success_rate = db.Column(db.Float, nullable=True)  # Backtest success rate
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class TradeRecommendation(db.Model):
+    __tablename__ = 'trade_recommendations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    asset_id = db.Column(db.Integer, db.ForeignKey('trading_assets.id'), nullable=False)
+    strategy_id = db.Column(db.Integer, db.ForeignKey('trading_strategies.id'), nullable=False)
+    
+    # Trade Parameters
+    symbol = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    order_type = db.Column(db.String(10), nullable=False)  # MARKET, LIMIT
+    product_type = db.Column(db.String(10), nullable=False)  # MIS, CNC, NRML
+    
+    # Options specific
+    expiry_date = db.Column(db.Date, nullable=True)
+    strike_price = db.Column(db.Float, nullable=True)
+    option_type = db.Column(db.String(4), nullable=True)  # CALL, PUT
+    
+    # Risk Management
+    entry_price = db.Column(db.Float, nullable=True)
+    target_price = db.Column(db.Float, nullable=True)
+    stop_loss = db.Column(db.Float, nullable=True)
+    max_loss = db.Column(db.Float, nullable=True)
+    max_profit = db.Column(db.Float, nullable=True)
+    
+    # Market Analysis
+    market_direction = db.Column(db.String(10), nullable=False)  # BULLISH, BEARISH, SIDEWAYS
+    confidence_score = db.Column(db.Integer, nullable=False, default=75)  # 1-100
+    analysis_context = db.Column(db.Text, nullable=True)  # Trading view signals/analysis
+    
+    # Status
+    status = db.Column(db.String(20), nullable=False, default='PENDING')  # PENDING, DEPLOYED, EXECUTED, REJECTED
+    recommendation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    deployed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='trade_recommendations')
+    asset = db.relationship('TradingAsset', backref='recommendations')
+    strategy = db.relationship('TradingStrategy', backref='recommendations')
+
+class TradeExecution(db.Model):
+    __tablename__ = 'trade_executions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    recommendation_id = db.Column(db.Integer, db.ForeignKey('trade_recommendations.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, nullable=True)  # Reference to broker account
+    
+    # Execution Details
+    broker_order_id = db.Column(db.String(100), nullable=True)  # Broker's order ID
+    execution_status = db.Column(db.String(20), nullable=False, default='PENDING')  # PENDING, FILLED, PARTIAL, REJECTED, CANCELLED
+    
+    # Order Details
+    symbol = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    executed_quantity = db.Column(db.Integer, default=0)
+    order_type = db.Column(db.String(10), nullable=False)
+    product_type = db.Column(db.String(10), nullable=False)
+    
+    # Pricing
+    order_price = db.Column(db.Float, nullable=True)
+    executed_price = db.Column(db.Float, nullable=True)
+    brokerage = db.Column(db.Float, nullable=True)
+    taxes = db.Column(db.Float, nullable=True)
+    total_charges = db.Column(db.Float, nullable=True)
+    
+    # Timestamps
+    order_placed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    executed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Error handling
+    error_message = db.Column(db.Text, nullable=True)
+    retry_count = db.Column(db.Integer, default=0)
+    
+    # Relationships
+    user = db.relationship('User', backref='trade_executions')
+    recommendation = db.relationship('TradeRecommendation', backref='executions')
+    # broker_account relationship disabled to avoid dependency issues
+
+class ActiveTrade(db.Model):
+    __tablename__ = 'active_trades'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    execution_id = db.Column(db.Integer, db.ForeignKey('trade_executions.id'), nullable=False)
+    strategy_name = db.Column(db.String(100), nullable=False)
+    
+    # Position Details
+    symbol = db.Column(db.String(50), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    entry_price = db.Column(db.Float, nullable=False)
+    current_price = db.Column(db.Float, nullable=True)
+    
+    # P&L Tracking
+    unrealized_pnl = db.Column(db.Float, default=0)
+    realized_pnl = db.Column(db.Float, default=0)
+    
+    # Risk Management
+    stop_loss = db.Column(db.Float, nullable=True)
+    target_price = db.Column(db.Float, nullable=True)
+    
+    # Status
+    is_active = db.Column(db.Boolean, default=True)
+    position_type = db.Column(db.String(5), nullable=False)  # LONG, SHORT
+    
+    # Timestamps
+    entry_time = db.Column(db.DateTime, default=datetime.utcnow)
+    exit_time = db.Column(db.DateTime, nullable=True)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='active_trades')
+    execution = db.relationship('TradeExecution', backref='active_trade', uselist=False)
+
+class TradeHistory(db.Model):
+    __tablename__ = 'trade_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    active_trade_id = db.Column(db.Integer, db.ForeignKey('active_trades.id'), nullable=False)
+    
+    # Trade Summary
+    symbol = db.Column(db.String(50), nullable=False)
+    strategy_name = db.Column(db.String(100), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    entry_price = db.Column(db.Float, nullable=False)
+    exit_price = db.Column(db.Float, nullable=False)
+    
+    # Performance
+    realized_pnl = db.Column(db.Float, nullable=False)
+    pnl_percentage = db.Column(db.Float, nullable=False)
+    holding_period_hours = db.Column(db.Float, nullable=False)
+    
+    # Execution Details
+    broker_name = db.Column(db.String(50), nullable=False)
+    total_charges = db.Column(db.Float, nullable=False)
+    net_pnl = db.Column(db.Float, nullable=False)  # After charges
+    
+    # Result Classification
+    trade_result = db.Column(db.String(10), nullable=False)  # WIN, LOSS, BREAKEVEN
+    exit_reason = db.Column(db.String(20), nullable=False)  # TARGET, STOPLOSS, MANUAL, EXPIRY
+    
+    # Timestamps
+    entry_time = db.Column(db.DateTime, nullable=False)
+    exit_time = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='trade_history')
+    active_trade = db.relationship('ActiveTrade', backref='history_record', uselist=False)
+
+class MarketAnalysis(db.Model):
+    __tablename__ = 'market_analysis'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    symbol = db.Column(db.String(50), nullable=False)
+    analysis_date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
+    
+    # Market Direction
+    trend_direction = db.Column(db.String(10), nullable=False)  # BULLISH, BEARISH, SIDEWAYS
+    confidence_level = db.Column(db.Integer, nullable=False)  # 1-100
+    
+    # Technical Indicators
+    ema_signal = db.Column(db.String(10), nullable=True)  # BUY, SELL, HOLD
+    rsi_value = db.Column(db.Float, nullable=True)
+    macd_signal = db.Column(db.String(10), nullable=True)
+    supertrend_signal = db.Column(db.String(10), nullable=True)
+    
+    # Price Levels
+    support_level = db.Column(db.Float, nullable=True)
+    resistance_level = db.Column(db.Float, nullable=True)
+    pivot_point = db.Column(db.Float, nullable=True)
+    
+    # Strategy Recommendations
+    recommended_strategies = db.Column(db.Text, nullable=True)  # JSON array of strategy IDs
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class ChatConversation(db.Model):
     """Chat conversation history for AI Investment Chatbot"""
@@ -658,96 +869,7 @@ class ChatbotKnowledgeBase(db.Model):
         return f'<Knowledge {self.category}: {self.topic}>'
 
 
-# Trading and Algorithmic Trading Models
-class TradingStrategy(db.Model):
-    __tablename__ = 'trading_strategies'
-    
-    strategy_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)  # Straddle, Strangle, Butterfly, etc.
-    parameters = db.Column(db.JSON, nullable=True)  # Strategy parameters (dynamic)
-    description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
-class AlgoRun(db.Model):
-    __tablename__ = 'algo_runs'
-    
-    run_id = db.Column(db.Integer, primary_key=True)
-    strategy_id = db.Column(db.Integer, db.ForeignKey('trading_strategies.strategy_id'), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime, nullable=True)
-    status = db.Column(db.String(20), default='RUNNING')  # RUNNING, CLOSED, ERROR
-    
-    strategy = db.relationship('TradingStrategy', backref='algo_runs')
-
-
-class TradePosition(db.Model):
-    __tablename__ = 'trade_positions'
-    
-    position_id = db.Column(db.Integer, primary_key=True)
-    run_id = db.Column(db.Integer, db.ForeignKey('algo_runs.run_id'), nullable=False)
-    symbol = db.Column(db.String(50), nullable=False)  # NIFTY, TCS, etc.
-    trade_date = db.Column(db.DateTime, nullable=False)
-    broker_id = db.Column(db.Integer, db.ForeignKey('brokers.broker_id'), nullable=False)
-    status = db.Column(db.String(20), default='OPEN')  # OPEN, CLOSED
-    
-    algo_run = db.relationship('AlgoRun', backref='trade_positions')
-    broker = db.relationship('Broker', backref='trade_positions')
-
-
-class TradeLeg(db.Model):
-    __tablename__ = 'trade_legs'
-    
-    leg_id = db.Column(db.Integer, primary_key=True)
-    position_id = db.Column(db.Integer, db.ForeignKey('trade_positions.position_id'), nullable=False)
-    leg_type = db.Column(db.String(20), nullable=False)  # CALL, PUT, STOCK
-    action = db.Column(db.String(10), nullable=False)  # BUY, SELL
-    strike_price = db.Column(db.Float, nullable=True)
-    expiry = db.Column(db.Date, nullable=True)
-    quantity = db.Column(db.Integer, nullable=False)
-    entry_price = db.Column(db.Float, nullable=False)
-    exit_price = db.Column(db.Float, nullable=True)
-    pnl = db.Column(db.Float, nullable=True)
-    
-    trade_position = db.relationship('TradePosition', backref='trade_legs')
-
-
-# UserBroker class removed - using BrokerAccount from models_broker.py instead
-
-class Broker(db.Model):
-    __tablename__ = 'brokers'
-    
-    broker_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)  # Zerodha, Angel One, etc.
-    account_ref = db.Column(db.String(100), nullable=True)
-    api_config = db.Column(db.JSON, nullable=True)  # API keys/config for automation
-
-
-class Order(db.Model):
-    __tablename__ = 'orders'
-    
-    order_id = db.Column(db.Integer, primary_key=True)
-    leg_id = db.Column(db.Integer, db.ForeignKey('trade_legs.leg_id'), nullable=False)
-    broker_id = db.Column(db.Integer, db.ForeignKey('brokers.broker_id'), nullable=False)
-    status = db.Column(db.String(20), default='PLACED')  # PLACED, EXECUTED, REJECTED, CANCELLED
-    order_type = db.Column(db.String(20), default='MARKET')  # MARKET, LIMIT, etc.
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    trade_leg = db.relationship('TradeLeg', backref='orders')
-    broker = db.relationship('Broker', backref='orders')
-
-
-class Performance(db.Model):
-    __tablename__ = 'performance'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    run_id = db.Column(db.Integer, db.ForeignKey('algo_runs.run_id'), nullable=False)
-    net_pnl = db.Column(db.Float, nullable=True)
-    max_drawdown = db.Column(db.Float, nullable=True)
-    win_rate = db.Column(db.Float, nullable=True)
-    sharpe_ratio = db.Column(db.Float, nullable=True)
-    
-    algo_run = db.relationship('AlgoRun', backref='performance', uselist=False)
+# Legacy Trading Models completely removed to avoid schema conflicts
 
 
 class DailyTradingSignal(db.Model):
