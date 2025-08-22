@@ -9,6 +9,7 @@ Brand name: tCapital
 Design preference: Clean white backgrounds instead of blue gradients
 Navigation bar: Custom dark navy background color #00091a
 Typography: Modern Poppins font throughout the website
+Payment Integration: Razorpay payment system fully integrated with updated pricing (Trader ₹1,499, Trader Plus ₹2,999, Premium ₹4,999)
 New Feature: Comprehensive Agentic AI system with multi-agent architecture and n8n workflow integration for autonomous trading and portfolio analysis
 Core Concept: Agentic AI represents shift from passive automation to true autonomous decision-making with learn, reason, act, adapt capabilities
 Agentic AI Implementation: Complete integration with OpenAI (GPT-4) and Perplexity APIs for real-time reasoning and research capabilities
@@ -52,6 +53,7 @@ Cleaned up Trade Now page by removing duplicate Refresh and Algo Setup buttons
 Complete Trading Signal System with Admin Module and WhatsApp/Telegram Integration implemented
 Comprehensive Broker Management System Fully Fixed and Operational: Fixed database model compatibility, encryption key management, foreign key constraints, and API integration for seamless broker account addition with all 12 brokers supported
 Unified Portfolio Analyzer System Implemented: Complete AI-powered portfolio analysis with multi-broker data syncing, manual holdings upload, risk profiling questionnaire, comprehensive portfolio health scoring, sector/asset allocation analysis, risk metrics calculation, AI-driven recommendations, and rebalancing suggestions
+Razorpay Payment System Integration: Complete payment processing with subscription management, secure checkout flow, payment verification, success/failure handling, billing history, admin panel, and webhook support. Pricing updated to Trader ₹1,499, Trader Plus ₹2,999, Premium ₹4,999
 
 ## System Architecture
 ### Backend Architecture
