@@ -1025,19 +1025,39 @@ def dashboard_trading_signals():
         flash('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
+    # Get date filter parameter
+    selected_date_str = request.args.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = datetime.utcnow().date()
+    else:
+        selected_date = datetime.utcnow().date()
+    
     # Get active trading signals from admin
     try:
         from models import TradingSignal
         from sqlalchemy import func, desc
-        today = datetime.utcnow().date()
-        signals = TradingSignal.query.filter(
-            TradingSignal.status == 'ACTIVE',
-            func.date(TradingSignal.created_at) >= today - timedelta(days=7)  # Last 7 days
-        ).order_by(desc(TradingSignal.created_at)).all()
+        
+        # Filter by selected date or default to last 7 days
+        if selected_date_str:
+            signals = TradingSignal.query.filter(
+                TradingSignal.status == 'ACTIVE',
+                func.date(TradingSignal.created_at) == selected_date
+            ).order_by(desc(TradingSignal.created_at)).all()
+        else:
+            signals = TradingSignal.query.filter(
+                TradingSignal.status == 'ACTIVE',
+                func.date(TradingSignal.created_at) >= selected_date - timedelta(days=7)
+            ).order_by(desc(TradingSignal.created_at)).all()
     except ImportError:
         signals = []  # Fallback if TradingSignal not available
     
-    return render_template('dashboard/trading_signals.html', signals=signals)
+    return render_template('dashboard/trading_signals.html', 
+                         signals=signals, 
+                         today=selected_date,
+                         selected_date=selected_date_str)
 
 @app.route('/dashboard/trade-now')
 @login_required  

@@ -185,12 +185,17 @@
                                             </td>
                                             <td><span class="badge bg-light text-dark">{{ pick.sector }}</span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewDetailedAnalysis('{{ pick.symbol }}')">
-                                                    <i class="fas fa-chart-bar"></i> Analysis
-                                                </button>
-                                                <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('{{ pick.symbol }}')">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-success" onclick="tradeStock('{{ pick.symbol }}', '{{ pick.recommendation }}', {{ pick.current_price }}, '{{ pick.company_name }}')">
+                                                        <i class="fas fa-exchange-alt"></i> Trade
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-primary" onclick="viewDetailedAnalysis('{{ pick.symbol }}')">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success" onclick="addToWatchlist('{{ pick.symbol }}')">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -339,6 +344,21 @@ function addToWatchlist(symbol) {
 function generateAIRecommendations() {
     console.log('Generating AI recommendations...');
     alert('AI recommendations are being generated based on market analysis...');
+}
+
+function tradeStock(symbol, recommendation, currentPrice, companyName) {
+    // Navigate to Trade Now page with stock parameters
+    const params = new URLSearchParams({
+        symbol: symbol,
+        action: recommendation,
+        price: currentPrice,
+        quantity: 10, // Default quantity
+        type: 'stock',
+        company_name: companyName,
+        source: 'stock_picker'
+    });
+    
+    window.location.href = `/dashboard/trade-now?${params.toString()}`;
 }
 
 // Perplexity AI Research Functions

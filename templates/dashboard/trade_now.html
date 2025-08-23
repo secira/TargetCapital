@@ -372,6 +372,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Available strategies data
     const strategies = {{ strategies | tojson }};
     
+    // Check for URL parameters to pre-populate form
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('symbol')) {
+        prePopulateForm(urlParams);
+    }
+    
     // Handle asset selection
     assetSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
@@ -585,6 +591,62 @@ function exitTrade(tradeId) {
     
     // Implementation for exiting trades
     alert('Exit trade functionality will be implemented');
+}
+
+function prePopulateForm(urlParams) {
+    const symbol = urlParams.get('symbol');
+    const action = urlParams.get('action');
+    const price = urlParams.get('price');
+    const quantity = urlParams.get('quantity');
+    const type = urlParams.get('type');
+    const source = urlParams.get('source');
+    
+    // Find and select the asset
+    const assetSelect = document.getElementById('assetSelect');
+    for (let option of assetSelect.options) {
+        if (option.value === symbol) {
+            option.selected = true;
+            assetSelect.dispatchEvent(new Event('change'));
+            break;
+        }
+    }
+    
+    // Pre-populate form fields
+    if (quantity && quantityInput) {
+        quantityInput.value = quantity;
+    }
+    
+    // Set target and stop loss if coming from signal
+    if (urlParams.has('target')) {
+        const targetInput = document.getElementById('targetPriceInput');
+        if (targetInput) targetInput.value = urlParams.get('target');
+    }
+    
+    if (urlParams.has('stop_loss')) {
+        const stopLossInput = document.getElementById('stopLossInput');
+        if (stopLossInput) stopLossInput.value = urlParams.get('stop_loss');
+    }
+    
+    // Show source information
+    if (source) {
+        const sourceInfo = {
+            'trading_signals': 'Admin Trading Signal',
+            'stock_picker': 'AI Stock Recommendation',
+            'my_portfolio': 'Portfolio Holding'
+        };
+        
+        // Create info alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-info alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Trade Source:</strong> ${sourceInfo[source]} - ${symbol} (${action})
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const formCard = document.querySelector('.card-body');
+        formCard.insertBefore(alertDiv, formCard.firstChild);
+    }
 }
 
 function refreshTrades() {

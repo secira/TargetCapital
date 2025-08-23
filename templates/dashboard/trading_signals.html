@@ -8,6 +8,7 @@
 {% block dashboard_toolbar %}
 <div class="btn-toolbar mb-2 mb-md-0">
     <div class="btn-group me-2">
+        <input type="date" class="form-control form-control-sm me-2" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
         <button class="btn btn-sm btn-outline-primary" onclick="refreshSignals()">
             <i class="fas fa-sync-alt me-1"></i>Refresh
         </button>
@@ -155,11 +156,9 @@
                                 <i class="fas fa-clock me-1"></i>
                                 {{ signal.created_at.strftime('%b %d, %Y %I:%M %p') }}
                             </small>
-                            {% if current_user.pricing_plan in ['trader_plus', 'premium'] %}
-                            <button class="btn btn-primary btn-sm" onclick="executeSignal({{ signal.id }}, '{{ signal.symbol }}')">
-                                <i class="fas fa-play me-1"></i>Execute
+                            <button class="btn btn-success btn-sm" onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 1 }}, '{{ signal.signal_type }}')">
+                                <i class="fas fa-exchange-alt me-1"></i>Trade
                             </button>
-                            {% endif %}
                         </div>
                         
                         {% if signal.expires_at %}
@@ -260,14 +259,30 @@ function filterSignals(type) {
     });
 }
 
-function executeSignal(signalId, symbol) {
-    // Check if user has connected broker
-    {% if current_user.pricing_plan in ['trader_plus', 'premium'] %}
-        // Redirect to trade execution page
-        window.location.href = `/dashboard/trade-now?signal=${signalId}&symbol=${symbol}`;
-    {% else %}
-        alert('Trade execution is available for Trader Plus and Premium subscribers only.');
+function tradeSignal(symbol, action, entryPrice, quantity, signalType) {
+    // Check subscription access
+    {% if current_user.pricing_plan == 'free' %}
+        alert('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.');
+        return;
     {% endif %}
+    
+    // Navigate to Trade Now page with signal parameters
+    const params = new URLSearchParams({
+        symbol: symbol,
+        action: action,
+        price: entryPrice,
+        quantity: quantity,
+        type: signalType,
+        source: 'trading_signals'
+    });
+    
+    window.location.href = `/dashboard/trade-now?${params.toString()}`;
+}
+
+function loadSignalsForDate(date) {
+    if (date) {
+        window.location.href = `{{ url_for('dashboard_trading_signals') }}?date=${date}`;
+    }
 }
 
 // Auto-refresh signals every 5 minutes

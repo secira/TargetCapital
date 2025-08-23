@@ -170,6 +170,7 @@
                                 <th>Current Value</th>
                                 <th>P&L</th>
                                 <th>P&L %</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -192,6 +193,16 @@
                                     <span class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}">
                                         {{ '+' if holding.pnl_percentage >= 0 else '' }}{{ "%.2f"|format(holding.pnl_percentage) }}%
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-success" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'BUY', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                            <i class="fas fa-plus"></i> Buy
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'SELL', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                            <i class="fas fa-minus"></i> Sell
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -332,6 +343,21 @@ function syncBrokerData() {
         button.disabled = false;
         button.innerHTML = '<i class="fas fa-sync me-2"></i>Sync Brokers';
     });
+}
+
+function tradeHolding(symbol, action, currentPrice, companyName) {
+    // Navigate to Trade Now page with holding parameters
+    const params = new URLSearchParams({
+        symbol: symbol,
+        action: action,
+        price: currentPrice,
+        quantity: action === 'SELL' ? 0 : 10, // 0 for sell (user will specify), 10 default for buy
+        type: 'stock',
+        company_name: companyName,
+        source: 'my_portfolio'
+    });
+    
+    window.location.href = `/dashboard/trade-now?${params.toString()}`;
 }
 </script>
 
