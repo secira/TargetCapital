@@ -207,9 +207,9 @@ class tCapitalDatafeed {
     log(message, data = null) {
         if (this.debug) {
             if (data) {
-                console.log(`[tCapital Datafeed] ${message}`, data);
+                console.log(`[tCapital.biz says] ${message}`, data);
             } else {
-                console.log(`[tCapital Datafeed] ${message}`);
+                console.log(`[tCapital.biz says] ${message}`);
             }
         }
     }

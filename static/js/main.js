@@ -574,7 +574,7 @@
 
     // Global error handler
     window.addEventListener('error', function(e) {
-        console.error('JavaScript error:', e.error);
+        console.error('tCapital.biz says: JavaScript error:', e.error);
     });
 
     // Add CSS for animations
