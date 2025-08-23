@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print("🔐 tCapital Admin Server Starting...")
     print("="*50)
     print(f"📍 Admin URL: http://localhost:5001/admin")
-    print(f"🌐 Public URL: https://{os.environ.get('REPLIT_DEV_DOMAIN', 'your-repl-name.your-username.repl.co')}:5001/admin")
+    print(f"🌐 tCapital.biz says: Admin panel ready at https://{os.environ.get('REPLIT_DEV_DOMAIN', 'tcapital.biz')}:5001/admin")
     print("="*50)
     
     # Initialize database tables

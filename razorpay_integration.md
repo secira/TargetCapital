@@ -9,7 +9,7 @@
 4. Get your API keys from Dashboard > API Keys
 
 ### 2. Environment Variables Needed
-Add these to your Replit secrets:
+tCapital.biz says: Add these to your environment secrets:
 ```
 RAZORPAY_KEY_ID=rzp_live_your_key_id          # Live key
 RAZORPAY_KEY_SECRET=your_secret_key           # Live secret
