@@ -6,22 +6,28 @@
 {% block dashboard_subtitle %}Daily recommendations from our expert analysts{% endblock %}
 
 {% block dashboard_toolbar %}
-<div class="btn-toolbar mb-2 mb-md-0">
-    <div class="btn-group me-2">
-        <input type="date" class="form-control form-control-sm me-2" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
-        <button class="btn btn-sm btn-outline-primary" onclick="refreshSignals()">
-            <i class="fas fa-sync-alt me-1"></i>Refresh
-        </button>
-        <div class="dropdown">
-            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter me-1"></i>Filter
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center">
+        <div class="me-3">
+            <input type="date" class="form-control form-control-sm" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
+        </div>
+        <div class="btn-group me-2">
+            <button class="btn btn-sm btn-success" onclick="refreshSignals()" title="Auto-refresh every 2 minutes">
+                <i class="fas fa-sync-alt me-1"></i>Live
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="filterSignals('all')">All Signals</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterSignals('stock')">Stocks</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterSignals('option')">Options</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterSignals('index_future')">Index Futures</a></li>
-            </ul>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('all')">All</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('stock')">Stocks</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('option')">Options</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('index_future')">Futures</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('strategy')">Strategies</button>
+        </div>
+    </div>
+    <div class="text-end">
+        <small class="text-muted">
+            <i class="fas fa-clock me-1"></i>Market Hours: 9:15 AM - 3:30 PM
+        </small>
+        <div id="live-indicator" class="badge bg-success ms-2">
+            <i class="fas fa-circle me-1"></i>Live
         </div>
     </div>
 </div>
@@ -45,146 +51,164 @@
     </div>
     {% endif %}
 
-    <!-- Trading Signals Grid -->
-    <div class="row" id="signals-container">
-        {% if signals %}
-            {% for signal in signals %}
-            <div class="col-md-6 col-lg-4 mb-4 signal-card" data-type="{{ signal.signal_type }}">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-header bg-white border-0 pb-0">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5 class="card-title mb-1">{{ signal.symbol }}</h5>
-                                {% if signal.company_name %}
-                                    <small class="text-muted">{{ signal.company_name }}</small>
-                                {% endif %}
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }} bg-opacity-20 text-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }}">
+    <!-- Trading Signals Table -->
+    <div class="card border-0 shadow-sm rounded-3" id="signals-container">
+        <div class="card-body p-0">
+            {% if signals %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light sticky-top">
+                        <tr>
+                            <th class="border-0 ps-3">Symbol</th>
+                            <th class="border-0">Type</th>
+                            <th class="border-0">Action</th>
+                            <th class="border-0">Entry Price</th>
+                            <th class="border-0">Target</th>
+                            <th class="border-0">Stop Loss</th>
+                            <th class="border-0">Return</th>
+                            <th class="border-0">Qty</th>
+                            <th class="border-0">Risk</th>
+                            <th class="border-0">Time</th>
+                            <th class="border-0 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for signal in signals %}
+                        <tr class="signal-row" data-type="{{ signal.signal_type }}" data-signal-id="{{ signal.id }}">
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-2">
+                                        {% if signal.signal_type == 'stock' %}
+                                            <i class="fas fa-chart-line text-primary"></i>
+                                        {% elif signal.signal_type == 'option' %}
+                                            <i class="fas fa-cog text-warning"></i>
+                                        {% elif signal.signal_type == 'index_future' %}
+                                            <i class="fas fa-chart-area text-info"></i>
+                                        {% else %}
+                                            <i class="fas fa-chess text-success"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ signal.symbol }}</div>
+                                        {% if signal.company_name %}
+                                        <small class="text-muted">{{ signal.company_name[:25] }}{% if signal.company_name|length > 25 %}...{% endif %}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-20 text-secondary">
+                                    {{ signal.signal_type.title() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }} fw-bold">
                                     {{ signal.action }}
                                 </span>
-                                <br>
-                                <small class="text-muted">{{ signal.signal_type.title() }}</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body">
-                        <!-- Price Information -->
-                        <div class="row mb-3">
-                            {% if signal.entry_price %}
-                            <div class="col-4">
-                                <div class="text-center p-2 bg-light rounded">
-                                    <small class="text-muted d-block">Entry</small>
-                                    <strong>₹{{ "{:.2f}".format(signal.entry_price) }}</strong>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% if signal.target_price %}
-                            <div class="col-4">
-                                <div class="text-center p-2 bg-success bg-opacity-10 rounded">
-                                    <small class="text-muted d-block">Target</small>
-                                    <strong class="text-success">₹{{ "{:.2f}".format(signal.target_price) }}</strong>
-                                </div>
-                            </div>
-                            {% endif %}
-                            {% if signal.stop_loss %}
-                            <div class="col-4">
-                                <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
-                                    <small class="text-muted d-block">Stop Loss</small>
-                                    <strong class="text-danger">₹{{ "{:.2f}".format(signal.stop_loss) }}</strong>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Signal Details -->
-                        <div class="row mb-3">
-                            {% if signal.quantity %}
-                            <div class="col-6">
-                                <small class="text-muted">Quantity</small>
-                                <div><strong>{{ signal.quantity }}</strong></div>
-                            </div>
-                            {% endif %}
-                            {% if signal.risk_level %}
-                            <div class="col-6">
-                                <small class="text-muted">Risk Level</small>
-                                <div>
-                                    <span class="badge bg-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }} bg-opacity-20 text-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }}">
-                                        {{ signal.risk_level }}
+                            </td>
+                            <td class="fw-bold">
+                                {% if signal.entry_price %}
+                                    ₹{{ "{:,.2f}".format(signal.entry_price) }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-success fw-bold">
+                                {% if signal.target_price %}
+                                    ₹{{ "{:,.2f}".format(signal.target_price) }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-danger fw-bold">
+                                {% if signal.stop_loss %}
+                                    ₹{{ "{:,.2f}".format(signal.stop_loss) }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signal.entry_price and signal.target_price %}
+                                    <span class="badge bg-primary bg-opacity-20 text-primary">
+                                        +{{ "{:.1f}".format(signal.potential_return) }}%
                                     </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold">
+                                {{ signal.quantity or '-' }}
+                            </td>
+                            <td>
+                                {% if signal.risk_level %}
+                                <span class="badge bg-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }} bg-opacity-20 text-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }}">
+                                    {{ signal.risk_level }}
+                                </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div>
+                                    <small class="text-muted">{{ signal.created_at.strftime('%I:%M %p') }}</small>
+                                    <div>
+                                        {% if signal.time_frame %}
+                                        <span class="badge bg-light text-dark small">{{ signal.time_frame }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        {% if signal.time_frame %}
-                        <div class="mb-3">
-                            <small class="text-muted">Time Frame</small>
-                            <div><strong>{{ signal.time_frame }}</strong></div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if signal.strategy_name %}
-                        <div class="mb-3">
-                            <small class="text-muted">Strategy</small>
-                            <div><em>{{ signal.strategy_name }}</em></div>
-                        </div>
-                        {% endif %}
-                        
-                        {% if signal.notes %}
-                        <div class="mb-3">
-                            <small class="text-muted">Analysis</small>
-                            <div class="small">{{ signal.notes[:100] }}{% if signal.notes|length > 100 %}...{% endif %}</div>
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Potential Return -->
-                        {% if signal.entry_price and signal.target_price %}
-                        <div class="alert alert-info border-0 bg-primary bg-opacity-10 mb-3">
-                            <small>
-                                <i class="fas fa-chart-line me-1"></i>
-                                <strong>Potential Return: {{ "{:.1f}".format(signal.potential_return) }}%</strong>
-                            </small>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="card-footer bg-white border-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="fas fa-clock me-1"></i>
-                                {{ signal.created_at.strftime('%b %d, %Y %I:%M %p') }}
-                            </small>
-                            <button class="btn btn-success btn-sm" onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 1 }}, '{{ signal.signal_type }}')">
-                                <i class="fas fa-exchange-alt me-1"></i>Trade
-                            </button>
-                        </div>
-                        
-                        {% if signal.expires_at %}
-                        <div class="mt-2">
-                            <small class="text-warning">
-                                <i class="fas fa-clock me-1"></i>
-                                Expires: {{ signal.expires_at.strftime('%b %d, %Y') }}
-                            </small>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <button class="btn btn-success btn-sm" 
+                                            onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 1 }}, '{{ signal.signal_type }}')"
+                                            title="Execute Trade">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            onclick="showSignalDetails({{ signal.id }})"
+                                            title="View Details">
+                                        <i class="fas fa-info"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
-                    <h4 class="text-muted">No Trading Signals Available</h4>
-                    <p class="text-muted">Our analysts haven't posted any signals today. Check back later for new recommendations.</p>
-                    <button class="btn btn-primary" onclick="refreshSignals()">
-                        <i class="fas fa-sync-alt me-2"></i>Refresh Signals
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Trading Signals Available</h4>
+                <p class="text-muted">Our analysts haven't posted any signals today. Check back later for new recommendations.</p>
+                <button class="btn btn-primary" onclick="refreshSignals()">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh Signals
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Signal Details Modal -->
+    <div class="modal fade" id="signalDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Signal Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="signalDetailsContent">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="modalTradeButton">
+                        <i class="fas fa-exchange-alt me-1"></i>Trade Now
                     </button>
                 </div>
             </div>
-        {% endif %}
+        </div>
     </div>
 
     <!-- Signal Information Panel -->
@@ -243,18 +267,45 @@
 
 {% block extra_js %}
 <script>
+// Global variables for signal management
+let isLiveMode = true;
+let autoRefreshInterval;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    startLiveUpdates();
+    updateLiveIndicator();
+});
+
 function refreshSignals() {
-    location.reload();
+    const liveBtn = document.querySelector('button[onclick="refreshSignals()"]');
+    const originalText = liveBtn.innerHTML;
+    liveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    
+    // Simulate refresh (replace with AJAX call for real-time updates)
+    setTimeout(() => {
+        location.reload();
+    }, 500);
 }
 
 function filterSignals(type) {
-    const signalCards = document.querySelectorAll('.signal-card');
+    const signalRows = document.querySelectorAll('.signal-row');
+    const filterButtons = document.querySelectorAll('[onclick^="filterSignals"]');
     
-    signalCards.forEach(card => {
-        if (type === 'all' || card.dataset.type === type) {
-            card.style.display = 'block';
+    // Update button states
+    filterButtons.forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline-primary');
+    });
+    event.target.classList.remove('btn-outline-primary');
+    event.target.classList.add('btn-primary');
+    
+    // Filter rows
+    signalRows.forEach(row => {
+        if (type === 'all' || row.dataset.type === type) {
+            row.style.display = '';
         } else {
-            card.style.display = 'none';
+            row.style.display = 'none';
         }
     });
 }
@@ -262,9 +313,13 @@ function filterSignals(type) {
 function tradeSignal(symbol, action, entryPrice, quantity, signalType) {
     // Check subscription access
     {% if current_user.pricing_plan == 'free' %}
-        alert('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.');
+        alert('tCapital.biz says: Trading signals are available for Trader, Trader Plus, and Premium subscribers only.');
         return;
     {% endif %}
+    
+    // Show loading state
+    event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    event.target.disabled = true;
     
     // Navigate to Trade Now page with signal parameters
     const params = new URLSearchParams({
@@ -279,21 +334,167 @@ function tradeSignal(symbol, action, entryPrice, quantity, signalType) {
     window.location.href = `/dashboard/trade-now?${params.toString()}`;
 }
 
+function showSignalDetails(signalId) {
+    // Mock signal details - replace with actual AJAX call
+    const signalData = {
+        symbol: 'RELIANCE',
+        action: 'BUY',
+        entryPrice: 2840.50,
+        targetPrice: 3100.00,
+        stopLoss: 2750.00,
+        notes: 'Strong breakout above resistance level with high volume. RSI showing bullish momentum.',
+        strategy: 'Momentum Breakout',
+        timeFrame: 'SWING'
+    };
+    
+    const modalContent = document.getElementById('signalDetailsContent');
+    modalContent.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Signal Information</h6>
+                <table class="table table-sm">
+                    <tr><td><strong>Symbol:</strong></td><td>${signalData.symbol}</td></tr>
+                    <tr><td><strong>Action:</strong></td><td><span class="badge bg-success">${signalData.action}</span></td></tr>
+                    <tr><td><strong>Entry Price:</strong></td><td>₹${signalData.entryPrice}</td></tr>
+                    <tr><td><strong>Target Price:</strong></td><td class="text-success">₹${signalData.targetPrice}</td></tr>
+                    <tr><td><strong>Stop Loss:</strong></td><td class="text-danger">₹${signalData.stopLoss}</td></tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h6>Strategy Details</h6>
+                <p><strong>Strategy:</strong> ${signalData.strategy}</p>
+                <p><strong>Time Frame:</strong> ${signalData.timeFrame}</p>
+                <p><strong>Analysis:</strong></p>
+                <p class="small">${signalData.notes}</p>
+            </div>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('signalDetailsModal'));
+    modal.show();
+}
+
 function loadSignalsForDate(date) {
     if (date) {
         window.location.href = `{{ url_for('dashboard_trading_signals') }}?date=${date}`;
     }
 }
 
-// Auto-refresh signals every 5 minutes
-setInterval(function() {
-    if (document.hasFocus()) {
-        const signalsContainer = document.getElementById('signals-container');
-        if (signalsContainer) {
-            console.log('Auto-refreshing trading signals...');
-            // Could implement AJAX refresh here instead of full page reload
+function startLiveUpdates() {
+    if (isLiveMode) {
+        // Auto-refresh signals every 2 minutes during market hours
+        autoRefreshInterval = setInterval(function() {
+            if (document.hasFocus() && isMarketHours()) {
+                console.log('tCapital.biz says: Auto-refreshing trading signals...');
+                refreshSignals();
+            }
+        }, 120000); // 2 minutes
+    }
+}
+
+function updateLiveIndicator() {
+    const indicator = document.getElementById('live-indicator');
+    if (isMarketHours()) {
+        indicator.className = 'badge bg-success ms-2';
+        indicator.innerHTML = '<i class="fas fa-circle me-1"></i>Live';
+    } else {
+        indicator.className = 'badge bg-secondary ms-2';
+        indicator.innerHTML = '<i class="fas fa-clock me-1"></i>After Hours';
+    }
+}
+
+function isMarketHours() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+    
+    // Market hours: 9:15 AM to 3:30 PM (IST)
+    const marketOpen = 9 * 60 + 15; // 9:15 AM
+    const marketClose = 15 * 60 + 30; // 3:30 PM
+    
+    return timeInMinutes >= marketOpen && timeInMinutes <= marketClose;
+}
+
+// Keyboard shortcuts for quick actions
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+            case 'r':
+                e.preventDefault();
+                refreshSignals();
+                break;
+            case '1':
+                e.preventDefault();
+                filterSignals('all');
+                break;
+            case '2':
+                e.preventDefault();
+                filterSignals('stock');
+                break;
+            case '3':
+                e.preventDefault();
+                filterSignals('option');
+                break;
         }
     }
-}, 300000); // 5 minutes
+});
+
+// Add responsive handling for mobile
+if (window.innerWidth <= 768) {
+    // Hide less important columns on mobile
+    const hideOnMobile = ['Type', 'Return', 'Risk'];
+    hideOnMobile.forEach(header => {
+        const th = Array.from(document.querySelectorAll('th')).find(el => el.textContent.trim() === header);
+        if (th) {
+            const index = Array.from(th.parentNode.children).indexOf(th);
+            document.querySelectorAll(`tr td:nth-child(${index + 1}), tr th:nth-child(${index + 1})`).forEach(cell => {
+                cell.style.display = 'none';
+            });
+        }
+    });
+}
 </script>
+
+<style>
+/* Enhanced table styling for better readability */
+.table > tbody > tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.signal-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sticky-top {
+    z-index: 1020;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+    }
+}
+
+/* Live indicator animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+#live-indicator.bg-success {
+    animation: pulse 2s infinite;
+}
+</style>
 {% endblock %}
