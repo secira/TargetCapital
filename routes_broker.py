@@ -67,6 +67,17 @@ def api_add_broker_account():
                 'message': 'User can create only connection with each broker'
             }), 400
         
+        # Check broker limits based on pricing plan
+        from models import PricingPlan
+        if current_user.pricing_plan == PricingPlan.TRADER:
+            # Trader users can only have one broker
+            existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id).count()
+            if existing_brokers_count >= 1:
+                return jsonify({
+                    'success': False,
+                    'message': 'Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.'
+                }), 400
+        
         # Add broker account
         broker_account = BrokerService.add_broker_account(
             user_id=current_user.id,

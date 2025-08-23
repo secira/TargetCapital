@@ -247,6 +247,15 @@ def add_broker():
             flash(f'You already have a {broker_name} connection configured.', 'error')
             return redirect(url_for('broker_management'))
         
+        # Check broker limits based on pricing plan
+        from models import PricingPlan
+        if current_user.pricing_plan == PricingPlan.TRADER:
+            # Trader users can only have one broker
+            existing_brokers_count = UserBroker.query.filter_by(user_id=current_user.id).count()
+            if existing_brokers_count >= 1:
+                flash('Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.', 'error')
+                return redirect(url_for('broker_management'))
+        
         # Create new broker connection
         new_broker = UserBroker(
             user_id=current_user.id,
@@ -1062,7 +1071,7 @@ def dashboard_trading_signals():
 @app.route('/dashboard/trade-now')
 @login_required  
 def dashboard_trade_now():
-    # Check subscription access for Trader Plus users
+    # Check subscription access - now available for Trader, Trader Plus, and Premium users
     from models import PricingPlan
     if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
         flash('Trade execution is available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
