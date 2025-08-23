@@ -321,10 +321,12 @@ class PortfolioOptimization(db.Model):
     # Relationship to user
     user = db.relationship('User', backref='portfolio_optimizations')
 
-class TradingSignal(db.Model):
-    """Trading signals table for dashboard display"""
+class PortfolioTrade(db.Model):
+    """User's personal portfolio trades and trade journal"""
+    __tablename__ = 'portfolio_trades'
+    
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Admin user creating signal
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # User who made the trade
     open_date = db.Column(db.Date, nullable=False)
     symbol_type = db.Column(db.String(20), nullable=False)  # Index, futures, currency, crypto, options, stocks, gold
     ticker_symbol = db.Column(db.String(20), nullable=False)
@@ -352,8 +354,8 @@ class TradingSignal(db.Model):
     pnl_amount = db.Column(db.Float, nullable=True)
     pnl_percentage = db.Column(db.Float, nullable=True)
     
-    # Relationship to user (admin)
-    user = db.relationship('User', backref='trading_signals')
+    # Relationship to user
+    user = db.relationship('User', backref='portfolio_trades')
     
     def calculate_pnl(self):
         """Calculate P&L based on current or exit price"""
