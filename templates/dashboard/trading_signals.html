@@ -97,8 +97,16 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-secondary bg-opacity-20 text-secondary">
-                                    {{ signal.signal_type.title() }}
+                                <span class="badge bg-secondary text-white small">
+                                    {% if signal.signal_type == 'stock' %}
+                                        Stock
+                                    {% elif signal.signal_type == 'option' %}
+                                        Option
+                                    {% elif signal.signal_type == 'index_future' %}
+                                        Future
+                                    {% else %}
+                                        Strategy
+                                    {% endif %}
                                 </span>
                             </td>
                             <td>
@@ -129,9 +137,10 @@
                             </td>
                             <td>
                                 {% if signal.entry_price and signal.target_price %}
-                                    <span class="badge bg-primary bg-opacity-20 text-primary">
+                                    <div class="fw-bold text-success">
                                         +{{ "{:.1f}".format(signal.potential_return) }}%
-                                    </span>
+                                    </div>
+                                    <small class="text-muted">Expected</small>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
@@ -141,9 +150,18 @@
                             </td>
                             <td>
                                 {% if signal.risk_level %}
-                                <span class="badge bg-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }} bg-opacity-20 text-{{ 'success' if signal.risk_level == 'LOW' else 'warning' if signal.risk_level == 'MEDIUM' else 'danger' }}">
-                                    {{ signal.risk_level }}
-                                </span>
+                                <div class="d-flex align-items-center">
+                                    {% if signal.risk_level == 'LOW' %}
+                                        <span class="badge bg-success text-white small me-1">●</span>
+                                        <span class="fw-bold text-success small">Low Risk</span>
+                                    {% elif signal.risk_level == 'MEDIUM' %}
+                                        <span class="badge bg-warning text-white small me-1">●</span>
+                                        <span class="fw-bold text-warning small">Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-danger text-white small me-1">●</span>
+                                        <span class="fw-bold text-danger small">High Risk</span>
+                                    {% endif %}
+                                </div>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
