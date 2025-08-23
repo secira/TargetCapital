@@ -150,9 +150,9 @@ class User(UserMixin, db.Model):
         if self.pricing_plan == PricingPlan.FREE:
             return menu_item in ['dashboard', 'ai_advisor']
         
-        # Trader users can access all except Trade Now and Broker features
+        # Trader users can access Trade Now but have limited broker features
         elif self.pricing_plan == PricingPlan.TRADER:
-            return menu_item not in ['dashboard_trade_now', 'trade_now', 'dashboard_broker_accounts']
+            return menu_item not in []  # Trader can access all menus now
         
         # Trader Plus and Premium users can access everything
         elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
@@ -174,8 +174,8 @@ class User(UserMixin, db.Model):
         """Get monthly price for the current plan"""
         prices = {
             PricingPlan.FREE: 0,
-            PricingPlan.TRADER: 1999,
-            PricingPlan.TRADER_PLUS: 3999,
+            PricingPlan.TRADER: 1499,
+            PricingPlan.TRADER_PLUS: 2499,
             PricingPlan.PREMIUM: "Contact Us"
         }
         return prices.get(self.pricing_plan, 0)
