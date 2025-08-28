@@ -1,0 +1,143 @@
+{
+  "name": "tCapital - AI Trading Platform",
+  "short_name": "tCapital",
+  "description": "Professional AI-powered stock trading and portfolio analysis platform with advanced algorithms and real-time market insights",
+  "start_url": "/dashboard?utm_source=pwa",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["finance", "business", "productivity", "trading"],
+  "icons": [
+    {
+      "src": "/static/img/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/img/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/img/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard view showing portfolio overview and trading interface"
+    },
+    {
+      "src": "/static/img/screenshots/mobile-dashboard.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile dashboard with real-time market data and trading tools"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your portfolio and market overview",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/static/img/icons/dashboard-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Trade Now",
+      "short_name": "Trade",
+      "description": "Execute trades quickly",
+      "url": "/dashboard/trade-now",
+      "icons": [
+        {
+          "src": "/static/img/icons/trade-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Portfolio",
+      "short_name": "Portfolio",
+      "description": "Analyze your investment portfolio",
+      "url": "/dashboard/my-portfolio",
+      "icons": [
+        {
+          "src": "/static/img/icons/portfolio-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "AI Advisor",
+      "short_name": "AI Advisor",
+      "description": "Get AI-powered investment advice",
+      "url": "/dashboard/ai-advisor",
+      "icons": [
+        {
+          "src": "/static/img/icons/ai-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://tcapital.replit.app/manifest.json"
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
