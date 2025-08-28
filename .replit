@@ -2,7 +2,7 @@ modules = ["python-3.11", "postgresql-16"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "openssl", "pkg-config", "postgresql", "rustc", "nodejs"]
+packages = ["cargo", "glibcLocales", "libiconv", "libxcrypt", "nodejs", "openssl", "pkg-config", "postgresql", "rustc"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -32,6 +32,10 @@ waitForPort = 5000
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8001
+externalPort = 3000
 
 [agent]
 integrations = ["web_scraper==1.0.0", "perplexity_v0==1.0.0", "flask_google_oauth==1.0.0", "python_openai==1.0.0", "python_sendgrid==1.0.0", "python_log_in_with_replit==1.0.0", "python_database==1.0.0"]

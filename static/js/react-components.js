@@ -218,16 +218,22 @@ class RealTimeMarketData extends Component {
         const indices = data.indices || {};
         
         return Object.entries(indices).map(([symbol, indexData]) => `
-            <div class="col-md-4 mb-2">
-                <div class="card border-0 bg-light">
-                    <div class="card-body py-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">${symbol}</span>
-                            <span class="badge bg-${indexData.change >= 0 ? 'success' : 'danger'}">
-                                ${indexData.change >= 0 ? '+' : ''}${indexData.change}%
-                            </span>
+            <div class="col-md-6 mb-3">
+                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded index-card cursor-pointer" 
+                     style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
+                    <div>
+                        <h6 class="fw-bold mb-1">${symbol}</h6>
+                        <small class="text-muted">NSE Index</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold fs-5">${indexData.value || 'N/A'}</div>
+                        <small class="text-${indexData.change >= 0 ? 'success' : 'danger'}">
+                            <i class="fas fa-arrow-${indexData.change >= 0 ? 'up' : 'down'} me-1"></i>
+                            ${indexData.change >= 0 ? '+' : ''}${indexData.change}%
+                        </small>
+                        <div class="mt-1">
+                            <i class="fas fa-chart-line text-primary small" title="Live data"></i>
                         </div>
-                        <div class="text-muted">${indexData.value || 'N/A'}</div>
                     </div>
                 </div>
             </div>

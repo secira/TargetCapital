@@ -19,11 +19,23 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///stock_trading.db")
+# Configure the database with SSL settings for Neon
+database_url = os.environ.get("DATABASE_URL", "sqlite:///stock_trading.db")
+
+# Fix SSL issues for Neon PostgreSQL
+if database_url.startswith('postgresql://'):
+    database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
+    if 'sslmode=' not in database_url:
+        database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
+    "connect_args": {
+        "sslmode": "require",
+        "connect_timeout": 10
+    } if database_url.startswith('postgresql+psycopg2://') else {}
 }
 
 # Initialize the app with the extension
@@ -58,6 +70,13 @@ try:
     app.register_blueprint(admin_bp)
 except ImportError as e:
     logging.warning(f"Admin blueprint not available: {e}")
+
+# Register WebSocket API routes
+try:
+    from routes_websocket import register_websocket_apis
+    register_websocket_apis(app)
+except ImportError as e:
+    logging.warning(f"WebSocket API routes not available: {e}")
 
 # Import routes
 import routes
