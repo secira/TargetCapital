@@ -3,15 +3,14 @@
 {% block title %}Dashboard - tCapital{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
-        </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
+<div class="dashboard-container">
+    <!-- Mobile-optimized sidebar -->
+    <div class="dashboard-sidebar" id="dashboardSidebar">
+        {% include 'dashboard/sidebar.html' %}
+    </div>
+    
+    <!-- Main content with mobile-first design -->
+    <div class="dashboard-main">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="dashboard-heading"><i class="fas fa-tachometer-alt me-2"></i>Portfolio Overview</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
@@ -37,9 +36,9 @@
             </div>
             
             <!-- React Portfolio Overview Component -->
-            <div class="row mb-4" data-component="portfolio">
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm">
+            <div class="grid-responsive mb-4" data-component="portfolio">
+                <div class="grid-item">
+                    <div class="card-responsive">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -54,8 +53,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm">
+                <div class="grid-item">
+                    <div class="card-responsive">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -70,8 +69,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm">
+                <div class="grid-item">
+                    <div class="card-responsive">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -86,8 +85,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card bg-white shadow-sm">
+                <div class="grid-item">
+                    <div class="card-responsive">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
