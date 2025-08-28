@@ -367,7 +367,7 @@ class LoadBalancer:
                     # Create response
                     result = web.Response(
                         body=response_body,
-                        status=response.status,
+                        status=int(response.status),
                         headers=response.headers
                     )
                     

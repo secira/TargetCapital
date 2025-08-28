@@ -122,17 +122,17 @@ class RealTimeMarketService:
                             logger.warning(f"Stock data fetch failed: {result}")
                             continue
                         
-                        if result and result.get('success'):
-                            symbol = result['symbol']
-                            
-                            # Update cache
-                            self.market_data_cache[f'stock:{symbol}'] = result
-                            
-                            # Store in Redis
-                            await self.cache_data(f'market:stock:{symbol}', result)
-                            
-                            # Broadcast to subscribers
-                            await self.broadcast_stock_data(symbol, result)
+                        if result and isinstance(result, dict) and result.get('success'):
+                            symbol = result.get('symbol')
+                            if symbol:
+                                # Update cache
+                                self.market_data_cache[f'stock:{symbol}'] = result
+                                
+                                # Store in Redis
+                                await self.cache_data(f'market:stock:{symbol}', result)
+                                
+                                # Broadcast to subscribers
+                                await self.broadcast_stock_data(symbol, result)
                     
                     # Update every 5 seconds during market hours
                     await asyncio.sleep(5)
@@ -203,7 +203,7 @@ class RealTimeMarketService:
     async def start_websocket_server(self):
         """Start WebSocket server for real-time data streaming"""
         try:
-            async def handle_client(websocket, path):
+            async def handle_client(websocket):
                 """Handle WebSocket client connections"""
                 client_id = f"client_{datetime.now().timestamp()}"
                 self.subscribers[client_id] = websocket
@@ -334,7 +334,9 @@ class RealTimeMarketService:
         """Get cached data from Redis"""
         try:
             data = self.redis_client.get(f'market:{key}')
-            return json.loads(data) if data else None
+            if data:
+                return json.loads(str(data))
+            return None
         except Exception as e:
             logger.error(f"Cache retrieval error: {e}")
             return None
