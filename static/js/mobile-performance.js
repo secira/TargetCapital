@@ -353,6 +353,8 @@ class MobilePerformanceManager {
     }
     
     handlePrefetch(e) {
+        if (!e.target || typeof e.target.closest !== 'function') return;
+        
         const link = e.target.closest('a[href]');
         if (link && link.host === location.host) {
             this.prefetchPage(link.href);

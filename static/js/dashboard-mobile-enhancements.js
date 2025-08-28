@@ -38,7 +38,7 @@ class DashboardMobileEnhancements {
         
         // Close sidebar when clicking outside (mobile only)
         document.addEventListener('click', (e) => {
-            if (window.innerWidth < 768 && this.sidebarOpen) {
+            if (window.innerWidth < 768 && this.sidebarOpen && e.target && typeof e.target.closest === 'function') {
                 if (!e.target.closest('.dashboard-sidebar') && !e.target.closest('.sidebar-toggle')) {
                     this.closeSidebar();
                 }

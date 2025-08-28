@@ -38,7 +38,7 @@ class MobileNavigation {
             
             // Close menu when clicking outside
             document.addEventListener('click', (e) => {
-                if (this.isMenuOpen && !e.target.closest('.navbar')) {
+                if (this.isMenuOpen && e.target && typeof e.target.closest === 'function' && !e.target.closest('.navbar')) {
                     this.closeMobileMenu();
                 }
             });
