@@ -58,13 +58,18 @@ Razorpay Payment System Integration: Complete payment processing with subscripti
 Updated Subscription Model: Trader users now have access to Trade Now page and single broker integration; Trader Plus supports multiple brokers; pricing structure optimized for user growth path
 
 ## System Architecture
-### Backend Architecture
-- **Framework**: Flask (Python web framework)
+### Production Backend Architecture
+- **Primary Framework**: Flask (Python web framework) for web interface and dashboard
+- **Trading Engine**: FastAPI with async/await for high-performance trading operations
+- **Real-time Data**: WebSocket-based market data streaming service
+- **Background Processing**: Celery with Redis for algorithmic trading and portfolio analysis
+- **Load Balancer**: Production-grade traffic distribution and rate limiting
 - **Database ORM**: SQLAlchemy with Flask-SQLAlchemy extension
-- **Database**: SQLite (default) with PostgreSQL support
-- **Session Management**: Flask sessions
-- **Logging**: Python's built-in logging module
-- **Deployment**: WSGI-compatible with ProxyFix middleware
+- **Database**: PostgreSQL (production) with Redis caching layer
+- **Message Queue**: Redis for real-time data distribution and task queuing
+- **Session Management**: Flask sessions with Redis backing
+- **Logging**: Structured logging with performance metrics
+- **Deployment**: Multi-service architecture with health monitoring and auto-scaling support
 
 ### Frontend Architecture
 - **Template Engine**: Jinja2
