@@ -1,4 +1,4 @@
-<nav class="sidebar bg-dark text-white vh-100 position-fixed">
+<nav class="sidebar bg-dark text-white h-100 d-flex flex-column">
     <div class="sidebar-header p-3">
         <h4 class="text-center">
             <i class="fas fa-chart-line me-2"></i>tCapital
@@ -6,7 +6,7 @@
         <p class="text-center small text-muted mb-0">AI Trading Dashboard</p>
     </div>
     
-    <div class="sidebar-content">
+    <div class="sidebar-content flex-grow-1">
         <ul class="nav flex-column">
             <!-- Always available to all users -->
             <li class="nav-item">
@@ -182,10 +182,10 @@
 
 <style>
 .sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #00091a 0%, #1a1a2e 100%);
-    border-right: 1px solid #495057;
-    z-index: 1000;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 .sidebar .nav-link {
