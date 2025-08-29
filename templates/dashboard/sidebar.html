@@ -43,8 +43,8 @@
 
                 <!-- Stock Picker -->
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'stock_picker' else '' }}" 
-                       href="{{ url_for('stock_picker') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_stock_picker' else '' }}" 
+                       href="{{ url_for('dashboard_stock_picker') }}">
                         <i class="nav-icon fas fa-bullseye"></i>
                         <span class="nav-text">Stock Picker</span>
                     </a>

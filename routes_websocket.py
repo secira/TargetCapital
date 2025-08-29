@@ -29,8 +29,8 @@ def get_user_profile():
             'email': current_user.email,
             'first_name': current_user.first_name,
             'last_name': current_user.last_name,
-            'profile_image_url': current_user.profile_image_url,
-            'subscription_plan': getattr(current_user, 'subscription_plan', 'Free'),
+            'profile_image_url': getattr(current_user, 'profile_image_url', None),
+            'subscription_plan': str(current_user.pricing_plan.value) if current_user.pricing_plan else 'free',
             'last_login': current_user.last_login.isoformat() if current_user.last_login else None
         }
         
@@ -54,10 +54,10 @@ def get_portfolio_data(user_id=None):
     try:
         target_user_id = user_id or current_user.id
         
-        # Get portfolio from database
-        portfolio = Portfolio.query.filter_by(user_id=target_user_id).first()
+        # Get portfolio holdings from database
+        portfolio_items = Portfolio.query.filter_by(user_id=target_user_id).all()
         
-        if not portfolio:
+        if not portfolio_items:
             return jsonify({
                 'success': True,
                 'portfolio': {
@@ -68,13 +68,31 @@ def get_portfolio_data(user_id=None):
                 }
             })
         
+        # Calculate portfolio totals
+        total_value = sum(item.current_value or 0 for item in portfolio_items)
+        total_invested = sum(item.purchased_value or 0 for item in portfolio_items)
+        day_change = total_value - total_invested
+        day_change_percent = (day_change / total_invested * 100) if total_invested > 0 else 0
+        
+        # Format holdings data
+        holdings = {}
+        for item in portfolio_items:
+            holdings[item.ticker_symbol] = {
+                'symbol': item.ticker_symbol,
+                'name': item.stock_name,
+                'quantity': item.quantity,
+                'current_price': item.current_price or 0,
+                'purchase_price': item.purchase_price,
+                'current_value': item.current_value or 0,
+                'purchased_value': item.purchased_value
+            }
+        
         # Format portfolio data for React
         portfolio_data = {
-            'holdings': json.loads(portfolio.holdings) if portfolio.holdings else {},
-            'total_value': float(portfolio.total_value or 0),
-            'day_change': float(portfolio.day_change or 0),
-            'day_change_percent': float(portfolio.day_change_percent or 0),
-            'last_updated': portfolio.last_updated.isoformat() if portfolio.last_updated else None
+            'holdings': holdings,
+            'total_value': float(total_value),
+            'day_change': float(day_change),
+            'day_change_percent': float(day_change_percent)
         }
         
         return jsonify({
