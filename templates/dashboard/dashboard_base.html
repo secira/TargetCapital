@@ -1,29 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Mobile-optimized sidebar -->
-    <div class="dashboard-sidebar" id="dashboardSidebar">
+<div class="dashboard-app">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
         {% include 'dashboard/sidebar.html' %}
-    </div>
-    
-    <!-- Main content with mobile-first design -->
-    <div class="dashboard-main">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <div>
-                    <h1 class="dashboard-heading">{% block dashboard_title %}Dashboard{% endblock %}</h1>
-                    <p class="text-muted mb-0">{% block dashboard_subtitle %}Your personalized AI-powered trading dashboard{% endblock %}</p>
-                    {% if current_user.last_login %}
-                    <small class="text-muted">Last login: {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}</small>
-                    {% endif %}
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="dashboard-main">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>{% block dashboard_title %}Dashboard{% endblock %}</h1>
+                    <p class="header-subtitle">{% block dashboard_subtitle %}Your personalized AI-powered trading dashboard{% endblock %}</p>
                 </div>
-                {% block dashboard_toolbar %}{% endblock %}
+                <div class="header-actions">
+                    {% block dashboard_toolbar %}{% endblock %}
+                </div>
             </div>
+        </header>
 
-            <!-- Dashboard Content -->
-            {% block dashboard_content %}{% endblock %}
+        <!-- Dashboard Content -->
+        <section class="dashboard-content">
+            <div class="content-container">
+                {% block dashboard_content %}{% endblock %}
+            </div>
+        </section>
+    </main>
 
-    </div>
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
 </div>
 
 <!-- Upgrade Alert Modal -->
@@ -50,6 +63,78 @@
 </div>
 
 <script>
+// Dashboard Layout Management
+class DashboardLayout {
+    constructor() {
+        this.sidebar = document.getElementById('dashboardSidebar');
+        this.overlay = document.getElementById('mobileSidebarOverlay');
+        this.menuToggle = document.getElementById('mobileMenuToggle');
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.handleResize();
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    bindEvents() {
+        // Mobile menu toggle
+        if (this.menuToggle) {
+            this.menuToggle.addEventListener('click', () => this.toggleMobileSidebar());
+        }
+
+        // Overlay click to close
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => this.closeMobileSidebar());
+        }
+
+        // Escape key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeMobileSidebar();
+            }
+        });
+
+        // Close sidebar when clicking nav links on mobile
+        const navLinks = this.sidebar?.querySelectorAll('.nav-link');
+        navLinks?.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    this.closeMobileSidebar();
+                }
+            });
+        });
+    }
+
+    toggleMobileSidebar() {
+        if (this.sidebar?.classList.contains('show')) {
+            this.closeMobileSidebar();
+        } else {
+            this.openMobileSidebar();
+        }
+    }
+
+    openMobileSidebar() {
+        this.sidebar?.classList.add('show');
+        this.overlay?.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeMobileSidebar() {
+        this.sidebar?.classList.remove('show');
+        this.overlay?.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    handleResize() {
+        if (window.innerWidth >= 992) {
+            this.closeMobileSidebar();
+        }
+    }
+}
+
+// Upgrade Alert Function
 function showUpgradeAlert(requiredPlan = 'Trader') {
     const messages = {
         'Trader': 'Upgrade to Trader plan (₹1,499/month) to access this feature.',
@@ -61,28 +146,356 @@ function showUpgradeAlert(requiredPlan = 'Trader') {
     const upgradeModal = new bootstrap.Modal(document.getElementById('upgradeModal'));
     upgradeModal.show();
 }
+
+// Initialize Dashboard Layout
+document.addEventListener('DOMContentLoaded', () => {
+    window.dashboardLayout = new DashboardLayout();
+});
 </script>
 
 <style>
-.dashboard-heading {
-    color: #2c3e50;
-    font-weight: 600;
+/* Dashboard Layout System */
+.dashboard-app {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
 }
 
-.dashboard-container {
-    background-color: #f8f9fa;
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1050;
+    background: #00091a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 9, 26, 0.15);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: #001122;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 9, 26, 0.25);
+}
+
+@media (min-width: 992px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #00091a 0%, #001122 100%);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1040;
+    transition: transform 0.3s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dashboard-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dashboard-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+@media (max-width: 991.98px) {
+    .dashboard-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .dashboard-sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+/* Main Content */
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px;
     min-height: 100vh;
 }
 
-/* Mobile responsiveness */
-@media (max-width: 767px) {
-    .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
+@media (max-width: 991.98px) {
+    .dashboard-main {
+        margin-left: 0;
+    }
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    min-height: 80px;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        padding: 20px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+.header-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+}
+
+.header-subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+    font-weight: 400;
+}
+
+@media (max-width: 768px) {
+    .header-title h1 {
+        font-size: 24px;
     }
     
-    .sidebar.show {
-        transform: translateX(0);
+    .header-subtitle {
+        font-size: 13px;
+    }
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Dashboard Content */
+.dashboard-content {
+    flex: 1;
+    padding: 32px;
+    overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 24px 16px;
+    }
+}
+
+.content-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Mobile Sidebar Overlay */
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1030;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (min-width: 992px) {
+    .mobile-sidebar-overlay {
+        display: none;
+    }
+}
+
+/* Grid System for Dashboard Content */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid.cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid.cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .dashboard-grid.cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .dashboard-grid.cols-auto {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* Card Components */
+.dashboard-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.card-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+.card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+/* Utility Classes */
+.text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.flex-start {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Responsive Utilities */
+@media (max-width: 575.98px) {
+    .d-none-sm {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .d-none-md {
+        display: none !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .d-none-lg {
+        display: none !important;
+    }
+}
+
+/* Performance Optimizations */
+.dashboard-app * {
+    box-sizing: border-box;
+}
+
+.dashboard-content {
+    will-change: scroll-position;
+}
+
+.dashboard-sidebar {
+    will-change: transform;
+}
+
+/* Accessibility */
+.mobile-menu-toggle:focus {
+    outline: 2px solid #4299e1;
+    outline-offset: 2px;
+}
+
+.dashboard-card:focus-within {
+    outline: 2px solid #4299e1;
+    outline-offset: 2px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-sidebar,
+    .mobile-sidebar-overlay,
+    .dashboard-card,
+    .mobile-menu-toggle {
+        transition: none;
     }
 }
 </style>

@@ -1,410 +1,242 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Dashboard - tCapital{% endblock %}
+{% block dashboard_title %}Dashboard{% endblock %}
+{% block dashboard_subtitle %}Your AI-powered trading command center{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-    <!-- Mobile-optimized sidebar -->
-    <div class="dashboard-sidebar" id="dashboardSidebar">
-        {% include 'dashboard/sidebar.html' %}
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshDashboard()">
+        <i class="fas fa-sync-alt me-1"></i>
+        Refresh
+    </button>
+    <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-plus me-1"></i>
+            Quick Actions
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('dashboard_stock_picker') }}">
+                <i class="fas fa-bullseye me-2"></i>Pick Stocks
+            </a></li>
+            <li><a class="dropdown-item" href="{{ url_for('dashboard_ai_advisor') }}">
+                <i class="fas fa-robot me-2"></i>Ask AI
+            </a></li>
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
+            <li><a class="dropdown-item" href="{{ url_for('dashboard_trade_now') }}">
+                <i class="fas fa-exchange-alt me-2"></i>Start Trading
+            </a></li>
+            {% endif %}
+        </ul>
     </div>
-    
-    <!-- Main content with mobile-first design -->
-    <div class="dashboard-main">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="dashboard-heading"><i class="fas fa-tachometer-alt me-2"></i>Portfolio Overview</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-primary" onclick="syncAllData()">
-                            <i class="fas fa-sync-alt me-1"></i>Sync All
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportDashboard()">
-                            <i class="fas fa-download me-1"></i>Export
-                        </button>
-                    </div>
-                </div>
-            </div>
+</div>
+{% endblock %}
 
-            <!-- Real-time Connection Status -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body py-2">
-                    <div data-component="realtime-status" class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-warning">Initializing React Components...</span>
-                        <div data-component="performance-metrics"></div>
-                    </div>
+{% block dashboard_content %}
+<!-- Portfolio Overview Cards -->
+<div class="dashboard-grid cols-4">
+    <!-- Total Portfolio Value -->
+    <div class="dashboard-card">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-wallet text-primary"></i>
+                </div>
+                <div class="metric-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12.5%</span>
                 </div>
             </div>
-            
-            <!-- React Portfolio Overview Component -->
-            <div class="grid-responsive mb-4" data-component="portfolio">
-                <div class="grid-item">
-                    <div class="card-responsive">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Total Portfolio Value</h6>
-                                    <h3 class="mb-0 text-primary" id="totalPortfolioValue">Loading...</h3>
-                                    <small class="text-muted" id="portfolioChange">Connecting to real-time data...</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-wallet fa-3x text-primary opacity-75"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid-item">
-                    <div class="card-responsive">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Algo Trades Executed</h6>
-                                    <h3 class="mb-0 text-success" id="algoTrades">245</h3>
-                                    <small class="text-muted">This month</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-robot fa-3x text-success opacity-75"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid-item">
-                    <div class="card-responsive">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Active Strategies</h6>
-                                    <h3 class="mb-0 text-info" id="activeStrategies">12</h3>
-                                    <small class="text-muted">AI powered</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-brain fa-3x text-info opacity-75"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid-item">
-                    <div class="card-responsive">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="card-title text-muted">Account Handling</h6>
-                                    <h3 class="mb-0 text-warning" id="accountValue">₹15,00,000</h3>
-                                    <small class="text-muted">Under management</small>
-                                </div>
-                                <div class="align-self-center">
-                                    <i class="fas fa-user-tie fa-3x text-warning opacity-75"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <h3 class="metric-value">₹2,45,680</h3>
+            <p class="metric-label">Total Portfolio Value</p>
+            <div class="metric-trend">
+                <small class="text-muted">+₹27,180 this month</small>
             </div>
+        </div>
+    </div>
 
-            <!-- Real-time Market Overview Component -->
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <div class="card" data-component="realtime-market">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>Live Market Data</h5>
-                            <span class="badge bg-warning">Connecting...</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading real-time market data...</span>
-                                </div>
-                                <div class="mt-2 text-muted">Connecting to WebSocket data stream...</div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- AI Trading Signals -->
+    <div class="dashboard-card">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line text-success"></i>
                 </div>
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
-                                         onclick="showIndexChart('BANK NIFTY', 51234.80, -0.30)" 
-                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
-                                        <div>
-                                            <h6 class="fw-bold mb-1">BANK NIFTY</h6>
-                                            <small class="text-muted">Banking Index</small>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold fs-5" id="banknifty-price">51,234.80</div>
-                                            <small class="text-danger" id="banknifty-change">
-                                                <i class="fas fa-arrow-down me-1"></i>-0.30%
-                                            </small>
-                                            <div class="mt-1">
-                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
-                                         onclick="showIndexChart('NIFTY IT', 32145.80, 2.15)" 
-                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
-                                        <div>
-                                            <h6 class="fw-bold mb-1">NIFTY IT</h6>
-                                            <small class="text-muted">IT Index</small>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold fs-5" id="niftyit-price">32,145.80</div>
-                                            <small class="text-success" id="niftyit-change">
-                                                <i class="fas fa-arrow-up me-1"></i>+2.15%
-                                            </small>
-                                            <div class="mt-1">
-                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-3 index-card cursor-pointer" 
-                                         onclick="showIndexChart('NIFTY AUTO', 15768.25, -0.05)" 
-                                         style="transition: all 0.2s ease; border: 1px solid #e1e5e9;">
-                                        <div>
-                                            <h6 class="fw-bold mb-1">NIFTY AUTO</h6>
-                                            <small class="text-muted">Auto Index</small>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold fs-5" id="niftyauto-price">15,768.25</div>
-                                            <small class="text-warning" id="niftyauto-change">
-                                                <i class="fas fa-minus me-1"></i>-0.05%
-                                            </small>
-                                            <div class="mt-1">
-                                                <i class="fas fa-chart-line text-primary small" title="Click to view chart"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Today's Performance</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center mb-3">
-                                <h3 class="text-success">+₹12,450</h3>
-                                <p class="text-muted mb-0">Today's P&L</p>
-                                <small class="text-success">+0.68% portfolio gain</small>
-                            </div>
-                            <hr>
-                            <div class="row text-center">
-                                <div class="col-6">
-                                    <h6 class="text-success">8</h6>
-                                    <small class="text-muted">Winning Trades</small>
-                                </div>
-                                <div class="col-6">
-                                    <h6 class="text-danger">2</h6>
-                                    <small class="text-muted">Losing Trades</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="metric-badge">
+                    <span class="badge bg-success">Live</span>
                 </div>
             </div>
+            <h3 class="metric-value">18</h3>
+            <p class="metric-label">Active Signals</p>
+            <div class="metric-trend">
+                <small class="text-muted">3 new signals today</small>
+            </div>
+        </div>
+    </div>
 
-            <!-- Top Holdings and Recent Activity -->
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-star me-2"></i>Top Holdings</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>RELIANCE</strong>
-                                        <br><small class="text-muted">Reliance Industries</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold">₹2,845.60</div>
-                                        <small class="text-success">+2.3%</small>
-                                    </div>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-primary" style="width: 85%"></div>
-                                </div>
-                                <small class="text-muted">8.5% of portfolio</small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>TCS</strong>
-                                        <br><small class="text-muted">Tata Consultancy Services</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold">₹4,125.30</div>
-                                        <small class="text-success">+1.8%</small>
-                                    </div>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-success" style="width: 72%"></div>
-                                </div>
-                                <small class="text-muted">7.2% of portfolio</small>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <strong>HDFCBANK</strong>
-                                        <br><small class="text-muted">HDFC Bank</small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold">₹1,652.45</div>
-                                        <small class="text-danger">-0.8%</small>
-                                    </div>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar bg-info" style="width: 68%"></div>
-                                </div>
-                                <small class="text-muted">6.8% of portfolio</small>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Active Strategies -->
+    <div class="dashboard-card">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-cogs text-warning"></i>
                 </div>
-                
-                <div class="col-md-6">
-                    <div class="card" data-component="ai-signals">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Trading Signals</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="timeline">
-                                <div class="timeline-item mb-3">
-                                    <div class="timeline-marker bg-success"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="mb-1">AI Buy Signal Generated</h6>
-                                        <p class="mb-1 small">RELIANCE - Strong momentum detected</p>
-                                        <small class="text-muted">2 minutes ago</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="timeline-item mb-3">
-                                    <div class="timeline-marker bg-info"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="mb-1">Portfolio Rebalancing</h6>
-                                        <p class="mb-1 small">Automated allocation adjustment completed</p>
-                                        <small class="text-muted">15 minutes ago</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="timeline-item mb-3">
-                                    <div class="timeline-marker bg-warning"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="mb-1">Market Alert</h6>
-                                        <p class="mb-1 small">Banking sector showing volatility</p>
-                                        <small class="text-muted">1 hour ago</small>
-                                    </div>
-                                </div>
-                                
-                                <div class="timeline-item">
-                                    <div class="timeline-marker bg-primary"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="mb-1">Strategy Execution</h6>
-                                        <p class="mb-1 small">Momentum strategy triggered 3 trades</p>
-                                        <small class="text-muted">2 hours ago</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="metric-change neutral">
+                    <i class="fas fa-minus"></i>
+                    <span>Stable</span>
                 </div>
             </div>
+            <h3 class="metric-value">5</h3>
+            <p class="metric-label">Active Strategies</p>
+            <div class="metric-trend">
+                <small class="text-muted">2 performing well</small>
+            </div>
+        </div>
+    </div>
 
-            <!-- React AI Intelligence Component -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card border-success" data-component="ai-intelligence">
-                        <div class="card-header bg-success text-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-robot me-2"></i>Live AI Intelligence</h6>
-                                <span class="badge bg-light text-success">React + WebSocket</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row" data-component="ai-insights">
-                                <div class="col-md-6">
-                                    <h6>Real-time Sentiment</h6>
-                                    <div class="progress mb-2" style="height: 25px;">
-                                        <div class="progress-bar bg-success" style="width: 72%" id="sentimentBar">
-                                            <span id="sentimentText">Loading...</span>
-                                        </div>
-                                    </div>
-                                    <p class="small text-muted" id="sentimentDescription">Connecting to AI analysis...</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h6>AI Recommendations</h6>
-                                    <div id="aiRecommendations">
-                                        <div class="text-center">
-                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                                <span class="visually-hidden">Loading...</span>
-                                            </div>
-                                            <span class="ms-2 text-muted">AI analyzing market conditions...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Account Status -->
+    <div class="dashboard-card">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-user-check text-info"></i>
+                </div>
+                <div class="metric-status">
+                    <div class="status-dot active"></div>
+                </div>
+            </div>
+            <h3 class="metric-value">{{ broker_accounts|length }}</h3>
+            <p class="metric-label">Connected Brokers</p>
+            <div class="metric-trend">
+                <small class="text-muted">All systems operational</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div class="dashboard-grid cols-3">
+    <!-- Market Overview -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Market Overview</h3>
+            <span class="update-time">Last updated: 2 mins ago</span>
+        </div>
+        <div class="card-body">
+            <div class="market-indices">
+                <div class="index-item">
+                    <div class="index-info">
+                        <span class="index-name">NIFTY 50</span>
+                        <span class="index-value">21,894.50</span>
+                    </div>
+                    <div class="index-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+156.30 (+0.72%)</span>
+                    </div>
+                </div>
+                <div class="index-item">
+                    <div class="index-info">
+                        <span class="index-name">SENSEX</span>
+                        <span class="index-value">72,240.26</span>
+                    </div>
+                    <div class="index-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+485.90 (+0.68%)</span>
+                    </div>
+                </div>
+                <div class="index-item">
+                    <div class="index-info">
+                        <span class="index-name">NIFTY BANK</span>
+                        <span class="index-value">47,325.80</span>
+                    </div>
+                    <div class="index-change negative">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-123.45 (-0.26%)</span>
                     </div>
                 </div>
             </div>
-            
-            <!-- React Portfolio Analyzer -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="card border-primary" data-component="portfolio-analyzer">
-                        <div class="card-header bg-primary text-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Portfolio Analyzer</h6>
-                                <button class="btn btn-sm btn-outline-light" onclick="analyzePortfolio()">
-                                    <i class="fas fa-sync me-1"></i>Analyze
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body" data-component="analysis-results">
-                            <div class="text-center py-3">
-                                <div class="spinner-border text-primary" role="status" style="display: none;" id="analysisLoader">
-                                    <span class="visually-hidden">Analyzing portfolio...</span>
-                                </div>
-                                <div id="analysisContent">
-                                    <h6 class="text-muted mb-3">Click "Analyze" to start AI-powered portfolio analysis</h6>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="card bg-light border-0">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-shield-alt fa-2x text-info mb-2"></i>
-                                                    <h6>Risk Assessment</h6>
-                                                    <small class="text-muted">AI risk profiling</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="card bg-light border-0">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-balance-scale fa-2x text-warning mb-2"></i>
-                                                    <h6>Diversification</h6>
-                                                    <small class="text-muted">Sector allocation analysis</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="card bg-light border-0">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-bullseye fa-2x text-success mb-2"></i>
-                                                    <h6>Optimization</h6>
-                                                    <small class="text-muted">AI recommendations</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        </div>
+    </div>
+
+    <!-- Top Holdings -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Top Holdings</h3>
+            <a href="{{ url_for('dashboard_my_portfolio') if current_user.can_access_menu('dashboard_my_portfolio') else '#' }}" class="view-all">
+                View All
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="holdings-list">
+                <div class="holding-item">
+                    <div class="holding-info">
+                        <span class="stock-symbol">RELIANCE</span>
+                        <span class="stock-name">Reliance Industries</span>
+                    </div>
+                    <div class="holding-metrics">
+                        <span class="holding-value">₹45,680</span>
+                        <span class="holding-change positive">+2.4%</span>
+                    </div>
+                </div>
+                <div class="holding-item">
+                    <div class="holding-info">
+                        <span class="stock-symbol">TCS</span>
+                        <span class="stock-name">Tata Consultancy Services</span>
+                    </div>
+                    <div class="holding-metrics">
+                        <span class="holding-value">₹38,240</span>
+                        <span class="holding-change positive">+1.8%</span>
+                    </div>
+                </div>
+                <div class="holding-item">
+                    <div class="holding-info">
+                        <span class="stock-symbol">INFY</span>
+                        <span class="stock-name">Infosys Limited</span>
+                    </div>
+                    <div class="holding-metrics">
+                        <span class="holding-value">₹29,850</span>
+                        <span class="holding-change negative">-0.9%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>AI Market Intelligence</h3>
+            <div class="ai-status-indicator">
+                <div class="status-dot active"></div>
+                <span>Live Analysis</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="ai-insights">
+                <div class="insight-item">
+                    <div class="insight-icon">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                    </div>
+                    <div class="insight-content">
+                        <p class="insight-text">Banking sector showing strong momentum. Consider HDFC Bank for long-term growth.</p>
+                        <span class="insight-confidence">Confidence: 87%</span>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                    </div>
+                    <div class="insight-content">
+                        <p class="insight-text">Technology stocks may face volatility due to global market conditions.</p>
+                        <span class="insight-confidence">Confidence: 92%</span>
+                    </div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">
+                        <i class="fas fa-chart-line text-success"></i>
+                    </div>
+                    <div class="insight-content">
+                        <p class="insight-text">Pharmaceutical sector expected to outperform in Q4. High growth potential.</p>
+                        <span class="insight-confidence">Confidence: 89%</span>
                     </div>
                 </div>
             </div>
@@ -412,344 +244,535 @@
     </div>
 </div>
 
+<!-- Recent Activity and Chart -->
+<div class="dashboard-grid cols-2">
+    <!-- Portfolio Performance Chart -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Portfolio Performance</h3>
+            <div class="chart-controls">
+                <button class="btn btn-sm btn-outline-secondary active">1M</button>
+                <button class="btn btn-sm btn-outline-secondary">3M</button>
+                <button class="btn btn-sm btn-outline-secondary">1Y</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="portfolioChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Recent Activity</h3>
+            <a href="#" class="view-all">View All</a>
+        </div>
+        <div class="card-body">
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="activity-icon buy">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">Bought 50 shares of <strong>RELIANCE</strong></p>
+                        <span class="activity-time">2 hours ago</span>
+                    </div>
+                    <div class="activity-amount positive">+₹12,450</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon sell">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">Sold 25 shares of <strong>WIPRO</strong></p>
+                        <span class="activity-time">5 hours ago</span>
+                    </div>
+                    <div class="activity-amount negative">-₹8,970</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon signal">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">AI Signal: <strong>BUY</strong> recommendation for TCS</p>
+                        <span class="activity-time">1 day ago</span>
+                    </div>
+                    <div class="activity-confidence">95% confidence</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-// Enhanced Portfolio Management Functions
-function syncAllData() {
-    console.log('🔄 Syncing all portfolio data with React components...');
+// Dashboard Refresh Function
+function refreshDashboard() {
+    const refreshBtn = document.querySelector('[onclick="refreshDashboard()"]');
+    const icon = refreshBtn.querySelector('i');
     
-    // Show loading state
-    updateConnectionStatus('Syncing data...', 'warning');
+    // Add loading state
+    icon.classList.add('fa-spin');
+    refreshBtn.disabled = true;
     
-    // Trigger React component refresh
-    if (window.tCapitalComponents?.marketDataComponent) {
-        window.tCapitalComponents.marketDataComponent.refreshData();
-    }
-    
-    // Sync portfolio data
-    fetch('/api/portfolio/sync', { method: 'POST' })
-        .then(response => response.json())
-        .then(result => {
-            updateConnectionStatus('Data synchronized', 'success');
-            console.log('✅ Portfolio sync completed');
-        })
-        .catch(error => {
-            updateConnectionStatus('Sync failed', 'danger');
-            console.log('❌ Portfolio sync failed:', error);
-        });
-}
-
-function exportDashboard() {
-    console.log('📊 Exporting dashboard data...');
-    
-    // Export dashboard data to CSV/JSON
-    const exportData = {
-        portfolio: document.getElementById('totalPortfolioValue')?.innerText,
-        trades: document.getElementById('algoTrades')?.innerText,
-        strategies: document.getElementById('activeStrategies')?.innerText,
-        timestamp: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-        type: 'application/json'
-    });
-    
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `tCapital-dashboard-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    
-    console.log('✅ Dashboard data exported successfully');
-}
-
-function analyzePortfolio() {
-    console.log('🧠 Starting AI portfolio analysis...');
-    
-    // Show loading state
-    const loader = document.getElementById('analysisLoader');
-    const content = document.getElementById('analysisContent');
-    
-    if (loader && content) {
-        loader.style.display = 'block';
-        content.style.display = 'none';
-    }
-    
-    // Mock AI analysis with real-time data
+    // Simulate refresh (replace with actual API call)
     setTimeout(() => {
-        const analysisResults = {
-            riskScore: Math.floor(Math.random() * 30) + 60, // 60-90
-            diversificationScore: Math.floor(Math.random() * 25) + 70, // 70-95
-            optimizationScore: Math.floor(Math.random() * 20) + 75, // 75-95
-            recommendations: [
-                'Consider rebalancing IT sector allocation',
-                'Strong momentum in banking stocks detected',
-                'Energy sector showing good growth potential'
-            ]
-        };
+        icon.classList.remove('fa-spin');
+        refreshBtn.disabled = false;
         
-        displayAnalysisResults(analysisResults);
+        // Show success message
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification success';
+        toast.textContent = 'Dashboard refreshed successfully';
+        document.body.appendChild(toast);
         
-        if (loader && content) {
-            loader.style.display = 'none';
-            content.style.display = 'block';
-        }
-        
-        console.log('✅ Portfolio analysis completed');
-    }, 3000);
+        setTimeout(() => toast.remove(), 3000);
+    }, 1500);
 }
 
-function displayAnalysisResults(results) {
-    const content = document.getElementById('analysisContent');
-    
-    if (content) {
-        content.innerHTML = `
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card border-info">
-                        <div class="card-body text-center">
-                            <div class="h2 text-info mb-2">${results.riskScore}</div>
-                            <h6>Risk Score</h6>
-                            <div class="progress mt-2">
-                                <div class="progress-bar bg-info" style="width: ${results.riskScore}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-warning">
-                        <div class="card-body text-center">
-                            <div class="h2 text-warning mb-2">${results.diversificationScore}</div>
-                            <h6>Diversification</h6>
-                            <div class="progress mt-2">
-                                <div class="progress-bar bg-warning" style="width: ${results.diversificationScore}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-success">
-                        <div class="card-body text-center">
-                            <div class="h2 text-success mb-2">${results.optimizationScore}</div>
-                            <h6>Optimization</h6>
-                            <div class="progress mt-2">
-                                <div class="progress-bar bg-success" style="width: ${results.optimizationScore}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4">
-                <h6>AI Recommendations</h6>
-                <ul class="list-group list-group-flush">
-                    ${results.recommendations.map(rec => `
-                        <li class="list-group-item border-0 bg-light">
-                            <i class="fas fa-lightbulb text-warning me-2"></i>${rec}
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-        `;
-    }
-}
-
-function updateConnectionStatus(message, type) {
-    const statusElement = document.querySelector('[data-component="realtime-status"] .badge');
-    if (statusElement) {
-        statusElement.className = `badge bg-${type}`;
-        statusElement.textContent = message;
-    }
-}
-
-// Load real-time data immediately when page loads
+// Portfolio Chart
 document.addEventListener('DOMContentLoaded', function() {
-    updateIndexPrices();
-    updateConnectionStatus('React components loading...', 'info');
-    console.log('🚀 Enhanced dashboard with React integration loading...');
-    
-    // Initialize React-style components after a short delay
-    setTimeout(() => {
-        if (window.tCapitalComponents) {
-            updateConnectionStatus('React components ready', 'success');
-        }
-    }, 2000);
-});
-
-// Enhanced auto-refresh with React integration
-setInterval(() => {
-    updateIndexPrices();
-    
-    // Update React components if available
-    if (window.tCapitalComponents?.componentManager) {
-        window.tCapitalComponents.componentManager.refreshAllComponents();
-    }
-    
-    console.log('🔄 Auto-refreshing React + WebSocket dashboard...');
-}, 30000); // Reduced interval for better real-time experience
-
-// Index chart functionality
-function showIndexChart(indexName, price, change) {
-    // Use the notification-free TradingView widget for index charts
-    if (typeof window.showTradingViewChart === 'function') {
-        window.showTradingViewChart(indexName, 'stock');
-    } else {
-        // Load the TradingView widget script if not already loaded
-        const script = document.createElement('script');
-        script.src = '/static/js/tradingview-widget.js';
-        script.onload = () => {
-            setTimeout(() => {
-                window.showTradingViewChart(indexName, 'stock');
-            }, 500);
-        };
-        document.head.appendChild(script);
-    }
-}
-
-function updateIndexPrices() {
-    // Fetch real-time NSE data from our API
-    fetch('/api/realtime/indices')
-        .then(response => response.json())
-        .then(result => {
-            if (result.success && result.data) {
-                // Update NIFTY 50
-                updateIndexDisplay('nifty50', result.data['NIFTY 50']);
-                // Update BANK NIFTY
-                updateIndexDisplay('banknifty', result.data['NIFTY BANK']);
-                // Update NIFTY IT
-                updateIndexDisplay('niftyit', result.data['NIFTY IT']);
-                // Update NIFTY AUTO
-                updateIndexDisplay('niftyauto', result.data['NIFTY AUTO']);
-                
-                console.log('Live NSE data updated successfully');
-            } else {
-                console.log('Using fallback data source');
+    const ctx = document.getElementById('portfolioChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Portfolio Value',
+                    data: [210000, 225000, 218000, 235000, 245000, 245680],
+                    borderColor: '#4299e1',
+                    backgroundColor: 'rgba(66, 153, 225, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
             }
-        })
-        .catch(error => {
-            console.log('Error fetching live data, using fallback:', error);
-            // Fallback to simulated current data with realistic base values
-            const currentData = {
-                'NIFTY 50': { value: 25041.10, change: 125.30, change_percent: 0.50 },
-                'NIFTY BANK': { value: 51234.80, change: -156.20, change_percent: -0.30 },
-                'NIFTY IT': { value: 43687.25, change: 234.50, change_percent: 0.54 },
-                'NIFTY AUTO': { value: 24156.75, change: 45.25, change_percent: 0.19 }
-            };
-            
-            updateIndexDisplay('nifty50', currentData['NIFTY 50']);
-            updateIndexDisplay('banknifty', currentData['NIFTY BANK']);
-            updateIndexDisplay('niftyit', currentData['NIFTY IT']);
-            updateIndexDisplay('niftyauto', currentData['NIFTY AUTO']);
         });
-}
-
-function updateIndexDisplay(elementId, data) {
-    if (!data) return;
-    
-    const priceElement = document.getElementById(`${elementId}-price`);
-    const changeElement = document.getElementById(`${elementId}-change`);
-    
-    if (priceElement && changeElement) {
-        priceElement.textContent = data.value.toLocaleString('en-IN', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
-        
-        const isPositive = data.change_percent >= 0;
-        changeElement.innerHTML = `
-            <i class="fas fa-arrow-${isPositive ? 'up' : 'down'} me-1"></i>${isPositive ? '+' : ''}${data.change_percent.toFixed(2)}%
-        `;
-        changeElement.className = isPositive ? 'text-success' : 'text-danger';
-        
-        // Update the onclick handler with new values
-        const cardElement = priceElement.closest('.index-card');
-        if (cardElement) {
-            const indexName = cardElement.querySelector('h6').textContent;
-            cardElement.setAttribute('onclick', `showIndexChart('${indexName}', ${data.value}, ${data.change_percent})`);
-        }
     }
-}
-
-function showFullMarketChart() {
-    // Navigate to a comprehensive market chart view
-    window.open('/dashboard/market-overview', '_blank');
-}
+});
 </script>
 
 <style>
-
-.card {
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+/* Dashboard Specific Styles */
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(66, 153, 225, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+.metric-icon i {
+    font-size: 20px;
 }
 
-.timeline {
-    position: relative;
-    padding-left: 30px;
+.metric-change {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
 }
 
-.timeline-item {
-    position: relative;
+.metric-change.positive {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
 }
 
-.timeline-marker {
-    position: absolute;
-    left: -35px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
+.metric-change.negative {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
 }
 
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: -30px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #dee2e6;
+.metric-change.neutral {
+    background: rgba(160, 174, 192, 0.1);
+    color: #a0aec0;
 }
 
-.progress {
-    border-radius: 10px;
+.metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 8px 0 4px 0;
 }
 
-.btn {
+.metric-label {
+    font-size: 14px;
+    color: #718096;
+    margin: 0;
+    font-weight: 500;
+}
+
+.metric-trend {
+    margin-top: 8px;
+}
+
+.metric-badge {
+    display: flex;
+    align-items: center;
+}
+
+.metric-status {
+    display: flex;
+    align-items: center;
+}
+
+.update-time {
+    font-size: 12px;
+    color: #a0aec0;
+}
+
+.view-all {
+    font-size: 14px;
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.view-all:hover {
+    color: #3182ce;
+}
+
+/* Market Indices */
+.market-indices {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.index-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.index-item:last-child {
+    border-bottom: none;
+}
+
+.index-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.index-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.index-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.index-change {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.index-change.positive {
+    color: #48bb78;
+}
+
+.index-change.negative {
+    color: #f56565;
+}
+
+/* Holdings */
+.holdings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.holding-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.holding-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stock-symbol {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.stock-name {
+    font-size: 12px;
+    color: #718096;
+}
+
+.holding-metrics {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.holding-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.holding-change {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.holding-change.positive {
+    color: #48bb78;
+}
+
+.holding-change.negative {
+    color: #f56565;
+}
+
+/* AI Insights */
+.ai-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #48bb78;
+    font-weight: 500;
+}
+
+.ai-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.insight-item {
+    display: flex;
+    gap: 12px;
+}
+
+.insight-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
+    background: rgba(66, 153, 225, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.opacity-75 {
-    opacity: 0.75;
+.insight-content {
+    flex: 1;
 }
 
-.index-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
-    border-color: #007bff !important;
+.insight-text {
+    font-size: 13px;
+    color: #2d3748;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
 }
 
-.cursor-pointer {
-    cursor: pointer;
+.insight-confidence {
+    font-size: 11px;
+    color: #718096;
+    font-weight: 500;
 }
 
-.index-card:hover .fas.fa-chart-line {
-    animation: pulse 1s infinite;
+/* Activity Feed */
+.activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.activity-icon.buy {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+}
+
+.activity-icon.sell {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+}
+
+.activity-icon.signal {
+    background: rgba(66, 153, 225, 0.1);
+    color: #4299e1;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    font-size: 13px;
+    color: #2d3748;
+    margin: 0 0 2px 0;
+}
+
+.activity-time {
+    font-size: 11px;
+    color: #a0aec0;
+}
+
+.activity-amount {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.activity-amount.positive {
+    color: #48bb78;
+}
+
+.activity-amount.negative {
+    color: #f56565;
+}
+
+.activity-confidence {
+    font-size: 11px;
+    color: #4299e1;
+    font-weight: 500;
+}
+
+/* Chart Container */
+.chart-container {
+    height: 200px;
+    position: relative;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.chart-controls .btn {
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+/* Toast Notifications */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4299e1;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1060;
+    animation: slideIn 0.3s ease;
+}
+
+.toast-notification.success {
+    background: #48bb78;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .dashboard-grid.cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid.cols-3,
+    .dashboard-grid.cols-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-value {
+        font-size: 24px;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .header-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-grid.cols-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .metric-value {
+        font-size: 20px;
+    }
 }
 </style>
 {% endblock %}
