@@ -52,7 +52,7 @@
     </div>
 
     <!-- AI Trading Signals -->
-    <div class="dashboard-card">
+    <div class="dashboard-card clickable-card" onclick="window.location.href='{{ url_for('dashboard_trading_signals') }}'">
         <div class="card-body">
             <div class="flex-between mb-3">
                 <div class="metric-icon">
@@ -67,6 +67,9 @@
             <div class="metric-trend">
                 <small class="text-muted">3 new signals today</small>
             </div>
+            <button class="btn btn-sm btn-outline-success mt-2" onclick="event.stopPropagation(); showHighConfidenceSignals()">
+                <i class="fas fa-star me-1"></i>High-Confidence Alerts
+            </button>
         </div>
     </div>
 
@@ -326,6 +329,84 @@ function refreshDashboard() {
         
         setTimeout(() => toast.remove(), 3000);
     }, 1500);
+}
+
+// Show high-confidence signals modal when button is clicked
+function showHighConfidenceSignals() {
+    // Create modal with high-confidence signals
+    const modalHTML = `
+        <div class="modal fade" id="highConfidenceModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-star text-warning me-2"></i>High-Confidence Trading Signals
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            These are our highest confidence signals based on AI analysis and market conditions.
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Action</th>
+                                        <th>Confidence</th>
+                                        <th>Target</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>RELIANCE</strong></td>
+                                        <td><span class="badge bg-success">BUY</span></td>
+                                        <td><span class="badge bg-warning">95%</span></td>
+                                        <td>₹3,100</td>
+                                        <td>2 min ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TCS</strong></td>
+                                        <td><span class="badge bg-danger">SELL</span></td>
+                                        <td><span class="badge bg-warning">92%</span></td>
+                                        <td>₹4,250</td>
+                                        <td>5 min ago</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>HDFCBANK</strong></td>
+                                        <td><span class="badge bg-success">BUY</span></td>
+                                        <td><span class="badge bg-warning">90%</span></td>
+                                        <td>₹1,680</td>
+                                        <td>8 min ago</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="{{ url_for('dashboard_trading_signals') }}" class="btn btn-primary">
+                            <i class="fas fa-chart-line me-1"></i>View All Signals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    const existingModal = document.getElementById('highConfidenceModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page and show it
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = new bootstrap.Modal(document.getElementById('highConfidenceModal'));
+    modal.show();
 }
 
 // Portfolio Chart
@@ -718,6 +799,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .toast-notification.success {
     background: #48bb78;
+}
+
+/* Clickable Dashboard Cards */
+.clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
 @keyframes slideIn {

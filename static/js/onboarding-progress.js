@@ -241,38 +241,9 @@ class OnboardingProgressTracker {
     }
 
     showAchievement(milestone) {
-        // Only show achievement notifications for significant milestones to avoid annoyance
-        const significantMilestones = ['onboarding_completed', 'broker_connected', 'learning_streak_7'];
-        
-        if (!significantMilestones.includes(milestone.name.toLowerCase().replace(' ', '_'))) {
-            return; // Skip showing notification for minor achievements
-        }
-        
-        // Create achievement notification for significant milestones only
-        const achievementHTML = `
-            <div class="achievement-notification" id="achievement-${Date.now()}">
-                <div class="achievement-content">
-                    <div class="achievement-icon">${milestone.icon}</div>
-                    <div class="achievement-details">
-                        <h4>Achievement Unlocked!</h4>
-                        <h5>${milestone.name}</h5>
-                        <p>${milestone.description}</p>
-                        <div class="points-earned">+${milestone.points} points</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', achievementHTML);
-        
-        const notification = document.querySelector(`#achievement-${Date.now()}`);
-        if (notification) {
-            setTimeout(() => notification.classList.add('show'), 100);
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 500);
-            }, 4000);
-        }
+        // Disable all auto-popup notifications to avoid annoying users
+        // Achievements are tracked silently in the background
+        return;
     }
 
     showLevelUp(newLevel) {
