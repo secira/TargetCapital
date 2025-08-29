@@ -38,10 +38,30 @@ if RAZORPAY_KEY_ID != 'rzp_test_dummy_key' and RAZORPAY_KEY_SECRET != 'dummy_sec
 @app.context_processor
 def inject_pricing_plans():
     """Make PricingPlan and SubscriptionStatus available to all templates"""
-    return {
+    context = {
         'PricingPlan': PricingPlan,
         'SubscriptionStatus': SubscriptionStatus
     }
+    
+    # Add broker accounts for authenticated users (for sidebar display)
+    if current_user.is_authenticated:
+        try:
+            from models_broker import BrokerAccount, ConnectionStatus
+            # Only get connected broker accounts for sidebar
+            broker_accounts = BrokerAccount.query.filter_by(
+                user_id=current_user.id,
+                is_active=True
+            ).filter(
+                BrokerAccount.connection_status == ConnectionStatus.CONNECTED.value
+            ).all()
+            context['broker_accounts'] = broker_accounts
+        except Exception as e:
+            logging.error(f"Error loading broker accounts for context: {e}")
+            context['broker_accounts'] = []
+    else:
+        context['broker_accounts'] = []
+    
+    return context
 
 def admin_required(f):
     """Decorator to require admin access"""
