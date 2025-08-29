@@ -1,0 +1,467 @@
+/* 
+ * tCapital AI Companion Mascot Styles
+ * Playful financial learning assistant
+ */
+
+.ai-companion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 180px;
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+}
+
+.ai-companion.visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Companion Body */
+.companion-body {
+    position: relative;
+    width: 120px;
+    height: 140px;
+    margin: 0 auto;
+    animation: companionIdle 4s ease-in-out infinite;
+}
+
+@keyframes companionIdle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-5px) rotate(1deg); }
+    50% { transform: translateY(-2px) rotate(0deg); }
+    75% { transform: translateY(-8px) rotate(-1deg); }
+}
+
+/* Head */
+.companion-head {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: 0 5px 20px rgba(79, 195, 247, 0.3);
+    border: 3px solid #fff;
+}
+
+.companion-head::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #81d4fa, #4fc3f7);
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+/* Eyes */
+.companion-eyes {
+    position: absolute;
+    top: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+}
+
+.eye {
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    position: relative;
+    animation: companionBlink 3s ease-in-out infinite;
+}
+
+@keyframes companionBlink {
+    0%, 90%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+}
+
+.pupil {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.3s ease;
+}
+
+/* Mouth */
+.companion-mouth {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    background: #333;
+    border-radius: 0 0 12px 12px;
+    transition: all 0.3s ease;
+}
+
+.ai-companion.talking .companion-mouth {
+    animation: mouthTalk 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes mouthTalk {
+    0% { transform: translateX(-50%) scaleY(1); }
+    100% { transform: translateX(-50%) scaleY(1.5); }
+}
+
+/* Torso */
+.companion-torso {
+    width: 60px;
+    height: 40px;
+    background: linear-gradient(135deg, #66bb6a, #4caf50);
+    border-radius: 20px;
+    margin: 5px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 15px rgba(76, 175, 80, 0.3);
+    border: 2px solid #fff;
+}
+
+.companion-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Arms */
+.companion-arms {
+    position: absolute;
+    top: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 75px;
+}
+
+.arm {
+    width: 20px;
+    height: 30px;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    border-radius: 10px;
+    border: 2px solid #fff;
+    animation: armWave 3s ease-in-out infinite;
+}
+
+.left-arm {
+    animation-delay: 0.5s;
+}
+
+@keyframes armWave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+/* Speech Bubble */
+.companion-speech-bubble {
+    position: absolute;
+    bottom: 200px;
+    right: 0;
+    width: 300px;
+    background: #fff;
+    border: 3px solid #4fc3f7;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: scale(0) translateY(20px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1001;
+}
+
+.companion-speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: 40px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #4fc3f7;
+}
+
+.companion-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    right: 42px;
+    width: 0;
+    height: 0;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+    border-top: 13px solid #fff;
+}
+
+.companion-speech-bubble.visible {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.speech-content {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
+
+.speech-text {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.step-progress {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.speech-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.btn-skip, .btn-next {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-skip {
+    background: #e0e0e0;
+    color: #666;
+}
+
+.btn-skip:hover {
+    background: #d0d0d0;
+}
+
+.btn-next {
+    background: #4fc3f7;
+    color: #fff;
+}
+
+.btn-next:hover {
+    background: #29b6f6;
+    transform: translateY(-2px);
+}
+
+/* Companion Controls */
+.companion-controls {
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+}
+
+.companion-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background: #4fc3f7;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 3px 10px rgba(79, 195, 247, 0.3);
+}
+
+.companion-btn:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 5px 20px rgba(79, 195, 247, 0.4);
+}
+
+.companion-btn:active {
+    transform: translateY(-1px) scale(0.95);
+}
+
+/* Mood Variations */
+.ai-companion.excited .companion-head {
+    animation: excitedBounce 0.6s ease-in-out infinite;
+}
+
+@keyframes excitedBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
+
+.ai-companion.thinking .companion-head {
+    animation: thinkingTilt 2s ease-in-out infinite;
+}
+
+@keyframes thinkingTilt {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* Animation Classes */
+.anim-bounce {
+    animation: companionBounce 0.6s ease-in-out;
+}
+
+@keyframes companionBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.anim-jump {
+    animation: companionJump 0.8s ease-in-out;
+}
+
+@keyframes companionJump {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-25px) scale(1.1); }
+}
+
+.anim-sparkle .companion-head::before {
+    animation: sparkleEffect 1s ease-in-out;
+}
+
+@keyframes sparkleEffect {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* Onboarding Overlay */
+.onboarding-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    animation: overlayFadeIn 0.5s ease;
+}
+
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.onboarding-spotlight {
+    position: fixed;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    animation: spotlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes spotlightPulse {
+    0%, 100% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7); }
+    50% { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); }
+}
+
+.onboarding-highlight {
+    position: relative;
+    z-index: 1001;
+    animation: highlightPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .ai-companion {
+        bottom: 10px;
+        right: 10px;
+        transform: scale(0.8) translateY(100px);
+    }
+    
+    .ai-companion.visible {
+        transform: scale(0.8) translateY(0);
+    }
+    
+    .companion-speech-bubble {
+        width: 250px;
+        bottom: 160px;
+        right: -50px;
+    }
+    
+    .companion-controls {
+        bottom: -30px;
+    }
+    
+    .companion-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .companion-speech-bubble {
+        width: 220px;
+        right: -80px;
+        font-size: 13px;
+        padding: 15px;
+    }
+}
+
+/* Performance Optimizations */
+.ai-companion * {
+    will-change: transform;
+}
+
+.companion-body {
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Accessibility */
+.companion-btn:focus {
+    outline: 2px solid #4fc3f7;
+    outline-offset: 2px;
+}
+
+.companion-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Reduce animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ai-companion,
+    .companion-body,
+    .eye,
+    .arm,
+    .companion-head::before {
+        animation: none;
+    }
+    
+    .ai-companion.visible {
+        transition: opacity 0.3s ease;
+    }
+}
