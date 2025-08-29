@@ -16,10 +16,7 @@
         </button>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('dashboard_stock_picker') }}">
-                <i class="fas fa-bullseye me-2"></i>Pick Stocks
-            </a></li>
-            <li><a class="dropdown-item" href="{{ url_for('ai_advisor') }}">
-                <i class="fas fa-robot me-2"></i>Ask AI
+                <i class="fas fa-robot me-2"></i>AI Stock Picker
             </a></li>
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
             <li><a class="dropdown-item" href="{{ url_for('dashboard_trade_now') }}">

@@ -2303,13 +2303,8 @@ def api_search_stocks():
 @app.route('/dashboard/ai-advisor')
 @login_required
 def ai_advisor():
-    """Clean AI Investment Advisor Interface (Perplexity.ai style)"""
-    if not current_user.can_access_menu('ai_advisor'):
-        flash('Access denied. Please upgrade your subscription to access AI Advisor.', 'error')
-        return redirect(url_for('dashboard'))
-    
-    return render_template('dashboard/ai_advisor_clean.html', 
-                         current_user=current_user)
+    """Redirect AI Advisor to Stock Picker (merged functionality)"""
+    return redirect(url_for('dashboard_stock_picker'))
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required
