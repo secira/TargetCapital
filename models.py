@@ -146,9 +146,9 @@ class User(UserMixin, db.Model):
     
     def can_access_menu(self, menu_item):
         """Check if user can access specific menu item based on pricing plan"""
-        # Free users can only access Dashboard and AI Advisor
+        # Free users can access Dashboard, AI Advisor, and Trading Signals (view-only)
         if self.pricing_plan == PricingPlan.FREE:
-            return menu_item in ['dashboard', 'ai_advisor']
+            return menu_item in ['dashboard', 'ai_advisor', 'dashboard_trading_signals']
         
         # Trader users can access Trade Now but have limited broker features
         elif self.pricing_plan == PricingPlan.TRADER:
