@@ -10,7 +10,7 @@
         <ul class="nav flex-column">
             <!-- Always available to all users -->
             <li class="nav-item">
-                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
+                <a class="nav-link text-white ripple-effect {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
                    href="{{ url_for('dashboard') }}">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
@@ -112,10 +112,10 @@
         </ul>
         
         <!-- Broker Management - Available to all users -->
-        <div class="mt-4 p-3 border-top border-secondary">
-            <h6 class="text-white small">
+        <div class="mt-4 p-3 border-top border-secondary sidebar-section" data-section="broker">
+            <h6 class="text-white small section-header">
                 <a href="{{ url_for('dashboard_broker_accounts') }}" class="text-white text-decoration-none">
-                    Broker Management <i class="fas fa-cog ms-1 small"></i>
+                    Broker Management <i class="fas fa-cog ms-1 small rotate-on-hover"></i>
                 </a>
             </h6>
             {% if broker_accounts %}
@@ -142,9 +142,9 @@
         <!-- AI Status -->
         <!-- User Plan Status -->
         {% if current_user.is_authenticated %}
-        <div class="mt-3 p-3 border-top border-secondary">
-            <h6 class="text-white small">
-                <i class="fas fa-user-crown me-1"></i>Current Plan
+        <div class="mt-3 p-3 border-top border-secondary sidebar-section" data-section="plan">
+            <h6 class="text-white small section-header">
+                <i class="fas fa-user-crown me-1 sparkle-icon"></i>Current Plan
             </h6>
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="small text-white">{{ current_user.get_plan_display_name() }}</span>
@@ -167,15 +167,15 @@
         {% endif %}
         
         <!-- AI Status -->
-        <div class="mt-3 p-3 border-top border-secondary">
-            <h6 class="text-muted small">AI Status</h6>
+        <div class="mt-3 p-3 border-top border-secondary sidebar-section" data-section="ai">
+            <h6 class="text-muted small section-header">AI Status</h6>
             <div class="d-flex align-items-center">
-                <div class="spinner-grow spinner-grow-sm text-success me-2" role="status">
+                <div class="ai-pulse-indicator me-2" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <span class="small">Agentic AI Active</span>
+                <span class="small breathing-text">Agentic AI Active</span>
             </div>
-            <small class="text-muted">Monitoring 245 stocks</small>
+            <small class="text-muted counter-animation">Monitoring <span class="stock-counter">245</span> stocks</small>
         </div>
     </div>
 </nav>
@@ -192,12 +192,36 @@
     padding: 12px 20px;
     border-radius: 8px;
     margin: 2px 15px;
-    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-origin: left center;
+}
+
+.sidebar .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.sidebar .nav-link:hover::before {
+    left: 100%;
 }
 
 .sidebar .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.sidebar .nav-link:active {
+    transform: translateX(6px) scale(0.98);
+    transition: all 0.1s ease;
 }
 
 .sidebar .nav-link.active {
@@ -208,10 +232,210 @@
 .sidebar .nav-link i {
     width: 20px;
     text-align: center;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: inline-block;
 }
 
+.sidebar .nav-link:hover i {
+    transform: rotate(10deg) scale(1.2);
+    color: #fff;
+}
+
+.sidebar .nav-link.active i {
+    animation: pulseIcon 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseIcon {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
+
+/* ===== ADVANCED MICRO-ANIMATIONS ===== */
+
+/* Sidebar Section Animations */
+.sidebar-section {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideInSection 0.6s ease forwards;
+}
+
+.sidebar-section[data-section="broker"] {
+    animation-delay: 0.1s;
+}
+
+.sidebar-section[data-section="plan"] {
+    animation-delay: 0.2s;
+}
+
+.sidebar-section[data-section="ai"] {
+    animation-delay: 0.3s;
+}
+
+@keyframes slideInSection {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Header Hover Effects */
+.section-header {
+    transition: all 0.3s ease;
+}
+
+.section-header:hover {
+    transform: translateX(3px);
+    color: #fff !important;
+}
+
+/* Rotating Gear Animation */
+.rotate-on-hover {
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.section-header:hover .rotate-on-hover {
+    transform: rotate(180deg);
+}
+
+/* Sparkle Crown Animation */
+.sparkle-icon {
+    animation: sparkle 3s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+    25% { 
+        transform: scale(1.1) rotate(5deg);
+        filter: brightness(1.3);
+    }
+    50% { 
+        transform: scale(1.05) rotate(-3deg);
+        filter: brightness(1.5);
+    }
+    75% { 
+        transform: scale(1.1) rotate(3deg);
+        filter: brightness(1.2);
+    }
+}
+
+/* AI Pulse Indicator */
+.ai-pulse-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #00ff88, #00cc70);
+    position: relative;
+    animation: aiPulse 2s ease-in-out infinite;
+}
+
+.ai-pulse-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    animation: aiRipple 2s ease-out infinite;
+}
+
+@keyframes aiPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 0 8px rgba(0, 255, 136, 0);
+    }
+}
+
+@keyframes aiRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+    }
+}
+
+/* Breathing Text Animation */
+.breathing-text {
+    animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+}
+
+/* Stock Counter Animation */
+.stock-counter {
+    display: inline-block;
+    font-weight: bold;
+    color: #00ff88;
+    animation: counterGlow 4s ease-in-out infinite;
+}
+
+@keyframes counterGlow {
+    0%, 100% {
+        text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+    }
+}
+
+/* Badge Pulse Animation */
 .badge {
     font-size: 0.7rem;
+    animation: badgePulse 3s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Ripple Effect for Interactive Elements */
+.ripple-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::after {
+    width: 300px;
+    height: 300px;
 }
 
 @media (max-width: 768px) {
@@ -220,5 +444,149 @@
         height: auto;
         position: relative;
     }
+}
+</style>
+<script>
+// Enhanced Sidebar Micro-Animations
+document.addEventListener('DOMContentLoaded', function() {
+    // Add ripple effect to navigation links
+    const navLinks = document.querySelectorAll('.sidebar .nav-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+        
+        // Enhanced hover effects
+        link.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('i');
+            if (icon && !this.classList.contains('active')) {
+                icon.style.transform = 'rotate(10deg) scale(1.2)';
+            }
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('i');
+            if (icon && !this.classList.contains('active')) {
+                icon.style.transform = 'rotate(0deg) scale(1)';
+            }
+        });
+    });
+    
+    // Animate stock counter
+    const stockCounter = document.querySelector('.stock-counter');
+    if (stockCounter) {
+        let count = 245;
+        let isAnimating = false;
+        
+        setInterval(() => {
+            if (!isAnimating) {
+                isAnimating = true;
+                count += Math.floor(Math.random() * 3) - 1; // Random change -1 to +1
+                if (count < 200) count = 200;
+                if (count > 300) count = 300;
+                
+                stockCounter.style.transform = 'scale(1.2)';
+                stockCounter.textContent = count;
+                
+                setTimeout(() => {
+                    stockCounter.style.transform = 'scale(1)';
+                    isAnimating = false;
+                }, 300);
+            }
+        }, 5000);
+    }
+    
+    // Staggered animation for sidebar sections
+    const sections = document.querySelectorAll('.sidebar-section');
+    sections.forEach((section, index) => {
+        section.style.animationDelay = `${0.1 * (index + 1)}s`;
+        section.classList.add('animate-in');
+    });
+    
+    // Interactive broker status indicators
+    const brokerStatus = document.querySelectorAll('.badge');
+    brokerStatus.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1) rotate(2deg)';
+        });
+        
+        badge.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1) rotate(0deg)';
+        });
+    });
+});
+</script>
+
+<style>
+/* Additional CSS for JavaScript enhancements */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple-animation 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.animate-in {
+    animation-fill-mode: both;
+}
+
+/* Performance optimizations */
+.sidebar * {
+    will-change: transform;
+}
+
+.nav-link i {
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Reduce animations on mobile for better performance */
+@media (max-width: 768px) {
+    .sidebar .nav-link:hover {
+        transform: none;
+    }
+    
+    .sparkle-icon,
+    .ai-pulse-indicator,
+    .breathing-text,
+    .stock-counter {
+        animation: none;
+    }
+}
+
+/* Focus states for accessibility */
+.sidebar .nav-link:focus {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.sidebar .nav-link:focus:not(:focus-visible) {
+    outline: none;
 }
 </style>
