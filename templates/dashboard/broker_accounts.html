@@ -1,36 +1,19 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}Broker Management - tCapital{% endblock %}
+{% block dashboard_title %}Broker Management{% endblock %}
+{% block dashboard_subtitle %}Connect and manage your trading accounts across multiple brokers{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-    <div class="container-fluid">
-        <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
-        </div>
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
+        <i class="fas fa-plus me-1"></i>
+        Add Broker
+    </button>
+</div>
+{% endblock %}
 
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="dashboard-heading"><i class="fas fa-university me-2"></i>Broker Management</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-                            <i class="fas fa-plus me-1"></i>Add Broker
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Connected Brokers Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h5 class="mb-3">Connected Brokers</h5>
-                </div>
-            </div>
+{% block dashboard_content %}
 
 <!-- Broker Accounts Grid -->
 <div class="row">
@@ -584,10 +567,5 @@ function removeAccount(accountId) {
     font-size: 0.875rem;
 }
 </style>
-
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock %}

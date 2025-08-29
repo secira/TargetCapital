@@ -1,29 +1,21 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}Account Handling - tCapital Dashboard{% endblock %}
+{% block dashboard_title %}Account Handling{% endblock %}
+{% block dashboard_subtitle %}Manage your portfolio accounts and investment strategies{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-    <!-- Mobile-optimized sidebar -->
-    <div class="dashboard-sidebar" id="dashboardSidebar">
-        {% include 'dashboard/sidebar.html' %}
-    </div>
-    
-    <!-- Main content with mobile-first design -->
-    <div class="dashboard-main">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2"><i class="fas fa-user-cog me-2"></i>Account Handling</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportAccountData()">
-                            <i class="fas fa-download me-1"></i>Export Data
-                        </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshData()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
-                </div>
-            </div>
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportAccountData()">
+        <i class="fas fa-download me-1"></i>Export Data
+    </button>
+    <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshData()">
+        <i class="fas fa-sync-alt me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
 
             <!-- Capital Investment Overview -->
             <div class="grid-responsive mb-4">

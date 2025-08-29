@@ -1,26 +1,18 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}Stock Picker - tCapital Dashboard{% endblock %}
+{% block dashboard_title %}AI Stock Picker{% endblock %}
+{% block dashboard_subtitle %}AI-powered stock recommendations and market research{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-    <!-- Mobile-optimized sidebar -->
-    <div class="dashboard-sidebar" id="dashboardSidebar">
-        {% include 'dashboard/sidebar.html' %}
-    </div>
-    
-    <!-- Main content with mobile-first design -->
-    <div class="dashboard-main">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="dashboard-heading"><i class="fas fa-search me-2"></i>AI Stock Picker</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="generateAIRecommendations()">
-                            <i class="fas fa-robot me-1"></i>Generate AI Picks
-                        </button>
-                    </div>
-                </div>
-            </div>
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-primary btn-sm" onclick="generateAIRecommendations()">
+        <i class="fas fa-robot me-1"></i>Generate AI Picks
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
 
             <!-- AI Research Controls -->
             <div class="grid-responsive mb-4">

@@ -1,30 +1,21 @@
-{% extends "base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}{{ stock_symbol }} - Detailed Stock Analysis - tCapital{% endblock %}
+{% block dashboard_title %}{{ stock_symbol }} - Detailed Analysis{% endblock %}
+{% block dashboard_subtitle %}Comprehensive analysis and insights for your selected stock{% endblock %}
 
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 px-0">
-            {% include 'dashboard/sidebar.html' %}
-        </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">{{ stock_symbol }} - Detailed Analysis</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <a href="{{ url_for('dashboard_stock_picker') }}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i>Back to Stock Picker
-                        </a>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="refreshAnalysis()">
-                            <i class="fas fa-sync me-1"></i>Refresh Analysis
-                        </button>
-                    </div>
-                </div>
-            </div>
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <a href="{{ url_for('dashboard_stock_picker') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-1"></i>Back to Stock Picker
+    </a>
+    <button type="button" class="btn btn-primary btn-sm" onclick="refreshAnalysis()">
+        <i class="fas fa-sync me-1"></i>Refresh Analysis
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
 
             <!-- Stock Header Card -->
             <div class="row mb-4">
