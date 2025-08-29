@@ -129,9 +129,13 @@ class OnboardingProgressTracker {
             this.saveProgress();
         }
 
-        // Track first visit
+        // Track first visit silently without triggering popups
         if (!this.milestones.first_visit.completed) {
-            this.completeMilestone('first_visit');
+            this.milestones.first_visit.completed = true;
+            this.userProgress.totalPoints += this.milestones.first_visit.points;
+            this.updateLevel();
+            this.saveProgress();
+            // Don't show achievement notification for first visit to avoid annoyance
         }
     }
 
@@ -237,7 +241,14 @@ class OnboardingProgressTracker {
     }
 
     showAchievement(milestone) {
-        // Create achievement notification
+        // Only show achievement notifications for significant milestones to avoid annoyance
+        const significantMilestones = ['onboarding_completed', 'broker_connected', 'learning_streak_7'];
+        
+        if (!significantMilestones.includes(milestone.name.toLowerCase().replace(' ', '_'))) {
+            return; // Skip showing notification for minor achievements
+        }
+        
+        // Create achievement notification for significant milestones only
         const achievementHTML = `
             <div class="achievement-notification" id="achievement-${Date.now()}">
                 <div class="achievement-content">
@@ -265,29 +276,9 @@ class OnboardingProgressTracker {
     }
 
     showLevelUp(newLevel) {
-        const levelUpHTML = `
-            <div class="level-up-notification" id="levelup-${Date.now()}">
-                <div class="level-up-content">
-                    <div class="level-up-icon">🎉</div>
-                    <div class="level-up-details">
-                        <h3>Level Up!</h3>
-                        <h4>You're now Level ${newLevel}</h4>
-                        <p>Your trading knowledge is growing!</p>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', levelUpHTML);
-        
-        const notification = document.querySelector(`#levelup-${Date.now()}`);
-        if (notification) {
-            setTimeout(() => notification.classList.add('show'), 100);
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 500);
-            }, 5000);
-        }
+        // Disable level up notifications to avoid annoying users
+        // Level changes are tracked silently in the background
+        return;
     }
 
     getProgressSummary() {

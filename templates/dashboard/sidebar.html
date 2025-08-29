@@ -34,8 +34,8 @@
 
                 <!-- AI Advisor -->
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_ai_advisor' else '' }}" 
-                       href="{{ url_for('dashboard_ai_advisor') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'ai_advisor' else '' }}" 
+                       href="{{ url_for('ai_advisor') }}">
                         <i class="nav-icon fas fa-robot"></i>
                         <span class="nav-text">AI Advisor</span>
                     </a>
@@ -43,8 +43,8 @@
 
                 <!-- Stock Picker -->
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_stock_picker' else '' }}" 
-                       href="{{ url_for('dashboard_stock_picker') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'stock_picker' else '' }}" 
+                       href="{{ url_for('stock_picker') }}">
                         <i class="nav-icon fas fa-bullseye"></i>
                         <span class="nav-text">Stock Picker</span>
                     </a>
@@ -52,8 +52,8 @@
 
                 <!-- NSE India Stocks -->
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_nse_stocks' else '' }}" 
-                       href="{{ url_for('dashboard_nse_stocks') }}">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'nse_stocks' else '' }}" 
+                       href="{{ url_for('nse_stocks') }}">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <span class="nav-text">NSE India Stocks</span>
                     </a>

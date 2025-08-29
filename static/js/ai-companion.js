@@ -189,16 +189,19 @@ class AICompanion {
     }
 
     checkFirstVisit() {
+        // Only show if user specifically requests help - don't auto-trigger
         const hasVisited = localStorage.getItem('tcapital_onboarding_completed');
-        if (!hasVisited) {
+        const userRequestedHelp = sessionStorage.getItem('tcapital_request_help');
+        
+        if (!hasVisited && userRequestedHelp === 'true') {
             setTimeout(() => {
                 this.show();
                 this.startOnboarding();
+                sessionStorage.removeItem('tcapital_request_help');
             }, 1000);
         } else {
-            // Show mascot but hide initially
-            this.mascotElement.style.transform = 'translateY(100px)';
-            this.mascotElement.style.opacity = '0.7';
+            // Hide completely by default - don't annoy users with popups
+            this.hide();
         }
     }
 
