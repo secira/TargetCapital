@@ -38,4 +38,3 @@ localPort = 8001
 externalPort = 3000
 
 [agent]
-integrations = ["web_scraper==1.0.0", "perplexity_v0==1.0.0", "flask_google_oauth==1.0.0", "python_openai==1.0.0", "python_sendgrid==1.0.0", "python_log_in_with_replit==1.0.0", "python_database==1.0.0"]
