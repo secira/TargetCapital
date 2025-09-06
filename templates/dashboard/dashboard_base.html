@@ -418,6 +418,38 @@ function markSignalsRead() {
         window.signalManager.markSignalsRead();
     }
 }
+
+// Demo function to test the non-intrusive signal system
+function demoSignalNotification() {
+    if (window.signalManager) {
+        const demoSignal = {
+            symbol: 'RELIANCE',
+            action: 'BUY',
+            confidence: 85,
+            entry_price: '2450.00',
+            target_price: '2600.00',
+            timestamp: new Date().toISOString()
+        };
+        window.signalManager.handleNewSignal(demoSignal);
+    }
+}
+
+// Add demo button only in development - remove in production
+if (window.location.hostname === 'localhost' || window.location.hostname.includes('replit')) {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions) {
+                const demoBtn = document.createElement('button');
+                demoBtn.className = 'btn btn-sm btn-outline-secondary ms-2';
+                demoBtn.innerHTML = '<i class="fas fa-flask me-1"></i>Demo Signal';
+                demoBtn.onclick = demoSignalNotification;
+                demoBtn.title = 'Test the non-intrusive signal display';
+                headerActions.appendChild(demoBtn);
+            }
+        }, 1000);
+    });
+}
 </script>
 
 <style>
