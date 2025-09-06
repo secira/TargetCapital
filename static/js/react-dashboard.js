@@ -376,13 +376,13 @@ class DashboardApp {
         
         this.setState({ tradingSignals: signals });
         
-        // Show notification for high-confidence signals
-        if (signal.confidence > 80) {
-            this.addNotification(
-                `🤖 High-confidence signal: ${signal.action} ${signal.symbol}`,
-                'warning'
-            );
-        }
+        // Disabled annoying high-confidence signal notifications
+        // if (signal.confidence > 80) {
+        //     this.addNotification(
+        //         `🤖 High-confidence signal: ${signal.action} ${signal.symbol}`,
+        //         'warning'
+        //     );
+        // }
     }
     
     addNotification(message, type = 'info', duration = 5000) {
