@@ -165,14 +165,14 @@ class RazorpayService:
             },
             'TRADER': {
                 'name': 'Trader Plan',
-                'price': 1499,
+                'price': 1999,
                 'duration_days': 30,
                 'features': ['Advanced charts', 'Real-time data', 'Trading signals', 'Single broker integration', 'Trade execution', 'Basic AI advisor'],
                 'limits': {'portfolios': 3, 'watchlist': 50, 'ai_queries': 100, 'brokers': 1}
             },
             'TRADER_PLUS': {
                 'name': 'Trader Plus Plan',
-                'price': 2499,
+                'price': 2999,
                 'duration_days': 30,
                 'features': ['All Trader features', 'Multiple broker integration', 'Advanced AI insights', 'Portfolio optimization'],
                 'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': -1}

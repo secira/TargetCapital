@@ -137,8 +137,8 @@ class DashboardLayout {
 // Upgrade Alert Function
 function showUpgradeAlert(requiredPlan = 'Trader') {
     const messages = {
-        'Trader': 'Upgrade to Trader plan (₹1,499/month) to access this feature.',
-        'Trader Plus': 'Upgrade to Trader Plus plan (₹2,499/month) to access this feature.'
+        'Trader': 'Upgrade to Trader plan (₹1,999/month) to access this feature.',
+        'Trader Plus': 'Upgrade to Trader Plus plan (₹2,999/month) to access this feature.'
     };
     
     document.getElementById('upgradeMessage').textContent = messages[requiredPlan] || messages['Trader'];

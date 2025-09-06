@@ -174,8 +174,8 @@ class User(UserMixin, db.Model):
         """Get monthly price for the current plan"""
         prices = {
             PricingPlan.FREE: 0,
-            PricingPlan.TRADER: 1499,
-            PricingPlan.TRADER_PLUS: 2499,
+            PricingPlan.TRADER: 1999,
+            PricingPlan.TRADER_PLUS: 2999,
             PricingPlan.PREMIUM: "Contact Us"
         }
         return prices.get(self.pricing_plan, 0)
