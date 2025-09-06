@@ -48,6 +48,37 @@
 
     <!-- Mobile Sidebar Overlay -->
     <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
+    
+    <!-- Non-intrusive Signal Panel -->
+    <div class="signal-panel" id="signalPanel" style="display: none;">
+        <div class="signal-panel-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-line text-success me-2"></i>
+                    High-Confidence Signals
+                </h6>
+                <button class="btn btn-sm btn-link text-muted" onclick="toggleSignalPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="signal-panel-content" id="signalPanelContent">
+            <div class="text-center text-muted py-3">
+                <i class="fas fa-signal fa-2x mb-2"></i>
+                <p>No new high-confidence signals</p>
+            </div>
+        </div>
+        <div class="signal-panel-footer">
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('dashboard_trading_signals') }}" class="btn btn-sm btn-outline-primary flex-fill">
+                    <i class="fas fa-list me-1"></i>View All Signals
+                </a>
+                <button class="btn btn-sm btn-outline-secondary" onclick="markSignalsRead()">
+                    <i class="fas fa-check me-1"></i>Mark Read
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Upgrade Alert Modal -->
@@ -94,6 +125,26 @@ class DashboardLayout {
         if (this.menuToggle) {
             this.menuToggle.addEventListener('click', () => this.toggleMobileSidebar());
         }
+        
+        // Click outside signal panel to close it
+        document.addEventListener('click', (e) => {
+            const signalPanel = document.getElementById('signalPanel');
+            const signalIndicator = document.getElementById('signalIndicator');
+            
+            if (signalPanel && signalPanel.style.display !== 'none' && 
+                !signalPanel.contains(e.target) && 
+                !signalIndicator.contains(e.target)) {
+                this.hideSignalPanel();
+            }
+        });
+    }
+    
+    hideSignalPanel() {
+        const panel = document.getElementById('signalPanel');
+        if (panel) {
+            panel.style.display = 'none';
+        }
+    }
 
         // Overlay click to close
         if (this.overlay) {
