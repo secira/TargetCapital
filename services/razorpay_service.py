@@ -52,7 +52,7 @@ class RazorpayService:
                 }
             }
             
-            order = self.client.order.create(data=order_data)
+            order = self.client.order.create(order_data)
             
             return {
                 'success': True,
