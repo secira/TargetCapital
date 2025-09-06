@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block dashboard_content %}
+<div class="trade-now-page">
 
 <!-- Broker Connection Status -->
 <div class="grid-responsive mb-4">
@@ -34,9 +35,9 @@
 </div>
 
 <!-- Trade Recommendation Engine -->
-<div class="grid-responsive mb-4">
-    <div class="grid-item primary-content">
-        <div class="card border-0 shadow-sm">
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
                     <i class="fas fa-robot me-2"></i>AI Trade Recommendation Engine
@@ -155,7 +156,7 @@
     
     <!-- Strategy Information Panel -->
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white">
                 <h6 class="fw-bold mb-0">
                     <i class="fas fa-info-circle me-2"></i>Strategy Information
@@ -174,9 +175,9 @@
 </div>
 
 <!-- Active Trades & Recommendations -->
-<div class="row">
+<div class="row mb-4">
     <!-- Active Trades -->
-    <div class="col-lg-6 mb-4">
+    <div class="col-xl-6 col-lg-12 mb-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h6 class="fw-bold mb-0">
@@ -189,8 +190,8 @@
             </div>
             <div class="card-body">
                 {% if user_trades.active_trades %}
-                <div class="table-responsive" style="max-width: 100vw; min-height: 300px;">
-                    <table class="table table-hover table-sm" style="min-width: 600px; width: auto;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
                         <thead class="table-light">
                             <tr>
                                 <th>Symbol</th>
@@ -234,7 +235,7 @@
     </div>
     
     <!-- Pending Recommendations -->
-    <div class="col-lg-6 mb-4">
+    <div class="col-xl-6 col-lg-12 mb-4">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white">
                 <h6 class="fw-bold mb-0">
@@ -244,8 +245,8 @@
             </div>
             <div class="card-body">
                 {% if user_trades.recommendations %}
-                <div class="table-responsive" style="max-width: 100vw; min-height: 300px;">
-                    <table class="table table-hover table-sm" style="min-width: 600px; width: auto;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
                         <thead class="table-light">
                             <tr>
                                 <th>Symbol</th>
@@ -686,4 +687,5 @@ function refreshTrades() {
 }
 </style>
 
+</div> <!-- Close trade-now-page div -->
 {% endblock %}

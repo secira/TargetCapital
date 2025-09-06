@@ -232,6 +232,45 @@
     flex: 1;
     padding: 32px;
     overflow-x: hidden;
+    width: 100%;
+    max-width: none;
+}
+
+/* Trade Now Page - Full Width Layout */
+.trade-now-page .dashboard-content {
+    padding: 20px;
+}
+
+.trade-now-page .container-fluid {
+    max-width: none;
+    padding: 0;
+}
+
+.trade-now-page .card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.trade-now-page .table-responsive {
+    border-radius: 8px;
+}
+
+/* Ensure full width utilization */
+@media (min-width: 1400px) {
+    .trade-now-page .col-xl-6 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    
+    .trade-now-page .col-lg-8 {
+        flex: 0 0 auto;
+        width: 75%;
+    }
+    
+    .trade-now-page .col-lg-4 {
+        flex: 0 0 auto;
+        width: 25%;
+    }
 }
 
 .content-container {
