@@ -55,7 +55,7 @@ Complete Trading Signal System with Admin Module and WhatsApp/Telegram Integrati
 Comprehensive Broker Management System Fully Fixed and Operational: Fixed database model compatibility, encryption key management, foreign key constraints, and API integration for seamless broker account addition with all 12 brokers supported
 Unified Portfolio Analyzer System Implemented: Complete AI-powered portfolio analysis with multi-broker data syncing, manual holdings upload, risk profiling questionnaire, comprehensive portfolio health scoring, sector/asset allocation analysis, risk metrics calculation, AI-driven recommendations, and rebalancing suggestions
 Razorpay Payment System Integration: Complete payment processing with subscription management, secure checkout flow, payment verification, success/failure handling, billing history, admin panel, and webhook support. Pricing updated to Trader ₹1,999, Trader Plus ₹2,999, Premium ₹4,999
-Updated Subscription Model: Trader users now have access to Trade Now page and single broker integration; Trader Plus supports multiple brokers; pricing structure optimized for user growth path
+Updated Subscription Model: Trader users can connect 1 broker with full trade execution; Trader Plus supports up to 3 brokers with advanced features; pricing structure optimized for user growth path
 
 ## System Architecture
 ### Production Backend Architecture

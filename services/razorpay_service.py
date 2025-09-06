@@ -161,7 +161,7 @@ class RazorpayService:
                 'price': 0,
                 'duration_days': 0,
                 'features': ['Basic portfolio tracking', 'Limited market data', 'Basic AI insights'],
-                'limits': {'portfolios': 1, 'watchlist': 10, 'ai_queries': 5}
+                'limits': {'portfolios': 1, 'watchlist': 10, 'ai_queries': 5, 'brokers': 0}
             },
             'TRADER': {
                 'name': 'Trader Plan',
@@ -175,14 +175,14 @@ class RazorpayService:
                 'price': 2999,
                 'duration_days': 30,
                 'features': ['All Trader features', 'Multiple broker integration', 'Advanced AI insights', 'Portfolio optimization'],
-                'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': -1}
+                'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}
             },
             'PREMIUM': {
                 'name': 'Premium Plan',
                 'price': 4999,
                 'duration_days': 30,
                 'features': ['All features', 'Priority support', 'Custom strategies', 'Unlimited access'],
-                'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1}  # -1 means unlimited
+                'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': -1}  # -1 means unlimited
             }
         }
     
