@@ -376,13 +376,10 @@ class DashboardApp {
         
         this.setState({ tradingSignals: signals });
         
-        // Disabled annoying high-confidence signal notifications
-        // if (signal.confidence > 80) {
-        //     this.addNotification(
-        //         `🤖 High-confidence signal: ${signal.action} ${signal.symbol}`,
-        //         'warning'
-        //     );
-        // }
+        // Send to non-intrusive signal manager instead of popup
+        if (signal.confidence >= 80 && window.signalManager) {
+            window.signalManager.handleNewSignal(signal);
+        }
     }
     
     addNotification(message, type = 'info', duration = 5000) {

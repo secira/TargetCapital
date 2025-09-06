@@ -212,7 +212,212 @@ function showUpgradeAlert(requiredPlan = 'Trader') {
 // Initialize Dashboard Layout
 document.addEventListener('DOMContentLoaded', () => {
     window.dashboardLayout = new DashboardLayout();
+    window.signalManager = new SignalManager();
 });
+
+// Non-intrusive Signal Management
+class SignalManager {
+    constructor() {
+        this.highConfidenceSignals = [];
+        this.isSignalPanelVisible = false;
+        this.init();
+    }
+    
+    init() {
+        this.bindSignalEvents();
+        this.checkForSignals();
+    }
+    
+    bindSignalEvents() {
+        // Listen for new trading signals from dashboard app
+        if (typeof window.dashboardApp !== 'undefined' && window.dashboardApp.on) {
+            window.dashboardApp.on('tradingSignal', (signal) => {
+                this.handleNewSignal(signal);
+            });
+        }
+        
+        // Listen for signals from react-dashboard if available
+        if (typeof window.ReactDashboard !== 'undefined') {
+            const reactDashboard = window.ReactDashboard;
+            if (reactDashboard && reactDashboard.on) {
+                reactDashboard.on('tradingSignal', (signal) => {
+                    this.handleNewSignal(signal);
+                });
+            }
+        }
+    }
+    
+    handleNewSignal(signal) {
+        // Only show high-confidence signals (80%+) in the non-intrusive display
+        if (signal && signal.confidence >= 80) {
+            // Add timestamp if not present
+            if (!signal.timestamp) {
+                signal.timestamp = new Date().toISOString();
+            }
+            
+            this.highConfidenceSignals.unshift(signal);
+            
+            // Keep only the latest 10 high-confidence signals
+            if (this.highConfidenceSignals.length > 10) {
+                this.highConfidenceSignals.splice(10);
+            }
+            
+            this.updateSignalIndicator();
+            this.addSubtleVisualCue();
+        }
+    }
+    
+    updateSignalIndicator() {
+        const indicator = document.getElementById('signalIndicator');
+        const badge = document.getElementById('signalBadge');
+        const countSpan = indicator?.querySelector('.signal-count');
+        
+        if (this.highConfidenceSignals.length > 0) {
+            if (indicator) {
+                indicator.style.display = 'block';
+                indicator.classList.add('has-new-signals');
+            }
+            if (badge) {
+                badge.textContent = this.highConfidenceSignals.length;
+            }
+            if (countSpan) {
+                countSpan.textContent = this.highConfidenceSignals.length;
+            }
+        } else {
+            if (indicator) {
+                indicator.style.display = 'none';
+                indicator.classList.remove('has-new-signals');
+            }
+        }
+    }
+    
+    addSubtleVisualCue() {
+        const indicator = document.getElementById('signalIndicator');
+        if (indicator) {
+            indicator.classList.add('has-new-signals');
+            
+            // Optional very subtle sound
+            this.playSubtleNotificationSound();
+        }
+    }
+    
+    playSubtleNotificationSound() {
+        try {
+            // Only play if user has interacted with page (browser requirement)
+            if (document.visibilityState === 'visible') {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Very gentle, low-volume notification (barely audible)
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.02, audioContext.currentTime); // Extremely quiet
+                gainNode.gain.exponentialRampToValueAtTime(0.005, audioContext.currentTime + 0.1);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.1);
+            }
+        } catch (error) {
+            // Silently fail if audio context is not supported
+        }
+    }
+    
+    renderSignalPanelContent() {
+        const content = document.getElementById('signalPanelContent');
+        if (!content) return;
+        
+        if (this.highConfidenceSignals.length === 0) {
+            content.innerHTML = '<div class="text-center text-muted py-3"><i class="fas fa-signal fa-2x mb-2"></i><p>No new high-confidence signals</p></div>';
+            return;
+        }
+        
+        const signalsHtml = this.highConfidenceSignals.map(signal => {
+            const actionClass = signal.action === 'BUY' ? 'success' : signal.action === 'SELL' ? 'danger' : 'secondary';
+            return '<div class="signal-item">' +
+                '<div class="d-flex justify-content-between align-items-start mb-2">' +
+                '<div>' +
+                '<strong class="text-dark">' + signal.symbol + '</strong>' +
+                '<span class="badge bg-' + actionClass + ' ms-2">' + signal.action + '</span>' +
+                '</div>' +
+                '<div class="text-end">' +
+                '<div class="signal-confidence high">' + Math.round(signal.confidence) + '%</div>' +
+                '<div class="signal-meta">' + this.formatTimeAgo(signal.timestamp) + '</div>' +
+                '</div>' +
+                '</div>' +
+                '<div class="signal-meta">' +
+                (signal.entry_price ? 'Entry: ₹' + signal.entry_price : '') +
+                (signal.target_price ? ' • Target: ₹' + signal.target_price : '') +
+                '</div>' +
+                '</div>';
+        }).join('');
+        
+        content.innerHTML = signalsHtml;
+    }
+    
+    formatTimeAgo(timestamp) {
+        const now = new Date();
+        const diff = now - new Date(timestamp);
+        const minutes = Math.floor(diff / 60000);
+        
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return minutes + 'm ago';
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return hours + 'h ago';
+        
+        const days = Math.floor(hours / 24);
+        return days + 'd ago';
+    }
+    
+    markSignalsRead() {
+        this.highConfidenceSignals = [];
+        this.updateSignalIndicator();
+        this.hideSignalPanel();
+    }
+    
+    checkForSignals() {
+        // Initialize with empty state - signals will come from WebSocket or API
+        this.updateSignalIndicator();
+    }
+    
+    showSignalPanel() {
+        const panel = document.getElementById('signalPanel');
+        if (panel) {
+            this.renderSignalPanelContent();
+            panel.style.display = 'block';
+            this.isSignalPanelVisible = true;
+        }
+    }
+    
+    hideSignalPanel() {
+        const panel = document.getElementById('signalPanel');
+        if (panel) {
+            panel.style.display = 'none';
+            this.isSignalPanelVisible = false;
+        }
+    }
+}
+
+// Global functions for onclick handlers
+function toggleSignalPanel() {
+    if (window.signalManager) {
+        if (window.signalManager.isSignalPanelVisible) {
+            window.signalManager.hideSignalPanel();
+        } else {
+            window.signalManager.showSignalPanel();
+        }
+    }
+}
+
+function markSignalsRead() {
+    if (window.signalManager) {
+        window.signalManager.markSignalsRead();
+    }
+}
 </script>
 
 <style>
