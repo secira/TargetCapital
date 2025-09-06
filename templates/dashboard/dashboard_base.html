@@ -22,6 +22,17 @@
                     <p class="header-subtitle">{% block dashboard_subtitle %}Your personalized AI-powered trading dashboard{% endblock %}</p>
                 </div>
                 <div class="header-actions">
+                    <!-- Subtle Signal Indicator -->
+                    <div class="signal-indicator" id="signalIndicator" style="display: none;">
+                        <button class="btn btn-sm btn-outline-success position-relative" onclick="toggleSignalPanel()" title="New high-confidence signals available">
+                            <i class="fas fa-signal me-1"></i>
+                            <span class="signal-count">0</span>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="signalBadge">
+                                0
+                                <span class="visually-hidden">new signals</span>
+                            </span>
+                        </button>
+                    </div>
                     {% block dashboard_toolbar %}{% endblock %}
                 </div>
             </div>
