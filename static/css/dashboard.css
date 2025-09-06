@@ -191,6 +191,42 @@
     }
 }
 
+/* Responsive design for signal panel */
+@media (max-width: 767.98px) {
+    .signal-panel {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        top: 70px;
+    }
+    
+    .signal-indicator .btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+    
+    .signal-indicator .signal-count {
+        display: none; /* Hide text on mobile, show only badge */
+    }
+}
+
+@media (max-width: 575.98px) {
+    .signal-panel {
+        right: 5px;
+        left: 5px;
+        top: 65px;
+        max-height: 400px;
+    }
+    
+    .signal-item {
+        padding: 10px 12px;
+    }
+    
+    .signal-meta {
+        font-size: 11px;
+    }
+}
+
 /* Dashboard Content */
 .dashboard-content {
     flex: 1;
