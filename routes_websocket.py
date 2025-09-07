@@ -152,7 +152,7 @@ def get_trading_signals():
     try:
         # Get recent trading signals
         signals = TradingSignal.query.filter_by(
-            is_active=True
+            status='ACTIVE'
         ).order_by(
             TradingSignal.created_at.desc()
         ).limit(20).all()
