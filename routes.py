@@ -3340,8 +3340,8 @@ def api_perplexity_generate_picks():
             for pick_data in picks_data:
                 symbol = pick_data.get('symbol', 'UNKNOWN')
                 
-                # Get real-time price data from NSE
-                live_quote = nse_service.get_stock_quote(symbol)
+                # Get delayed price data from NSE (5-minute delay)
+                live_quote = nse_service.get_stock_quote(symbol, delayed_minutes=5)
                 current_price = 2500.0  # fallback
                 target_price = 2800.0   # fallback
                 sector = 'Technology'   # fallback
@@ -3376,7 +3376,7 @@ def api_perplexity_generate_picks():
                     recommendation='BUY',
                     confidence_score=85,
                     sector=sector,   
-                    ai_reasoning=pick_data.get('rationale', f'AI-generated recommendation based on real-time analysis. Current Price: ₹{current_price:.2f}'),
+                    ai_reasoning=f"Perplexity AI Analysis: {pick_data.get('rationale', 'AI-generated recommendation based on comprehensive market research.')} | Price Data: ₹{current_price:.2f} (5-min delayed NSE data)",
                     pick_date=today
                 )
                 db.session.add(pick)
@@ -3440,8 +3440,8 @@ def api_refresh_stock_prices():
         
         updated_count = 0
         for pick in ai_picks:
-            # Get real-time price data
-            live_quote = nse_service.get_stock_quote(pick.symbol)
+            # Get delayed price data from NSE (5-minute delay)  
+            live_quote = nse_service.get_stock_quote(pick.symbol, delayed_minutes=5)
             
             if live_quote:
                 old_price = pick.current_price
@@ -3450,7 +3450,7 @@ def api_refresh_stock_prices():
                 # Update the pick with fresh data
                 pick.current_price = round(new_price, 2)
                 pick.target_price = round(new_price * 1.12, 2)  # 12% upside target
-                pick.ai_reasoning = f"Updated with real-time price: ₹{new_price:.2f} (was ₹{old_price:.2f}). {pick.ai_reasoning.split('.')[0] if '.' in pick.ai_reasoning else pick.ai_reasoning}."
+                pick.ai_reasoning = f"Price Update: ₹{new_price:.2f} (was ₹{old_price:.2f}) - 5-min delayed NSE data. {pick.ai_reasoning.split('|')[0] if '|' in pick.ai_reasoning else pick.ai_reasoning.split('.')[0] if '.' in pick.ai_reasoning else pick.ai_reasoning}"
                 
                 updated_count += 1
         

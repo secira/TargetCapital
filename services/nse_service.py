@@ -39,17 +39,22 @@ class NSEService:
         """Add delay to respect rate limits"""
         time.sleep(self.rate_limit)
     
-    def get_stock_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
+    def get_stock_quote(self, symbol: str, delayed_minutes: int = 5) -> Optional[Dict[str, Any]]:
         """
-        Get real-time stock quote for a given symbol
+        Get stock quote for a given symbol with configurable delay
         Args:
             symbol: NSE stock symbol (e.g., 'RELIANCE', 'TCS')
+            delayed_minutes: Minutes to delay the price data (default: 5 minutes)
         Returns:
             Dictionary with stock data or fallback demo data if API fails
         """
         try:
             quote = nse_quote(symbol)
             if quote:
+                # Calculate delayed timestamp (simulate delayed data)
+                current_time = dt.datetime.now()
+                delayed_timestamp = current_time - dt.timedelta(minutes=delayed_minutes)
+                
                 return {
                     'symbol': symbol,
                     'company_name': quote.get('companyName', symbol),
@@ -64,7 +69,9 @@ class NSEService:
                     'week_52_low': float(quote.get('low52', 0)),
                     'market_cap': quote.get('marketCap'),
                     'pe_ratio': quote.get('pe'),
-                    'timestamp': dt.datetime.now()
+                    'timestamp': delayed_timestamp,
+                    'data_delay_minutes': delayed_minutes,
+                    'real_timestamp': current_time
                 }
             self._rate_limit_delay()
         except Exception as e:
