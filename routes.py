@@ -3334,16 +3334,49 @@ def api_perplexity_generate_picks():
                     {'symbol': 'ICICIBANK', 'company_name': 'ICICI Bank', 'rationale': 'Financial services'}
                 ]
             
+            # Initialize NSE service for real-time prices
+            from services.nse_service import nse_service
+            
             for pick_data in picks_data:
+                symbol = pick_data.get('symbol', 'UNKNOWN')
+                
+                # Get real-time price data from NSE
+                live_quote = nse_service.get_stock_quote(symbol)
+                current_price = 2500.0  # fallback
+                target_price = 2800.0   # fallback
+                sector = 'Technology'   # fallback
+                
+                if live_quote:
+                    current_price = live_quote.get('current_price', 2500.0)
+                    # Calculate target price as 12% above current price
+                    target_price = current_price * 1.12
+                    
+                    # Get sector info if available
+                    company_name = live_quote.get('company_name', pick_data.get('company_name', 'Unknown Company'))
+                    
+                    # Simple sector classification based on symbol
+                    if symbol in ['TCS', 'INFY', 'WIPRO', 'HCLTECH', 'TECHM']:
+                        sector = 'Information Technology'
+                    elif symbol in ['RELIANCE', 'ONGC', 'IOC', 'BPCL']:
+                        sector = 'Energy'
+                    elif symbol in ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK']:
+                        sector = 'Banking'
+                    elif symbol in ['ITC', 'HINDUNILVR', 'NESTLEIND', 'BRITANNIA']:
+                        sector = 'Consumer Goods'
+                    else:
+                        sector = 'Diversified'
+                else:
+                    company_name = pick_data.get('company_name', 'Unknown Company')
+                
                 pick = AIStockPick(
-                    symbol=pick_data.get('symbol', 'UNKNOWN'),
-                    company_name=pick_data.get('company_name', 'Unknown Company'),
-                    current_price=2500.0,  # Sample price
-                    target_price=2800.0,   # Sample target
+                    symbol=symbol,
+                    company_name=company_name,
+                    current_price=round(current_price, 2),
+                    target_price=round(target_price, 2),
                     recommendation='BUY',
                     confidence_score=85,
-                    sector='Technology',   
-                    ai_reasoning=pick_data.get('rationale', 'AI-generated recommendation with real-time analysis'),
+                    sector=sector,   
+                    ai_reasoning=pick_data.get('rationale', f'AI-generated recommendation based on real-time analysis. Current Price: ₹{current_price:.2f}'),
                     pick_date=today
                 )
                 db.session.add(pick)
@@ -3382,6 +3415,57 @@ def api_perplexity_market_insights():
             'timestamp': result.get('timestamp', datetime.now().isoformat()),
             'note': result.get('note', '')
         })
+
+@app.route('/api/ai/refresh-stock-prices', methods=['POST'])
+@login_required
+def api_refresh_stock_prices():
+    """Refresh AI stock picks with current market prices"""
+    try:
+        from datetime import date
+        from services.nse_service import nse_service
+        
+        # Get today's AI picks
+        today = date.today()
+        ai_picks = AIStockPick.query.filter_by(pick_date=today).all()
+        
+        if not ai_picks:
+            return jsonify({
+                'success': False,
+                'error': 'No AI picks found for today. Generate picks first.'
+            }), 404
+        
+        updated_count = 0
+        for pick in ai_picks:
+            # Get real-time price data
+            live_quote = nse_service.get_stock_quote(pick.symbol)
+            
+            if live_quote:
+                old_price = pick.current_price
+                new_price = live_quote.get('current_price', old_price)
+                
+                # Update the pick with fresh data
+                pick.current_price = round(new_price, 2)
+                pick.target_price = round(new_price * 1.12, 2)  # 12% upside target
+                pick.ai_reasoning = f"Updated with real-time price: ₹{new_price:.2f} (was ₹{old_price:.2f}). {pick.ai_reasoning.split('.')[0] if '.' in pick.ai_reasoning else pick.ai_reasoning}."
+                
+                updated_count += 1
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully updated {updated_count} AI picks with current market prices',
+            'updated_picks': updated_count,
+            'total_picks': len(ai_picks),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        logging.error(f"Error refreshing stock prices: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to refresh stock prices. Please try again.'
+        }), 500
         
     except Exception as e:
         logging.error(f"Perplexity market insights error: {str(e)}")
