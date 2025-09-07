@@ -174,7 +174,7 @@ class RazorpayService:
                 'name': 'Trader Plus Plan',
                 'price': 2999,
                 'duration_days': 30,
-                'features': ['All Trader features', 'Multiple broker integration', 'Advanced AI insights', 'Portfolio optimization'],
+                'features': ['All Trader features', 'Connect upto 3 brokers', 'Advanced AI insights', 'Portfolio optimization'],
                 'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}
             },
             'PREMIUM': {
