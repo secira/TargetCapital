@@ -157,61 +157,97 @@
             
             <div class="card-body">
                 {% if portfolio_data %}
-                <div class="table-responsive">
-                    <table class="table table-hover table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 25%;">Stock</th>
-                                <th class="d-none d-md-table-cell" style="width: 12%;">Qty</th>
-                                <th class="d-none d-lg-table-cell" style="width: 12%;">Avg</th>
-                                <th style="width: 15%;">Current</th>
-                                <th class="d-none d-md-table-cell" style="width: 15%;">Invested</th>
-                                <th style="width: 15%;">Value</th>
-                                <th style="width: 18%;">P&L</th>
-                                <th style="width: 10%;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for holding in portfolio_data %}
-                            <tr>
-                                <td>
-                                    <div class="fw-bold small">{{ holding.ticker_symbol }}</div>
-                                    <div class="text-muted" style="font-size: 0.7rem; line-height: 1;">{{ holding.stock_name[:12] }}{{ '...' if holding.stock_name|length > 12 else '' }}</div>
-                                    <div class="text-muted d-md-none" style="font-size: 0.7rem;">{{ holding.quantity }}Q</div>
-                                </td>
-                                <td class="d-none d-md-table-cell">{{ holding.quantity }}</td>
-                                <td class="d-none d-lg-table-cell">{{ "%.0f"|format(holding.purchase_price) }}</td>
-                                <td>
-                                    <div class="fw-bold small">{{ "%.0f"|format(holding.current_price or holding.purchase_price) }}</div>
-                                    <div class="text-muted d-lg-none" style="font-size: 0.7rem;">A:{{ "%.0f"|format(holding.purchase_price) }}</div>
-                                </td>
-                                <td class="d-none d-md-table-cell">{{ "%.0f"|format(holding.purchased_value) }}</td>
-                                <td>
-                                    <div class="fw-bold small">{{ "%.0f"|format(holding.current_value or holding.purchased_value) }}</div>
-                                    <div class="text-muted d-md-none" style="font-size: 0.7rem;">I:{{ "%.0f"|format(holding.purchased_value) }}</div>
-                                </td>
-                                <td>
-                                    <div class="{{ holding.get_pnl_class() }} fw-bold small">
-                                        {{ '+' if holding.pnl_amount >= 0 else '' }}{{ "%.0f"|format(holding.pnl_amount) }}
+                <!-- Mobile Card Layout -->
+                <div class="d-md-none">
+                    {% for holding in portfolio_data %}
+                    <div class="card mb-2 border-start border-3 {{ 'border-success' if holding.pnl_amount >= 0 else 'border-danger' }}">
+                        <div class="card-body py-2">
+                            <div class="row align-items-center">
+                                <div class="col-6">
+                                    <div class="fw-bold">{{ holding.ticker_symbol }}</div>
+                                    <small class="text-muted">{{ holding.quantity }} × ₹{{ "%.0f"|format(holding.current_price or holding.purchase_price) }}</small>
+                                </div>
+                                <div class="col-3 text-end">
+                                    <div class="fw-bold">₹{{ "%.0f"|format(holding.current_value or holding.purchased_value) }}</div>
+                                    <small class="text-muted">Value</small>
+                                </div>
+                                <div class="col-3 text-end">
+                                    <div class="{{ 'text-success' if holding.pnl_amount >= 0 else 'text-danger' }} fw-bold">
+                                        {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
                                     </div>
-                                    <span class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}" style="font-size: 0.65rem;">
+                                    <small class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}">
                                         {{ '+' if holding.pnl_percentage >= 0 else '' }}{{ "%.1f"|format(holding.pnl_percentage) }}%
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group-vertical" role="group">
-                                        <button class="btn btn-success btn-sm py-0 px-1" style="font-size: 0.7rem;" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'BUY', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
-                                            <i class="fas fa-plus"></i>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-12">
+                                    <div class="btn-group btn-group-sm w-100">
+                                        <button class="btn btn-outline-success" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'BUY', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                            <i class="fas fa-plus me-1"></i>Buy
                                         </button>
-                                        <button class="btn btn-danger btn-sm py-0 px-1" style="font-size: 0.7rem;" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'SELL', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
-                                            <i class="fas fa-minus"></i>
+                                        <button class="btn btn-outline-danger" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'SELL', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                            <i class="fas fa-minus me-1"></i>Sell
                                         </button>
                                     </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Desktop Table Layout -->
+                <div class="d-none d-md-block">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Stock</th>
+                                    <th>Quantity</th>
+                                    <th class="d-none d-lg-table-cell">Avg Price</th>
+                                    <th>Current</th>
+                                    <th class="d-none d-lg-table-cell">Investment</th>
+                                    <th>Value</th>
+                                    <th>P&L</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for holding in portfolio_data %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ holding.ticker_symbol }}</div>
+                                        <small class="text-muted">{{ holding.stock_name[:15] }}{{ '...' if holding.stock_name|length > 15 else '' }}</small>
+                                    </td>
+                                    <td>{{ holding.quantity }}</td>
+                                    <td class="d-none d-lg-table-cell">₹{{ "%.0f"|format(holding.purchase_price) }}</td>
+                                    <td>₹{{ "%.0f"|format(holding.current_price or holding.purchase_price) }}</td>
+                                    <td class="d-none d-lg-table-cell">₹{{ "%.0f"|format(holding.purchased_value) }}</td>
+                                    <td>₹{{ "%.0f"|format(holding.current_value or holding.purchased_value) }}</td>
+                                    <td>
+                                        <div class="{{ holding.get_pnl_class() }} fw-bold">
+                                            {{ '+' if holding.pnl_amount >= 0 else '' }}₹{{ "%.0f"|format(holding.pnl_amount) }}
+                                        </div>
+                                        <span class="badge {{ 'bg-success' if holding.pnl_percentage >= 0 else 'bg-danger' }}">
+                                            {{ '+' if holding.pnl_percentage >= 0 else '' }}{{ "%.1f"|format(holding.pnl_percentage) }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-success" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'BUY', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="tradeHolding('{{ holding.ticker_symbol }}', 'SELL', {{ holding.current_price or holding.purchase_price }}, '{{ holding.stock_name }}')">
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 {% else %}
                 <!-- Empty State -->
