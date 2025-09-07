@@ -122,6 +122,9 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><i class="fas fa-star me-2"></i>Today's Top AI Picks</h5>
                             <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshStockPrices()" title="Refresh with current market prices">
+                                    <i class="fas fa-sync-alt me-1"></i>Refresh Prices
+                                </button>
                                 <input type="date" class="form-control form-control-sm" id="picksDate" value="{{ today.strftime('%Y-%m-%d') }}" onchange="loadAIPicksForDate(this.value)">
                                 <button class="btn btn-outline-primary btn-sm" onclick="refreshAIPicks()">
                                     <i class="fas fa-sync"></i>
@@ -504,6 +507,65 @@ function formatMarkdownToHTML(markdown) {
         .replace(/\n/g, '<br>')
         .replace(/^/, '<p>')
         .replace(/$/, '</p>');
+}
+
+function refreshStockPrices() {
+    const btn = event.target.closest('button');
+    const originalContent = btn.innerHTML;
+    
+    // Update button to show loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+    
+    fetch('/api/ai/refresh-stock-prices', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            showNotification('success', `Successfully updated ${data.updated_picks} AI picks with current market prices!`);
+            
+            // Reload the page to show updated prices
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showNotification('error', data.error || 'Failed to refresh stock prices');
+        }
+    })
+    .catch(error => {
+        console.error('Error refreshing prices:', error);
+        showNotification('error', 'Network error occurred while refreshing prices');
+    })
+    .finally(() => {
+        // Restore button state
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    });
+}
+
+function showNotification(type, message) {
+    // Create and show a temporary notification
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.remove();
+        }
+    }, 5000);
 }
 </script>
 

@@ -3415,6 +3415,10 @@ def api_perplexity_market_insights():
             'timestamp': result.get('timestamp', datetime.now().isoformat()),
             'note': result.get('note', '')
         })
+        
+    except Exception as e:
+        logging.error(f"Perplexity market insights error: {str(e)}")
+        return jsonify({'success': False, 'error': 'Failed to get market insights'}), 500
 
 @app.route('/api/ai/refresh-stock-prices', methods=['POST'])
 @login_required
