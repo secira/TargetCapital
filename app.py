@@ -16,27 +16,65 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+# Use secure environment configuration
+try:
+    from security.environment_config import setup_secure_environment
+    secure_config = setup_secure_environment()
+    app.secret_key = secure_config["session_secret"]
+    logging.info("✅ Secure environment configuration loaded")
+except ImportError:
+    # Fallback for development without security module
+    app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+    if app.secret_key == "dev-secret-key-change-in-production":
+        logging.warning("⚠️ Using default development secret key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database with SSL settings for Neon
-database_url = os.environ.get("DATABASE_URL", "sqlite:///stock_trading.db")
-
-# Fix SSL issues for Neon PostgreSQL
-if database_url.startswith('postgresql://'):
-    database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
-    if 'sslmode=' not in database_url:
-        database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
-
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-    "connect_args": {
-        "sslmode": "require",
-        "connect_timeout": 10
-    } if database_url.startswith('postgresql+psycopg2://') else {}
-}
+# Configure the database with enhanced security and connection pooling
+try:
+    database_config = secure_config["database_config"]
+    database_url = database_config["url"]
+    
+    # Fix SSL issues for PostgreSQL
+    if database_url.startswith('postgresql://'):
+        database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
+        if 'sslmode=' not in database_url:
+            database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": database_config["pool_size"],
+        "max_overflow": database_config["max_overflow"],
+        "pool_recycle": database_config["pool_recycle"],
+        "pool_pre_ping": True,
+        "connect_args": {
+            "sslmode": "require",
+            "connect_timeout": 10,
+            "application_name": "tCapital-Flask"
+        } if database_url.startswith('postgresql+psycopg2://') else {}
+    }
+    
+    logging.info("✅ Enhanced database configuration loaded")
+    
+except (NameError, KeyError):
+    # Fallback configuration
+    database_url = os.environ.get("DATABASE_URL", "sqlite:///stock_trading.db")
+    
+    if database_url.startswith('postgresql://'):
+        database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
+        if 'sslmode=' not in database_url:
+            database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
+    
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+        "connect_args": {
+            "sslmode": "require",
+            "connect_timeout": 10
+        } if database_url.startswith('postgresql+psycopg2://') else {}
+    }
+    
+    logging.warning("⚠️ Using fallback database configuration")
 
 # Initialize the app with the extension
 db.init_app(app)
