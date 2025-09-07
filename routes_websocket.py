@@ -162,11 +162,12 @@ def get_trading_signals():
             signal_data = {
                 'id': signal.id,
                 'symbol': signal.symbol,
-                'action': signal.signal_type,
-                'confidence': signal.confidence,
+                'action': signal.action,
+                'signal_type': signal.signal_type,
+                'risk_level': signal.risk_level,
                 'target_price': float(signal.target_price) if signal.target_price else None,
                 'stop_loss': float(signal.stop_loss) if signal.stop_loss else None,
-                'reasoning': signal.reasoning,
+                'notes': signal.notes,
                 'created_at': signal.created_at.isoformat(),
                 'expires_at': signal.expires_at.isoformat() if signal.expires_at else None
             }
