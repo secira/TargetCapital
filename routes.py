@@ -4,7 +4,8 @@ from app import app, db
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
-                   ChatConversation, ChatMessage, ChatbotKnowledgeBase)
+                   ChatConversation, ChatMessage, ChatbotKnowledgeBase, TradingSignal,
+                   RiskProfile, PortfolioTrade, DailyTradingSignal, Admin)
 from models_broker import BrokerAccount
 from services.nse_service import nse_service
 from services.nse_realtime_service import get_live_market_data, get_stock_quote
@@ -12,6 +13,9 @@ from services.market_data_service import market_data_service
 from services.ai_agent_service import AgenticAICoordinator
 from services.chatbot_service import chatbot
 import logging
+
+# Configure logger for routes
+logger = logging.getLogger(__name__)
 import random
 import os
 import hmac
@@ -258,7 +262,7 @@ def add_broker():
             return redirect(url_for('broker_management'))
         
         # Check if broker already exists for this user
-        existing = UserBroker.query.filter_by(
+        existing = BrokerAccount.query.filter_by(
             user_id=current_user.id, 
             broker_name=broker_name
         ).first()
@@ -269,7 +273,7 @@ def add_broker():
         
         # Check broker limits based on pricing plan
         from models import PricingPlan
-        existing_brokers_count = UserBroker.query.filter_by(user_id=current_user.id).count()
+        existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id).count()
         
         if current_user.pricing_plan == PricingPlan.TRADER:
             # Trader users can only have one broker
@@ -283,7 +287,7 @@ def add_broker():
                 return redirect(url_for('broker_management'))
         
         # Create new broker connection
-        new_broker = UserBroker(
+        new_broker = BrokerAccount(
             user_id=current_user.id,
             broker_name=broker_name,
             api_key=api_key,
@@ -315,7 +319,7 @@ def update_broker():
         api_secret = request.form.get('api_secret')
         request_token = request.form.get('request_token')
         
-        broker = UserBroker.query.filter_by(
+        broker = BrokerAccount.query.filter_by(
             id=broker_id, 
             user_id=current_user.id
         ).first()
@@ -350,7 +354,7 @@ def update_broker():
 def get_broker_details(broker_id):
     """Get broker details for editing"""
     try:
-        broker = UserBroker.query.filter_by(
+        broker = BrokerAccount.query.filter_by(
             id=broker_id, 
             user_id=current_user.id
         ).first()
@@ -378,7 +382,7 @@ def get_broker_details(broker_id):
 def delete_broker(broker_id):
     """Delete broker connection"""
     try:
-        broker = UserBroker.query.filter_by(
+        broker = BrokerAccount.query.filter_by(
             id=broker_id, 
             user_id=current_user.id
         ).first()
@@ -406,7 +410,7 @@ def refresh_broker_token(broker_id):
         data = request.get_json()
         request_token = data.get('request_token')
         
-        broker = UserBroker.query.filter_by(
+        broker = BrokerAccount.query.filter_by(
             id=broker_id, 
             user_id=current_user.id
         ).first()

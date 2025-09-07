@@ -805,7 +805,7 @@ class ChatConversation(db.Model):
     
     def get_recent_messages(self, limit=10):
         """Get recent messages in chronological order"""
-        return self.messages.order_by(ChatMessage.created_at.desc()).limit(limit).all()[::-1]
+        return list(reversed(self.messages.order_by(ChatMessage.created_at.desc()).limit(limit).all()))
     
     def __repr__(self):
         return f'<ChatConversation {self.session_id} - {self.title}>'
