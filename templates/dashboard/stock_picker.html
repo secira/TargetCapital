@@ -88,71 +88,71 @@
                             {% if ai_picks %}
                             <!-- Desktop View -->
                             <div class="d-none d-md-block">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0" style="width: 100%; table-layout: fixed;">
+                                <div style="width: 100%; overflow: hidden;">
+                                    <table class="table table-hover mb-0" style="width: 100%; table-layout: fixed; margin: 0;">
                                         <thead class="table-light">
                                             <tr>
-                                                <th class="border-0" style="width: 20%;">Stock</th>
-                                                <th class="border-0" style="width: 12%;">Price</th>
-                                                <th class="border-0" style="width: 15%;">Target</th>
-                                                <th class="border-0" style="width: 12%;">Rec.</th>
-                                                <th class="border-0" style="width: 15%;">Confidence</th>
-                                                <th class="border-0" style="width: 12%;">Sector</th>
-                                                <th class="border-0" style="width: 14%;">Actions</th>
+                                                <th class="border-0" style="width: 22%; padding: 0.75rem 0.5rem;">Stock</th>
+                                                <th class="border-0" style="width: 13%; padding: 0.75rem 0.25rem;">Price</th>
+                                                <th class="border-0" style="width: 15%; padding: 0.75rem 0.25rem;">Target</th>
+                                                <th class="border-0" style="width: 10%; padding: 0.75rem 0.25rem;">Rec.</th>
+                                                <th class="border-0" style="width: 12%; padding: 0.75rem 0.25rem;">Conf.</th>
+                                                <th class="border-0" style="width: 12%; padding: 0.75rem 0.25rem;">Sector</th>
+                                                <th class="border-0" style="width: 16%; padding: 0.75rem 0.25rem;">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for pick in ai_picks %}
                                             <tr>
-                                                <td class="border-0">
-                                                    <div>
-                                                        <strong class="d-block">{{ pick.symbol }}</strong>
-                                                        <small class="text-muted">{{ pick.company_name }}</small>
+                                                <td class="border-0" style="padding: 0.75rem 0.5rem; overflow: hidden; text-overflow: ellipsis;">
+                                                    <div style="max-width: 100%; overflow: hidden;">
+                                                        <strong class="d-block" style="font-size: 0.9rem;">{{ pick.symbol }}</strong>
+                                                        <small class="text-muted" style="font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; display: block;">{{ pick.company_name[:20] }}{% if pick.company_name|length > 20 %}...{% endif %}</small>
                                                     </div>
                                                 </td>
-                                                <td class="border-0">
-                                                    <strong>₹{{ "%.2f"|format(pick.current_price) }}</strong>
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem; font-size: 0.85rem;">
+                                                    <strong>₹{{ "%.0f"|format(pick.current_price) }}</strong>
                                                 </td>
-                                                <td class="border-0">
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem; font-size: 0.8rem;">
                                                     {% if pick.target_price %}
                                                     <div>
-                                                        <strong>₹{{ "%.2f"|format(pick.target_price) }}</strong>
+                                                        <strong style="font-size: 0.8rem;">₹{{ "%.0f"|format(pick.target_price) }}</strong>
                                                         {% set upside = ((pick.target_price - pick.current_price) / pick.current_price * 100) %}
-                                                        <small class="d-block {% if upside > 0 %}text-success{% else %}text-danger{% endif %}">
-                                                            {{ "%.1f"|format(upside) }}% upside
+                                                        <small class="d-block {% if upside > 0 %}text-success{% else %}text-danger{% endif %}" style="font-size: 0.7rem;">
+                                                            +{{ "%.0f"|format(upside) }}%
                                                         </small>
                                                     </div>
                                                     {% else %}
                                                     <span class="text-muted">-</span>
                                                     {% endif %}
                                                 </td>
-                                                <td class="border-0">
-                                                    <span class="badge {% if pick.recommendation == 'BUY' %}bg-success{% elif pick.recommendation == 'SELL' %}bg-danger{% else %}bg-warning{% endif %}">
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem;">
+                                                    <span class="badge {% if pick.recommendation == 'BUY' %}bg-success{% elif pick.recommendation == 'SELL' %}bg-danger{% else %}bg-warning{% endif %}" style="font-size: 0.7rem; padding: 0.3rem 0.4rem;">
                                                         {{ pick.recommendation }}
                                                     </span>
                                                 </td>
-                                                <td class="border-0">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="progress me-1" style="height: 8px; width: 40px;">
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem;">
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <div class="progress" style="height: 6px; width: 30px; margin-right: 0.25rem;">
                                                             <div class="progress-bar {% if pick.confidence_score >= 80 %}bg-success{% elif pick.confidence_score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
                                                                  style="width: {{ pick.confidence_score }}%"></div>
                                                         </div>
-                                                        <small>{{ pick.confidence_score }}%</small>
+                                                        <small style="font-size: 0.7rem;">{{ pick.confidence_score }}%</small>
                                                     </div>
                                                 </td>
-                                                <td class="border-0">
-                                                    <span class="badge bg-light text-dark" style="font-size: 10px;">{{ pick.sector[:8] }}{% if pick.sector|length > 8 %}...{% endif %}</span>
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem;">
+                                                    <span class="badge bg-light text-dark" style="font-size: 0.65rem; padding: 0.25rem 0.4rem;">{{ pick.sector[:6] }}{% if pick.sector|length > 6 %}...{% endif %}</span>
                                                 </td>
-                                                <td class="border-0">
-                                                    <div class="btn-group" role="group">
-                                                        <button class="btn btn-sm btn-outline-success" onclick="tradeStock('{{ pick.symbol }}', '{{ pick.recommendation }}', {{ pick.current_price }}, '{{ pick.company_name }}')" title="Trade">
-                                                            <i class="fas fa-exchange-alt"></i>
+                                                <td class="border-0" style="padding: 0.75rem 0.25rem;">
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <button class="btn btn-outline-success" onclick="tradeStock('{{ pick.symbol }}', '{{ pick.recommendation }}', {{ pick.current_price }}, '{{ pick.company_name }}')" title="Trade" style="padding: 0.25rem 0.4rem;">
+                                                            <i class="fas fa-exchange-alt" style="font-size: 0.75rem;"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetailedAnalysis('{{ pick.symbol }}')" title="Analyze">
-                                                            <i class="fas fa-chart-bar"></i>
+                                                        <button class="btn btn-outline-primary" onclick="viewDetailedAnalysis('{{ pick.symbol }}')" title="Analyze" style="padding: 0.25rem 0.4rem;">
+                                                            <i class="fas fa-chart-bar" style="font-size: 0.75rem;"></i>
                                                         </button>
-                                                        <button class="btn btn-sm btn-outline-info" onclick="addToWatchlist('{{ pick.symbol }}')" title="Watch">
-                                                            <i class="fas fa-star"></i>
+                                                        <button class="btn btn-outline-info" onclick="addToWatchlist('{{ pick.symbol }}')" title="Watch" style="padding: 0.25rem 0.4rem;">
+                                                            <i class="fas fa-star" style="font-size: 0.75rem;"></i>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -685,8 +685,23 @@ function showNotification(type, message) {
 /* Ensure table doesn't overflow */
 .table-responsive {
     -webkit-overflow-scrolling: touch;
-    overflow-x: auto;
+    overflow-x: hidden;
     margin-bottom: 0;
+}
+
+/* Compact table styling */
+.table td,
+.table th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+}
+
+.table .btn-group .btn {
+    padding: 0.25rem 0.4rem;
+    font-size: 0.75rem;
+    border-width: 1px;
 }
 
 /* Fix button groups on small screens */
