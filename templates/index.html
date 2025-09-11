@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Hero Section - Quin Style -->
-<section class="bg-white" style="padding-top: 140px; padding-bottom: 100px;">
+<section class="hero-section">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 order-lg-1 order-2">
@@ -43,7 +43,7 @@
             <div class="col-lg-6 order-lg-2 order-1 mb-4 mb-lg-0">
                 <div class="position-relative text-center">
                     <img src="{{ url_for('static', filename='img/dashboard-preview.svg') }}" 
-                         alt="tCapital Dashboard Preview" class="img-fluid" style="max-width: 100%; height: auto;">
+                         alt="tCapital Dashboard Preview" class="responsive-img critical-img" loading="eager" decoding="async" fetchpriority="high" style="max-width: 100%; height: auto;">
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
 </section>
 
 <!-- Feature Section 1: Portfolio Import -->
-<section style="padding: 120px 0; background: #fafbfc;">
+<section class="content-section bg-light">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 order-lg-1 order-2">
@@ -106,7 +106,7 @@
             <div class="col-lg-6 order-lg-2 order-1 mb-5 mb-lg-0">
                 <div class="position-relative">
                     <img src="{{ url_for('static', filename='img/portfolio-import.svg') }}" 
-                         alt="Portfolio Import" class="img-fluid rounded-3 shadow-lg">
+                         alt="Portfolio Import" class="responsive-img shadow lazy-img" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -114,13 +114,13 @@
 </section>
 
 <!-- Feature Section 2: Agentic AI Analytics -->
-<section style="padding: 120px 0; background: white;">
+<section class="content-section bg-white">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="position-relative">
                     <img src="{{ url_for('static', filename='img/ai-analytics.svg') }}" 
-                         alt="Agentic AI Analytics" class="img-fluid rounded-3 shadow-lg">
+                         alt="Agentic AI Analytics" class="responsive-img shadow lazy-img" loading="lazy" decoding="async">
                 </div>
             </div>
             <div class="col-lg-6">

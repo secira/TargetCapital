@@ -1,0 +1,238 @@
+/* 
+ * Consistent Layout Standards for tCapital
+ * Unifies spacing, typography, and layout patterns
+ */
+
+/* ===== UNIFIED LAYOUT CONSTANTS ===== */
+:root {
+    /* Consistent Section Padding */
+    --section-padding-top: 120px;
+    --section-padding-bottom: 80px;
+    --hero-padding-top: 140px;
+    --hero-padding-bottom: 100px;
+    
+    /* Consistent Container Spacing */
+    --container-max-width: 1400px;
+    --container-padding-x: 1rem;
+    
+    /* Card Consistency */
+    --card-border-radius: 16px;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    
+    /* Button Consistency */
+    --btn-border-radius: 25px;
+    --btn-padding-x: 1.5rem;
+    --btn-padding-y: 0.75rem;
+    --btn-lg-padding-x: 2rem;
+    --btn-lg-padding-y: 1rem;
+}
+
+/* ===== STANDARDIZED SECTION LAYOUTS ===== */
+
+/* Hero Sections */
+.hero-section {
+    padding-top: var(--hero-padding-top);
+    padding-bottom: var(--hero-padding-bottom);
+    background-color: #ffffff;
+}
+
+/* Content Sections */
+.content-section {
+    padding-top: var(--section-padding-top);
+    padding-bottom: var(--section-padding-bottom);
+}
+
+.content-section.bg-light {
+    background-color: #f8f9fa;
+}
+
+.content-section.bg-white {
+    background-color: #ffffff;
+}
+
+/* Alternate section backgrounds */
+.section-alternate:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.section-alternate:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+/* ===== CONSISTENT CARD STYLES ===== */
+.consistent-card {
+    border: 0;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.consistent-card:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.consistent-card .card-body {
+    padding: 2rem;
+}
+
+/* Service/Feature Cards */
+.service-card {
+    border: 0;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+    height: 100%;
+    overflow: hidden;
+}
+
+.service-card:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-2px);
+}
+
+.service-card .card-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.service-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+}
+
+/* ===== CONSISTENT BUTTON STYLES ===== */
+.btn-consistent {
+    border-radius: var(--btn-border-radius);
+    font-weight: 600;
+    padding: var(--btn-padding-y) var(--btn-padding-x);
+    transition: all 0.3s ease;
+}
+
+.btn-consistent.btn-lg {
+    padding: var(--btn-lg-padding-y) var(--btn-lg-padding-x);
+}
+
+.btn-consistent:hover {
+    transform: translateY(-1px);
+}
+
+/* ===== CONSISTENT SPACING ===== */
+
+/* Consistent margin utilities */
+.consistent-mb-1 { margin-bottom: 0.5rem; }
+.consistent-mb-2 { margin-bottom: 1rem; }
+.consistent-mb-3 { margin-bottom: 1.5rem; }
+.consistent-mb-4 { margin-bottom: 2rem; }
+.consistent-mb-5 { margin-bottom: 3rem; }
+
+.consistent-mt-1 { margin-top: 0.5rem; }
+.consistent-mt-2 { margin-top: 1rem; }
+.consistent-mt-3 { margin-top: 1.5rem; }
+.consistent-mt-4 { margin-top: 2rem; }
+.consistent-mt-5 { margin-top: 3rem; }
+
+/* ===== RESPONSIVE LAYOUT HELPERS ===== */
+
+/* Consistent container behavior */
+.consistent-container {
+    max-width: var(--container-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--container-padding-x);
+    padding-right: var(--container-padding-x);
+}
+
+/* Consistent row spacing */
+.consistent-row {
+    margin-bottom: 2rem;
+}
+
+.consistent-row:last-child {
+    margin-bottom: 0;
+}
+
+/* ===== IMAGE OPTIMIZATION HELPERS ===== */
+
+/* Responsive image behavior */
+.responsive-img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--card-border-radius);
+}
+
+.responsive-img.shadow {
+    box-shadow: var(--card-shadow);
+}
+
+/* Team photos optimization */
+.team-photo {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Image optimization placeholders - actual loading attributes must be set in HTML */
+.critical-img {
+    /* Critical images should use: loading="eager" decoding="async" fetchpriority="high" in HTML */
+}
+
+.lazy-img {
+    /* Non-critical images should use: loading="lazy" decoding="async" in HTML */
+}
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+
+@media (max-width: 768px) {
+    :root {
+        --section-padding-top: 80px;
+        --section-padding-bottom: 60px;
+        --hero-padding-top: 100px;
+        --hero-padding-bottom: 80px;
+    }
+    
+    .service-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .consistent-card .card-body {
+        padding: 1.5rem;
+    }
+    
+    .team-photo {
+        height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    :root {
+        --section-padding-top: 60px;
+        --section-padding-bottom: 40px;
+        --hero-padding-top: 80px;
+        --hero-padding-bottom: 60px;
+        --container-padding-x: 0.75rem;
+    }
+    
+    .service-card .card-body {
+        padding: 1rem;
+    }
+    
+    .consistent-card .card-body {
+        padding: 1rem;
+    }
+    
+    .team-photo {
+        height: 200px;
+    }
+}

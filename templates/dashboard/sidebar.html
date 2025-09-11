@@ -259,7 +259,7 @@
 .nav-link {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 16px 20px;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     border-radius: 0 25px 25px 0;
@@ -267,6 +267,8 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    min-height: 52px;
+    box-sizing: border-box;
 }
 
 .nav-link::before {
@@ -301,6 +303,7 @@
     margin-right: 12px;
     font-size: 16px;
     transition: transform 0.3s ease;
+    flex-shrink: 0;
 }
 
 .nav-link:hover .nav-icon {
@@ -311,6 +314,10 @@
     flex: 1;
     font-size: 14px;
     font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nav-badge {
