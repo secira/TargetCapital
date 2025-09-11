@@ -6,6 +6,7 @@ import redis
 import json
 import logging
 import os
+import socket
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 
@@ -23,15 +24,24 @@ class RedisCache:
     def _connect(self):
         """Establish Redis connection with error handling"""
         try:
-            self.client = redis.from_url(
+            # Create connection pool for better performance
+            pool = redis.ConnectionPool.from_url(
                 self.redis_url,
                 decode_responses=True,
                 health_check_interval=30,
-                socket_connect_timeout=5,
-                socket_timeout=5,
+                socket_connect_timeout=3,  # Faster connection timeout
+                socket_timeout=3,          # Faster socket timeout
                 retry_on_timeout=True,
-                max_connections=20
+                max_connections=100,       # Increased pool size for high concurrency
+                socket_keepalive=True,
+                socket_keepalive_options={
+                    socket.TCP_KEEPIDLE: 1,   # TCP_KEEPIDLE
+                    socket.TCP_KEEPINTVL: 3,  # TCP_KEEPINTVL
+                    socket.TCP_KEEPCNT: 5     # TCP_KEEPCNT
+                }
             )
+            
+            self.client = redis.Redis(connection_pool=pool)
             # Test connection
             self.client.ping()
             logger.info("✅ Redis cache connected successfully")

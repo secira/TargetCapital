@@ -1,6 +1,8 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, g
+from flask.helpers import send_from_directory
+from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -40,6 +42,9 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
+
+# Initialize Flask-Compress for production-grade compression
+compress = Compress(app)
 # Use secure environment configuration
 secure_config = None
 try:
@@ -186,8 +191,11 @@ except (NameError, KeyError):
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 10,  # Optimize connection pool size
+        "max_overflow": 20,  # Allow overflow connections
         "pool_recycle": 300,
         "pool_pre_ping": True,
+        "pool_timeout": 30,  # Connection timeout
         "connect_args": {
             "sslmode": "require",
             "connect_timeout": 10
@@ -235,6 +243,25 @@ try:
     register_websocket_apis(app)
 except ImportError as e:
     logging.warning(f"WebSocket API routes not available: {e}")
+
+# Performance optimizations - Caching and security headers
+@app.after_request
+def enable_caching_and_security(response):
+    """Enable aggressive caching and security headers"""
+    
+    # Aggressive caching for static assets
+    if request.endpoint == 'static':
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'  # 1 year
+    
+    # Security headers for all responses  
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    return response
+
+# Import request for the after_request function
+from flask import request
 
 # Import routes
 import routes

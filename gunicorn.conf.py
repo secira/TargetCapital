@@ -1,0 +1,53 @@
+"""
+Optimized Gunicorn Configuration for Production Performance
+"""
+
+import multiprocessing
+import os
+
+# Server socket
+bind = f"0.0.0.0:{os.environ.get('PORT', '5000')}"
+backlog = 2048
+
+# Worker processes
+workers = int(os.environ.get("GUNICORN_WORKERS", min(multiprocessing.cpu_count() * 2 + 1, 8)))
+worker_class = "gevent"  # Async workers for better I/O performance
+worker_connections = 1000
+max_requests = 10000
+max_requests_jitter = 1000
+
+# Worker timeout and keep-alive
+timeout = 300  # Increased from 120 to handle complex operations
+keepalive = 5
+graceful_timeout = 60
+
+# Performance optimizations
+preload_app = True  # Load application code before forking workers
+enable_stdio_inheritance = True
+reuse_port = True
+
+# Logging
+accesslog = "-"  # Log to stdout
+errorlog = "-"   # Log to stderr
+loglevel = "info"
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+
+# Process naming
+proc_name = 'tcapital-gunicorn'
+
+# Security
+limit_request_line = 4094
+limit_request_fields = 100
+limit_request_field_size = 8190
+
+def when_ready(server):
+    """Called just after server is started"""
+    server.log.info("tCapital server ready to accept connections")
+
+def worker_abort(worker):
+    """Called when a worker received the SIGABRT signal"""
+    worker.log.info("Worker received SIGABRT signal")
+
+def on_exit(server):
+    """Called just before exiting"""
+    server.log.info("tCapital server shutting down")
