@@ -775,3 +775,8 @@
     border-color: #48bb78;
     background: rgba(72, 187, 120, 0.05);
 }
+
+/* Override global h3 styles for sidebar section titles */
+.dashboard-sidebar .section-title {
+    font-size: 11px !important;
+}
