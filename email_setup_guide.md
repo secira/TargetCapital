@@ -1,4 +1,4 @@
-# Email Setup Guide for tCapital Contact Form
+# Email Setup Guide for Target Capital Contact Form
 
 ## SendGrid Setup Instructions
 
@@ -30,7 +30,7 @@
 5. Check your email and verify the sender
 
 ### 4. Update Environment Variables
-tCapital.biz says: Add to your environment secrets:
+targetcapital.in says: Add to your environment secrets:
 ```
 SENDGRID_API_KEY=your_sendgrid_api_key_here
 ```

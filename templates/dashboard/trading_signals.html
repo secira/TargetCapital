@@ -337,7 +337,7 @@ function filterSignals(type) {
 }
 
 function showUpgradeAlert() {
-    alert('tCapital.biz says: Upgrade to Trader plan to execute trades. You can view signals but cannot trade with a FREE account.');
+    alert('targetcapital.in says: Upgrade to Trader plan to execute trades. You can view signals but cannot trade with a FREE account.');
     window.location.href = '/pricing';
 }
 
@@ -416,7 +416,7 @@ function startLiveUpdates() {
         // Auto-refresh signals every 2 minutes during market hours
         autoRefreshInterval = setInterval(function() {
             if (document.hasFocus() && isMarketHours()) {
-                console.log('tCapital.biz says: Auto-refreshing trading signals...');
+                console.log('targetcapital.in says: Auto-refreshing trading signals...');
                 refreshSignals();
             }
         }, 120000); // 2 minutes

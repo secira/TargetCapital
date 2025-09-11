@@ -13,10 +13,10 @@ if __name__ == '__main__':
     from admin_app import admin_app
     
     print("="*50)
-    print("🔐 tCapital Admin Server Starting...")
+    print("🔐 Target Capital Admin Server Starting...")
     print("="*50)
     print(f"📍 Admin URL: http://localhost:5001/admin")
-    print(f"🌐 tCapital.biz says: Admin panel ready at https://{os.environ.get('REPLIT_DEV_DOMAIN', 'tcapital.biz')}:5001/admin")
+    print(f"🌐 targetcapital.in says: Admin panel ready at https://{os.environ.get('REPLIT_DEV_DOMAIN', 'targetcapital.in')}:5001/admin")
     print("="*50)
     
     # Initialize database tables

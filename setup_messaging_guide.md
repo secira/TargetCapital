@@ -1,4 +1,4 @@
-# WhatsApp and Telegram Setup Guide for tCapital
+# WhatsApp and Telegram Setup Guide for Target Capital
 
 This guide will help you configure WhatsApp Business API and Telegram Bot for automatically sharing trading signals to your subscribers.
 
@@ -21,7 +21,7 @@ This guide will help you configure WhatsApp Business API and Telegram Bot for au
 3. Get the group chat ID (you'll need WhatsApp Business API tools for this)
 
 ### Step 4: Set Environment Variables
-tCapital.biz says: Add these to your environment secrets:
+targetcapital.in says: Add these to your environment secrets:
 ```bash
 WHATSAPP_API_TOKEN=your_access_token_here
 WHATSAPP_PHONE_NUMBER_ID=your_phone_number_id_here
@@ -44,7 +44,7 @@ WHATSAPP_GROUP_CHAT_ID=your_group_chat_id_here
    - For private channels: use the numeric ID (e.g., `-1001234567890`)
 
 ### Step 3: Set Environment Variables
-tCapital.biz says: Add these to your environment secrets:
+targetcapital.in says: Add these to your environment secrets:
 ```bash
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 TELEGRAM_CHANNEL_ID=@your_channel_name_or_numeric_id
