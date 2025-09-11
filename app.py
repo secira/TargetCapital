@@ -134,6 +134,8 @@ else:
 
 # Configure the database with enhanced security and connection pooling
 try:
+    if secure_config is None:
+        raise KeyError("secure_config is None")
     database_config = secure_config["database_config"]
     database_url = database_config["url"]
     
