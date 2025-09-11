@@ -1,5 +1,5 @@
 /**
- * tCapital AI Companion Mascot
+ * Target Capital AI Companion Mascot
  * Playful financial learning assistant with personality
  */
 
@@ -138,7 +138,7 @@ class AICompanion {
         return [
             {
                 target: '.sidebar',
-                title: "Welcome to tCapital! 👋",
+                title: "Welcome to Target Capital! 👋",
                 message: "Hi! I'm Finley, your AI financial companion. Let me show you around this amazing trading platform!",
                 position: 'right',
                 animation: 'excited'
@@ -326,7 +326,7 @@ class AICompanion {
 
     celebrateAchievement(milestone) {
         const celebrationMessages = {
-            'first_visit': "🎉 Welcome to tCapital! You're about to discover amazing trading tools!",
+            'first_visit': "🎉 Welcome to Target Capital! You're about to discover amazing trading tools!",
             'onboarding_completed': "🏆 Fantastic! You've mastered the basics. Ready to start trading?",
             'dashboard_explored': "📊 You're getting the hang of this! The dashboard is your mission control.",
             'ai_advisor_used': "🤖 Great question! I love helping with financial insights.",

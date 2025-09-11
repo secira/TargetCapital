@@ -1,5 +1,5 @@
 /**
- * React-style Dashboard Components for tCapital
+ * React-style Dashboard Components for Target Capital
  * High-performance real-time dashboard with WebSocket integration
  */
 
@@ -654,8 +654,11 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Export for global access
-window.tCapitalDashboard = {
+window.TargetCapitalDashboard = {
     DashboardApp,
     RealTimeStatus,
     PerformanceMetrics
 };
+
+// Backward compatibility alias
+window.tCapitalDashboard = window.TargetCapitalDashboard;

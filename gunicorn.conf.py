@@ -33,7 +33,7 @@ loglevel = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
 
 # Process naming
-proc_name = 'tcapital-gunicorn'
+proc_name = 'target-capital-gunicorn'
 
 # Security
 limit_request_line = 4094
@@ -42,7 +42,7 @@ limit_request_field_size = 8190
 
 def when_ready(server):
     """Called just after server is started"""
-    server.log.info("tCapital server ready to accept connections")
+    server.log.info("Target Capital server ready to accept connections")
 
 def worker_abort(worker):
     """Called when a worker received the SIGABRT signal"""
@@ -50,4 +50,4 @@ def worker_abort(worker):
 
 def on_exit(server):
     """Called just before exiting"""
-    server.log.info("tCapital server shutting down")
+    server.log.info("Target Capital server shutting down")

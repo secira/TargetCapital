@@ -174,7 +174,7 @@ try:
         "connect_args": {
             "sslmode": "require",
             "connect_timeout": 10,
-            "application_name": "tCapital-Flask"
+            "application_name": "Target-Capital-Flask"
         } if database_url.startswith('postgresql+psycopg2://') else {}
     }
     

@@ -3,7 +3,7 @@
  * Handles caching, offline functionality, and background sync
  */
 
-const CACHE_NAME = 'tcapital-v1.2.0';
+const CACHE_NAME = 'target-capital-v1.2.0';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline functionality
@@ -366,7 +366,7 @@ self.addEventListener('push', (event) => {
     }
     
     event.waitUntil(
-        self.registration.showNotification('tCapital', options)
+        self.registration.showNotification('Target Capital', options)
     );
 });
 

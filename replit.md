@@ -1,11 +1,11 @@
-# tCapital - Flask Web Application
+# Target Capital - Flask Web Application
 
 ## Overview
-tCapital is a Flask-based web application providing an advanced Agentic AI-powered stock trading platform. Its core purpose is to offer autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform emphasizes true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making. The project vision includes significant market potential for intelligent, adaptive financial decision-making tools.
+Target Capital is a Flask-based web application providing an advanced Agentic AI-powered stock trading platform. Its core purpose is to offer autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform emphasizes true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making. The project vision includes significant market potential for intelligent, adaptive financial decision-making tools.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
-Brand name: tCapital
+Brand name: Target Capital
 Design preference: Clean white backgrounds instead of blue gradients
 Navigation bar: Custom dark navy background color #00091a
 Typography: Modern Poppins font throughout the website

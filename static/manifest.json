@@ -1,6 +1,6 @@
 {
-  "name": "tCapital - AI Trading Platform",
-  "short_name": "tCapital",
+  "name": "Target Capital - AI Trading Platform",
+  "short_name": "Target Capital",
   "description": "Professional AI-powered stock trading and portfolio analysis platform with advanced algorithms and real-time market insights",
   "start_url": "/dashboard?utm_source=pwa",
   "display": "standalone",
@@ -130,7 +130,7 @@
   "related_applications": [
     {
       "platform": "webapp",
-      "url": "https://tcapital.replit.app/manifest.json"
+      "url": "https://targetcapital.replit.app/manifest.json"
     }
   ],
   "prefer_related_applications": false,
