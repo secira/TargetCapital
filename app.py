@@ -70,6 +70,13 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_for=1)  # x_for=1 f
 # Initialize security extensions
 csrf = CSRFProtect(app)
 
+# Make CSRF token available in all templates
+from flask_wtf.csrf import generate_csrf
+
+@app.template_global()
+def csrf_token():
+    return generate_csrf()
+
 # Configure secure session settings
 environment = os.environ.get("ENVIRONMENT", "development")
 is_production = environment == "production"
