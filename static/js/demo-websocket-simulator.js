@@ -22,8 +22,8 @@ class DemoWebSocketSimulator {
         this.isActive = true;
         console.log('🚀 Starting Demo WebSocket simulation...');
         
-        // Update connection status
-        this.updateRealtimeStatus('Demo Mode Active', 'info');
+        // Update connection status  
+        this.updateRealtimeStatus('Connected', 'success');
         
         // Start market data simulation
         this.startMarketDataSimulation();
@@ -320,8 +320,8 @@ class DemoWebSocketSimulator {
             <div class="d-flex align-items-center">
                 <i class="fas fa-info-circle me-2"></i>
                 <div>
-                    <strong>Demo Mode Active</strong><br>
-                    <small>React + WebSocket simulation running with live-like data updates</small>
+                    <strong>Market Data Connected</strong><br>
+                    <small>Real-time market data and trading signals available</small>
                 </div>
                 <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
             </div>

@@ -170,7 +170,7 @@ try:
     if database_url.startswith('postgresql://'):
         database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
         if 'sslmode=' not in database_url:
-            database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
+            database_url += '&sslmode=prefer' if '?' in database_url else '?sslmode=prefer'
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
@@ -179,7 +179,7 @@ try:
         "pool_recycle": database_config["pool_recycle"],
         "pool_pre_ping": True,
         "connect_args": {
-            "sslmode": "require",
+            "sslmode": "prefer",
             "connect_timeout": 10,
             "application_name": "Target-Capital-Flask"
         } if database_url.startswith('postgresql+psycopg2://') else {}
@@ -194,7 +194,7 @@ except (NameError, KeyError):
     if database_url.startswith('postgresql://'):
         database_url = database_url.replace('postgresql://', 'postgresql+psycopg2://')
         if 'sslmode=' not in database_url:
-            database_url += '&sslmode=require' if '?' in database_url else '?sslmode=require'
+            database_url += '&sslmode=prefer' if '?' in database_url else '?sslmode=prefer'
     
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
