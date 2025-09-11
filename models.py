@@ -805,7 +805,10 @@ class ChatConversation(db.Model):
     
     def get_recent_messages(self, limit=10):
         """Get recent messages in chronological order"""
-        return list(reversed(self.messages.order_by(ChatMessage.created_at.desc()).limit(limit).all()))
+        # Query messages directly to avoid SQLAlchemy relationship issues
+        from sqlalchemy.orm import Session
+        messages = ChatMessage.query.filter_by(conversation_id=self.id).order_by(ChatMessage.created_at.asc()).limit(limit).all()
+        return messages
     
     def __repr__(self):
         return f'<ChatConversation {self.session_id} - {self.title}>'

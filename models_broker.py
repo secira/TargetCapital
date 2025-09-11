@@ -59,10 +59,10 @@ class BrokerAccount(db.Model):
     broker_type = db.Column(db.String(50), nullable=False)  # Store as string, not enum
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
     
-    # Encrypted credentials
-    api_key = db.Column(db.Text, nullable=True)  # Encrypted (was client_id)
-    access_token = db.Column(db.Text, nullable=True)  # Encrypted
-    api_secret = db.Column(db.Text, nullable=True)  # Encrypted
+    # Encrypted credentials (temporary: keep existing structure until migration)
+    api_key = db.Column(db.Text, nullable=True)  # Encrypted (stores client_id for compatibility)
+    access_token = db.Column(db.Text, nullable=True)  # Encrypted access token
+    api_secret = db.Column(db.Text, nullable=True)  # Encrypted API secret
     
     # Connection details (match existing table structure)
     connection_status = db.Column(db.String(20), default='disconnected', index=True)
@@ -138,19 +138,20 @@ class BrokerAccount(db.Model):
         return fernet.decrypt(encrypted_data.encode()).decode()
     
     def set_credentials(self, client_id, access_token=None, api_secret=None, totp_secret=None):
-        """Set encrypted credentials"""
-        self.api_key = self.encrypt_data(client_id)  # Use api_key field instead of client_id
+        """Set encrypted credentials (temporary compatibility method)"""
+        self.api_key = self.encrypt_data(client_id)  # Store client_id in api_key for compatibility
         if access_token:
             self.access_token = self.encrypt_data(access_token)
         if api_secret:
-            self.api_secret = self.encrypt_data(api_secret)
-        # Store TOTP secret in api_secret field for Angel One (separated by |)
-        if totp_secret and api_secret:
-            combined_secret = f"{api_secret}|{totp_secret}"
-            self.api_secret = self.encrypt_data(combined_secret)
+            # Store TOTP secret in api_secret field for Angel One (separated by |)
+            if totp_secret:
+                combined_secret = f"{api_secret}|{totp_secret}"
+                self.api_secret = self.encrypt_data(combined_secret)
+            else:
+                self.api_secret = self.encrypt_data(api_secret)
     
     def get_credentials(self):
-        """Get decrypted credentials"""
+        """Get decrypted credentials (temporary compatibility method)"""
         api_secret = self.decrypt_data(self.api_secret)
         totp_secret = None
         
@@ -159,7 +160,7 @@ class BrokerAccount(db.Model):
             api_secret, totp_secret = api_secret.split('|', 1)
         
         return {
-            'client_id': self.decrypt_data(self.api_key),  # Use api_key field instead of client_id
+            'client_id': self.decrypt_data(self.api_key),  # client_id stored in api_key for compatibility
             'access_token': self.decrypt_data(self.access_token),
             'api_secret': api_secret,
             'totp_secret': totp_secret
@@ -186,13 +187,13 @@ class BrokerHolding(db.Model):
     __tablename__ = 'broker_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     # Stock details
-    symbol = db.Column(db.String(20), nullable=False)
-    trading_symbol = db.Column(db.String(50), nullable=False)
+    symbol = db.Column(db.String(20), nullable=False, index=True)  # Added index for performance
+    trading_symbol = db.Column(db.String(50), nullable=False, index=True)
     company_name = db.Column(db.String(200), nullable=True)
-    exchange = db.Column(db.String(10), nullable=False)
+    exchange = db.Column(db.String(10), nullable=False, index=True)
     security_id = db.Column(db.String(20), nullable=True)
     isin = db.Column(db.String(20), nullable=True)
     
@@ -231,14 +232,14 @@ class BrokerPosition(db.Model):
     __tablename__ = 'broker_positions'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
-    # Position details
-    symbol = db.Column(db.String(20), nullable=False)
-    trading_symbol = db.Column(db.String(50), nullable=False)
-    exchange = db.Column(db.String(10), nullable=False)
+    # Position details  
+    symbol = db.Column(db.String(20), nullable=False, index=True)  # Performance index
+    trading_symbol = db.Column(db.String(50), nullable=False, index=True)
+    exchange = db.Column(db.String(10), nullable=False, index=True)
     security_id = db.Column(db.String(20), nullable=True)
-    product_type = db.Column(db.Enum(ProductType), nullable=False)
+    product_type = db.Column(db.Enum(ProductType), nullable=False, index=True)  # Frequent filter
     
     # Quantity and price
     quantity = db.Column(db.Integer, default=0)
@@ -254,25 +255,25 @@ class BrokerPosition(db.Model):
     total_pnl = db.Column(db.Float, default=0.0)
     
     # Metadata
-    position_date = db.Column(db.Date, default=datetime.utcnow().date)
+    position_date = db.Column(db.Date, default=datetime.utcnow().date, index=True)  # Date-based queries
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # Performance index
 
 class BrokerOrder(db.Model):
     """Orders placed through broker accounts"""
     __tablename__ = 'broker_orders'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     # Order identification
     broker_order_id = db.Column(db.String(50), nullable=True)  # Order ID from broker
     correlation_id = db.Column(db.String(50), nullable=True)  # Our internal correlation ID
     
     # Order details
-    symbol = db.Column(db.String(20), nullable=False)
-    trading_symbol = db.Column(db.String(50), nullable=False)
-    exchange = db.Column(db.String(10), nullable=False)
+    symbol = db.Column(db.String(20), nullable=False, index=True)  # Performance index
+    trading_symbol = db.Column(db.String(50), nullable=False, index=True)  # Frequent filter
+    exchange = db.Column(db.String(10), nullable=False, index=True)
     security_id = db.Column(db.String(20), nullable=True)
     
     # Transaction details
@@ -289,7 +290,7 @@ class BrokerOrder(db.Model):
     disclosed_quantity = db.Column(db.Integer, default=0)
     
     # Order status and execution
-    order_status = db.Column(db.Enum(OrderStatus), default=OrderStatus.PENDING)
+    order_status = db.Column(db.Enum(OrderStatus), default=OrderStatus.PENDING, index=True)  # Frequent filter
     status_message = db.Column(db.String(200), nullable=True)
     avg_execution_price = db.Column(db.Float, default=0.0)
     
@@ -297,8 +298,8 @@ class BrokerOrder(db.Model):
     trading_signal_id = db.Column(db.Integer, nullable=True)  # Reference to trading signal if available
     
     # Timestamps
-    order_time = db.Column(db.DateTime, default=datetime.utcnow)
-    execution_time = db.Column(db.DateTime, nullable=True)
+    order_time = db.Column(db.DateTime, default=datetime.utcnow, index=True)  # Time-based queries
+    execution_time = db.Column(db.DateTime, nullable=True, index=True)  # Execution analysis
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Note: trading_signal relationship handled in main models.py if needed
@@ -326,7 +327,7 @@ class BrokerSyncLog(db.Model):
     __tablename__ = 'broker_sync_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     sync_type = db.Column(db.String(50), nullable=False)  # holdings, positions, orders, profile
     sync_status = db.Column(db.String(20), nullable=False)  # success, error, partial
