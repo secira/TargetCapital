@@ -69,14 +69,10 @@ class SecureEnvironmentConfig:
             logger.warning(f"Generated encryption key for development")
             return encryption_key
         
-        # Convert string to bytes if needed
+        # Handle string keys properly for Fernet
         if isinstance(encryption_key, str):
-            try:
-                # Try to decode as base64
-                encryption_key = base64.urlsafe_b64decode(encryption_key)
-            except:
-                # If not base64, encode as bytes
-                encryption_key = encryption_key.encode()
+            # Fernet expects the key as base64-encoded bytes
+            encryption_key = encryption_key.encode()
         
         # Validate key format
         try:

@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
-from app import app, db
+from flask_limiter.util import get_remote_address
+from app import app, db, limiter
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
@@ -581,6 +582,7 @@ def admin_update_contact_status(message_id):
 
 @app.route('/change-password', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute", key_func=lambda: str(current_user.get_id()) if current_user.is_authenticated else get_remote_address())  # Per-user rate limiting
 def change_password():
     """Change user password"""
     try:
@@ -661,6 +663,7 @@ def update_preferences():
 
 # Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Strict rate limit for login attempts
 def login():
     """User login route"""
     if current_user.is_authenticated:
@@ -692,6 +695,7 @@ def login():
     return render_template('auth/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
+@limiter.limit("3 per minute")  # Strict rate limit for registration
 def register():
     """User registration route"""
     if current_user.is_authenticated:

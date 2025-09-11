@@ -8,8 +8,10 @@ import logging
 from datetime import datetime, timedelta
 from flask import request, render_template, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, current_user
+import hmac
+import hashlib
 
-from app import app, db
+from app import app, db, csrf
 from models import User, PricingPlan
 from services.razorpay_service import razorpay_service
 
@@ -267,17 +269,34 @@ def upgrade_plan():
                          upgrade_options=upgrade_options)
 
 @app.route('/webhook/razorpay', methods=['POST'])
+@csrf.exempt  # Exempt from CSRF protection for external webhook
 def razorpay_webhook():
     """Handle Razorpay webhooks"""
     if not payment_models_available:
         return jsonify({'status': 'error', 'message': 'Payment system unavailable'}), 500
     
     try:
-        # Verify webhook signature (implement as needed)
+        # Verify webhook signature for security
         webhook_signature = request.headers.get('X-Razorpay-Signature')
         webhook_body = request.get_data()
+        webhook_secret = os.environ.get('RAZORPAY_WEBHOOK_SECRET')
         
-        # Process webhook event
+        if not webhook_signature or not webhook_secret:
+            logger.warning("Missing webhook signature or secret")
+            return jsonify({'status': 'error', 'message': 'Invalid webhook'}), 400
+        
+        # Verify HMAC signature
+        expected_signature = hmac.new(
+            webhook_secret.encode(),
+            webhook_body,
+            hashlib.sha256
+        ).hexdigest()
+        
+        if not hmac.compare_digest(webhook_signature, expected_signature):
+            logger.warning("Invalid webhook signature")
+            return jsonify({'status': 'error', 'message': 'Invalid signature'}), 403
+        
+        # Process webhook event  
         event_data = request.get_json()
         event_type = event_data.get('event')
         

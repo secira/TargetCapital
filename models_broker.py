@@ -65,18 +65,16 @@ class BrokerAccount(db.Model):
     api_secret = db.Column(db.Text, nullable=True)  # Encrypted
     
     # Connection details (match existing table structure)
-    connection_status = db.Column(db.String(20), default='disconnected')
-    is_primary = db.Column(db.Boolean, default=False)  # Primary broker for trading
+    connection_status = db.Column(db.String(20), default='disconnected', index=True)
+    is_primary = db.Column(db.Boolean, default=False, index=True)  # Primary broker for trading
     last_connected = db.Column(db.DateTime, nullable=True)
-    last_sync = db.Column(db.DateTime, nullable=True)
     
     # Account information
     account_balance = db.Column(db.Float, default=0.0)
     margin_available = db.Column(db.Float, default=0.0)  # Match existing column name
     
     # Settings
-    is_primary = db.Column(db.Boolean, default=False)  # Primary broker for trading
-    is_active = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=True, index=True)
     
     # Other existing columns
     request_token = db.Column(db.Text, nullable=True)
@@ -84,9 +82,9 @@ class BrokerAccount(db.Model):
     last_token_refresh = db.Column(db.DateTime, nullable=True)
     
     # Metadata
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    last_sync = db.Column(db.DateTime, nullable=True)
+    last_sync = db.Column(db.DateTime, nullable=True, index=True)
     
     # Relationships - only basic user relationship for now
     user = db.relationship('User', backref='broker_accounts')
@@ -105,15 +103,25 @@ class BrokerAccount(db.Model):
         self._key = value
     
     def _get_encryption_key(self):
-        """Get encryption key from environment or use a default for development"""
-        key = os.environ.get('BROKER_ENCRYPTION_KEY')
-        if not key:
-            # Use a fixed development key for testing (NEVER use in production)
-            key = "tCapital_Dev_Key_32_Chars_Long_123="
-            # Convert to proper Fernet key format
-            import base64
-            key = base64.urlsafe_b64encode(key.encode()[:32].ljust(32, b'0'))
-        return key.encode() if isinstance(key, str) else key
+        """Get encryption key from secure environment configuration"""
+        try:
+            # Try to get from secure config first
+            from security.environment_config import setup_secure_environment
+            secure_config = setup_secure_environment()
+            return secure_config["encryption_key"]
+        except (ImportError, KeyError):
+            # Fallback to environment variable
+            key = os.environ.get('BROKER_ENCRYPTION_KEY')
+            if not key:
+                environment = os.environ.get("ENVIRONMENT", "development")
+                if environment == "production":
+                    raise ValueError("BROKER_ENCRYPTION_KEY is required in production")
+                # Use a fixed development key for testing (NEVER use in production)
+                key = "tCapital_Dev_Key_32_Chars_Long_123="
+                # Convert to proper Fernet key format
+                import base64
+                key = base64.urlsafe_b64encode(key.encode()[:32].ljust(32, b'0'))
+            return key.encode() if isinstance(key, str) else key
     
     def encrypt_data(self, data):
         """Encrypt sensitive data"""

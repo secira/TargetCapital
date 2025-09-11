@@ -5,9 +5,17 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_talisman import Talisman
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging (production-safe)
+log_level = logging.INFO if os.environ.get("ENVIRONMENT") == "production" else logging.DEBUG
+logging.basicConfig(
+    level=log_level,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 class Base(DeclarativeBase):
     pass
@@ -17,6 +25,7 @@ db = SQLAlchemy(model_class=Base)
 # Create the app
 app = Flask(__name__)
 # Use secure environment configuration
+secure_config = None
 try:
     from security.environment_config import setup_secure_environment
     secure_config = setup_secure_environment()
@@ -24,10 +33,104 @@ try:
     logging.info("✅ Secure environment configuration loaded")
 except ImportError:
     # Fallback for development without security module
-    app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
-    if app.secret_key == "dev-secret-key-change-in-production":
+    session_secret = os.environ.get("SESSION_SECRET")
+    if not session_secret:
+        # Fail-fast in production
+        environment = os.environ.get("ENVIRONMENT", "development")
+        if environment == "production":
+            raise ValueError("SESSION_SECRET is required in production environment")
+        session_secret = "dev-secret-key-change-in-production"
         logging.warning("⚠️ Using default development secret key")
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    elif session_secret == "dev-secret-key-change-in-production" and os.environ.get("ENVIRONMENT") == "production":
+        raise ValueError("Default development secret cannot be used in production")
+    app.secret_key = session_secret
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_for=1)  # x_for=1 for accurate client IP behind proxies
+
+# Initialize security extensions
+csrf = CSRFProtect(app)
+
+# Configure secure session settings
+environment = os.environ.get("ENVIRONMENT", "development")
+is_production = environment == "production"
+
+# Initialize rate limiter (require Redis in production)
+redis_url = os.environ.get("REDIS_URL")
+if is_production and not redis_url:
+    raise ValueError("REDIS_URL is required for rate limiting in production")
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["300 per minute"],
+    storage_uri=redis_url or "memory://"
+)
+
+if secure_config and "security_settings" in secure_config:
+    security_settings = secure_config["security_settings"]
+    app.config['SESSION_COOKIE_SECURE'] = security_settings.get('session_cookie_secure', is_production)
+    app.config['SESSION_COOKIE_HTTPONLY'] = security_settings.get('session_cookie_httponly', True)
+    app.config['SESSION_COOKIE_SAMESITE'] = security_settings.get('session_cookie_samesite', 'Lax')  # Lax for OAuth compatibility
+else:
+    # Fallback secure configuration
+    app.config['SESSION_COOKIE_SECURE'] = is_production
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Lax for OAuth compatibility
+
+# Initialize security headers with Talisman
+if is_production:
+    csp_policy = {
+        'default-src': "'self'",
+        'script-src': [
+            "'self'",
+            'https://cdn.jsdelivr.net',
+            'https://cdnjs.cloudflare.com',
+            'https://kit.fontawesome.com',
+        ],
+        'style-src': [
+            "'self'",
+            'https://cdn.jsdelivr.net',
+            'https://fonts.googleapis.com',
+            'https://kit.fontawesome.com',
+        ],
+        'font-src': [
+            "'self'",
+            'https://fonts.gstatic.com',
+            'https://ka-f.fontawesome.com',
+        ],
+        'img-src': [
+            "'self'",
+            'data:',
+            'https:',
+        ],
+        'connect-src': [
+            "'self'",
+            'ws:',
+            'wss:',
+        ],
+        'frame-ancestors': "'none'",
+    }
+    
+    Talisman(
+        app,
+        force_https=True,
+        strict_transport_security=True,
+        content_security_policy=csp_policy,
+        content_security_policy_nonce_in=['script-src'],
+        referrer_policy='strict-origin-when-cross-origin',
+        feature_policy={
+            'camera': "'none'",
+            'microphone': "'none'",
+            'geolocation': "'self'",
+        }
+    )
+else:
+    # Development mode - minimal Talisman
+    Talisman(
+        app,
+        force_https=False,
+        strict_transport_security=False,
+        content_security_policy=False
+    )
 
 # Configure the database with enhanced security and connection pooling
 try:
@@ -82,7 +185,7 @@ db.init_app(app)
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'login'  # type: ignore
 login_manager.login_message = 'Please log in to access this page.'
 login_manager.login_message_category = 'info'
 
