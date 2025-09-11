@@ -20,9 +20,7 @@ def make_celery(app_name=__name__):
         backend=result_backend,
         include=[
             'tasks.broker_tasks',
-            'tasks.market_data_tasks', 
-            'tasks.ai_analysis_tasks',
-            'tasks.notification_tasks'
+            'tasks.market_data_tasks'
         ]
     )
     
@@ -48,8 +46,6 @@ def make_celery(app_name=__name__):
         task_routes={
             'tasks.broker_tasks.*': {'queue': 'broker_operations'},
             'tasks.market_data_tasks.*': {'queue': 'market_data'},
-            'tasks.ai_analysis_tasks.*': {'queue': 'ai_analysis'},
-            'tasks.notification_tasks.*': {'queue': 'notifications'},
         },
         
         # Error handling
@@ -69,10 +65,6 @@ def make_celery(app_name=__name__):
             'update-market-data': {
                 'task': 'tasks.market_data_tasks.update_market_indices', 
                 'schedule': crontab(minute='*/2'),  # Every 2 minutes
-            },
-            'cleanup-expired-sessions': {
-                'task': 'tasks.maintenance_tasks.cleanup_expired_sessions',
-                'schedule': crontab(hour=2, minute=0),  # Daily at 2 AM
             },
         },
     )

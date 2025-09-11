@@ -15,7 +15,8 @@ def sync_broker_holdings(self, broker_account_id):
     try:
         from app import app, db
         from models_broker import BrokerAccount, BrokerHolding
-        from services.broker_service import get_broker_service
+        # TODO: Implement broker service when ready
+        # from services.broker_service import get_broker_service
         
         with app.app_context():
             # Get broker account
@@ -24,15 +25,9 @@ def sync_broker_holdings(self, broker_account_id):
                 logger.error(f"Broker account {broker_account_id} not found")
                 return {'error': 'Broker account not found'}
             
-            # Get broker service and sync holdings
-            service = get_broker_service(broker_account.broker_type)
-            if not service:
-                logger.error(f"No service found for broker type: {broker_account.broker_type}")
-                return {'error': 'Broker service not available'}
-            
-            # Fetch holdings from broker API
-            credentials = broker_account.get_credentials()
-            holdings_data = service.get_holdings(credentials)
+            # TODO: Implement broker service integration
+            logger.info(f"Broker sync requested for account {broker_account_id} - service not implemented yet")
+            return {'info': 'Broker service integration pending implementation'}
             
             # Update database
             updated_count = 0

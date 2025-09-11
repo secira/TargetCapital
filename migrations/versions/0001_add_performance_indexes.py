@@ -45,11 +45,12 @@ def upgrade() -> None:
     
     # Create composite indexes for common query patterns
     op.create_index('ix_broker_holdings_account_symbol', 'broker_holdings', ['broker_account_id', 'trading_symbol'])
+    op.create_index('ix_broker_holdings_account_symbol_exchange', 'broker_holdings', ['broker_account_id', 'trading_symbol', 'exchange'])
     op.create_index('ix_broker_positions_account_symbol', 'broker_positions', ['broker_account_id', 'trading_symbol'])
+    op.create_index('ix_broker_positions_account_symbol_exchange', 'broker_positions', ['broker_account_id', 'trading_symbol', 'exchange'])
     op.create_index('ix_broker_orders_account_status', 'broker_orders', ['broker_account_id', 'order_status'])
+    op.create_index('ix_broker_orders_account_status_time', 'broker_orders', ['broker_account_id', 'order_status', 'order_time'])
     op.create_index('ix_broker_orders_account_time', 'broker_orders', ['broker_account_id', 'order_time'])
-    
-    print("✅ Performance indexes created successfully")
 
 
 def downgrade() -> None:
@@ -57,8 +58,11 @@ def downgrade() -> None:
     
     # Drop composite indexes
     op.drop_index('ix_broker_orders_account_time', 'broker_orders')
+    op.drop_index('ix_broker_orders_account_status_time', 'broker_orders')
     op.drop_index('ix_broker_orders_account_status', 'broker_orders')
+    op.drop_index('ix_broker_positions_account_symbol_exchange', 'broker_positions')
     op.drop_index('ix_broker_positions_account_symbol', 'broker_positions')
+    op.drop_index('ix_broker_holdings_account_symbol_exchange', 'broker_holdings')
     op.drop_index('ix_broker_holdings_account_symbol', 'broker_holdings')
     
     # Drop BrokerOrder indexes

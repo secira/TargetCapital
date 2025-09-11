@@ -10,12 +10,28 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 
-# Configure logging (production-safe)
-log_level = logging.INFO if os.environ.get("ENVIRONMENT") == "production" else logging.DEBUG
-logging.basicConfig(
-    level=log_level,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure structured logging with production configuration
+def setup_logging():
+    """Setup structured logging based on environment"""
+    environment = os.environ.get("ENVIRONMENT", "development")
+    
+    try:
+        from config.production_config import ProductionConfig
+        from logging.config import dictConfig
+        
+        logging_config = ProductionConfig.get_logging_config(environment)
+        dictConfig(logging_config)
+        logging.info("✅ Structured logging configured successfully")
+    except ImportError:
+        # Fallback to basic logging if production config not available
+        log_level = logging.INFO if environment == "production" else logging.DEBUG
+        logging.basicConfig(
+            level=log_level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        logging.warning("⚠️ Using fallback logging configuration")
+
+setup_logging()
 
 class Base(DeclarativeBase):
     pass
@@ -104,8 +120,7 @@ if is_production:
         ],
         'connect-src': [
             "'self'",
-            'ws:',
-            'wss:',
+            'wss:',  # Only secure WebSocket in production
         ],
         'frame-ancestors': "'none'",
     }

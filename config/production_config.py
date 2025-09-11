@@ -17,12 +17,14 @@ class ProductionConfig:
         required_vars = [
             'DATABASE_URL',
             'SESSION_SECRET',
-            'REDIS_URL',
-            'OPENAI_API_KEY'
+            'REDIS_URL'  # Required for rate limiting in production
         ]
         
+        # Conditionally required vars (require either OpenAI or Perplexity)
+        ai_keys = ['OPENAI_API_KEY', 'PERPLEXITY_API_KEY']
+        has_ai_key = any(os.environ.get(key) for key in ai_keys)
+        
         optional_vars = [
-            'PERPLEXITY_API_KEY',
             'SENDGRID_API_KEY',
             'RAZORPAY_KEY_ID',
             'RAZORPAY_KEY_SECRET'
@@ -38,6 +40,10 @@ class ProductionConfig:
                 missing_vars.append(var)
             elif var == 'SESSION_SECRET' and value == 'dev-secret-key-change-in-production':
                 missing_vars.append(f"{var} (using development default)")
+        
+        # Check AI key requirement
+        if not has_ai_key:
+            missing_vars.append("AI_API_KEY (need either OPENAI_API_KEY or PERPLEXITY_API_KEY)")
         
         # Check optional variables
         for var in optional_vars:
