@@ -49,7 +49,9 @@
                                     <span class="monthly-price">1999.0</span>
                                     <span class="annual-price d-none">1599.0</span>
                                 </h2>
-                                <small class="text-muted">/month</small>
+                                <small class="text-muted">
+                                    <span class="billing-period">/month</span>
+                                </small>
                             </div>
                         </div>
                         
@@ -98,7 +100,9 @@
                                     <span class="monthly-price">2999.0</span>
                                     <span class="annual-price d-none">2399.0</span>
                                 </h2>
-                                <small class="text-muted">/month</small>
+                                <small class="text-muted">
+                                    <span class="billing-period">/month</span>
+                                </small>
                             </div>
                         </div>
                         
@@ -138,13 +142,13 @@
                             <p class="text-muted mb-4">For HNI with busy schedule</p>
                             
                             <div class="pricing-display">
-                            <div class="pricing-display">
                                 <h2 class="display-4 fw-bold text-primary mb-0">
                                     <span class="monthly-price">9999.0</span>
                                     <span class="annual-price d-none">7999.0</span>
                                 </h2>
-                                <small class="text-muted">/month</small>
-                            </div>
+                                <small class="text-muted">
+                                    <span class="billing-period">/month</span>
+                                </small>
                             </div>
                         </div>
                         
@@ -365,16 +369,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const billingToggle = document.getElementById('billingToggle');
     const monthlyPrices = document.querySelectorAll('.monthly-price');
     const annualPrices = document.querySelectorAll('.annual-price');
+    const billingPeriods = document.querySelectorAll('.billing-period');
     
     billingToggle.addEventListener('change', function() {
         if (this.checked) {
-            // Show annual prices
+            // Show annual prices and update text
             monthlyPrices.forEach(el => el.classList.add('d-none'));
             annualPrices.forEach(el => el.classList.remove('d-none'));
+            billingPeriods.forEach(el => el.textContent = '/year');
         } else {
-            // Show monthly prices
+            // Show monthly prices and update text
             monthlyPrices.forEach(el => el.classList.remove('d-none'));
             annualPrices.forEach(el => el.classList.add('d-none'));
+            billingPeriods.forEach(el => el.textContent = '/month');
         }
     });
 });
