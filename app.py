@@ -204,7 +204,7 @@ except (NameError, KeyError):
         "pool_pre_ping": True,
         "pool_timeout": 30,  # Connection timeout
         "connect_args": {
-            "sslmode": "require",
+            "sslmode": "prefer",
             "connect_timeout": 10
         } if database_url.startswith('postgresql+psycopg2://') else {}
     }
