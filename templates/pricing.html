@@ -46,8 +46,8 @@
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price d-inline">₹1,999</span>
-                                    <span class="price-amount annual-price d-none">₹1,599</span>
+                                    <span class="price-amount monthly-price">₹1,999</span>
+                                    <span class="price-amount annual-price" style="display: none;">₹1,599</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -95,8 +95,8 @@
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price d-inline">₹2,999</span>
-                                    <span class="price-amount annual-price d-none">₹2,399</span>
+                                    <span class="price-amount monthly-price">₹2,999</span>
+                                    <span class="price-amount annual-price" style="display: none;">₹2,399</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -139,8 +139,8 @@
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price d-inline">₹9,999</span>
-                                    <span class="price-amount annual-price d-none">₹7,999</span>
+                                    <span class="price-amount monthly-price">₹9,999</span>
+                                    <span class="price-amount annual-price" style="display: none;">₹7,999</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -368,25 +368,13 @@ document.addEventListener('DOMContentLoaded', function() {
     billingToggle.addEventListener('change', function() {
         if (this.checked) {
             // Show annual prices and update text
-            monthlyPrices.forEach(el => {
-                el.classList.add('d-none');
-                el.classList.remove('d-inline');
-            });
-            annualPrices.forEach(el => {
-                el.classList.remove('d-none');
-                el.classList.add('d-inline');
-            });
+            monthlyPrices.forEach(el => el.style.display = 'none');
+            annualPrices.forEach(el => el.style.display = 'inline');
             billingPeriods.forEach(el => el.textContent = '/year');
         } else {
             // Show monthly prices and update text
-            monthlyPrices.forEach(el => {
-                el.classList.remove('d-none');
-                el.classList.add('d-inline');
-            });
-            annualPrices.forEach(el => {
-                el.classList.add('d-none');
-                el.classList.remove('d-inline');
-            });
+            monthlyPrices.forEach(el => el.style.display = 'inline');
+            annualPrices.forEach(el => el.style.display = 'none');
             billingPeriods.forEach(el => el.textContent = '/month');
         }
     });
