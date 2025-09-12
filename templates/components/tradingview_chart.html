@@ -129,25 +129,21 @@ function updateChartFooter(symbolInfo = null) {
 
 function loadTradingViewLibrary() {
     return new Promise((resolve, reject) => {
-        // Check if already loaded
-        if (typeof TradingView !== 'undefined') {
+        // Check if TradingViewWidget class is already available (loaded in base.html)
+        if (typeof TradingViewWidget !== 'undefined') {
             resolve();
             return;
         }
         
-        // Load TradingView library (this would need to be the actual library file)
-        const script = document.createElement('script');
-        script.src = '/static/js/tradingview-datafeed.js';
-        script.onload = () => {
-            // Also load the widget script
-            const widgetScript = document.createElement('script');
-            widgetScript.src = '/static/js/tradingview-widget.js';
-            widgetScript.onload = resolve;
-            widgetScript.onerror = reject;
-            document.head.appendChild(widgetScript);
-        };
-        script.onerror = reject;
-        document.head.appendChild(script);
+        // If not loaded yet, wait a bit and try again (scripts loading from base.html)
+        setTimeout(() => {
+            if (typeof TradingViewWidget !== 'undefined') {
+                resolve();
+            } else {
+                console.warn('TradingViewWidget not available, using fallback');
+                resolve(); // Continue anyway
+            }
+        }, 500);
     });
 }
 

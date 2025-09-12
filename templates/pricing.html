@@ -44,14 +44,12 @@
                             <h4 class="fw-bold text-dark mb-2">Trader</h4>
                             <p class="text-muted mb-4">Great for active trader</p>
                             
-                            <div class="pricing-display">
-                                <h2 class="display-4 fw-bold text-primary mb-0">
-                                    <span class="monthly-price">₹1,999</span>
-                                    <span class="annual-price" style="display: none;">₹1,599</span>
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">
+                                    <span class="price-amount monthly-price d-inline">₹1,999</span>
+                                    <span class="price-amount annual-price d-none">₹1,599</span>
                                 </h2>
-                                <small class="text-muted">
-                                    <span class="billing-period">/month</span>
-                                </small>
+                                <small class="text-muted billing-period">/month</small>
                             </div>
                         </div>
                         
@@ -84,7 +82,7 @@
             
             <!-- Professional Plan -->
             <div class="col-lg-4">
-                <div class="card border-0 shadow-lg h-100 position-relative" style="border-radius: 16px; transform: scale(1.05);">
+                <div class="card border-0 shadow-lg h-100 position-relative popular-card" style="border-radius: 16px;">
                     <!-- Popular Badge -->
                     <div class="position-absolute top-0 start-50 translate-middle">
                         <span class="badge bg-primary px-3 py-2 rounded-pill">Most Popular</span>
@@ -95,14 +93,12 @@
                             <h4 class="fw-bold text-dark mb-2">Trader Plus</h4>
                             <p class="text-muted mb-4">Great for active traders who want to execute orders</p>
                             
-                            <div class="pricing-display">
-                                <h2 class="display-4 fw-bold text-primary mb-0">
-                                    <span class="monthly-price">₹2,999</span>
-                                    <span class="annual-price" style="display: none;">₹2,399</span>
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">
+                                    <span class="price-amount monthly-price d-inline">₹2,999</span>
+                                    <span class="price-amount annual-price d-none">₹2,399</span>
                                 </h2>
-                                <small class="text-muted">
-                                    <span class="billing-period">/month</span>
-                                </small>
+                                <small class="text-muted billing-period">/month</small>
                             </div>
                         </div>
                         
@@ -141,14 +137,12 @@
                             <h4 class="fw-bold text-dark mb-2">HNI Account</h4>
                             <p class="text-muted mb-4">For HNI with busy schedule</p>
                             
-                            <div class="pricing-display">
-                                <h2 class="display-4 fw-bold text-primary mb-0">
-                                    <span class="monthly-price">₹9,999</span>
-                                    <span class="annual-price" style="display: none;">₹7,999</span>
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">
+                                    <span class="price-amount monthly-price d-inline">₹9,999</span>
+                                    <span class="price-amount annual-price d-none">₹7,999</span>
                                 </h2>
-                                <small class="text-muted">
-                                    <span class="billing-period">/month</span>
-                                </small>
+                                <small class="text-muted billing-period">/month</small>
                             </div>
                         </div>
                         
@@ -374,17 +368,48 @@ document.addEventListener('DOMContentLoaded', function() {
     billingToggle.addEventListener('change', function() {
         if (this.checked) {
             // Show annual prices and update text
-            monthlyPrices.forEach(el => el.style.display = 'none');
-            annualPrices.forEach(el => el.style.display = 'inline');
+            monthlyPrices.forEach(el => {
+                el.classList.add('d-none');
+                el.classList.remove('d-inline');
+            });
+            annualPrices.forEach(el => {
+                el.classList.remove('d-none');
+                el.classList.add('d-inline');
+            });
             billingPeriods.forEach(el => el.textContent = '/year');
         } else {
             // Show monthly prices and update text
-            monthlyPrices.forEach(el => el.style.display = 'inline');
-            annualPrices.forEach(el => el.style.display = 'none');
+            monthlyPrices.forEach(el => {
+                el.classList.remove('d-none');
+                el.classList.add('d-inline');
+            });
+            annualPrices.forEach(el => {
+                el.classList.add('d-none');
+                el.classList.remove('d-inline');
+            });
             billingPeriods.forEach(el => el.textContent = '/month');
         }
     });
 });
+
+// Add responsive popular card styling
+const style = document.createElement('style');
+style.textContent = `
+    .popular-card {
+        border: 2px solid #0d6efd !important;
+    }
+    @media (min-width: 992px) {
+        .popular-card {
+            transform: scale(1.03);
+        }
+    }
+    .price-amount {
+        min-width: 120px;
+        display: inline-block;
+        text-align: center;
+    }
+`;
+document.head.appendChild(style);
 </script>
 
 {% endblock %}
