@@ -1,4 +1,4 @@
-/* Custom CSS for tCapital */
+/* Enhanced CSS for Target Capital */
 
 :root {
     --primary-color: #0066cc;
@@ -10,8 +10,13 @@
     --dark-color: #343a40;
     --gradient-primary: linear-gradient(135deg, #0066cc 0%, #004499 100%);
     --gradient-secondary: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-light: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
     --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     --box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    --box-shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --border-radius: 16px;
+    --border-radius-xl: 24px;
 }
 
 /* Typography Standards - Headings 26px, Body 16px minimum */
