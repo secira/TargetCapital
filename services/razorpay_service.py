@@ -177,9 +177,9 @@ class RazorpayService:
                 'features': ['All Trader features', 'Connect upto 3 brokers', 'Advanced AI insights', 'Portfolio optimization'],
                 'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}
             },
-            'PREMIUM': {
-                'name': 'Premium Plan',
-                'price': 4999,
+            'HNI': {
+                'name': 'HNI Account',
+                'price': 9999,
                 'duration_days': 30,
                 'features': ['All features', 'Priority support', 'Custom strategies', 'Unlimited access'],
                 'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': -1}  # -1 means unlimited
