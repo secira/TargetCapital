@@ -1064,8 +1064,8 @@ def dashboard_trading_signals():
     """Trading signals page for paid users only"""
     # Check if user has paid subscription
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
-        flash('Trading signals are available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
+    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        flash('Trading signals are available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
     # Get date filter parameter
@@ -1107,8 +1107,8 @@ def dashboard_trading_signals():
 def dashboard_trade_now():
     # Check subscription access - now available for Trader, Trader Plus, and Premium users
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
-        flash('Trade execution is available for Trader, Trader Plus, and Premium subscribers only.', 'warning')
+    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        flash('Trade execution is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     """Trade Now page for executing live trades"""
     from datetime import date

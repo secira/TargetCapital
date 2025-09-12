@@ -155,7 +155,7 @@ class User(UserMixin, db.Model):
             return menu_item not in []  # Trader can access all menus now
         
         # Trader Plus and Premium users can access everything
-        elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
+        elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
             return True
             
         return False
@@ -166,7 +166,7 @@ class User(UserMixin, db.Model):
             PricingPlan.FREE: "Free User",
             PricingPlan.TRADER: "Trader",
             PricingPlan.TRADER_PLUS: "Trader Plus",
-            PricingPlan.PREMIUM: "Premium"
+            PricingPlan.HNI: "HNI Account"
         }
         return plan_names.get(self.pricing_plan, "Unknown")
     
@@ -176,7 +176,7 @@ class User(UserMixin, db.Model):
             PricingPlan.FREE: 0,
             PricingPlan.TRADER: 1999,
             PricingPlan.TRADER_PLUS: 2999,
-            PricingPlan.PREMIUM: 4999
+            PricingPlan.HNI: 9999
         }
         return prices.get(self.pricing_plan, 0)
     
@@ -1050,7 +1050,7 @@ class UserPayment(db.Model):
     # Payment details
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     currency = db.Column(db.String(3), default='INR')
-    plan = db.Column(db.String(20), nullable=False)  # 'TRADER', 'TRADER_PLUS', 'PREMIUM'
+    plan = db.Column(db.String(20), nullable=False)  # 'TRADER', 'TRADER_PLUS', 'HNI'
     payment_method = db.Column(db.String(50), nullable=True)
     
     # Razorpay details

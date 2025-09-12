@@ -204,7 +204,7 @@ def dashboard_live_portfolio():
     """Live portfolio with real broker data"""
     # Check subscription access
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
+    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
         flash('Live portfolio access requires Trader subscription or higher.', 'warning')
         return redirect(url_for('pricing'))
     
@@ -348,7 +348,7 @@ def dashboard_broker_trading():
     """Broker trading interface"""
     # Check subscription access
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.PREMIUM]:
+    if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
         flash('Broker trading requires Trader Plus or Premium subscription.', 'warning')
         return redirect(url_for('pricing'))
     

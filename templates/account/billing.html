@@ -21,8 +21,8 @@
                         <h4 class="text-primary mb-1">{{ current_user.get_plan_display_name() }}</h4>
                         {% if current_user.pricing_plan == PricingPlan.FREE %}
                         <p class="text-muted mb-0">Free plan with access to AI Advisor only</p>
-                        {% elif current_user.pricing_plan == PricingPlan.PREMIUM %}
-                        <p class="text-muted mb-0">Premium plan - Contact account manager for details</p>
+                        {% elif current_user.pricing_plan == PricingPlan.HNI %}
+                        <p class="text-muted mb-0">HNI Account - Contact account manager for details</p>
                         {% else %}
                         <p class="text-muted mb-0">₹{{ current_user.get_plan_price() }}/month</p>
                         {% endif %}
@@ -140,7 +140,7 @@
                     
                     <!-- Premium Plan -->
                     <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.PREMIUM %}border-warning{% endif %}">
+                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.HNI %}border-warning{% endif %}">
                             <div class="card-body text-center">
                                 <h5 class="card-title">Premium</h5>
                                 <h3 class="text-warning">₹4,999</h3>
@@ -150,7 +150,7 @@
                                     <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
                                     <li><i class="fas fa-check text-success me-2"></i>All features</li>
                                 </ul>
-                                {% if current_user.pricing_plan != PricingPlan.PREMIUM %}
+                                {% if current_user.pricing_plan != PricingPlan.HNI %}
                                 <button class="btn btn-warning btn-sm" onclick="upgradeToPlan('premium', 4999)">
                                     {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
                                 </button>
