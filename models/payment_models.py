@@ -14,7 +14,7 @@ except ImportError:
         FREE = "free"
         TRADER = "trader"
         TRADER_PLUS = "trader_plus"
-        PREMIUM = "premium"
+        HNI = "hni"
 import enum
 
 class PaymentStatus(enum.Enum):

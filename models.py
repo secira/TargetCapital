@@ -13,7 +13,7 @@ class PricingPlan(Enum):
     FREE = "free"
     TRADER = "trader"
     TRADER_PLUS = "trader_plus"
-    PREMIUM = "premium"
+    HNI = "hni"
 
 class SubscriptionStatus(Enum):
     ACTIVE = "active"
