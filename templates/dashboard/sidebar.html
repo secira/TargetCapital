@@ -79,14 +79,15 @@
                 </a>
             </div>
             
-            {% if broker_accounts %}
+            {% set connected_brokers = broker_accounts|selectattr('connection_status', 'equalto', 'connected')|list if broker_accounts else [] %}
+            {% if connected_brokers %}
                 <div class="broker-list">
-                    {% for account in broker_accounts %}
+                    {% for account in connected_brokers %}
                     <div class="broker-item">
                         <div class="broker-info">
                             <span class="broker-name">{{ account.broker_name }}</span>
-                            <span class="broker-status {{ 'connected' if account.connection_status == 'connected' else 'disconnected' }}">
-                                {{ account.connection_status.title() if account.connection_status else 'Disconnected' }}
+                            <span class="broker-status connected">
+                                Connected
                             </span>
                         </div>
                     </div>
