@@ -50,4 +50,6 @@ dependencies = [
     "alembic>=1.16.5",
     "flask-compress>=1.18",
     "gevent>=25.8.2",
+    "pytest>=8.4.2",
+    "pytest-flask>=1.3.0",
 ]
