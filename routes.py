@@ -2,6 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_required, login_user, logout_user, current_user
 from flask_limiter.util import get_remote_address
 from app import app, db, limiter, csrf
+from services.perplexity_service import PerplexityService
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
@@ -3260,8 +3261,7 @@ def api_perplexity_research():
         risk_tolerance = data.get('risk_tolerance', 'medium')
         investment_horizon = data.get('investment_horizon', 'medium')
         
-        from services.perplexity_service import PerplexityService
-        
+        # Use global perplexity service instance
         perplexity_service = PerplexityService()
         
         if research_type == 'single' and symbol:
@@ -3307,8 +3307,7 @@ def api_perplexity_generate_picks():
         data = request.get_json()
         criteria = data.get('criteria', {})
         
-        from services.perplexity_service import PerplexityService
-        
+        # Use global perplexity service instance
         perplexity_service = PerplexityService()
         result = perplexity_service.generate_ai_stock_picks(criteria)
         
@@ -3405,8 +3404,7 @@ def api_ai_perplexity_picks():
         data = request.get_json()
         criteria = data.get('criteria', {})
         
-        from services.perplexity_service import PerplexityService
-        
+        # Use global perplexity service instance
         perplexity_service = PerplexityService()
         result = perplexity_service.generate_ai_stock_picks(criteria)
         
@@ -3501,8 +3499,7 @@ def api_perplexity_market_insights():
     try:
         focus_area = request.args.get('focus', 'general')
         
-        from services.perplexity_service import PerplexityService
-        
+        # Use global perplexity service instance
         perplexity_service = PerplexityService()
         result = perplexity_service.get_market_insights(focus_area)
         
