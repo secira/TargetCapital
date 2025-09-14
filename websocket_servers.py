@@ -154,7 +154,7 @@ class MarketDataServer(WebSocketServer):
         """Update market data from NSE"""
         try:
             # Get indices data
-            indices_result = self.nse_service.get_nse_indices()
+            indices_result = self.nse_service.get_market_indices()
             
             # Get popular stocks
             popular_stocks = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK']
@@ -162,7 +162,7 @@ class MarketDataServer(WebSocketServer):
             
             for symbol in popular_stocks:
                 try:
-                    stock_result = self.nse_service.get_stock_data(symbol)
+                    stock_result = self.nse_service.get_stock_quote(symbol)
                     if stock_result.get('success'):
                         stocks_data[symbol] = stock_result['data']
                 except Exception as e:

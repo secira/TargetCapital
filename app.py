@@ -1,5 +1,8 @@
 import os
 import logging
+import threading
+import asyncio
+import atexit
 from flask import Flask, g
 from flask.helpers import send_from_directory
 from flask_compress import Compress
@@ -244,12 +247,84 @@ try:
 except ImportError as e:
     logging.warning(f"Admin blueprint not available: {e}")
 
+# WebSocket Server Management
+websocket_threads = []
+websocket_shutdown_event = threading.Event()
+
+def start_websocket_server_thread(server_start_func, server_name):
+    """Start a WebSocket server in a background thread"""
+    def run_server():
+        try:
+            logging.info(f"🚀 Starting {server_name} WebSocket server in background thread")
+            # Create new event loop for this thread
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            # Start the server
+            server_coro = server_start_func()
+            loop.run_until_complete(server_coro)
+            
+        except Exception as e:
+            logging.error(f"❌ Failed to start {server_name} WebSocket server: {e}")
+    
+    thread = threading.Thread(target=run_server, daemon=True, name=f"websocket-{server_name}")
+    thread.start()
+    websocket_threads.append(thread)
+    logging.info(f"✅ {server_name} WebSocket server thread started")
+
+def start_all_websocket_servers():
+    """Start all WebSocket servers in background threads"""
+    try:
+        from websocket_servers import (
+            start_market_data_server,
+            start_trading_updates_server, 
+            start_portfolio_updates_server
+        )
+        
+        logging.info("🌐 Initializing WebSocket infrastructure...")
+        
+        # Start each WebSocket server in its own thread
+        start_websocket_server_thread(start_market_data_server, "MarketData")
+        start_websocket_server_thread(start_trading_updates_server, "TradingUpdates")
+        start_websocket_server_thread(start_portfolio_updates_server, "PortfolioUpdates")
+        
+        logging.info("✅ All WebSocket servers started successfully")
+        
+    except ImportError as e:
+        logging.error(f"❌ Failed to import WebSocket servers: {e}")
+    except Exception as e:
+        logging.error(f"❌ Failed to start WebSocket servers: {e}")
+
+def cleanup_websocket_servers():
+    """Cleanup WebSocket servers on app shutdown"""
+    logging.info("🛑 Shutting down WebSocket servers...")
+    websocket_shutdown_event.set()
+    
+    # Wait for threads to complete (with timeout)
+    for thread in websocket_threads:
+        thread.join(timeout=5)
+    
+    logging.info("✅ WebSocket servers shutdown complete")
+
+# Register cleanup handler
+atexit.register(cleanup_websocket_servers)
+
 # Register WebSocket API routes
 try:
     from routes_websocket import register_websocket_apis
     register_websocket_apis(app)
 except ImportError as e:
     logging.warning(f"WebSocket API routes not available: {e}")
+
+# Start WebSocket servers on app initialization
+logging.info("🚀 Starting tCapital application with WebSocket support...")
+try:
+    from start_websockets import start_websockets_in_background
+    websocket_thread = start_websockets_in_background()
+    logging.info("✅ WebSocket servers launched in background")
+except Exception as e:
+    logging.error(f"❌ Failed to start WebSocket servers: {e}")
+    logging.info("🎭 Application will continue with demo mode fallback")
 
 # Performance optimizations - Caching and security headers
 @app.after_request
