@@ -8,6 +8,27 @@ from enum import Enum
 # Import broker models
 from models_broker import BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder
 
+# Portfolio Asset Classes
+class AssetType(Enum):
+    EQUITIES = "equities"           # Individual stocks
+    MUTUAL_FUNDS = "mutual_funds"   # Mutual fund units
+    FIXED_INCOME = "fixed_income"   # Bonds, FDs, etc.
+    FUTURES_OPTIONS = "futures_options"  # F&O contracts
+    NPS = "nps"                     # National Pension System
+    REAL_ESTATE = "real_estate"     # Real estate investments
+    GOLD = "gold"                   # Gold ETFs, digital gold
+    ETF = "etf"                     # Exchange traded funds
+    CRYPTO = "crypto"               # Cryptocurrency holdings
+    ESOP = "esop"                   # Employee stock options
+    PRIVATE_EQUITY = "private_equity"  # Private equity investments
+
+class AssetCategory(Enum):
+    EQUITY = "equity"               # Growth-oriented investments
+    DEBT = "debt"                   # Fixed income investments
+    COMMODITIES = "commodities"     # Physical commodities
+    ALTERNATIVE = "alternative"     # Alternative investments
+    HYBRID = "hybrid"               # Balanced/hybrid funds
+
 # Pricing Plan Enums
 class PricingPlan(Enum):
     FREE = "free"
@@ -425,11 +446,29 @@ class Portfolio(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    broker_id = db.Column(db.String(50), nullable=True)  # zerodha, angel, dhan, etc. (null for manual uploads)
-    ticker_symbol = db.Column(db.String(20), nullable=False)
-    stock_name = db.Column(db.String(200), nullable=False)
-    asset_type = db.Column(db.String(20), nullable=False)  # Stocks, MF, ETF, Bonds, Gold, Crypto, ESOP, PrivateEquity
-    asset_category = db.Column(db.String(50), nullable=True)  # Equity, Debt, Commodities, Alternative
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True)  # Proper foreign key to BrokerAccount
+    ticker_symbol = db.Column(db.String(50), nullable=False)  # Increased length for longer symbols like F&O
+    asset_name = db.Column(db.String(200), nullable=False)  # Renamed from stock_name for clarity
+    asset_type = db.Column(db.Enum(AssetType), nullable=False)  # Using enum for asset types
+    asset_category = db.Column(db.Enum(AssetCategory), nullable=True)  # Using enum for categories
+    
+    # F&O specific fields
+    contract_type = db.Column(db.String(20), nullable=True)  # CALL, PUT, FUTURE (for F&O)
+    strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
+    expiry_date = db.Column(db.Date, nullable=True)  # Expiry date for F&O contracts
+    lot_size = db.Column(db.Integer, nullable=True)  # Lot size for F&O
+    
+    # NPS specific fields
+    nps_scheme = db.Column(db.String(100), nullable=True)  # NPS scheme name
+    pension_fund_manager = db.Column(db.String(100), nullable=True)  # PFM name
+    
+    # Real Estate specific fields
+    property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land
+    property_location = db.Column(db.String(200), nullable=True)  # City/Area
+    
+    # Fixed Income specific fields
+    maturity_date = db.Column(db.Date, nullable=True)  # Maturity for bonds/FDs
+    interest_rate = db.Column(db.Float, nullable=True)  # Interest rate for fixed income
     quantity = db.Column(db.Float, nullable=False)
     date_purchased = db.Column(db.Date, nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)  # Price per unit when purchased
@@ -447,6 +486,30 @@ class Portfolio(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='portfolio_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='portfolio_holdings', foreign_keys=[broker_account_id])
+    
+    def get_asset_type_display(self):
+        """Get display name for asset type"""
+        asset_type_names = {
+            AssetType.EQUITIES: "Equities",
+            AssetType.MUTUAL_FUNDS: "Mutual Funds", 
+            AssetType.FIXED_INCOME: "Fixed Income",
+            AssetType.FUTURES_OPTIONS: "Futures & Options",
+            AssetType.NPS: "National Pension System",
+            AssetType.REAL_ESTATE: "Real Estate",
+            AssetType.GOLD: "Gold",
+            AssetType.ETF: "ETFs",
+            AssetType.CRYPTO: "Cryptocurrency",
+            AssetType.ESOP: "ESOP",
+            AssetType.PRIVATE_EQUITY: "Private Equity"
+        }
+        return asset_type_names.get(self.asset_type, str(self.asset_type.value))
+    
+    def get_broker_name(self):
+        """Get broker name or 'Manual' if no broker"""
+        if self.broker_account:
+            return self.broker_account.broker_name
+        return "Manual Entry"
     
     @property
     def pnl_amount(self):

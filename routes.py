@@ -2393,6 +2393,211 @@ def api_ai_analyze_stock():
             'error': 'Failed to analyze stock'
         }), 500
 
+@app.route('/api/portfolio/unified', methods=['GET'])
+@login_required
+def api_portfolio_unified():
+    """Get unified portfolio view across all asset classes and brokers"""
+    try:
+        from models import Portfolio, AssetType
+        from sqlalchemy import func
+        
+        # Get all portfolio holdings for user
+        holdings = Portfolio.query.filter_by(user_id=current_user.id).all()
+        
+        # Calculate totals
+        total_value = sum(h.current_value or 0 for h in holdings)
+        total_pnl = sum(h.pnl_amount for h in holdings)
+        total_pnl_percentage = (total_pnl / sum(h.purchased_value for h in holdings) * 100) if sum(h.purchased_value for h in holdings) > 0 else 0
+        
+        # Group by asset type
+        asset_breakdown = {}
+        for holding in holdings:
+            asset_type = holding.asset_type.value
+            if asset_type not in asset_breakdown:
+                asset_breakdown[asset_type] = {
+                    'asset_type': holding.get_asset_type_display(),
+                    'holdings': [],
+                    'total_value': 0,
+                    'total_pnl': 0,
+                    'count': 0
+                }
+            
+            asset_breakdown[asset_type]['holdings'].append({
+                'id': holding.id,
+                'ticker_symbol': holding.ticker_symbol,
+                'asset_name': holding.asset_name,
+                'quantity': holding.quantity,
+                'current_price': holding.current_price,
+                'current_value': holding.current_value,
+                'purchase_price': holding.purchase_price,
+                'purchased_value': holding.purchased_value,
+                'pnl_amount': holding.pnl_amount,
+                'pnl_percentage': holding.pnl_percentage,
+                'broker_name': holding.get_broker_name(),
+                'sector': holding.sector,
+                'date_purchased': holding.date_purchased.strftime('%Y-%m-%d') if holding.date_purchased else None
+            })
+            asset_breakdown[asset_type]['total_value'] += holding.current_value or 0
+            asset_breakdown[asset_type]['total_pnl'] += holding.pnl_amount
+            asset_breakdown[asset_type]['count'] += 1
+        
+        return jsonify({
+            'success': True,
+            'portfolio_summary': {
+                'total_value': total_value,
+                'total_pnl': total_pnl,
+                'total_pnl_percentage': total_pnl_percentage,
+                'total_holdings': len(holdings)
+            },
+            'asset_breakdown': asset_breakdown
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/portfolio/by-broker', methods=['GET'])
+@login_required
+def api_portfolio_by_broker():
+    """Get portfolio view grouped by broker"""
+    try:
+        from models import Portfolio, BrokerAccount
+        
+        # Get all portfolio holdings with broker information
+        holdings = db.session.query(Portfolio, BrokerAccount).outerjoin(
+            BrokerAccount, Portfolio.broker_account_id == BrokerAccount.id
+        ).filter(Portfolio.user_id == current_user.id).all()
+        
+        # Group by broker
+        broker_breakdown = {}
+        for holding, broker in holdings:
+            broker_key = broker.broker_name if broker else "Manual Entry"
+            broker_id = broker.id if broker else None
+            
+            if broker_key not in broker_breakdown:
+                broker_breakdown[broker_key] = {
+                    'broker_id': broker_id,
+                    'broker_name': broker_key,
+                    'connection_status': broker.connection_status if broker else 'manual',
+                    'holdings': [],
+                    'total_value': 0,
+                    'total_pnl': 0,
+                    'count': 0,
+                    'asset_types': set()
+                }
+            
+            broker_breakdown[broker_key]['holdings'].append({
+                'id': holding.id,
+                'ticker_symbol': holding.ticker_symbol,
+                'asset_name': holding.asset_name,
+                'asset_type': holding.get_asset_type_display(),
+                'quantity': holding.quantity,
+                'current_value': holding.current_value,
+                'purchased_value': holding.purchased_value,
+                'pnl_amount': holding.pnl_amount,
+                'pnl_percentage': holding.pnl_percentage,
+                'sector': holding.sector
+            })
+            broker_breakdown[broker_key]['total_value'] += holding.current_value or 0
+            broker_breakdown[broker_key]['total_pnl'] += holding.pnl_amount
+            broker_breakdown[broker_key]['count'] += 1
+            broker_breakdown[broker_key]['asset_types'].add(holding.get_asset_type_display())
+        
+        # Convert sets to lists for JSON serialization
+        for broker_data in broker_breakdown.values():
+            broker_data['asset_types'] = list(broker_data['asset_types'])
+        
+        return jsonify({
+            'success': True,
+            'broker_breakdown': broker_breakdown,
+            'total_brokers': len(broker_breakdown)
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/portfolio/by-asset-type/<asset_type>', methods=['GET'])
+@login_required
+def api_portfolio_by_asset_type(asset_type):
+    """Get portfolio holdings for specific asset type"""
+    try:
+        from models import Portfolio, AssetType
+        
+        # Validate asset type
+        try:
+            asset_enum = AssetType(asset_type)
+        except ValueError:
+            return jsonify({'success': False, 'error': 'Invalid asset type'}), 400
+        
+        # Get holdings for specific asset type
+        holdings = Portfolio.query.filter_by(
+            user_id=current_user.id,
+            asset_type=asset_enum
+        ).all()
+        
+        holdings_data = []
+        total_value = 0
+        total_pnl = 0
+        
+        for holding in holdings:
+            holding_data = {
+                'id': holding.id,
+                'ticker_symbol': holding.ticker_symbol,
+                'asset_name': holding.asset_name,
+                'quantity': holding.quantity,
+                'current_price': holding.current_price,
+                'current_value': holding.current_value,
+                'purchase_price': holding.purchase_price,
+                'purchased_value': holding.purchased_value,
+                'pnl_amount': holding.pnl_amount,
+                'pnl_percentage': holding.pnl_percentage,
+                'broker_name': holding.get_broker_name(),
+                'sector': holding.sector,
+                'date_purchased': holding.date_purchased.strftime('%Y-%m-%d') if holding.date_purchased else None
+            }
+            
+            # Add asset-specific fields based on type
+            if asset_enum == AssetType.FUTURES_OPTIONS:
+                holding_data.update({
+                    'contract_type': holding.contract_type,
+                    'strike_price': holding.strike_price,
+                    'expiry_date': holding.expiry_date.strftime('%Y-%m-%d') if holding.expiry_date else None,
+                    'lot_size': holding.lot_size
+                })
+            elif asset_enum == AssetType.NPS:
+                holding_data.update({
+                    'nps_scheme': holding.nps_scheme,
+                    'pension_fund_manager': holding.pension_fund_manager
+                })
+            elif asset_enum == AssetType.REAL_ESTATE:
+                holding_data.update({
+                    'property_type': holding.property_type,
+                    'property_location': holding.property_location
+                })
+            elif asset_enum == AssetType.FIXED_INCOME:
+                holding_data.update({
+                    'maturity_date': holding.maturity_date.strftime('%Y-%m-%d') if holding.maturity_date else None,
+                    'interest_rate': holding.interest_rate
+                })
+            
+            holdings_data.append(holding_data)
+            total_value += holding.current_value or 0
+            total_pnl += holding.pnl_amount
+        
+        return jsonify({
+            'success': True,
+            'asset_type': asset_enum.value,
+            'asset_type_display': holdings[0].get_asset_type_display() if holdings else '',
+            'holdings': holdings_data,
+            'summary': {
+                'total_value': total_value,
+                'total_pnl': total_pnl,
+                'count': len(holdings)
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/ai/optimize-portfolio', methods=['POST'])
 @login_required
 def api_ai_optimize_portfolio():
