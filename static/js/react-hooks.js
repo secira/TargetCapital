@@ -46,6 +46,8 @@ const StateManager = {
         }
     }
 };
+window.StateManager = StateManager;
+}
 
 // React-style useState hook
 function useState(initialValue) {

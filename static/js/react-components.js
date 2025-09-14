@@ -38,6 +38,8 @@ class Component {
         }
     }
 }
+window.Component = Component;
+}
 
 // WebSocket Hook for React-like data management
 class WebSocketManager {

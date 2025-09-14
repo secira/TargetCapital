@@ -3,7 +3,7 @@
  * Provides embedded TradingView charts without requiring API credentials
  */
 
-if (!window.TradingViewWidget) {
+if (!window.TradingViewWidgetClass) {
 class TradingViewWidget {
     constructor() {
         this.widgetConfigs = {
@@ -324,10 +324,12 @@ class TradingViewWidget {
         `;
     }
 }
+window.TradingViewWidgetClass = TradingViewWidget;
+}
 
 // Global instance - avoid redefinition
-if (!window.TradingViewWidget) {
-    window.TradingViewWidget = new TradingViewWidget();
+if (!window.tradingViewWidget) {
+    window.tradingViewWidget = new window.TradingViewWidgetClass();
 }
 
 // Global functions for chart interactions
@@ -722,10 +724,10 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
         modal.removeAttribute('aria-hidden');
         modal.setAttribute('aria-modal', 'true');
         // Create widget instance and load the custom chart interface
-        if (!window.TradingViewWidget) {
-            window.TradingViewWidget = new TradingViewWidget();
+        if (!window.tradingViewWidget) {
+            window.tradingViewWidget = new window.TradingViewWidgetClass();
         }
-        window.TradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
+        window.tradingViewWidget.createEmbeddedWidget(chartContainer, symbol, 500);
     });
     
     // Clean up when modal is hidden
@@ -736,5 +738,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
 };
 
 // Initialize TradingView widget instance globally - avoid redefinition
-window.TradingViewWidget = new TradingViewWidget();
+if (!window.tradingViewWidget) {
+    window.tradingViewWidget = new window.TradingViewWidgetClass();
+}
 }

@@ -7,6 +7,42 @@
         </a>
     </div>
 
+    <!-- User Plan Section -->
+    {% if current_user.is_authenticated %}
+    <div class="menu-section">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-crown"></i>
+                Current Plan
+            </h3>
+        </div>
+        
+        <div class="plan-info">
+            <div class="plan-details">
+                <span class="plan-name">{{ current_user.get_plan_display_name() }}</span>
+                <span class="plan-badge {{ current_user.pricing_plan.value }}">
+                    {% if current_user.pricing_plan.value == 'free' %}
+                    Free
+                    {% elif current_user.pricing_plan.value == 'trader' %}
+                    Trader
+                    {% elif current_user.pricing_plan.value == 'trader_plus' %}
+                    Trader Plus
+                    {% else %}
+                    Premium
+                    {% endif %}
+                </span>
+            </div>
+            
+            {% if current_user.pricing_plan.value == 'free' %}
+            <a href="{{ url_for('pricing') }}" class="upgrade-link">
+                <i class="fas fa-arrow-up"></i>
+                Upgrade Plan
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Navigation Menu -->
     <div class="sidebar-menu">
         <div class="menu-section">
@@ -103,41 +139,6 @@
             {% endif %}
         </div>
 
-        <!-- User Plan Section -->
-        {% if current_user.is_authenticated %}
-        <div class="menu-section">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fas fa-crown"></i>
-                    Current Plan
-                </h3>
-            </div>
-            
-            <div class="plan-info">
-                <div class="plan-details">
-                    <span class="plan-name">{{ current_user.get_plan_display_name() }}</span>
-                    <span class="plan-badge {{ current_user.pricing_plan.value }}">
-                        {% if current_user.pricing_plan.value == 'free' %}
-                        Free
-                        {% elif current_user.pricing_plan.value == 'trader' %}
-                        Trader
-                        {% elif current_user.pricing_plan.value == 'trader_plus' %}
-                        Trader Plus
-                        {% else %}
-                        Premium
-                        {% endif %}
-                    </span>
-                </div>
-                
-                {% if current_user.pricing_plan.value == 'free' %}
-                <a href="{{ url_for('pricing') }}" class="upgrade-link">
-                    <i class="fas fa-arrow-up"></i>
-                    Upgrade Plan
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
 
         <!-- AI Status Section -->
         <div class="menu-section">
