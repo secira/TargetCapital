@@ -9,7 +9,7 @@
 
     <!-- User Plan Section -->
     {% if current_user.is_authenticated %}
-    <div class="menu-section">
+    <div class="menu-section plan-section">
         <div class="section-header">
             <h3 class="section-title">
                 <i class="fas fa-crown"></i>
@@ -175,7 +175,6 @@
 /* Brand */
 .sidebar-brand {
     padding: 24px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     flex-shrink: 0;
 }
 
@@ -230,6 +229,13 @@
 /* Menu Sections */
 .menu-section {
     margin-bottom: 32px;
+}
+
+/* Plan section separator */
+.plan-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .menu-section:last-child {
