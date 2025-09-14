@@ -446,29 +446,23 @@ class Portfolio(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True)  # Proper foreign key to BrokerAccount
-    ticker_symbol = db.Column(db.String(50), nullable=False)  # Increased length for longer symbols like F&O
-    asset_name = db.Column(db.String(200), nullable=False)  # Renamed from stock_name for clarity
-    asset_type = db.Column(db.Enum(AssetType), nullable=False)  # Using enum for asset types
-    asset_category = db.Column(db.Enum(AssetCategory), nullable=True)  # Using enum for categories
+    broker_id = db.Column(db.String(50), nullable=True)  # Temporary - matches current database
+    ticker_symbol = db.Column(db.String(20), nullable=False)  # Original length
+    stock_name = db.Column(db.String(200), nullable=False)  # Original column name - will be renamed later
+    asset_type = db.Column(db.String(50), nullable=True)  # Temporary string type
+    asset_category = db.Column(db.String(50), nullable=True)  # Temporary string type
     
-    # F&O specific fields
-    contract_type = db.Column(db.String(20), nullable=True)  # CALL, PUT, FUTURE (for F&O)
-    strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
-    expiry_date = db.Column(db.Date, nullable=True)  # Expiry date for F&O contracts
-    lot_size = db.Column(db.Integer, nullable=True)  # Lot size for F&O
-    
-    # NPS specific fields
-    nps_scheme = db.Column(db.String(100), nullable=True)  # NPS scheme name
-    pension_fund_manager = db.Column(db.String(100), nullable=True)  # PFM name
-    
-    # Real Estate specific fields
-    property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land
-    property_location = db.Column(db.String(200), nullable=True)  # City/Area
-    
-    # Fixed Income specific fields
-    maturity_date = db.Column(db.Date, nullable=True)  # Maturity for bonds/FDs
-    interest_rate = db.Column(db.Float, nullable=True)  # Interest rate for fixed income
+    # Additional fields temporarily commented out until migration
+    # contract_type = db.Column(db.String(20), nullable=True)  # CALL, PUT, FUTURE (for F&O)
+    # strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
+    # expiry_date = db.Column(db.Date, nullable=True)  # Expiry date for F&O contracts
+    # lot_size = db.Column(db.Integer, nullable=True)  # Lot size for F&O
+    # nps_scheme = db.Column(db.String(100), nullable=True)  # NPS scheme name
+    # pension_fund_manager = db.Column(db.String(100), nullable=True)  # PFM name
+    # property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land
+    # property_location = db.Column(db.String(200), nullable=True)  # City/Area
+    # maturity_date = db.Column(db.Date, nullable=True)  # Maturity for bonds/FDs
+    # interest_rate = db.Column(db.Float, nullable=True)  # Interest rate for fixed income
     quantity = db.Column(db.Float, nullable=False)
     date_purchased = db.Column(db.Date, nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)  # Price per unit when purchased
@@ -486,7 +480,7 @@ class Portfolio(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='portfolio_holdings')
-    broker_account = db.relationship('BrokerAccount', backref='portfolio_holdings', foreign_keys=[broker_account_id])
+    # broker_account = db.relationship('BrokerAccount', backref='portfolio_holdings', foreign_keys=[broker_account_id])  # Temporarily disabled
     
     def get_asset_type_display(self):
         """Get display name for asset type"""
@@ -507,8 +501,8 @@ class Portfolio(db.Model):
     
     def get_broker_name(self):
         """Get broker name or 'Manual' if no broker"""
-        if self.broker_account:
-            return self.broker_account.broker_name
+        if self.broker_id:
+            return self.broker_id
         return "Manual Entry"
     
     @property
