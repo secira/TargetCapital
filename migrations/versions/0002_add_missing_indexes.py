@@ -28,6 +28,13 @@ def upgrade() -> None:
         if not inspector.has_table(table_name):
             return
         
+        # Check if all columns exist in the table
+        table_columns = [col['name'] for col in inspector.get_columns(table_name)]
+        for col in columns:
+            if col not in table_columns:
+                print(f"Warning: Column '{col}' does not exist in table '{table_name}', skipping index {index_name}")
+                return
+        
         existing_indexes = [idx['name'] for idx in inspector.get_indexes(table_name)]
         if index_name not in existing_indexes:
             try:
