@@ -28,7 +28,8 @@ class AdvancedAIFunctions:
             else:
                 query = "Analyze today's major market-moving news in Indian stock market. Include top 5 stocks most affected by news, sentiment analysis, and trading opportunities."
             
-            response, usage = self.perplexity.get_investment_advice(query, [])
+            response = self.perplexity.get_market_insights(query)
+            usage = "perplexity_api"
             
             return {
                 "analysis": response,
@@ -56,7 +57,8 @@ class AdvancedAIFunctions:
             else:
                 query = f"Compare Indian stock {primary_stock} against its top 4 main competitors. Include financial metrics comparison, growth analysis, valuation ratios, competitive advantages, and AI-powered investment recommendation with reasoning."
             
-            response, usage = self.perplexity.get_investment_advice(query, [])
+            response = self.perplexity.get_market_insights(query)
+            usage = "perplexity_api"
             
             return {
                 "comparison": response,
@@ -87,7 +89,8 @@ class AdvancedAIFunctions:
             else:
                 query = "Predict sector rotation opportunities in Indian stock market for next 3-6 months. Which sectors are poised to outperform? Include economic indicators driving rotation, timing signals, and top 2-3 stock recommendations per sector with reasoning."
             
-            response, usage = self.perplexity.get_investment_advice(query, [])
+            response = self.perplexity.get_market_insights(query)
+            usage = "perplexity_api"
             
             return {
                 "prediction": response,
@@ -113,7 +116,8 @@ class AdvancedAIFunctions:
         try:
             query = f"Scan for market crash opportunities in Indian stock market. Identify quality large-cap and mid-cap stocks trading at significant discounts due to recent market corrections. Include 'buy the dip' recommendations with conviction levels, intrinsic value estimates, and recovery potential analysis. Risk tolerance: {risk_tolerance}."
             
-            response, usage = self.perplexity.get_investment_advice(query, [])
+            response = self.perplexity.get_market_insights(query)
+            usage = "perplexity_api"
             
             return {
                 "opportunities": response,
@@ -141,7 +145,8 @@ class AdvancedAIFunctions:
             else:
                 query = "Analyze upcoming IPOs and new listings in Indian stock market for next 2-3 months. Include business analysis, valuation assessment, risk-reward analysis, fair value estimates, and investment recommendations for each IPO with conviction levels."
             
-            response, usage = self.perplexity.get_investment_advice(query, [])
+            response = self.perplexity.get_market_insights(query)
+            usage = "perplexity_api"
             
             return {
                 "analysis": response,
