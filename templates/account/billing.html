@@ -138,12 +138,12 @@
                         </div>
                     </div>
                     
-                    <!-- Premium Plan -->
+                    <!-- HNI Account Plan -->
                     <div class="col-md-6 col-lg-3">
                         <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.HNI %}border-warning{% endif %}">
                             <div class="card-body text-center">
-                                <h5 class="card-title">Premium</h5>
-                                <h3 class="text-warning">₹4,999</h3>
+                                <h5 class="card-title">HNI Account</h5>
+                                <h3 class="text-warning">₹9,999</h3>
                                 <p class="text-muted small">per month</p>
                                 <ul class="list-unstyled text-start small">
                                     <li><i class="fas fa-check text-success me-2"></i>Unlimited brokers</li>
@@ -151,7 +151,7 @@
                                     <li><i class="fas fa-check text-success me-2"></i>All features</li>
                                 </ul>
                                 {% if current_user.pricing_plan != PricingPlan.HNI %}
-                                <button class="btn btn-warning btn-sm" onclick="upgradeToPlan('premium', 4999)">
+                                <button class="btn btn-warning btn-sm" onclick="upgradeToPlan('hni', 9999)">
                                     {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
                                 </button>
                                 {% else %}
@@ -401,8 +401,8 @@ function downgradeToPlan(planType) {
     }
 }
 
-function contactForPremium() {
-    window.location.href = '{{ url_for("contact") }}?subject=Premium Plan Inquiry';
+function contactForHNI() {
+    window.location.href = '{{ url_for("contact") }}?subject=HNI Account Inquiry';
 }
 
 function cancelSubscription() {

@@ -154,7 +154,7 @@ class User(UserMixin, db.Model):
         elif self.pricing_plan == PricingPlan.TRADER:
             return menu_item not in []  # Trader can access all menus now
         
-        # Trader Plus and Premium users can access everything
+        # Trader Plus and HNI users can access everything
         elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
             return True
             
