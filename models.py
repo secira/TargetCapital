@@ -452,17 +452,33 @@ class Portfolio(db.Model):
     asset_type = db.Column(db.String(50), nullable=True)  # Temporary string type
     asset_category = db.Column(db.String(50), nullable=True)  # Temporary string type
     
-    # Additional fields temporarily commented out until migration
-    # contract_type = db.Column(db.String(20), nullable=True)  # CALL, PUT, FUTURE (for F&O)
-    # strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
-    # expiry_date = db.Column(db.Date, nullable=True)  # Expiry date for F&O contracts
-    # lot_size = db.Column(db.Integer, nullable=True)  # Lot size for F&O
-    # nps_scheme = db.Column(db.String(100), nullable=True)  # NPS scheme name
-    # pension_fund_manager = db.Column(db.String(100), nullable=True)  # PFM name
-    # property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land
-    # property_location = db.Column(db.String(200), nullable=True)  # City/Area
-    # maturity_date = db.Column(db.Date, nullable=True)  # Maturity for bonds/FDs
-    # interest_rate = db.Column(db.Float, nullable=True)  # Interest rate for fixed income
+    # F&O (Futures & Options) specific fields
+    contract_type = db.Column(db.String(20), nullable=True)  # CALL, PUT, FUTURE (for F&O)
+    strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
+    expiry_date = db.Column(db.Date, nullable=True)  # Expiry date for F&O contracts
+    lot_size = db.Column(db.Integer, nullable=True)  # Lot size for F&O
+    option_type = db.Column(db.String(20), nullable=True)  # CE, PE for options
+    
+    # NPS (National Pension System) specific fields
+    nps_scheme = db.Column(db.String(100), nullable=True)  # NPS scheme name
+    pension_fund_manager = db.Column(db.String(100), nullable=True)  # PFM name
+    tier = db.Column(db.String(10), nullable=True)  # NPS Tier - Tier 1 or Tier 2
+    
+    # Real Estate specific fields
+    property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land
+    property_location = db.Column(db.String(200), nullable=True)  # City/Area
+    area_sqft = db.Column(db.Float, nullable=True)  # Area of property in square feet
+    
+    # Fixed Income specific fields (Bonds, FDs, etc.)
+    maturity_date = db.Column(db.Date, nullable=True)  # Maturity for bonds/FDs
+    interest_rate = db.Column(db.Float, nullable=True)  # Interest rate for fixed income
+    coupon_rate = db.Column(db.Float, nullable=True)  # Coupon rate for bonds
+    face_value = db.Column(db.Float, nullable=True)  # Face value of bond/FD
+    
+    # Gold specific fields
+    gold_form = db.Column(db.String(50), nullable=True)  # Physical, Digital, ETF, Coins
+    gold_purity = db.Column(db.String(20), nullable=True)  # 22K, 24K, etc.
+    grams = db.Column(db.Float, nullable=True)  # Weight in grams for physical gold
     quantity = db.Column(db.Float, nullable=False)
     date_purchased = db.Column(db.Date, nullable=False)
     purchase_price = db.Column(db.Float, nullable=False)  # Price per unit when purchased
@@ -485,19 +501,19 @@ class Portfolio(db.Model):
     def get_asset_type_display(self):
         """Get display name for asset type"""
         asset_type_names = {
-            AssetType.EQUITIES: "Equities",
-            AssetType.MUTUAL_FUNDS: "Mutual Funds", 
-            AssetType.FIXED_INCOME: "Fixed Income",
-            AssetType.FUTURES_OPTIONS: "Futures & Options",
-            AssetType.NPS: "National Pension System",
-            AssetType.REAL_ESTATE: "Real Estate",
-            AssetType.GOLD: "Gold",
-            AssetType.ETF: "ETFs",
-            AssetType.CRYPTO: "Cryptocurrency",
-            AssetType.ESOP: "ESOP",
-            AssetType.PRIVATE_EQUITY: "Private Equity"
+            "equities": "Equities",
+            "mutual_funds": "Mutual Funds", 
+            "fixed_income": "Fixed Income",
+            "futures_options": "Futures & Options",
+            "nps": "National Pension System",
+            "real_estate": "Real Estate",
+            "gold": "Gold",
+            "etf": "ETFs",
+            "crypto": "Cryptocurrency",
+            "esop": "ESOP",
+            "private_equity": "Private Equity"
         }
-        return asset_type_names.get(self.asset_type, str(self.asset_type.value))
+        return asset_type_names.get(self.asset_type, self.asset_type.title() if self.asset_type else "Unknown")
     
     def get_broker_name(self):
         """Get broker name or 'Manual' if no broker"""
@@ -535,6 +551,144 @@ class Portfolio(db.Model):
         elif pnl < 0:
             return 'text-danger'
         return 'text-muted'
+    
+    # Asset Type Helper Methods
+    def is_equity(self):
+        """Check if this is an equity asset"""
+        return self.asset_type in ['equities', 'esop']
+    
+    def is_futures_options(self):
+        """Check if this is a F&O asset"""
+        return self.asset_type == 'futures_options'
+    
+    def is_fixed_income(self):
+        """Check if this is a fixed income asset"""
+        return self.asset_type == 'fixed_income'
+    
+    def is_real_estate(self):
+        """Check if this is a real estate asset"""
+        return self.asset_type == 'real_estate'
+    
+    def is_gold(self):
+        """Check if this is a gold asset"""
+        return self.asset_type == 'gold'
+    
+    def is_nps(self):
+        """Check if this is a NPS asset"""
+        return self.asset_type == 'nps'
+    
+    def get_asset_category_display(self):
+        """Get display name for asset category"""
+        category_names = {
+            "equity": "Equity",
+            "debt": "Debt", 
+            "commodities": "Commodities",
+            "alternative": "Alternative",
+            "hybrid": "Hybrid"
+        }
+        return category_names.get(self.asset_category, self.asset_category.title() if self.asset_category else "Unknown")
+    
+    def get_asset_specific_info(self):
+        """Get asset-specific information as a dictionary"""
+        info = {}
+        
+        if self.is_futures_options():
+            info.update({
+                'Contract Type': self.contract_type,
+                'Strike Price': self.strike_price,
+                'Expiry Date': self.expiry_date.strftime('%d-%m-%Y') if self.expiry_date else None,
+                'Lot Size': self.lot_size,
+                'Option Type': self.option_type
+            })
+        
+        elif self.is_nps():
+            info.update({
+                'NPS Scheme': self.nps_scheme,
+                'Pension Fund Manager': self.pension_fund_manager,
+                'Tier': self.tier
+            })
+        
+        elif self.is_real_estate():
+            info.update({
+                'Property Type': self.property_type,
+                'Location': self.property_location,
+                'Area (sq ft)': self.area_sqft
+            })
+        
+        elif self.is_fixed_income():
+            info.update({
+                'Maturity Date': self.maturity_date.strftime('%d-%m-%Y') if self.maturity_date else None,
+                'Interest Rate': f"{self.interest_rate}%" if self.interest_rate else None,
+                'Coupon Rate': f"{self.coupon_rate}%" if self.coupon_rate else None,
+                'Face Value': self.face_value
+            })
+        
+        elif self.is_gold():
+            info.update({
+                'Gold Form': self.gold_form,
+                'Purity': self.gold_purity,
+                'Weight (grams)': self.grams
+            })
+        
+        # Remove None values
+        return {k: v for k, v in info.items() if v is not None}
+    
+    def has_expiry(self):
+        """Check if this asset has an expiry date"""
+        return self.expiry_date is not None
+    
+    def days_to_expiry(self):
+        """Calculate days to expiry for F&O contracts"""
+        if self.expiry_date:
+            from datetime import date
+            return (self.expiry_date - date.today()).days
+        return None
+    
+    def is_expiring_soon(self, days=7):
+        """Check if F&O contract is expiring within specified days"""
+        days_left = self.days_to_expiry()
+        return days_left is not None and days_left <= days
+    
+    def get_risk_level(self):
+        """Get risk level based on asset type"""
+        risk_levels = {
+            'equities': 'Medium',
+            'futures_options': 'High',
+            'fixed_income': 'Low',
+            'real_estate': 'Medium',
+            'gold': 'Low',
+            'nps': 'Low',
+            'mutual_funds': 'Medium',
+            'etf': 'Medium',
+            'crypto': 'Very High',
+            'esop': 'High',
+            'private_equity': 'Very High'
+        }
+        return risk_levels.get(self.asset_type, 'Unknown')
+    
+    def validate_required_fields(self):
+        """Validate that all required fields for this asset type are present"""
+        errors = []
+        
+        if self.is_futures_options():
+            if not self.contract_type:
+                errors.append("Contract type is required for F&O assets")
+            if not self.expiry_date:
+                errors.append("Expiry date is required for F&O assets")
+        
+        elif self.is_real_estate() and not self.property_type:
+            errors.append("Property type is required for real estate assets")
+        
+        elif self.is_nps() and not self.nps_scheme:
+            errors.append("NPS scheme is required for NPS assets")
+        
+        elif self.is_fixed_income() and not self.maturity_date:
+            errors.append("Maturity date is required for fixed income assets")
+        
+        elif self.is_gold() and not self.gold_form:
+            errors.append("Gold form is required for gold assets")
+        
+        return errors
     
     def __repr__(self):
         return f'<Portfolio {self.ticker_symbol} - {self.quantity} units>'
