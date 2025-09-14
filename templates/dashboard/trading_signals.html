@@ -2,6 +2,66 @@
 
 {% block title %}Trading Signals - tCapital Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Trading Signals Table Improvements */
+.trading-signals-table {
+    min-width: 1400px !important;
+    width: 100% !important;
+}
+
+.trading-signals-table th,
+.trading-signals-table td {
+    padding: 12px 8px !important;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.trading-signals-table th:nth-child(1),
+.trading-signals-table td:nth-child(1) { width: 200px; min-width: 200px; }
+.trading-signals-table th:nth-child(2),
+.trading-signals-table td:nth-child(2) { width: 80px; min-width: 80px; }
+.trading-signals-table th:nth-child(3),
+.trading-signals-table td:nth-child(3) { width: 80px; min-width: 80px; }
+.trading-signals-table th:nth-child(4),
+.trading-signals-table td:nth-child(4) { width: 120px; min-width: 120px; }
+.trading-signals-table th:nth-child(5),
+.trading-signals-table td:nth-child(5) { width: 120px; min-width: 120px; }
+.trading-signals-table th:nth-child(6),
+.trading-signals-table td:nth-child(6) { width: 120px; min-width: 120px; }
+.trading-signals-table th:nth-child(7),
+.trading-signals-table td:nth-child(7) { width: 100px; min-width: 100px; }
+.trading-signals-table th:nth-child(8),
+.trading-signals-table td:nth-child(8) { width: 80px; min-width: 80px; }
+.trading-signals-table th:nth-child(9),
+.trading-signals-table td:nth-child(9) { width: 120px; min-width: 120px; }
+.trading-signals-table th:nth-child(10),
+.trading-signals-table td:nth-child(10) { width: 100px; min-width: 100px; }
+.trading-signals-table th:nth-child(11),
+.trading-signals-table td:nth-child(11) { width: 100px; min-width: 100px; }
+
+/* Enhanced Table Container */
+.table-responsive-enhanced {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Improved Mobile Responsive Behavior */
+@media (max-width: 768px) {
+    .trading-signals-table {
+        min-width: 1200px !important;
+    }
+    
+    .trading-signals-table th,
+    .trading-signals-table td {
+        padding: 8px 4px !important;
+        font-size: 12px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block dashboard_title %}Trading Signals{% endblock %}
 {% block dashboard_subtitle %}Daily recommendations from our expert analysts{% endblock %}
 
@@ -55,8 +115,8 @@
     <div class="card border-0 shadow-sm rounded-3" id="signals-container">
         <div class="card-body p-0">
             {% if signals %}
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
+            <div class="table-responsive table-responsive-enhanced">
+                <table class="table table-hover mb-0 trading-signals-table">
                     <thead class="bg-light sticky-top">
                         <tr>
                             <th class="border-0 ps-3">Symbol</th>
@@ -75,7 +135,7 @@
                     <tbody>
                         {% for signal in signals %}
                         <tr class="signal-row" data-type="{{ signal.signal_type }}" data-signal-id="{{ signal.id }}">
-                            <td class="ps-3">
+                            <td class="ps-3" style="width: 200px; min-width: 200px; padding: 12px 8px;">
                                 <div class="d-flex align-items-center">
                                     <div class="me-2">
                                         {% if signal.signal_type == 'stock' %}
