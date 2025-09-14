@@ -1,7 +1,7 @@
-"""add_asset_specific_fields
+"""add_additional_asset_specific_fields
 
 Revision ID: 20250914_082049
-Revises: 0002
+Revises: 778bfbd1fc03
 Create Date: 2025-09-14 08:20:49
 
 """
@@ -11,13 +11,13 @@ from sqlalchemy import text
 
 # revision identifiers, used by Alembic.
 revision = '20250914_082049'
-down_revision = '0001'
+down_revision = '778bfbd1fc03'
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
-    """Add asset-specific columns to portfolio table for multiple asset classes"""
+    """Add additional asset-specific columns to portfolio table (builds on previous migration)"""
     
     # Check if portfolio table exists before proceeding
     connection = op.get_bind()
@@ -30,61 +30,29 @@ def upgrade() -> None:
     # Get existing columns to avoid duplicate additions
     existing_columns = [col['name'] for col in inspector.get_columns('portfolio')]
     
-    # F&O (Futures & Options) specific fields
-    if 'contract_type' not in existing_columns:
-        op.add_column('portfolio', sa.Column('contract_type', sa.String(20), nullable=True, 
-                                            comment='CALL, PUT, FUTURE for F&O contracts'))
-    
-    if 'strike_price' not in existing_columns:
-        op.add_column('portfolio', sa.Column('strike_price', sa.Float, nullable=True,
-                                            comment='Strike price for options contracts'))
-    
-    if 'expiry_date' not in existing_columns:
-        op.add_column('portfolio', sa.Column('expiry_date', sa.Date, nullable=True,
-                                            comment='Expiry date for F&O contracts'))
-    
-    if 'lot_size' not in existing_columns:
-        op.add_column('portfolio', sa.Column('lot_size', sa.Integer, nullable=True,
-                                            comment='Lot size for F&O contracts'))
+    # Additional F&O (Futures & Options) specific fields
+    # Note: Core F&O fields (contract_type, strike_price, expiry_date, lot_size) already added by previous migration
     
     if 'option_type' not in existing_columns:
         op.add_column('portfolio', sa.Column('option_type', sa.String(20), nullable=True,
                                             comment='CE, PE for options'))
     
-    # NPS (National Pension System) specific fields
-    if 'nps_scheme' not in existing_columns:
-        op.add_column('portfolio', sa.Column('nps_scheme', sa.String(100), nullable=True,
-                                            comment='NPS scheme name'))
-    
-    if 'pension_fund_manager' not in existing_columns:
-        op.add_column('portfolio', sa.Column('pension_fund_manager', sa.String(100), nullable=True,
-                                            comment='Pension Fund Manager name'))
+    # Additional NPS (National Pension System) specific fields
+    # Note: Core NPS fields (nps_scheme, pension_fund_manager) already added by previous migration
     
     if 'tier' not in existing_columns:
         op.add_column('portfolio', sa.Column('tier', sa.String(10), nullable=True,
                                             comment='NPS Tier - Tier 1 or Tier 2'))
     
-    # Real Estate specific fields
-    if 'property_type' not in existing_columns:
-        op.add_column('portfolio', sa.Column('property_type', sa.String(50), nullable=True,
-                                            comment='Residential, Commercial, Land, etc.'))
-    
-    if 'property_location' not in existing_columns:
-        op.add_column('portfolio', sa.Column('property_location', sa.String(200), nullable=True,
-                                            comment='City/Area of the property'))
+    # Additional Real Estate specific fields
+    # Note: Core real estate fields (property_type, property_location) already added by previous migration
     
     if 'area_sqft' not in existing_columns:
         op.add_column('portfolio', sa.Column('area_sqft', sa.Float, nullable=True,
                                             comment='Area of property in square feet'))
     
-    # Fixed Income specific fields (Bonds, FDs, etc.)
-    if 'maturity_date' not in existing_columns:
-        op.add_column('portfolio', sa.Column('maturity_date', sa.Date, nullable=True,
-                                            comment='Maturity date for bonds/FDs'))
-    
-    if 'interest_rate' not in existing_columns:
-        op.add_column('portfolio', sa.Column('interest_rate', sa.Float, nullable=True,
-                                            comment='Interest rate for fixed income'))
+    # Additional Fixed Income specific fields (Bonds, FDs, etc.)
+    # Note: Core fixed income fields (maturity_date, interest_rate) already added by previous migration
     
     if 'coupon_rate' not in existing_columns:
         op.add_column('portfolio', sa.Column('coupon_rate', sa.Float, nullable=True,
@@ -107,36 +75,28 @@ def upgrade() -> None:
         op.add_column('portfolio', sa.Column('grams', sa.Float, nullable=True,
                                             comment='Weight in grams for physical gold'))
     
-    # General field for asset categorization (if not exists)
-    if 'asset_category' not in existing_columns:
-        op.add_column('portfolio', sa.Column('asset_category', sa.String(50), nullable=True,
-                                            comment='Equity, Debt, Commodities, Alternative, Hybrid'))
+    # Note: asset_category field already added as ENUM by previous migration
+    # This migration focuses on additional asset-specific fields not covered by the enum-based approach
     
     # Create performance indexes for better query performance
     # Check if indexes exist before creating them
     existing_indexes = [idx['name'] for idx in inspector.get_indexes('portfolio')]
     
-    # Index for user_id and asset_type combination (most common query pattern)
-    if 'idx_portfolio_user_asset_type' not in existing_indexes:
-        op.create_index('idx_portfolio_user_asset_type', 'portfolio', ['user_id', 'asset_type'])
+    # Additional indexes for the new fields (core indexes already created by previous migration)
     
-    # Index for expiry_date (useful for F&O contracts)
-    if 'idx_portfolio_expiry_date' not in existing_indexes:
-        op.create_index('idx_portfolio_expiry_date', 'portfolio', ['expiry_date'])
+    # Index for gold_form (useful for gold asset queries)
+    if 'idx_portfolio_gold_form' not in existing_indexes:
+        op.create_index('idx_portfolio_gold_form', 'portfolio', ['gold_form'])
     
-    # Index for asset_category
-    if 'idx_portfolio_asset_category' not in existing_indexes:
-        op.create_index('idx_portfolio_asset_category', 'portfolio', ['asset_category'])
+    # Index for tier (useful for NPS queries)
+    if 'idx_portfolio_tier' not in existing_indexes:
+        op.create_index('idx_portfolio_tier', 'portfolio', ['tier'])
     
-    # Index for property_location (useful for real estate)
-    if 'idx_portfolio_property_location' not in existing_indexes:
-        op.create_index('idx_portfolio_property_location', 'portfolio', ['property_location'])
+    # Index for option_type (useful for F&O option queries)
+    if 'idx_portfolio_option_type' not in existing_indexes:
+        op.create_index('idx_portfolio_option_type', 'portfolio', ['option_type'])
     
-    # Index for maturity_date (useful for bonds/FDs)
-    if 'idx_portfolio_maturity_date' not in existing_indexes:
-        op.create_index('idx_portfolio_maturity_date', 'portfolio', ['maturity_date'])
-    
-    print("Successfully added asset-specific columns and indexes to portfolio table")
+    print("Successfully added additional asset-specific columns and indexes to portfolio table")
 
 
 def downgrade() -> None:
@@ -171,20 +131,31 @@ def downgrade() -> None:
     # Get existing columns to check what needs to be dropped
     existing_columns = [col['name'] for col in inspector.get_columns('portfolio')]
     
-    # Drop asset-specific columns (only if they exist)
+    # Drop additional asset-specific columns added by this migration only
+    # Note: Core asset fields are managed by the previous migration (778bfbd1fc03)
     columns_to_drop = [
-        'grams', 'gold_purity', 'gold_form',  # Gold fields
-        'face_value', 'coupon_rate', 'interest_rate', 'maturity_date',  # Fixed Income fields
-        'area_sqft', 'property_location', 'property_type',  # Real Estate fields
-        'tier', 'pension_fund_manager', 'nps_scheme',  # NPS fields
-        'option_type', 'lot_size', 'expiry_date', 'strike_price', 'contract_type'  # F&O fields
+        'grams', 'gold_purity', 'gold_form',  # Gold fields (this migration)
+        'face_value', 'coupon_rate',  # Additional Fixed Income fields (this migration)
+        'area_sqft',  # Additional Real Estate field (this migration)
+        'tier',  # Additional NPS field (this migration)
+        'option_type'  # Additional F&O field (this migration)
     ]
     
     for column in columns_to_drop:
         if column in existing_columns:
             op.drop_column('portfolio', column)
     
-    # Note: We don't drop asset_category as it might have been added by a different migration
-    # or might contain important data. This preserves backward compatibility.
+    # Drop additional indexes added by this migration
+    if 'idx_portfolio_option_type' in existing_indexes:
+        op.drop_index('idx_portfolio_option_type', 'portfolio')
     
-    print("Successfully removed asset-specific columns and indexes from portfolio table")
+    if 'idx_portfolio_tier' in existing_indexes:
+        op.drop_index('idx_portfolio_tier', 'portfolio')
+    
+    if 'idx_portfolio_gold_form' in existing_indexes:
+        op.drop_index('idx_portfolio_gold_form', 'portfolio')
+    
+    # Note: Core portfolio enhancements (asset_type enum, core asset fields, etc.)
+    # are managed by the previous migration and will be preserved.
+    
+    print("Successfully removed additional asset-specific columns and indexes from portfolio table")
