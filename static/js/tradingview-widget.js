@@ -324,8 +324,10 @@ class TradingViewWidget {
     }
 }
 
-// Global instance
-window.TradingViewWidget = new TradingViewWidget();
+// Global instance - avoid redefinition
+if (!window.TradingViewWidget) {
+    window.TradingViewWidget = new TradingViewWidget();
+}
 
 // Global functions for chart interactions
 window.loadTradingViewChart = function(symbol, containerId) {
@@ -732,5 +734,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     });
 };
 
-// Initialize TradingView widget instance globally
-window.TradingViewWidget = new TradingViewWidget();
+// Initialize TradingView widget instance globally - avoid redefinition
+if (!window.TradingViewWidget) {
+    window.TradingViewWidget = new TradingViewWidget();
+}

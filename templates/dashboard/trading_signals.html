@@ -36,7 +36,7 @@
 {% block dashboard_content %}
 
     <!-- Information Notice for FREE users -->
-    {% if current_user.pricing_plan.name == 'FREE' %}
+    {% if current_user.pricing_plan == PricingPlan.FREE %}
     <div class="alert alert-info border-0 rounded-3 shadow-sm mb-4">
         <div class="d-flex align-items-center">
             <i class="fas fa-info-circle fa-2x text-info me-3"></i>
@@ -178,7 +178,7 @@
                             </td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    {% if current_user.pricing_plan.name != 'FREE' %}
+                                    {% if current_user.pricing_plan != PricingPlan.FREE %}
                                     <button class="btn btn-success btn-sm" 
                                             onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 1 }}, '{{ signal.signal_type }}')"
                                             title="Execute Trade">
@@ -560,7 +560,7 @@ function showUpgradeAlert() {
 
 function tradeSignal(symbol, action, entryPrice, quantity, signalType) {
     // Check subscription access
-    {% if current_user.pricing_plan.name == 'FREE' %}
+    {% if current_user.pricing_plan == PricingPlan.FREE %}
         showUpgradeAlert();
         return;
     {% endif %}

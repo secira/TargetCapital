@@ -627,4 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Export for global access
-window.MobilePerformanceManager = MobilePerformanceManager;
+// Export to global scope - avoid redefinition
+if (!window.MobilePerformanceManager) {
+    window.MobilePerformanceManager = MobilePerformanceManager;
+}
