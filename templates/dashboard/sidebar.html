@@ -71,10 +71,12 @@
         <!-- Broker Management Section -->
         <div class="menu-section">
             <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fas fa-link"></i>
-                    Broker Management
-                </h3>
+                <a href="{{ url_for('dashboard_broker_accounts') }}" class="section-title-link">
+                    <h3 class="section-title">
+                        <i class="fas fa-link"></i>
+                        Broker Management
+                    </h3>
+                </a>
             </div>
             
             {% if broker_accounts %}
@@ -98,11 +100,6 @@
                     </a>
                 </div>
             {% endif %}
-            
-            <a href="{{ url_for('dashboard_broker_accounts') }}" class="section-link">
-                <i class="fas fa-cog"></i>
-                Manage Brokers
-            </a>
         </div>
 
         <!-- User Plan Section -->
@@ -342,6 +339,23 @@
 
 .section-title i {
     font-size: 11px;
+}
+
+.section-title-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.section-title-link:hover {
+    text-decoration: none;
+    color: inherit;
+    opacity: 0.8;
+}
+
+.section-title-link:hover .section-title {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Broker Management */
