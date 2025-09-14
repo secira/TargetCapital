@@ -32,14 +32,6 @@
                 </li>
                 {% endif %}
 
-                <!-- AI Stock Picker -->
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint in ['dashboard_stock_picker', 'ai_advisor'] else '' }}" 
-                       href="{{ url_for('dashboard_stock_picker') }}">
-                        <i class="nav-icon fas fa-robot"></i>
-                        <span class="nav-text">AI Stock Picker</span>
-                    </a>
-                </li>
 
                 <!-- Portfolio (Trader+ only) -->
                 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
