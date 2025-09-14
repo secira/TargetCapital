@@ -1097,8 +1097,15 @@ def dashboard_trading_signals():
     except ImportError:
         signals = []  # Fallback if TradingSignal not available
     
+    # Get AI stock picks for the selected date (merged functionality)
+    try:
+        ai_picks = AIStockPick.query.filter_by(pick_date=selected_date).all()
+    except:
+        ai_picks = []  # Fallback if AIStockPick not available
+    
     return render_template('dashboard/trading_signals.html', 
                          signals=signals, 
+                         ai_picks=ai_picks,
                          today=selected_date,
                          selected_date=selected_date_str)
 
@@ -1295,24 +1302,8 @@ def update_trading_signal(signal_id):
 @app.route('/dashboard/stock-picker')
 @login_required
 def dashboard_stock_picker():
-    # Check subscription access
-    if not current_user.can_access_menu('dashboard_stock_picker'):
-        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
-        return redirect(url_for('pricing'))
-    """AI-powered stock picker for research and analysis"""
-    from datetime import date
-    
-    # Get selected date for AI picks
-    selected_date = request.args.get('date', date.today().strftime('%Y-%m-%d'))
-    
-    # Fetch AI stock picks for the selected date
-    ai_picks = AIStockPick.query.filter_by(pick_date=selected_date).all()
-    
-    return render_template('dashboard/stock_picker.html', 
-                         current_user=current_user,
-                         ai_picks=ai_picks,
-                         selected_date=selected_date,
-                         today=date.today())
+    """Redirect AI Stock Picker to Trading Signals (merged functionality)"""
+    return redirect(url_for('dashboard_trading_signals'))
 
 @app.route('/dashboard/detailed-analysis/<string:symbol>')
 @login_required
