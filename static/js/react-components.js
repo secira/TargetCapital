@@ -5,6 +5,7 @@
  */
 
 // Component base class with React-like lifecycle
+if (!window.Component) {
 class Component {
     constructor(element, props = {}) {
         this.element = typeof element === 'string' ? document.querySelector(element) : element;
@@ -786,3 +787,4 @@ window.tCapitalComponents = {
     componentManager,
     wsManager
 };
+}

@@ -3,6 +3,7 @@
  * Provides embedded TradingView charts without requiring API credentials
  */
 
+if (!window.TradingViewWidget) {
 class TradingViewWidget {
     constructor() {
         this.widgetConfigs = {
@@ -735,6 +736,5 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
 };
 
 // Initialize TradingView widget instance globally - avoid redefinition
-if (!window.TradingViewWidget) {
-    window.TradingViewWidget = new TradingViewWidget();
+window.TradingViewWidget = new TradingViewWidget();
 }

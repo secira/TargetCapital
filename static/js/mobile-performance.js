@@ -3,6 +3,7 @@
  * Production-ready mobile experience enhancements
  */
 
+if (!window.MobilePerformanceManager) {
 class MobilePerformanceManager {
     constructor() {
         this.touchStartTime = 0;
@@ -628,6 +629,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for global access
 // Export to global scope - avoid redefinition
-if (!window.MobilePerformanceManager) {
-    window.MobilePerformanceManager = MobilePerformanceManager;
+window.MobilePerformanceManager = MobilePerformanceManager;
 }

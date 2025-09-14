@@ -4,6 +4,7 @@
  */
 
 // Simple state management system
+if (!window.StateManager) {
 const StateManager = {
     states: new Map(),
     listeners: new Map(),
@@ -468,3 +469,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('📊 Performance Metrics:', performanceHook);
     }, 2000);
 });
+}
