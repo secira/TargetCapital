@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
 from flask_login import login_required, login_user, logout_user, current_user
 from flask_limiter.util import get_remote_address
-from app import app, db, limiter
+from app import app, db, limiter, csrf
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
@@ -3395,6 +3395,7 @@ def api_perplexity_generate_picks():
         return jsonify({'success': False, 'error': 'Failed to generate picks. Please try again.'}), 500
 
 @app.route('/api/ai/perplexity-picks', methods=['POST'])
+@csrf.exempt
 @login_required
 def api_ai_perplexity_picks():
     """
