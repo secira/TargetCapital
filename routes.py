@@ -241,11 +241,25 @@ def cancellation_refund_policy():
 @app.route('/dashboard/broker-management')
 @login_required
 def broker_management():
-    """Broker Management page"""
-    brokers = BrokerAccount.query.filter_by(user_id=current_user.id).all()
+    """Broker Management page - show only added brokers with Connect/Disconnect status"""
+    from models_broker import BrokerAccount, BrokerType
+    
+    # Show only brokers that have been "added" (validated and ready for connection)
+    # Filter out brokers in 'pending' or 'error' states - show only connected/disconnected
+    added_brokers = BrokerAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).filter(
+        BrokerAccount.connection_status.in_(['connected', 'disconnected'])
+    ).all()
+    
+    # Get broker types for the add modal
+    broker_types = list(BrokerType)
+    
     return render_template('dashboard/broker_management.html', 
                          active_section='broker_management',
-                         brokers=brokers)
+                         brokers=added_brokers,
+                         broker_types=broker_types)
 
 @app.route('/add-broker', methods=['POST'])
 @login_required
@@ -288,14 +302,16 @@ def add_broker():
                 flash('Trader Plus plan allows up to 3 broker connections. You have reached the limit.', 'error')
                 return redirect(url_for('broker_management'))
         
-        # Create new broker connection
+        # Create new broker connection (Step 1: Add broker with disconnected status)
         new_broker = BrokerAccount(
             user_id=current_user.id,
             broker_name=broker_name,
             api_key=api_key,
             api_secret=api_secret,
             request_token=request_token,
-            redirect_url=redirect_url
+            redirect_url=redirect_url,
+            connection_status='disconnected',  # Start as disconnected, ready to be connected
+            is_active=True
         )
         
         db.session.add(new_broker)
@@ -310,6 +326,75 @@ def add_broker():
         flash('Error adding broker. Please try again.', 'error')
     
     return redirect(url_for('broker_management'))
+
+@app.route('/api/broker/<int:broker_id>/connect', methods=['POST'])
+@login_required
+def connect_broker(broker_id):
+    """Connect a broker (Step 2: Make broker active for trading)"""
+    try:
+        from models_broker import BrokerAccount
+        
+        broker = BrokerAccount.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        # Check if user already has a connected broker (limit of 1)
+        connected_broker = BrokerAccount.query.filter_by(
+            user_id=current_user.id,
+            connection_status='connected'
+        ).first()
+        
+        if connected_broker and connected_broker.id != broker_id:
+            return jsonify({
+                'success': False, 
+                'message': f'You already have {connected_broker.broker_name} connected. Disconnect it first to connect another broker.'
+            })
+        
+        # Validate API credentials by calling broker API
+        # This is where you would implement actual broker API validation
+        # For now, we'll simulate validation
+        
+        broker.connection_status = 'connected'
+        broker.last_connected = datetime.utcnow()
+        db.session.commit()
+        
+        flash(f'{broker.broker_name} connected successfully!', 'success')
+        return jsonify({'success': True, 'message': f'{broker.broker_name} connected successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error connecting broker {broker_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error connecting broker. Please try again.'})
+
+@app.route('/api/broker/<int:broker_id>/disconnect', methods=['POST'])
+@login_required
+def disconnect_broker(broker_id):
+    """Disconnect a broker (Step 3: Make broker inactive)"""
+    try:
+        from models_broker import BrokerAccount
+        
+        broker = BrokerAccount.query.filter_by(
+            id=broker_id, 
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        broker.connection_status = 'disconnected'
+        db.session.commit()
+        
+        flash(f'{broker.broker_name} disconnected successfully!', 'success')
+        return jsonify({'success': True, 'message': f'{broker.broker_name} disconnected successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error disconnecting broker {broker_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error disconnecting broker. Please try again.'})
 
 @app.route('/update-broker', methods=['POST'])
 @login_required
