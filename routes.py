@@ -2725,6 +2725,7 @@ def api_portfolio_unified():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/portfolio', methods=['GET'])
+@csrf.exempt
 def api_portfolio():
     """Get unified portfolio data - main endpoint called by frontend"""
     # Handle unauthenticated requests gracefully (for OAuth flow)
@@ -2916,6 +2917,7 @@ def api_portfolio():
         }), 500
 
 @app.route('/api/trading-signals', methods=['GET'])
+@csrf.exempt
 def api_trading_signals():
     """Get trading signals data - main endpoint called by frontend"""
     # Handle unauthenticated requests gracefully (for OAuth flow)
