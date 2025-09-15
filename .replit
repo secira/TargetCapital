@@ -49,5 +49,9 @@ externalPort = 3003
 localPort = 35941
 externalPort = 3001
 
+[[ports]]
+localPort = 39177
+externalPort = 4200
+
 [agent]
 integrations = ["perplexity_v0:1.0.0"]

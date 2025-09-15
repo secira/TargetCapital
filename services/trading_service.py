@@ -360,6 +360,26 @@ class TradingService:
     def deploy_trade(self, user_id: int, recommendation_id: int) -> Dict:
         """Deploy trade to broker (routing to broker API)"""
         try:
+            # First check user's pricing plan and trading permissions
+            from models import User, PricingPlan
+            user = User.query.get(user_id)
+            
+            if not user:
+                return {'success': False, 'error': 'User not found'}
+                
+            # CRITICAL SECURITY CHECK: Enforce pricing plan restrictions
+            if user.pricing_plan == PricingPlan.TRADER:
+                return {
+                    'success': False, 
+                    'error': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+                }
+            
+            if user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+                return {
+                    'success': False, 
+                    'error': 'Trade execution requires Trader Plus subscription or higher.'
+                }
+            
             recommendation = TradeRecommendation.query.filter_by(
                 id=recommendation_id,
                 user_id=user_id
@@ -379,6 +399,13 @@ class TradingService:
             
             if not broker_account:
                 return {'success': False, 'error': 'No primary broker account found'}
+            
+            # SECURITY CHECK: Ensure trading is only allowed with primary broker
+            if not broker_account.is_primary:
+                return {
+                    'success': False, 
+                    'error': 'Trading is only allowed with your primary broker. Please set this broker as primary to trade.'
+                }
             
             # Create trade execution record
             execution = TradeExecution(

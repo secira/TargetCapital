@@ -1831,6 +1831,21 @@ def api_create_trade_recommendation():
 def api_deploy_trade(recommendation_id):
     """Deploy trade to broker"""
     try:
+        # Additional security check at API level
+        from models import PricingPlan
+        
+        if current_user.pricing_plan == PricingPlan.TRADER:
+            return jsonify({
+                'success': False, 
+                'error': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+            }), 403
+        
+        if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+            return jsonify({
+                'success': False, 
+                'error': 'Trade execution requires Trader Plus subscription or higher.'
+            }), 403
+        
         from services.trading_service import TradingService
         trading_service = TradingService()
         
