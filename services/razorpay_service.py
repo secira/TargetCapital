@@ -167,21 +167,21 @@ class RazorpayService:
                 'name': 'Trader Plan',
                 'price': 1999,
                 'duration_days': 30,
-                'features': ['Advanced charts', 'Real-time data', 'Trading signals', 'Single broker integration', 'Trade execution', 'Basic AI advisor'],
+                'features': ['Advanced charts', 'Real-time data', 'Trading signals', 'Single broker connection', 'Portfolio analysis only', 'Basic AI advisor'],
                 'limits': {'portfolios': 3, 'watchlist': 50, 'ai_queries': 100, 'brokers': 1}
             },
             'TRADER_PLUS': {
                 'name': 'Trader Plus Plan',
                 'price': 2999,
                 'duration_days': 30,
-                'features': ['All Trader features', 'Connect upto 3 brokers', 'Advanced AI insights', 'Portfolio optimization'],
+                'features': ['All Trader features', 'Connect up to 3 brokers', 'Trade execution with 1 broker', 'Advanced AI insights', 'Portfolio optimization'],
                 'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}
             },
             'HNI': {
                 'name': 'HNI Account',
                 'price': 9999,
                 'duration_days': 30,
-                'features': ['All features', 'Priority support', 'Custom strategies', 'Unlimited access'],
+                'features': ['All features', 'Trade execution with 1 broker', 'Priority support', 'Custom strategies', 'Dedicated account manager'],
                 'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': -1}  # -1 means unlimited
             }
         }

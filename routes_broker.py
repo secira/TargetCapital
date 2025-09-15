@@ -244,6 +244,21 @@ def dashboard_live_portfolio():
 def api_place_broker_order():
     """Place order through broker"""
     try:
+        # Check trading permissions based on pricing plan
+        from models import PricingPlan
+        
+        if current_user.pricing_plan == PricingPlan.TRADER:
+            return jsonify({
+                'success': False, 
+                'message': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+            }), 403
+        
+        if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+            return jsonify({
+                'success': False, 
+                'message': 'Trade execution requires Trader Plus subscription or higher.'
+            }), 403
+        
         data = request.get_json()
         
         # Get broker account (use primary if not specified)
@@ -261,6 +276,13 @@ def api_place_broker_order():
         
         if not broker_account:
             return jsonify({'success': False, 'message': 'No broker account found'}), 404
+        
+        # Ensure trading is only allowed with one broker (the primary one)
+        if not broker_account.is_primary:
+            return jsonify({
+                'success': False, 
+                'message': 'Trading is only allowed with your primary broker. Please set this broker as primary to trade.'
+            }), 403
         
         # Validate order data
         required_fields = ['symbol', 'transaction_type', 'quantity', 'order_type', 'product_type']
