@@ -243,7 +243,9 @@ with app.app_context():
     import models_broker  # Import broker models too
     db.create_all()
 
-# OAuth authentication will be added via Replit integration
+# Import and register Google OAuth blueprint
+from google_auth import google_auth
+app.register_blueprint(google_auth)
 
 # Register admin blueprint (import after routes to avoid conflicts)
 try:
