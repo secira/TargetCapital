@@ -374,10 +374,16 @@ class TradingService:
                     'error': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
                 }
             
-            if user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+            if user.pricing_plan == PricingPlan.HNI:
                 return {
                     'success': False, 
-                    'error': 'Trade execution requires Trader Plus subscription or higher.'
+                    'error': 'HNI accounts are managed by our account executives. Your account manager will execute trades on your behalf. Contact your account executive for trade requests.'
+                }
+            
+            if user.pricing_plan != PricingPlan.TRADER_PLUS:
+                return {
+                    'success': False, 
+                    'error': 'Direct trade execution is only available for Trader Plus subscription.'
                 }
             
             recommendation = TradeRecommendation.query.filter_by(
