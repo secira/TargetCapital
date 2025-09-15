@@ -95,25 +95,33 @@ from sqlalchemy.exc import NoResultFound
 
 @oauth_authorized.connect_via(google_bp)
 def google_logged_in(blueprint, token):
+    logging.info("Google OAuth callback triggered")
     if not token:
+        logging.error("No OAuth token received from Google")
         flash('Failed to log in with Google.', 'error')
         return False
 
+    logging.info("Fetching user info from Google")
     resp = blueprint.session.get("/oauth2/v2/userinfo")
     if not resp.ok:
+        logging.error(f"Failed to fetch user info from Google: {resp.status_code}")
         flash('Failed to fetch user info from Google.', 'error')
         return False
 
     google_info = resp.json()
+    logging.info(f"Google user info received: {google_info.get('email', 'no email')}")
     user = create_or_update_user_from_oauth("google", google_info)
     
     if user:
+        logging.info(f"Logging in user: {user.email}")
         login_user(user)
         user.last_login = datetime.utcnow()
         db.session.commit()
+        logging.info("User successfully logged in with Google")
         flash('Successfully logged in with Google!', 'success')
         return False  # Don't redirect automatically
     else:
+        logging.error("Failed to create or find user from Google OAuth")
         flash('Failed to create user account. Please try again.', 'error')
         return False
 
