@@ -1,0 +1,43 @@
+🔄 Reconnecting to ws://localhost:8001 (attempt 4)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8001
+react-dashboard.js:148 📊 Demo market data updated
+websocket-client.js:95 ❌ WebSocket error: ws://localhost:8001 Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+ws.onerror @ websocket-client.js:95Understand this error
+react-integration-test.js:45 ❌ Market WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+websocket-client.js:82 🔌 WebSocket disconnected: ws://localhost:8001
+9react-dashboard.js:148 📊 Demo market data updated
+react-dashboard.js:291  GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/api/portfolio 401 (Unauthorized)
+refreshCriticalData @ react-dashboard.js:291
+(anonymous) @ react-dashboard.js:277Understand this error
+react-dashboard.js:292  GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/api/trading-signals 401 (Unauthorized)
+refreshCriticalData @ react-dashboard.js:292
+(anonymous) @ react-dashboard.js:277Understand this error
+6react-dashboard.js:148 📊 Demo market data updated
+websocket-client.js:167 🔄 Reconnecting to ws://localhost:8001 (attempt 5)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8001
+websocket-client.js:167 🔄 Reconnecting to ws://localhost:8001 (attempt 5)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8001
+react-dashboard.js:148 📊 Demo market data updated
+websocket-client.js:41 WebSocket connection to 'ws://localhost:8001/' failed: 
+(anonymous) @ websocket-client.js:41
+connect @ websocket-client.js:35
+(anonymous) @ websocket-client.js:168Understand this error
+websocket-client.js:95 ❌ WebSocket error: ws://localhost:8001 Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+ws.onerror @ websocket-client.js:95Understand this error
+react-dashboard.js:81 ❌ Market WebSocket error - switching to demo mode
+react-dashboard.js:142 🎭 Enabling enhanced demo mode with simulated real-time data
+websocket-client.js:82 🔌 WebSocket disconnected: ws://localhost:8001
+react-dashboard.js:76 🔌 Market WebSocket disconnected
+websocket-client.js:158 ❌ Max reconnection attempts reached for ws://localhost:8001
+scheduleReconnect @ websocket-client.js:158
+ws.onclose @ websocket-client.js:90Understand this error
+3react-dashboard.js:148 📊 Demo market data updated
+websocket-client.js:41 WebSocket connection to 'ws://localhost:8001/' failed: 
+(anonymous) @ websocket-client.js:41
+connect @ websocket-client.js:35
+(anonymous) @ websocket-client.js:168Understand this error
+websocket-client.js:95 ❌ WebSocket error: ws://localhost:8001 Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+ws.onerror @ websocket-client.js:95Understand this error
+react-integration-test.js:45 ❌ Market WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+websocket-client.js:82 🔌 WebSocket disconnected: ws://localhost:8001
+23react-dashboard.js:148 📊 Demo market data updated
