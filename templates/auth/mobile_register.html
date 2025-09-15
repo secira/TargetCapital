@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Mobile Registration - Target Capital{% endblock %}
+
+{% block content %}
+<section class="bg-white text-dark" style="padding-top: 120px; min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold text-primary">Register with Mobile</h2>
+                            <p class="text-muted">Enter your mobile number to get started</p>
+                        </div>
+
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" action="{{ url_for('mobile_register') }}">
+                            <div class="mb-4">
+                                <label for="mobile_number" class="form-label">Mobile Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">🇮🇳 +91</span>
+                                    <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                                           required placeholder="Enter 10-digit mobile number" maxlength="10" 
+                                           pattern="[6-9][0-9]{9}">
+                                </div>
+                                <div class="form-text">We'll send an OTP to verify your mobile number</div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
+                                <label class="form-check-label" for="agree_terms">
+                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
+                                    <a href="#" class="text-primary">Privacy Policy</a>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100 py-3 mb-4">
+                                <i class="fas fa-mobile-alt me-2"></i>Send OTP
+                            </button>
+                        </form>
+                        
+                        <!-- Alternative Options -->
+                        <div class="text-center mb-3">
+                            <hr class="my-3">
+                            <small class="text-muted bg-white px-3">Other options</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mb-3">
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-envelope me-2"></i>Register with Email
+                            </a>
+                        </div>
+                        
+                        <div class="text-center">
+                            <p class="mb-0">Already have an account? 
+                                <a href="{{ url_for('mobile_login') }}" class="text-primary text-decoration-none fw-bold">
+                                    Login with Mobile
+                                </a>
+                            </p>
+                            <p class="mb-0 mt-2">
+                                <a href="{{ url_for('login') }}" class="text-muted text-decoration-none">
+                                    Login with Email
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Mobile number validation
+document.getElementById('mobile_number').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, ''); // Remove non-digits
+    this.value = value;
+    
+    // Validate Indian mobile number
+    if (value.length === 10) {
+        if (!['6', '7', '8', '9'].includes(value[0])) {
+            this.setCustomValidity('Indian mobile numbers should start with 6, 7, 8, or 9');
+        } else {
+            this.setCustomValidity('');
+        }
+    } else {
+        this.setCustomValidity('Mobile number should be 10 digits');
+    }
+});
+</script>
+{% endblock %}

@@ -241,6 +241,7 @@ with app.app_context():
     # Import models
     import models
     import models_broker  # Import broker models too
+    import routes_mobile  # Import mobile OTP routes
     db.create_all()
 
 # Import and register Google OAuth blueprint

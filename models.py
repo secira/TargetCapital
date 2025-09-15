@@ -126,9 +126,9 @@ class Testimonial(db.Model):
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256), nullable=False)
+    username = db.Column(db.String(80), unique=True, nullable=True)  # Made nullable for mobile-only signup
+    email = db.Column(db.String(120), unique=True, nullable=True)  # Made nullable for mobile-only signup
+    password_hash = db.Column(db.String(256), nullable=True)  # Made nullable for OTP-only accounts
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
     active = db.Column(db.Boolean, default=True)
@@ -137,6 +137,14 @@ class User(UserMixin, db.Model):
     two_factor_enabled = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
+    
+    # Mobile number and OTP fields
+    mobile_number = db.Column(db.String(20), unique=True, nullable=True)
+    mobile_verified = db.Column(db.Boolean, default=False)
+    current_otp = db.Column(db.String(10), nullable=True)
+    otp_expires_at = db.Column(db.DateTime, nullable=True)
+    otp_attempts = db.Column(db.Integer, default=0)
+    last_otp_request = db.Column(db.DateTime, nullable=True)
     
     # Subscription and Billing Information
     pricing_plan = db.Column(db.Enum(PricingPlan), default=PricingPlan.FREE, nullable=False)
