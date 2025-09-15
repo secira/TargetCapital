@@ -84,7 +84,10 @@ def callback():
 
     user = User.query.filter_by(email=users_email).first()
     if not user:
-        user = User(username=users_name, email=users_email)
+        user = User()
+        user.username = users_name
+        user.email = users_email
+        user.password_hash = ""  # OAuth users don't need password
         db.session.add(user)
         db.session.commit()
 
