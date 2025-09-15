@@ -6,21 +6,11 @@ import random
 import string
 from datetime import datetime, timedelta
 
-# Handle gevent monkey patching for Twilio client
-try:
-    from gevent import monkey
-    if monkey.is_module_patched('ssl'):
-        # Use requests-based client to avoid gevent SSL issues
-        from twilio.http.requests_client import RequestsClient
-        from twilio.rest import Client
-        http_client = RequestsClient()
-    else:
-        from twilio.rest import Client
-        http_client = None
-except ImportError:
-    # No gevent, use standard client
-    from twilio.rest import Client
-    http_client = None
+# Simplified Twilio client import to avoid gevent recursion issues
+from twilio.rest import Client
+
+# Use standard client to avoid recursion problems
+http_client = None
 
 # Twilio credentials from environment
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
@@ -31,13 +21,9 @@ class SMSService:
     def __init__(self):
         if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
             try:
-                # Initialize client with appropriate HTTP client for gevent environment
-                if http_client:
-                    self.client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, http_client=http_client)
-                    print("✅ Twilio client initialized with RequestsClient for gevent compatibility")
-                else:
-                    self.client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-                    print("✅ Twilio client initialized with default client")
+                # Initialize standard Twilio client
+                self.client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+                print("✅ Twilio client initialized successfully")
             except Exception as e:
                 print(f"❌ Failed to initialize Twilio client: {e}")
                 self.client = None
