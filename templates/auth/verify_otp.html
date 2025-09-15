@@ -29,6 +29,7 @@
                         {% endwith %}
 
                         <form method="POST" action="{{ url_for('verify_mobile_otp') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="mb-4">
                                 <label for="otp" class="form-label">Enter OTP</label>
                                 <input type="text" class="form-control text-center" id="otp" name="otp" 

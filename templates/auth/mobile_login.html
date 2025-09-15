@@ -26,6 +26,7 @@
                         {% endwith %}
 
                         <form method="POST" action="{{ url_for('mobile_login') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="mb-4">
                                 <label for="mobile_number" class="form-label">Mobile Number</label>
                                 <div class="input-group">

@@ -29,6 +29,7 @@
                         {% endwith %}
 
                         <form method="POST" action="{{ url_for('complete_profile') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <!-- Personal Information -->
                             <h5 class="text-primary mb-3">Personal Information</h5>
                             <div class="row">
