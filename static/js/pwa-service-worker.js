@@ -265,22 +265,9 @@ async function syncPortfolioData() {
         // Get pending portfolio updates from IndexedDB
         const pendingUpdates = await getPendingPortfolioUpdates();
         
-        for (const update of pendingUpdates) {
-            try {
-                await fetch('/api/portfolio/sync', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(update)
-                });
-                
-                await removePendingUpdate(update.id);
-                console.log('✅ SW: Portfolio update synced', update.id);
-            } catch (error) {
-                console.log('❌ SW: Failed to sync update', update.id, error);
-            }
-        }
+        // OAUTH DEBUG: Skip portfolio sync API calls temporarily
+        console.log('🔄 SW: Skipping portfolio sync during OAuth debug');
+        return;
     } catch (error) {
         console.error('❌ SW: Portfolio sync failed', error);
         throw error;
@@ -403,14 +390,9 @@ self.addEventListener('periodicsync', (event) => {
 // Refresh portfolio cache in background
 async function refreshPortfolioCache() {
     try {
-        console.log('🔄 SW: Refreshing portfolio cache');
-        
-        const response = await fetch('/api/portfolio');
-        if (response.ok) {
-            const cache = await caches.open(CACHE_NAME);
-            await cache.put('/api/portfolio', response);
-            console.log('✅ SW: Portfolio cache refreshed');
-        }
+        // OAUTH DEBUG: Skip portfolio API call temporarily
+        console.log('🔄 SW: Skipping portfolio cache refresh during OAuth debug');
+        return;
     } catch (error) {
         console.log('❌ SW: Failed to refresh portfolio cache', error);
     }
