@@ -141,4 +141,8 @@ def facebook_logged_in(blueprint, token):
         flash('Failed to create user account. Please try again.', 'error')
         return False
 
-# OAuth storage will use the model from models.py
+# Configure OAuth storage for persistent state management
+def configure_oauth_storage():
+    """Configure OAuth storage after app context is available"""
+    google_bp.storage = SQLAlchemyStorage(OAuth, db.session, user=lambda: current_user if current_user.is_authenticated else None)
+    facebook_bp.storage = SQLAlchemyStorage(OAuth, db.session, user=lambda: current_user if current_user.is_authenticated else None)
