@@ -2725,9 +2725,23 @@ def api_portfolio_unified():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/portfolio', methods=['GET'])
-@login_required
 def api_portfolio():
     """Get unified portfolio data - main endpoint called by frontend"""
+    # Handle unauthenticated requests gracefully (for OAuth flow)
+    if not current_user.is_authenticated:
+        return jsonify({
+            'success': True,
+            'portfolio_summary': {
+                'total_value': 0,
+                'total_invested': 0, 
+                'total_pnl': 0,
+                'total_pnl_percentage': 0,
+                'total_holdings': 0
+            },
+            'asset_breakdown': {},
+            'message': 'Please log in to view your portfolio'
+        })
+    
     try:
         from models import Portfolio, AssetType
         from sqlalchemy import func
@@ -2900,6 +2914,59 @@ def api_portfolio():
                 'holdings': []
             }
         }), 500
+
+@app.route('/api/trading-signals', methods=['GET'])
+def api_trading_signals():
+    """Get trading signals data - main endpoint called by frontend"""
+    # Handle unauthenticated requests gracefully (for OAuth flow)
+    if not current_user.is_authenticated:
+        return jsonify({
+            'success': True,
+            'signals': [],
+            'message': 'Please log in to view trading signals'
+        })
+    
+    try:
+        from models import TradingSignal, PricingPlan
+        from sqlalchemy import desc
+        
+        # Check if user has paid subscription
+        if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+            return jsonify({
+                'success': True,
+                'signals': [],
+                'message': 'Trading signals are available for Trader, Trader Plus, and HNI subscribers only.'
+            })
+        
+        # Get active trading signals
+        signals = TradingSignal.query.filter(
+            TradingSignal.status == 'ACTIVE'
+        ).order_by(desc(TradingSignal.created_at)).limit(20).all()
+        
+        signals_data = []
+        for signal in signals:
+            signals_data.append({
+                'id': signal.id,
+                'symbol': signal.symbol,
+                'action': signal.action,
+                'entry_price': signal.entry_price,
+                'target_price': signal.target_price,
+                'stop_loss': signal.stop_loss,
+                'risk_level': signal.risk_level,
+                'strategy': signal.strategy,
+                'expiry_date': signal.expiry_date.isoformat() if signal.expiry_date else None,
+                'created_at': signal.created_at.isoformat(),
+                'status': signal.status
+            })
+        
+        return jsonify({
+            'success': True,
+            'signals': signals_data
+        })
+        
+    except Exception as e:
+        logging.error(f"Trading signals API error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/portfolio/by-broker', methods=['GET'])
 @login_required
