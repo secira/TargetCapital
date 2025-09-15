@@ -116,7 +116,7 @@ function useMarketDataStream(symbols = []) {
         
         ws.on('message', (data) => {
             if (data.type === 'market_data') {
-                setMarketData(prev => ({ ...prev(), ...data.data }));
+                setMarketData(prev => ({ ...(prev || {}), ...data.data }));
                 setLastUpdate(new Date().toLocaleTimeString());
             }
         });
@@ -174,7 +174,7 @@ function usePortfolioData(userId) {
             
             ws.on('message', (data) => {
                 if (data.type === 'portfolio_update' && data.userId === userId) {
-                    setPortfolio(prev => ({ ...prev(), ...data.portfolio }));
+                    setPortfolio(prev => ({ ...(prev || {}), ...data.portfolio }));
                 }
             });
             
@@ -224,7 +224,7 @@ function useTradingOrders(userId) {
             
             if (result.success) {
                 // Add to pending orders for immediate UI feedback
-                setPendingOrders(prev => [...prev(), {
+                setPendingOrders(prev => [...(prev || []), {
                     ...orderData,
                     id: result.orderId,
                     status: 'pending',
@@ -254,7 +254,7 @@ function useTradingOrders(userId) {
         ws.on('message', (data) => {
             if (data.type === 'order_update' && data.userId === userId) {
                 setOrders(prev => {
-                    const updated = [...prev()];
+                    const updated = [...(prev || [])];
                     const index = updated.findIndex(o => o.id === data.order.id);
                     
                     if (index >= 0) {
@@ -269,7 +269,7 @@ function useTradingOrders(userId) {
                 // Remove from pending if completed
                 if (data.order.status !== 'pending') {
                     setPendingOrders(prev => 
-                        prev().filter(o => o.id !== data.order.id)
+                        (prev || []).filter(o => o.id !== data.order.id)
                     );
                 }
             }
@@ -386,7 +386,7 @@ function useNotifications() {
             timestamp: new Date()
         };
         
-        setNotifications(prev => [...prev(), notification]);
+        setNotifications(prev => [...(prev || []), notification]);
         
         // Auto-remove after duration
         if (duration > 0) {
@@ -399,7 +399,7 @@ function useNotifications() {
     };
     
     const removeNotification = (id) => {
-        setNotifications(prev => prev().filter(n => n.id !== id));
+        setNotifications(prev => (prev || []).filter(n => n.id !== id));
     };
     
     const clearAll = () => {

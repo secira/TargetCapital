@@ -353,5 +353,11 @@ def enable_caching_and_security(response):
 # Import request for the after_request function
 from flask import request
 
+# Service worker route for PWA support
+@app.route('/sw.js')
+def service_worker():
+    """Serve the service worker for PWA functionality"""
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
 # Import routes
 import routes

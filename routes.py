@@ -100,28 +100,45 @@ def plan_required(*allowed_plans):
 @app.route('/')
 def index():
     """Home page route"""
-    # Get featured testimonials
-    testimonials = Testimonial.query.limit(3).all()
+    # Get featured testimonials with error handling
+    try:
+        testimonials = Testimonial.query.limit(3).all()
+    except Exception as e:
+        logging.warning(f"Database error loading testimonials: {e}")
+        testimonials = []
     return render_template('index.html', testimonials=testimonials)
 
 @app.route('/about')
 def about():
     """About Us page route"""
-    # Get team members
-    team_members = TeamMember.query.all()
-    testimonials = Testimonial.query.limit(2).all()
+    # Get team members with error handling
+    try:
+        team_members = TeamMember.query.all()
+        testimonials = Testimonial.query.limit(2).all()
+    except Exception as e:
+        logging.warning(f"Database error loading team/testimonials: {e}")
+        team_members = []
+        testimonials = []
     return render_template('about.html', team_members=team_members, testimonials=testimonials)
 
 @app.route('/services')
 def services():
     """Services page route"""
-    testimonials = Testimonial.query.limit(3).all()
+    try:
+        testimonials = Testimonial.query.limit(3).all()
+    except Exception as e:
+        logging.warning(f"Database error loading testimonials: {e}")
+        testimonials = []
     return render_template('services.html', testimonials=testimonials)
 
 @app.route('/algo-trading')
 def algo_trading():
     """ALGO Trading page route"""
-    testimonials = Testimonial.query.limit(2).all()
+    try:
+        testimonials = Testimonial.query.limit(2).all()
+    except Exception as e:
+        logging.warning(f"Database error loading testimonials: {e}")
+        testimonials = []
     return render_template('algo_trading.html', testimonials=testimonials)
 
 @app.route('/blog')
