@@ -243,13 +243,7 @@ with app.app_context():
     import models_broker  # Import broker models too
     db.create_all()
 
-# Import OAuth blueprints and register them
-from oauth_auth import google_bp, facebook_bp, configure_oauth_storage
-app.register_blueprint(google_bp, url_prefix="/auth")
-app.register_blueprint(facebook_bp, url_prefix="/auth")
-
-# Configure OAuth storage for state management
-configure_oauth_storage()
+# OAuth authentication will be added via Replit integration
 
 # Register admin blueprint (import after routes to avoid conflicts)
 try:

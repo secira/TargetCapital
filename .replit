@@ -54,4 +54,4 @@ localPort = 37717
 externalPort = 5000
 
 [agent]
-integrations = ["perplexity_v0:1.0.0"]
+integrations = ["perplexity_v0:1.0.0", "flask_google_oauth:1.0.0"]

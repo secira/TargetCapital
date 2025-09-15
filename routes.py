@@ -41,16 +41,7 @@ if RAZORPAY_KEY_ID != 'rzp_test_dummy_key' and RAZORPAY_KEY_SECRET != 'dummy_sec
         logging.warning("Razorpay library not installed")
 
 # Template Context Processor
-# OAuth completion route - prevents API calls during OAuth callback
-@app.route('/auth/complete')
-def oauth_complete():
-    """OAuth completion handler - redirects to dashboard after successful authentication"""
-    if current_user.is_authenticated:
-        flash('Successfully logged in!', 'success')
-        return redirect(url_for('dashboard'))
-    else:
-        flash('Authentication failed. Please try again.', 'error')
-        return redirect(url_for('login'))
+# Clean OAuth integration coming soon
 
 @app.context_processor
 def inject_pricing_plans():
