@@ -471,4 +471,3 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('📊 Performance Metrics:', performanceHook);
     }, 2000);
 });
-}
