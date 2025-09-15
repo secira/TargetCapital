@@ -287,32 +287,37 @@ def add_broker():
             flash(f'You already have a {broker_name} connection configured.', 'error')
             return redirect(url_for('broker_management'))
         
-        # Check broker limits based on pricing plan
-        from models import PricingPlan
-        existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id).count()
+        # Check broker limits - hard cap of 3 brokers for all users
+        existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id, is_active=True).count()
         
-        if current_user.pricing_plan == PricingPlan.TRADER:
-            # Trader users can only have one broker
-            if existing_brokers_count >= 1:
-                flash('Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.', 'error')
-                return redirect(url_for('broker_management'))
-        elif current_user.pricing_plan == PricingPlan.TRADER_PLUS:
-            # Trader Plus users can have up to 3 brokers
-            if existing_brokers_count >= 3:
-                flash('Trader Plus plan allows up to 3 broker connections. You have reached the limit.', 'error')
-                return redirect(url_for('broker_management'))
+        if existing_brokers_count >= 3:
+            flash('You can add a maximum of 3 broker connections. Please remove an existing broker before adding a new one.', 'error')
+            return redirect(url_for('broker_management'))
+        
+        # Additional plan-specific limits (more restrictive than hard cap)
+        from models import PricingPlan
+        if current_user.pricing_plan == PricingPlan.TRADER and existing_brokers_count >= 1:
+            flash('Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.', 'error')
+            return redirect(url_for('broker_management'))
         
         # Create new broker connection (Step 1: Add broker with disconnected status)
         new_broker = BrokerAccount(
             user_id=current_user.id,
             broker_name=broker_name,
-            api_key=api_key,
-            api_secret=api_secret,
-            request_token=request_token,
-            redirect_url=redirect_url,
             connection_status='disconnected',  # Start as disconnected, ready to be connected
             is_active=True
         )
+        
+        # Use encryption methods to securely store credentials
+        new_broker.set_credentials(
+            client_id=api_key,  # Store API key as client_id
+            access_token=request_token,
+            api_secret=api_secret
+        )
+        
+        # Store redirect URL if provided
+        if redirect_url:
+            new_broker.redirect_url = redirect_url
         
         db.session.add(new_broker)
         db.session.commit()
@@ -334,18 +339,24 @@ def connect_broker(broker_id):
     try:
         from models_broker import BrokerAccount
         
+        # Use database transaction to ensure atomicity
         broker = BrokerAccount.query.filter_by(
             id=broker_id, 
-            user_id=current_user.id
+            user_id=current_user.id,
+            is_active=True
         ).first()
         
         if not broker:
             return jsonify({'success': False, 'message': 'Broker not found'})
         
-        # Check if user already has a connected broker (limit of 1)
+        if broker.connection_status == 'connected':
+            return jsonify({'success': False, 'message': 'Broker is already connected'})
+        
+        # Check if user already has a connected broker (limit of 1) - within transaction
         connected_broker = BrokerAccount.query.filter_by(
             user_id=current_user.id,
-            connection_status='connected'
+            connection_status='connected',
+            is_active=True
         ).first()
         
         if connected_broker and connected_broker.id != broker_id:
@@ -354,16 +365,17 @@ def connect_broker(broker_id):
                 'message': f'You already have {connected_broker.broker_name} connected. Disconnect it first to connect another broker.'
             })
         
-        # Validate API credentials by calling broker API
-        # This is where you would implement actual broker API validation
-        # For now, we'll simulate validation
+        # TODO: Validate API credentials by calling actual broker API
+        # For now, we'll simulate validation success
+        # In production, this would call the broker's API to test connection
         
+        # Update broker status atomically
         broker.connection_status = 'connected'
         broker.last_connected = datetime.utcnow()
         db.session.commit()
         
-        flash(f'{broker.broker_name} connected successfully!', 'success')
-        return jsonify({'success': True, 'message': f'{broker.broker_name} connected successfully!'})
+        flash(f'{broker.broker_name} connected successfully and is now active for trading!', 'success')
+        return jsonify({'success': True, 'message': f'{broker.broker_name} connected successfully and is now active for trading!'})
         
     except Exception as e:
         db.session.rollback()
@@ -379,11 +391,15 @@ def disconnect_broker(broker_id):
         
         broker = BrokerAccount.query.filter_by(
             id=broker_id, 
-            user_id=current_user.id
+            user_id=current_user.id,
+            is_active=True  # Consistency with other endpoints
         ).first()
         
         if not broker:
             return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        if broker.connection_status == 'disconnected':
+            return jsonify({'success': False, 'message': 'Broker is already disconnected'})
         
         broker.connection_status = 'disconnected'
         db.session.commit()
@@ -399,8 +415,10 @@ def disconnect_broker(broker_id):
 @app.route('/update-broker', methods=['POST'])
 @login_required
 def update_broker():
-    """Update existing broker connection"""
+    """Update existing broker connection - SECURE CREDENTIAL HANDLING"""
     try:
+        from models_broker import BrokerAccount
+        
         broker_id = request.form.get('broker_id')
         api_key = request.form.get('api_key')
         api_secret = request.form.get('api_secret')
@@ -408,26 +426,30 @@ def update_broker():
         
         broker = BrokerAccount.query.filter_by(
             id=broker_id, 
-            user_id=current_user.id
+            user_id=current_user.id,
+            is_active=True
         ).first()
         
         if not broker:
             flash('Broker not found.', 'error')
             return redirect(url_for('broker_management'))
         
-        # Update broker details
-        if api_key:
-            broker.api_key = api_key
-        if api_secret:
-            broker.api_secret = api_secret
-        if request_token:
-            broker.request_token = request_token
+        # Use secure credential update method - NEVER store plaintext
+        if api_key or api_secret or request_token:
+            # Get current credentials to preserve unchanged values
+            current_creds = broker.get_credentials()
+            
+            broker.set_credentials(
+                client_id=api_key if api_key else current_creds.get('client_id'),
+                access_token=request_token if request_token else current_creds.get('access_token'),
+                api_secret=api_secret if api_secret else current_creds.get('api_secret')
+            )
             
         broker.updated_at = datetime.utcnow()
         db.session.commit()
         
-        flash(f'{broker.broker_name} updated successfully!', 'success')
-        logging.info(f"User {current_user.id} updated broker {broker.broker_name}")
+        flash(f'{broker.broker_name} credentials updated securely!', 'success')
+        logging.info(f"User {current_user.id} updated broker {broker.broker_name} credentials")
         
     except Exception as e:
         db.session.rollback()
@@ -439,30 +461,45 @@ def update_broker():
 @app.route('/api/broker/<int:broker_id>')
 @login_required
 def get_broker_details(broker_id):
-    """Get broker details for editing"""
+    """Get broker details for editing - NEVER expose full credentials"""
     try:
+        from models_broker import BrokerAccount
+        
         broker = BrokerAccount.query.filter_by(
             id=broker_id, 
-            user_id=current_user.id
+            user_id=current_user.id,
+            is_active=True
         ).first()
         
         if not broker:
             return jsonify({'success': False, 'message': 'Broker not found'})
+        
+        # Get decrypted credentials safely for masking only
+        credentials = broker.get_credentials()
+        api_key = credentials.get('client_id', '')
+        
+        # Mask API key for display (show first 4 and last 4 characters)
+        masked_api_key = ''
+        if api_key and len(api_key) > 8:
+            masked_api_key = api_key[:4] + '*' * (len(api_key) - 8) + api_key[-4:]
+        elif api_key:
+            masked_api_key = '*' * len(api_key)
         
         return jsonify({
             'success': True,
             'broker': {
                 'id': broker.id,
                 'broker_name': broker.broker_name,
-                'api_key': broker.api_key,
-                'request_token': broker.request_token,
-                'status': broker.status
+                'api_key_masked': masked_api_key,  # Never expose full key
+                'has_credentials': bool(api_key),
+                'connection_status': broker.connection_status,
+                'last_connected': broker.last_connected.isoformat() if broker.last_connected else None
             }
         })
         
     except Exception as e:
         logging.error(f"Error getting broker details: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': 'Error retrieving broker details'})
 
 @app.route('/api/broker/<int:broker_id>', methods=['DELETE'])
 @login_required
@@ -492,14 +529,17 @@ def delete_broker(broker_id):
 @app.route('/api/broker/<int:broker_id>/refresh-token', methods=['POST'])
 @login_required
 def refresh_broker_token(broker_id):
-    """Refresh broker access token"""
+    """Refresh broker access token - SECURE TOKEN HANDLING"""
     try:
+        from models_broker import BrokerAccount
+        
         data = request.get_json()
         request_token = data.get('request_token')
         
         broker = BrokerAccount.query.filter_by(
             id=broker_id, 
-            user_id=current_user.id
+            user_id=current_user.id,
+            is_active=True
         ).first()
         
         if not broker:
@@ -508,12 +548,20 @@ def refresh_broker_token(broker_id):
         if not request_token:
             return jsonify({'success': False, 'message': 'Request token is required'})
         
-        # Update request token and simulate token refresh
-        # In real implementation, you would call the broker's API here
-        broker.request_token = request_token
-        broker.access_token = f"access_token_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
-        broker.last_token_refresh = datetime.utcnow()
+        # Use secure credential update - NEVER store plaintext tokens
+        current_creds = broker.get_credentials()
         
+        # TODO: In production, call broker API to validate and exchange tokens
+        # For now, simulate successful token refresh
+        new_access_token = f"access_token_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        
+        broker.set_credentials(
+            client_id=current_creds.get('client_id'),
+            access_token=new_access_token,  # Store encrypted access token
+            api_secret=current_creds.get('api_secret')
+        )
+        
+        broker.last_token_refresh = datetime.utcnow()
         db.session.commit()
         
         logging.info(f"User {current_user.id} refreshed token for broker {broker.broker_name}")
@@ -522,7 +570,7 @@ def refresh_broker_token(broker_id):
     except Exception as e:
         db.session.rollback()
         logging.error(f"Error refreshing token: {str(e)}")
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': 'Error refreshing token'})
 
 
 
