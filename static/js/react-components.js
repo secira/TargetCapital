@@ -454,11 +454,16 @@ class Portfolio extends Component {
     
     async loadPortfolioData() {
         try {
-            // OAUTH DEBUG: Skip API call temporarily
-            console.log('🔄 OAuth callback mode - skipping portfolio API call');
-            this.setState({ isLoading: false });
-            return;
+            const response = await fetch('/api/portfolio');
+            const data = await response.json();
             
+            if (data.success) {
+                this.setState({
+                    holdings: data.holdings || {},
+                    totalValue: data.total_value || 0,
+                    isLoading: false
+                });
+            }
         } catch (error) {
             console.error('Portfolio load error:', error);
             this.setState({ isLoading: false });
@@ -571,14 +576,14 @@ class AITradingSignals extends Component {
     
     async loadSignals() {
         try {
-            // OAUTH DEBUG: Skip API call temporarily
-            console.log('🔄 OAuth callback mode - skipping signals API call');
+            const response = await fetch('/api/trading-signals');
+            const data = await response.json();
+            
             this.setState({
-                signals: [],
+                signals: data.signals || [],
                 isLoading: false,
                 lastUpdate: new Date().toLocaleTimeString()
             });
-            return;
             
         } catch (error) {
             console.error('AI signals load error:', error);

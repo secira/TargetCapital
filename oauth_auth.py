@@ -16,7 +16,8 @@ import logging
 google_bp = make_google_blueprint(
     client_id=os.environ.get("GOOGLE_OAUTH_CLIENT_ID"),
     client_secret=os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET"),
-    scope=["openid", "email", "profile"]
+    scope=["openid", "email", "profile"],
+    redirect_to="oauth_complete"
 )
 
 facebook_bp = make_facebook_blueprint(

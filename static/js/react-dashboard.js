@@ -216,9 +216,26 @@ class DashboardApp {
     
     async loadInitialData() {
         try {
-            // OAUTH DEBUG: Skip all API calls temporarily
-            console.log('🔄 OAuth callback mode - skipping all API calls');
-            return;
+            // Load user data
+            const userResponse = await fetch('/api/user/profile');
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                this.setState({ user: userData.user });
+            }
+            
+            // Load portfolio data
+            const portfolioResponse = await fetch('/api/portfolio');
+            if (portfolioResponse.ok) {
+                const portfolioData = await portfolioResponse.json();
+                this.setState({ portfolio: portfolioData.portfolio });
+            }
+            
+            // Load trading signals
+            const signalsResponse = await fetch('/api/trading-signals');
+            if (signalsResponse.ok) {
+                const signalsData = await signalsResponse.json();
+                this.setState({ tradingSignals: signalsData.signals });
+            }
             
         } catch (error) {
             console.error('Initial data load error:', error);
@@ -270,9 +287,20 @@ class DashboardApp {
     
     async refreshCriticalData() {
         try {
-            // OAUTH DEBUG: Skip all API calls temporarily
-            console.log('🔄 OAuth callback mode - skipping critical data refresh');
-            return;
+            const [portfolioRes, signalsRes] = await Promise.all([
+                fetch('/api/portfolio'),
+                fetch('/api/trading-signals')
+            ]);
+            
+            if (portfolioRes.ok) {
+                const portfolioData = await portfolioRes.json();
+                this.setState({ portfolio: portfolioData.portfolio });
+            }
+            
+            if (signalsRes.ok) {
+                const signalsData = await signalsRes.json();
+                this.setState({ tradingSignals: signalsData.signals });
+            }
             
         } catch (error) {
             console.error('Critical data refresh error:', error);

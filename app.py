@@ -229,6 +229,14 @@ def load_user(user_id):
     from models import User
     return User.query.get(int(user_id))
 
+# Fix OAuth issue: Return 401 JSON for API requests instead of redirecting
+@login_manager.unauthorized_handler
+def unauthorized():
+    from flask import request, jsonify, redirect, url_for
+    if request.path.startswith('/api') or request.accept_mimetypes.best == 'application/json':
+        return jsonify({'error': 'unauthorized', 'message': 'Authentication required'}), 401
+    return redirect(url_for('login', next=request.url))
+
 with app.app_context():
     # Import models
     import models

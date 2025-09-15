@@ -150,10 +150,15 @@ function usePortfolioData(userId) {
         
         const loadInitialData = async () => {
             try {
-                // OAUTH DEBUG: Skip portfolio API call temporarily
-                console.log('🔄 OAuth callback mode - skipping portfolio data load in hooks');
-                setIsLoading(false);
-                return;
+                const response = await fetch(`/api/portfolio/${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    setPortfolio(data.portfolio);
+                    setError(null);
+                } else {
+                    setError(data.message);
+                }
             } catch (error) {
                 setError('Failed to load portfolio data');
             } finally {
