@@ -1,0 +1,29 @@
+react-dashboard.js:220 
+ GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/api/user/profile 401 (Unauthorized)
+
+websocket-client.js:167 🔄 Reconnecting to ws://localhost:8001 (attempt 1)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8001
+react-dashboard.js:227 
+ GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/api/portfolio 401 (Unauthorized)
+react-dashboard.js:234 
+ GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/api/trading-signals 401 (Unauthorized)
+websocket-client.js:167 🔄 Reconnecting to ws://localhost:8002 (attempt 1)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8002
+websocket-client.js:41 WebSocket connection to 'ws://localhost:8001/' failed: 
+websocket-client.js:95 ❌ WebSocket error: ws://localhost:8001 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+react-integration-test.js:45 ❌ Market WebSocket error: 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+websocket-client.js:82 🔌 WebSocket disconnected: ws://localhost:8001
+websocket-client.js:167 🔄 Reconnecting to ws://localhost:8001 (attempt 1)
+websocket-client.js:37 🔌 Connecting to WebSocket: ws://localhost:8001
+react-dashboard.js:148 📊 Demo market data updated
+9
+WebSocket connection to 'ws:<URL>/' failed: WebSocket is closed before the connection is established.
+websocket-client.js:95 ❌ WebSocket error: ws://localhost:8001 
+Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+react-dashboard.js:81 ❌ Market WebSocket error - switching to demo mode
+react-dashboard.js:142 🎭 Enabling enhanced demo mode with simulated real-time data
+websocket-client.js:82 🔌 WebSocket disconnected: ws://localhost:8001
+react-dashboard.js:76 🔌 Market WebSocket disconnected

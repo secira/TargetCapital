@@ -1,5 +1,6 @@
 # Flask Google OAuth integration from Replit blueprint
 # Use this Flask blueprint for Google authentication. Do not use flask-dance.
+# From blueprint:flask_google_oauth integration
 
 import json
 import os
@@ -35,7 +36,7 @@ google_auth = Blueprint("google_auth", __name__)
 
 @google_auth.route("/google_login")
 def login():
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, verify=True, timeout=10).json()
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
     request_uri = client.prepare_request_uri(
@@ -51,7 +52,7 @@ def login():
 @google_auth.route("/google_login/callback")
 def callback():
     code = request.args.get("code")
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL, verify=True, timeout=10).json()
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
     token_url, headers, body = client.prepare_token_request(
@@ -67,15 +68,13 @@ def callback():
         headers=headers,
         data=body,
         auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-        verify=True,
-        timeout=10,
     )
 
     client.parse_request_body_response(json.dumps(token_response.json()))
 
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
     uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body, verify=True, timeout=10)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
 
     userinfo = userinfo_response.json()
     if userinfo.get("email_verified"):
