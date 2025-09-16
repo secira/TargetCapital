@@ -11,8 +11,8 @@ backlog = 2048
 
 # Worker processes
 workers = int(os.environ.get("GUNICORN_WORKERS", min(multiprocessing.cpu_count() * 2 + 1, 8)))
-worker_class = "gevent"  # Async workers for better I/O performance
-worker_connections = 1000
+worker_class = "gthread"  # Thread workers compatible with Twilio client
+threads = int(os.environ.get("GUNICORN_THREADS", "8"))  # Thread count per worker
 max_requests = 10000
 max_requests_jitter = 1000
 
