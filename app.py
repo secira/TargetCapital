@@ -137,7 +137,11 @@ if is_production:
             "'self'",
             'wss:',  # Only secure WebSocket in production
         ],
-        'frame-ancestors': "'none'",
+        'frame-ancestors': [
+            "'self'",
+            'https://*.replit.dev',
+            'https://*.replit.com'
+        ],
     }
     
     Talisman(
@@ -154,12 +158,20 @@ if is_production:
         }
     )
 else:
-    # Development mode - minimal Talisman
+    # Development mode - minimal Talisman with Replit iframe support
     Talisman(
         app,
         force_https=False,
         strict_transport_security=False,
-        content_security_policy=False
+        content_security_policy={
+            'frame-ancestors': [
+                "'self'",
+                'https://*.replit.dev',
+                'https://*.replit.com',
+                'https://replit.com'
+            ]
+        },
+        frame_options='ALLOWALL'  # Allow iframe embedding for Replit preview
     )
 
 # Configure the database with enhanced security and connection pooling
