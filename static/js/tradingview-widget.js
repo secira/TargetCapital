@@ -741,4 +741,3 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
 if (!window.tradingViewWidget) {
     window.tradingViewWidget = new window.TradingViewWidgetClass();
 }
-}

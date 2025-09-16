@@ -1,0 +1,18 @@
+✅ PWA Service Worker registered: https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/
+main.js:577 targetcapital.in says: JavaScript error: SyntaxError: Unexpected token '}' (at react-components.js:792:1)
+(anonymous) @ main.js:577Understand this error
+react-components.js:792 Uncaught SyntaxError: Unexpected token '}' (at react-components.js:792:1)Understand this error
+main.js:577 targetcapital.in says: JavaScript error: SyntaxError: Unexpected token '}' (at react-hooks.js:474:1)
+(anonymous) @ main.js:577Understand this error
+react-hooks.js:474 Uncaught SyntaxError: Unexpected token '}' (at react-hooks.js:474:1)Understand this error
+main.js:577 targetcapital.in says: JavaScript error: SyntaxError: Unexpected token '}' (at tradingview-widget.js:744:1)
+(anonymous) @ main.js:577Understand this error
+tradingview-widget.js:744 Uncaught SyntaxError: Unexpected token '}' (at tradingview-widget.js:744:1)Understand this error
+mobile-register:1 <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes">Understand this warning
+static/img/icons/icon-144x144.png:1  GET https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/img/icons/icon-144x144.png 404 (Not Found)Understand this error
+mobile-register:1 Error while trying to use the following icon from the Manifest: https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/img/icons/icon-144x144.png (Download error or resource isn't a valid image)Understand this error
+VM75 mobile-performance.js:379 🔮 Prefetching: https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/mobile-register#
+VM75 mobile-performance.js:113 📊 Page Performance Metrics: {loadTime: 1.100000023841858, domContentLoaded: 1448.800000011921, firstPaint: 1364, firstContentfulPaint: 1364}
+VM75 mobile-performance.js:93 📊 FID: 3.50ms
+react-integration-test.js:8 🧪 Testing React components integration...
+react-integration-test.js:24 🔌 Testing WebSocket connections...

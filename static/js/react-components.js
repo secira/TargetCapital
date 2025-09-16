@@ -789,4 +789,3 @@ window.tCapitalComponents = {
     componentManager,
     wsManager
 };
-}
