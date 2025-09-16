@@ -2,6 +2,7 @@ from app import app
 import routes_payment  # noqa: F401
 import routes  # noqa: F401
 import routes_broker  # noqa: F401
+import routes_mobile  # noqa: F401
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
