@@ -461,7 +461,7 @@ window.tCapitalHooks = {
     StateManager
 };
 
-// Auto-initialize performance monitoring
+// Auto-initialize performance monitoring - cache refresh v2
 document.addEventListener('DOMContentLoaded', () => {
     // Start global performance monitoring
     const performanceHook = usePerformanceMonitor();

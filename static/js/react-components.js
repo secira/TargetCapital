@@ -778,7 +778,7 @@ window.addEventListener('beforeunload', () => {
     wsManager.disconnectAll();
 });
 
-// Export for global access
+// Export for global access - cache refresh v2
 window.tCapitalComponents = {
     RealTimeMarketData,
     TradingInterface,

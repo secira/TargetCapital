@@ -737,7 +737,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     });
 };
 
-// Initialize TradingView widget instance globally - avoid redefinition
+// Initialize TradingView widget instance globally - avoid redefinition - cache refresh v2
 if (!window.tradingViewWidget) {
     window.tradingViewWidget = new window.TradingViewWidgetClass();
 }
