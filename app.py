@@ -158,12 +158,18 @@ if is_production:
         }
     )
 else:
-    # Development mode - minimal Talisman with Replit iframe support
+    # Development mode - relaxed Talisman with Replit iframe support and unsafe-eval
     Talisman(
         app,
         force_https=False,
         strict_transport_security=False,
         content_security_policy={
+            'default-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*"],
+            'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", "*"],
+            'style-src': ["'self'", "'unsafe-inline'", "*"],
+            'font-src': ["'self'", "*"],
+            'img-src': ["'self'", "data:", "https:", "*"],
+            'connect-src': ["'self'", "ws:", "wss:", "*"],
             'frame-ancestors': [
                 "'self'",
                 'https://*.replit.dev',
