@@ -32,8 +32,8 @@ class AssetCategory(Enum):
 # Pricing Plan Enums
 class PricingPlan(Enum):
     FREE = "free"
-    TRADER = "trader"
-    TRADER_PLUS = "trader_plus"
+    TARGET_PLUS = "target_plus"
+    TARGET_PRO = "target_pro"
     HNI = "hni"
 
 class SubscriptionStatus(Enum):
@@ -179,12 +179,12 @@ class User(UserMixin, db.Model):
         if self.pricing_plan == PricingPlan.FREE:
             return menu_item in ['dashboard', 'ai_advisor', 'dashboard_trading_signals']
         
-        # Trader users can access Trade Now but have limited broker features
-        elif self.pricing_plan == PricingPlan.TRADER:
-            return menu_item not in []  # Trader can access all menus now
+        # Target Plus users can access Trade Now but have limited broker features
+        elif self.pricing_plan == PricingPlan.TARGET_PLUS:
+            return menu_item not in []  # Target Plus can access all menus now
         
-        # Trader Plus and HNI users can access everything
-        elif self.pricing_plan in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        # Target Pro and HNI users can access everything
+        elif self.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return True
             
         return False
@@ -193,8 +193,8 @@ class User(UserMixin, db.Model):
         """Get human-readable plan name"""
         plan_names = {
             PricingPlan.FREE: "Free User",
-            PricingPlan.TRADER: "Trader",
-            PricingPlan.TRADER_PLUS: "Trader Plus",
+            PricingPlan.TARGET_PLUS: "Target Plus",
+            PricingPlan.TARGET_PRO: "Target Pro",
             PricingPlan.HNI: "HNI Account"
         }
         return plan_names.get(self.pricing_plan, "Unknown")
@@ -203,8 +203,8 @@ class User(UserMixin, db.Model):
         """Get monthly price for the current plan"""
         prices = {
             PricingPlan.FREE: 0,
-            PricingPlan.TRADER: 1999,
-            PricingPlan.TRADER_PLUS: 2999,
+            PricingPlan.TARGET_PLUS: 1999,
+            PricingPlan.TARGET_PRO: 2999,
             PricingPlan.HNI: 9999
         }
         return prices.get(self.pricing_plan, 0)

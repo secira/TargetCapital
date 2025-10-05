@@ -12,8 +12,8 @@ except ImportError:
     import enum
     class PricingPlan(enum.Enum):
         FREE = "free"
-        TRADER = "trader"
-        TRADER_PLUS = "trader_plus"
+        TARGET_PLUS = "target_plus"
+        TARGET_PRO = "target_pro"
         HNI = "hni"
 import enum
 

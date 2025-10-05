@@ -315,8 +315,8 @@ def add_broker():
         
         # Additional plan-specific limits (more restrictive than hard cap)
         from models import PricingPlan
-        if current_user.pricing_plan == PricingPlan.TRADER and existing_brokers_count >= 1:
-            flash('Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.', 'error')
+        if current_user.pricing_plan == PricingPlan.TARGET_PLUS and existing_brokers_count >= 1:
+            flash('Target Plus plan allows only one broker connection. Upgrade to Target Pro for multiple brokers.', 'error')
             return redirect(url_for('broker_management'))
         
         # Create new broker connection (Step 1: Add broker with disconnected status)
@@ -1217,8 +1217,8 @@ def dashboard_trading_signals():
     """Trading signals page for paid users only"""
     # Check if user has paid subscription
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
-        flash('Trading signals are available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
+    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        flash('Trading signals are available for Target Plus, Target Pro, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
     # Get date filter parameter
@@ -1267,7 +1267,7 @@ def dashboard_trading_signals():
 def dashboard_trade_now():
     # Check subscription access - now available for Trader, Trader Plus, and Premium users
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
         flash('Trade execution is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     """Trade Now page for executing live trades"""
@@ -1986,16 +1986,16 @@ def api_deploy_trade(recommendation_id):
         # Additional security check at API level
         from models import PricingPlan
         
-        if current_user.pricing_plan == PricingPlan.TRADER:
+        if current_user.pricing_plan == PricingPlan.TARGET_PLUS:
             return jsonify({
                 'success': False, 
-                'error': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+                'error': 'Target Plus plan allows portfolio analysis only. Upgrade to Target Pro for trade execution.'
             }), 403
         
-        if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': False, 
-                'error': 'Trade execution requires Trader Plus subscription or higher.'
+                'error': 'Trade execution requires Target Pro subscription or higher.'
             }), 403
         
         from services.trading_service import TradingService
@@ -2952,7 +2952,7 @@ def api_trading_signals():
         from sqlalchemy import desc
         
         # Check if user has paid subscription
-        if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': True,
                 'signals': [],
@@ -3487,11 +3487,11 @@ def handle_payment_success():
                 return jsonify({'success': False, 'message': 'Payment verification failed'})
         
         # Determine plan and amount
-        if plan_type == 'trader':
-            current_user.pricing_plan = PricingPlan.TRADER
+        if plan_type == 'target_plus':
+            current_user.pricing_plan = PricingPlan.TARGET_PLUS
             amount = 1999
-        elif plan_type == 'trader_plus':
-            current_user.pricing_plan = PricingPlan.TRADER_PLUS
+        elif plan_type == 'target_pro':
+            current_user.pricing_plan = PricingPlan.TARGET_PRO
             amount = 2999
         else:
             return jsonify({'success': False, 'message': 'Invalid plan type'})

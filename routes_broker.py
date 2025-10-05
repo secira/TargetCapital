@@ -71,19 +71,19 @@ def api_add_broker_account():
         from models import PricingPlan
         existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id).count()
         
-        if current_user.pricing_plan == PricingPlan.TRADER:
-            # Trader users can only have one broker
+        if current_user.pricing_plan == PricingPlan.TARGET_PLUS:
+            # Target Plus users can only have one broker
             if existing_brokers_count >= 1:
                 return jsonify({
                     'success': False,
-                    'message': 'Trader plan allows only one broker connection. Upgrade to Trader Plus for multiple brokers.'
+                    'message': 'Target Plus plan allows only one broker connection. Upgrade to Target Pro for multiple brokers.'
                 }), 400
-        elif current_user.pricing_plan == PricingPlan.TRADER_PLUS:
-            # Trader Plus users can have up to 3 brokers
+        elif current_user.pricing_plan == PricingPlan.TARGET_PRO:
+            # Target Pro users can have up to 3 brokers
             if existing_brokers_count >= 3:
                 return jsonify({
                     'success': False,
-                    'message': 'Trader Plus plan allows up to 3 broker connections. You have reached the limit.'
+                    'message': 'Target Pro plan allows up to 3 broker connections. You have reached the limit.'
                 }), 400
         
         # Add broker account
@@ -204,8 +204,8 @@ def dashboard_live_portfolio():
     """Live portfolio with real broker data"""
     # Check subscription access
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER, PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
-        flash('Live portfolio access requires Trader subscription or higher.', 'warning')
+    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        flash('Live portfolio access requires Target Plus subscription or higher.', 'warning')
         return redirect(url_for('pricing'))
     
     # Get portfolio summary with error handling
@@ -247,16 +247,16 @@ def api_place_broker_order():
         # Check trading permissions based on pricing plan
         from models import PricingPlan
         
-        if current_user.pricing_plan == PricingPlan.TRADER:
+        if current_user.pricing_plan == PricingPlan.TARGET_PLUS:
             return jsonify({
                 'success': False, 
-                'message': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+                'message': 'Target Plus plan allows portfolio analysis only. Upgrade to Target Pro for trade execution.'
             }), 403
         
-        if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
+        if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': False, 
-                'message': 'Trade execution requires Trader Plus subscription or higher.'
+                'message': 'Trade execution requires Target Pro subscription or higher.'
             }), 403
         
         data = request.get_json()

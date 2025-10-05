@@ -41,7 +41,7 @@
                 <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <h4 class="fw-bold text-dark mb-2">Trader</h4>
+                            <h4 class="fw-bold text-dark mb-2">Target Plus</h4>
                             <p class="text-muted mb-4">Great for portfolio analysis</p>
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
@@ -66,11 +66,11 @@
                         
                         {% if current_user.is_authenticated %}
                             {% if current_subscription and current_subscription.plan == 'FREE' %}
-                                <a href="{{ url_for('subscribe', plan_type='trader') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
-                            {% elif current_subscription and current_subscription.plan == 'TRADER' %}
+                                <a href="{{ url_for('subscribe', plan_type='target_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
+                            {% elif current_subscription and current_subscription.plan == 'TARGET_PLUS' %}
                                 <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
                             {% else %}
-                                <a href="{{ url_for('subscribe', plan_type='trader') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Select Plan</a>
+                                <a href="{{ url_for('subscribe', plan_type='target_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Select Plan</a>
                             {% endif %}
                         {% else %}
                             <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">Get Started</a>
@@ -89,7 +89,7 @@
                     
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
-                            <h4 class="fw-bold text-dark mb-2">Trader Plus</h4>
+                            <h4 class="fw-bold text-dark mb-2">Target Pro</h4>
                             <p class="text-muted mb-4">Great for traders who want to execute orders</p>
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
@@ -101,7 +101,7 @@
                         </div>
                         
                         <div class="features-list mb-4">
-                            <p class="fw-semibold mb-3">Trader plus:</p>
+                            <p class="fw-semibold mb-3">Target Pro:</p>
                             <ul class="list-unstyled">
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI stock analysis</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Daily Trading Signals</li>
@@ -115,10 +115,10 @@
                         </div>
                         
                         {% if current_user.is_authenticated %}
-                            {% if current_subscription and current_subscription.plan == 'TRADER_PLUS' %}
+                            {% if current_subscription and current_subscription.plan == 'TARGET_PRO' %}
                                 <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
                             {% else %}
-                                <a href="{{ url_for('subscribe', plan_type='trader_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
+                                <a href="{{ url_for('subscribe', plan_type='target_pro') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
                             {% endif %}
                         {% else %}
                             <a href="{{ url_for('register') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Get Started</a>
@@ -146,7 +146,7 @@
                         <div class="features-list mb-4">
                             <p class="fw-semibold mb-3">We can help you grow with minimum risk:</p>
                             <ul class="list-unstyled">
-                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All Benefits of Trader Plus</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All Benefits of Target Pro</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Trade with 1 broker only</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dedicated account manager</li>
                                                              <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Premium dedicated support</li>
@@ -180,8 +180,8 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="py-4 fw-semibold" style="width: 40%;">Features</th>
-                                <th class="py-4 text-center fw-semibold">Trader</th>
-                                <th class="py-4 text-center fw-semibold">Trader Plus</th>
+                                <th class="py-4 text-center fw-semibold">Target Plus</th>
+                                <th class="py-4 text-center fw-semibold">Target Pro</th>
                                 <th class="py-4 text-center fw-semibold">HNI</th>
                             </tr>
                         </thead>
@@ -282,7 +282,7 @@
                             </button>
                         </h2>
                         <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
-                            <div class="accordion-body">If you want to receive trading signals, AI Advisor, and portfolio analysis with one broker (no trading), the Trader plan is perfect for you. If you want to connect multiple brokers for analysis and trade with one broker, the Trader Plus plan is ideal. For HNI clients, the HNI Account offers dedicated support and account management.  
+                            <div class="accordion-body">If you want to receive trading signals, AI Advisor, and portfolio analysis with one broker (no trading), the Target Plus plan is perfect for you. If you want to connect multiple brokers for analysis and trade with one broker, the Target Pro plan is ideal. For HNI clients, the HNI Account offers dedicated support and account management.  
                             </div>
                         </div>
                     </div>
