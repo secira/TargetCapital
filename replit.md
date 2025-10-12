@@ -57,6 +57,7 @@ Unified Portfolio Analyzer System Implemented: Complete AI-powered portfolio ana
 Razorpay Payment System Integration: Complete payment processing with subscription management, secure checkout flow, payment verification, success/failure handling, billing history, admin panel, and webhook support. Pricing updated to Target Plus ₹1,999, Target Pro ₹2,999, Premium ₹4,999
 Updated Subscription Model: Target Plus users can connect 1 broker for portfolio analysis only (no trading); Target Pro supports up to 3 brokers with trade execution limited to 1 primary broker; HNI Account supports unlimited brokers with trade execution limited to 1 primary broker; pricing structure optimized for user growth path
 **Multi-Asset Portfolio System**: Complete implementation supporting 11 asset classes (Equities, Mutual Funds, Fixed Income, F&O, NPS, Real Estate, Gold, ETFs, Crypto, ESOP, Private Equity) with unified views across up to 3 brokers, asset-specific filtering, real-time market data integration, comprehensive test suite (200+ test cases), performance optimization with strategic database indexing, and production-ready deployment with safe database migrations
+**Knowledge Base Implementation**: Renamed "Blog" to "Knowledge Base" with 5 comprehensive trading education articles covering Day Trading, Swing Trading, Technical Indicators, Options & Futures, and Trading Psychology (October 2025)
 
 ## System Architecture
 ### Production Backend Architecture
