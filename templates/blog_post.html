@@ -42,12 +42,15 @@
                 
                 <!-- Featured Image -->
                 {% if post.featured_image %}
-                <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="img-fluid rounded shadow-sm mb-4">
+                <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="img-fluid rounded shadow-sm mb-4" style="width: 100%; height: auto; max-height: 500px; object-fit: cover;">
                 {% else %}
-                <div class="featured-image-placeholder bg-light text-white rounded d-flex align-items-center justify-content-center mb-4" style="height: 300px;">
-                    <div class="text-center">
-                        <i class="fas fa-chart-line fa-4x mb-3"></i>
-                        <h4>{{ post.title }}</h4>
+                <div class="featured-image-placeholder rounded shadow-sm d-flex align-items-center justify-content-center mb-4" style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="text-center text-white p-4">
+                        <i class="fas fa-chart-line fa-5x mb-3 opacity-75"></i>
+                        <h3 class="fw-bold">{{ post.title[:60] }}{% if post.title|length > 60 %}...{% endif %}</h3>
+                        {% if post.category %}
+                        <span class="badge bg-white bg-opacity-25 mt-3 px-3 py-2">{{ post.category }}</span>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}

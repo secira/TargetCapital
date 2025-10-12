@@ -32,10 +32,10 @@
             <div class="col-lg-4">
                 <div class="featured-post card border-0 shadow-sm h-100">
                     {% if post.featured_image %}
-                    <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}">
+                    <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
                     {% else %}
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <i class="fas fa-chart-line fa-3x text-muted"></i>
+                    <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-chart-line fa-3x text-white opacity-75"></i>
                     </div>
                     {% endif %}
                     
@@ -85,10 +85,10 @@
                     <div class="row g-0">
                         <div class="col-md-4">
                             {% if post.featured_image %}
-                            <img src="{{ post.featured_image }}" class="img-fluid rounded-start h-100 object-cover" alt="{{ post.title }}">
+                            <img src="{{ post.featured_image }}" class="img-fluid rounded-start h-100" alt="{{ post.title }}" style="object-fit: cover; min-height: 200px;">
                             {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center h-100 rounded-start">
-                                <i class="fas fa-newspaper fa-2x text-muted"></i>
+                            <div class="d-flex align-items-center justify-content-center h-100 rounded-start" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-newspaper fa-2x text-white opacity-75"></i>
                             </div>
                             {% endif %}
                         </div>
