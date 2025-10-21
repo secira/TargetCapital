@@ -262,9 +262,15 @@ with app.app_context():
     import routes_mobile  # Import mobile OTP routes
     db.create_all()
 
-# Import and register Google OAuth blueprint
-from google_auth import google_auth
-app.register_blueprint(google_auth)
+# Import and register Replit Auth blueprint (from blueprint:python_log_in_with_replit)
+from replit_auth import make_replit_blueprint
+app.register_blueprint(make_replit_blueprint(), url_prefix="/auth")
+
+# Make session permanent for Replit Auth
+@app.before_request
+def make_session_permanent():
+    from flask import session
+    session.permanent = True
 
 # Register admin blueprint (import after routes to avoid conflicts)
 try:

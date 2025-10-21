@@ -19,13 +19,6 @@ from werkzeug.local import LocalProxy
 from app import app, db
 from models import ReplitOAuth, User
 
-login_manager = LoginManager(app)
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
 
 class UserSessionStorage(BaseStorage):
 
