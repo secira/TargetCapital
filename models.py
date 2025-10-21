@@ -146,6 +146,10 @@ class User(UserMixin, db.Model):
     otp_attempts = db.Column(db.Integer, default=0)
     last_otp_request = db.Column(db.DateTime, nullable=True)
     
+    # Replit Auth fields (for OAuth login)
+    replit_id = db.Column(db.String(50), unique=True, nullable=True)
+    profile_image_url = db.Column(db.String(500), nullable=True)
+    
     # Subscription and Billing Information
     pricing_plan = db.Column(db.Enum(PricingPlan), default=PricingPlan.FREE, nullable=False)
     subscription_status = db.Column(db.Enum(SubscriptionStatus), default=SubscriptionStatus.INACTIVE, nullable=False)
@@ -229,6 +233,22 @@ class User(UserMixin, db.Model):
             self.referral_code = code
             return code
         return self.referral_code
+
+class OAuth(OAuthConsumerMixin, db.Model):
+    """Store OAuth tokens for Replit Auth - from blueprint:python_log_in_with_replit"""
+    __tablename__ = 'oauth'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    browser_session_key = db.Column(db.String(100), nullable=False)
+    user = db.relationship(User, backref='oauth_tokens')
+    
+    __table_args__ = (
+        db.UniqueConstraint(
+            'user_id',
+            'browser_session_key',
+            'provider',
+            name='uq_user_browser_session_key_provider',
+        ),
+    )
 
 class Payment(db.Model):
     """Track all payment transactions"""
