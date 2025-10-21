@@ -1,6 +1,16 @@
 {% extends "dashboard/dashboard_base.html" %}
 
 {% block title %}Research Assistant - Target Capital{% endblock %}
+{% block dashboard_title %}Research Assistant{% endblock %}
+{% block dashboard_subtitle %}AI-powered stock research with real-time data & portfolio context{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-outline-primary" onclick="location.reload()">
+        <i class="fas fa-plus me-1"></i>New Chat
+    </button>
+</div>
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -9,51 +19,11 @@
     background: #ffffff;
     border-radius: 12px;
     padding: 0;
-    height: calc(100vh - 160px);
+    height: calc(100vh - 220px);
     display: flex;
     flex-direction: column;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.research-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid #e5e5e5;
-    background: #ffffff;
-    border-radius: 12px 12px 0 0;
-    flex-shrink: 0;
-}
-
-.research-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-}
-
-.research-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 18px;
-}
-
-.research-title h1 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #000;
-    margin: 0;
-}
-
-.research-subtitle {
-    font-size: 13px;
-    color: #666;
-    margin-top: 4px;
 }
 
 .research-content {
@@ -289,6 +259,10 @@
     margin-bottom: 6px;
 }
 
+.context-item:last-child {
+    margin-bottom: 0;
+}
+
 .context-label {
     font-weight: 600;
     color: #666;
@@ -324,7 +298,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .research-container {
-        height: calc(100vh - 120px);
+        height: calc(100vh - 180px);
     }
     
     .research-content {
@@ -339,21 +313,8 @@
 </style>
 {% endblock %}
 
-{% block content %}
+{% block dashboard_content %}
 <div class="research-container">
-    <!-- Header -->
-    <div class="research-header">
-        <div class="research-title">
-            <div class="research-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-            <div>
-                <h1>Research Assistant</h1>
-                <div class="research-subtitle">AI-powered stock research with real-time data & portfolio context</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Content -->
     <div class="research-content">
         <!-- User Context Panel -->
