@@ -2,7 +2,6 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from enum import Enum
 
 # Import broker models
@@ -146,8 +145,7 @@ class User(UserMixin, db.Model):
     otp_attempts = db.Column(db.Integer, default=0)
     last_otp_request = db.Column(db.DateTime, nullable=True)
     
-    # Replit Auth fields (for OAuth login)
-    replit_id = db.Column(db.String(50), unique=True, nullable=True)
+    # Profile image (for OAuth login)
     profile_image_url = db.Column(db.String(500), nullable=True)
     
     # Subscription and Billing Information
@@ -234,20 +232,6 @@ class User(UserMixin, db.Model):
             return code
         return self.referral_code
 
-class ReplitOAuth(OAuthConsumerMixin, db.Model):
-    """Store OAuth tokens for Replit Auth - from blueprint:python_log_in_with_replit"""
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    browser_session_key = db.Column(db.String(100), nullable=False)
-    user = db.relationship(User, backref='oauth_tokens')
-    
-    __table_args__ = (
-        db.UniqueConstraint(
-            'user_id',
-            'browser_session_key',
-            'provider',
-            name='uq_user_browser_session_key_provider',
-        ),
-    )
 
 class Payment(db.Model):
     """Track all payment transactions"""
@@ -1137,10 +1121,6 @@ class DailyTradingSignal(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class OAuth(OAuthConsumerMixin, db.Model):
-    provider_user_id = db.Column(db.String(256), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship("User")
 
 
 # Admin Models for Trading Signal Management

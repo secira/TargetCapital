@@ -68,19 +68,16 @@
                             </button>
                         </form>
                         
-                        <!-- OAuth Login Options -->
+                        <!-- Google OAuth Login -->
                         <div class="text-center mb-3">
                             <hr class="my-3">
                             <small class="text-muted bg-white px-3">Or sign in with</small>
                         </div>
                         
                         <div class="d-grid gap-2 mb-3">
-                            <a href="{{ url_for('replit_auth.login') }}" class="btn btn-dark">
-                                <i class="fas fa-sign-in-alt me-2"></i>Continue with Social Login
+                            <a href="{{ url_for('google_auth.login') }}" class="btn btn-outline-danger">
+                                <i class="fab fa-google me-2"></i>Continue with Google
                             </a>
-                            <small class="text-center text-muted">
-                                <i class="fas fa-check-circle text-success"></i> Google, GitHub, Apple & more
-                            </small>
                         </div>
                         
                         <div class="text-center">

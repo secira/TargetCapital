@@ -58,14 +58,15 @@ Razorpay Payment System Integration: Complete payment processing with subscripti
 Updated Subscription Model: Target Plus users can connect 1 broker for portfolio analysis only (no trading); Target Pro supports up to 3 brokers with trade execution limited to 1 primary broker; HNI Account supports unlimited brokers with trade execution limited to 1 primary broker; pricing structure optimized for user growth path
 **Multi-Asset Portfolio System**: Complete implementation supporting 11 asset classes (Equities, Mutual Funds, Fixed Income, F&O, NPS, Real Estate, Gold, ETFs, Crypto, ESOP, Private Equity) with unified views across up to 3 brokers, asset-specific filtering, real-time market data integration, comprehensive test suite (200+ test cases), performance optimization with strategic database indexing, and production-ready deployment with safe database migrations
 **Knowledge Base Implementation**: Renamed "Blog" to "Knowledge Base" with 5 comprehensive trading education articles covering Day Trading, Swing Trading, Technical Indicators, Options & Futures, and Trading Psychology (October 2025)
-**Authentication System**: Complete multi-method authentication with Google OAuth and Mobile OTP login (October 2025):
-- Google OAuth integration via Replit blueprint for seamless social login
-- Mobile Number + OTP authentication specifically designed for Indian market
-- Users can register/login with mobile number and receive OTP via Twilio SMS
+**Authentication System**: Simplified three-method authentication (October 2025):
+- **Google OAuth**: Direct Google authentication via blueprint:flask_google_oauth for seamless social login
+- **Mobile Number + OTP**: Passwordless authentication designed for Indian market via Twilio SMS
+- **Email/Password**: Traditional username/email and password login with secure password hashing
+- Users can register/login with any of the three methods
 - Complete profile flow after mobile registration to add email/password
-- Both methods fully integrated in login and registration pages
 - Twilio SMS integration operational with proper rate limiting and security
 - Mobile-first approach with passwordless login option for quick access
+- All three methods unified under single User model with flexible nullable fields
 
 ## System Architecture
 ### Production Backend Architecture
