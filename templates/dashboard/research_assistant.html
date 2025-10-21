@@ -1,0 +1,638 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Research Assistant - Target Capital{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Research Assistant - RAG-Powered Interface */
+.research-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 0;
+    height: calc(100vh - 160px);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.research-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #ffffff;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
+}
+
+.research-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+}
+
+.research-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.research-title h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+}
+
+.research-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.research-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 24px 28px;
+}
+
+/* Chat Messages */
+.research-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+}
+
+.research-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.research-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.research-messages::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.research-message {
+    margin-bottom: 24px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message-user {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.message-user-content {
+    background: #667eea;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message-assistant {
+    display: flex;
+    gap: 12px;
+}
+
+.assistant-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.assistant-content {
+    flex: 1;
+    max-width: 85%;
+}
+
+.assistant-text {
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 4px 16px 16px 16px;
+    color: #000;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Citations */
+.message-citations {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.citations-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.citation-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-decoration: none;
+    color: #667eea;
+    transition: background 0.2s;
+}
+
+.citation-item:hover {
+    background: #e9ecef;
+}
+
+.citation-icon {
+    font-size: 10px;
+    color: #999;
+}
+
+.citation-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Trade Action Button */
+.trade-action {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+}
+
+.trade-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #0ea5e9;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.trade-button:hover {
+    background: #0284c7;
+    color: white;
+}
+
+/* Input Area */
+.research-input-area {
+    flex-shrink: 0;
+    padding: 16px 0 0 0;
+    border-top: 1px solid #e5e5e5;
+}
+
+.input-container {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.research-input {
+    flex: 1;
+    min-height: 50px;
+    max-height: 150px;
+    padding: 12px 48px 12px 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.research-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.send-button {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: #667eea;
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.send-button:hover:not(:disabled) {
+    background: #5568d3;
+}
+
+.send-button:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+}
+
+/* Context Panel */
+.context-panel {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.context-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.context-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.context-value {
+    color: #000;
+}
+
+/* Loading State */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 12px;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #cbd5e0;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .research-container {
+        height: calc(100vh - 120px);
+    }
+    
+    .research-content {
+        padding: 16px;
+    }
+    
+    .message-user-content,
+    .assistant-content {
+        max-width: 90%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="research-container">
+    <!-- Header -->
+    <div class="research-header">
+        <div class="research-title">
+            <div class="research-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div>
+                <h1>Research Assistant</h1>
+                <div class="research-subtitle">AI-powered stock research with real-time data & portfolio context</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="research-content">
+        <!-- User Context Panel -->
+        {% if context %}
+        <div class="context-panel">
+            <div class="context-item">
+                <i class="fas fa-briefcase"></i>
+                <span class="context-label">Portfolio:</span>
+                <span class="context-value">₹{{ "{:,.0f}".format(context.portfolio_value) }} ({{ context.holdings_count }} holdings)</span>
+            </div>
+            <div class="context-item">
+                <i class="fas fa-link"></i>
+                <span class="context-label">Connected Brokers:</span>
+                <span class="context-value">{{ context.brokers_connected }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Chat Messages -->
+        <div class="research-messages" id="researchMessages">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.role == 'user' %}
+                    <div class="research-message message-user">
+                        <div class="message-user-content">
+                            {{ message.content }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="research-message message-assistant">
+                        <div class="assistant-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="assistant-content">
+                            <div class="assistant-text">{{ message.content }}</div>
+                            
+                            {% if message.citations and message.citations|length > 0 %}
+                            <div class="message-citations">
+                                <div class="citations-title">
+                                    <i class="fas fa-link"></i> Sources ({{ message.citations|length }})
+                                </div>
+                                {% for citation in message.citations %}
+                                <a href="{{ citation.url }}" target="_blank" class="citation-item">
+                                    <span class="citation-icon">📄</span>
+                                    <span class="citation-text">{{ citation.title }}</span>
+                                    <i class="fas fa-external-link-alt" style="font-size: 10px;"></i>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if message.stock_symbol %}
+                            <div class="trade-action">
+                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                    Ready to trade {{ message.stock_symbol }}?
+                                </div>
+                                <a href="{{ url_for('dashboard_trade_now', symbol=message.stock_symbol) }}" class="trade-button">
+                                    <i class="fas fa-chart-line"></i>
+                                    Trade {{ message.stock_symbol }}
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+            <!-- Welcome Message -->
+            <div class="research-message message-assistant">
+                <div class="assistant-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="assistant-content">
+                    <div class="assistant-text">
+👋 Welcome to your AI Research Assistant!
+
+I'm here to help you with:
+• Stock analysis and research
+• Market insights and trends
+• Portfolio recommendations
+• Investment education
+
+I have access to:
+✓ Real-time market data
+✓ Your portfolio context
+✓ Historical research
+✓ Latest news and filings
+
+Ask me anything about stocks, sectors, or your portfolio!
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Input Area -->
+        <div class="research-input-area">
+            <form id="researchForm" onsubmit="submitResearch(event)">
+                <div class="input-container">
+                    <textarea 
+                        id="researchInput" 
+                        class="research-input" 
+                        placeholder="Ask about stocks, market trends, or your portfolio..."
+                        rows="1"
+                        required
+                    ></textarea>
+                    <button type="submit" class="send-button" id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-resize textarea
+const textarea = document.getElementById('researchInput');
+textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+});
+
+// Submit research query
+async function submitResearch(event) {
+    event.preventDefault();
+    
+    const input = document.getElementById('researchInput');
+    const sendButton = document.getElementById('sendButton');
+    const messagesDiv = document.getElementById('researchMessages');
+    const query = input.value.trim();
+    
+    if (!query) return;
+    
+    // Disable input
+    input.disabled = true;
+    sendButton.disabled = true;
+    
+    // Add user message to chat
+    const userMessage = document.createElement('div');
+    userMessage.className = 'research-message message-user';
+    userMessage.innerHTML = `
+        <div class="message-user-content">${escapeHtml(query)}</div>
+    `;
+    messagesDiv.appendChild(userMessage);
+    
+    // Add typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'research-message message-assistant';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+        <div class="assistant-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="assistant-content">
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    messagesDiv.appendChild(typingDiv);
+    
+    // Clear input
+    input.value = '';
+    input.style.height = 'auto';
+    
+    // Scroll to bottom
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    try {
+        // Send request
+        const response = await fetch('/api/research/query', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: query,
+                conversation_id: {{ conversation_id if conversation_id else 'null' }}
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        document.getElementById('typingIndicator').remove();
+        
+        if (data.success) {
+            // Add assistant response
+            const assistantMessage = document.createElement('div');
+            assistantMessage.className = 'research-message message-assistant';
+            
+            let citationsHtml = '';
+            if (data.citations && data.citations.length > 0) {
+                citationsHtml = `
+                    <div class="message-citations">
+                        <div class="citations-title">
+                            <i class="fas fa-link"></i> Sources (${data.citations.length})
+                        </div>
+                        ${data.citations.map(c => `
+                            <a href="${c.source_url || '#'}" target="_blank" class="citation-item">
+                                <span class="citation-icon">📄</span>
+                                <span class="citation-text">${escapeHtml(c.source_title)}</span>
+                                ${c.source_url ? '<i class="fas fa-external-link-alt" style="font-size: 10px;"></i>' : ''}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            assistantMessage.innerHTML = `
+                <div class="assistant-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="assistant-content">
+                    <div class="assistant-text">${escapeHtml(data.response)}</div>
+                    ${citationsHtml}
+                </div>
+            `;
+            
+            messagesDiv.appendChild(assistantMessage);
+        } else {
+            // Show error
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'research-message message-assistant';
+            errorMessage.innerHTML = `
+                <div class="assistant-avatar">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="assistant-content">
+                    <div class="assistant-text" style="color: #dc3545;">
+                        Sorry, I encountered an error: ${escapeHtml(data.error || 'Unknown error')}
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(errorMessage);
+        }
+    } catch (error) {
+        // Remove typing indicator
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+        
+        // Show error
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'research-message message-assistant';
+        errorMessage.innerHTML = `
+            <div class="assistant-avatar">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="assistant-content">
+                <div class="assistant-text" style="color: #dc3545;">
+                    Network error. Please try again.
+                </div>
+            </div>
+        `;
+        messagesDiv.appendChild(errorMessage);
+    } finally {
+        // Re-enable input
+        input.disabled = false;
+        sendButton.disabled = false;
+        input.focus();
+        
+        // Scroll to bottom
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Auto-scroll to bottom on load
+window.addEventListener('load', function() {
+    const messagesDiv = document.getElementById('researchMessages');
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+</script>
+{% endblock %}

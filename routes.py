@@ -2549,12 +2549,73 @@ def api_search_stocks():
             'error': 'Search failed'
         }), 500
 
-# Agentic AI Routes
+# Research Assistant Routes
 @app.route('/dashboard/ai-advisor')
 @login_required
-def ai_advisor():
-    """Redirect AI Advisor to Stock Picker (merged functionality)"""
-    return redirect(url_for('dashboard_stock_picker'))
+def dashboard_ai_advisor():
+    """Research Assistant - RAG-powered stock research"""
+    try:
+        from services.research_assistant_service import ResearchAssistantService
+        
+        research_service = ResearchAssistantService()
+        
+        # Get user context
+        user_context = research_service.get_user_context(current_user.id)
+        
+        # Get recent conversations
+        conversations = research_service.get_user_conversations(current_user.id, limit=10)
+        
+        # Get current conversation if specified
+        conversation_id = request.args.get('conversation_id', type=int)
+        messages = []
+        
+        if conversation_id:
+            messages = research_service.get_conversation_history(conversation_id)
+        
+        # Get broker accounts for context
+        from models_broker import BrokerAccount
+        broker_accounts = BrokerAccount.query.filter_by(user_id=current_user.id).all()
+        
+        return render_template('dashboard/research_assistant.html',
+                             context={
+                                 'portfolio_value': user_context['portfolio']['total_value'],
+                                 'holdings_count': len(user_context['portfolio']['holdings']),
+                                 'brokers_connected': user_context['brokers']['count']
+                             },
+                             conversations=conversations,
+                             messages=messages,
+                             conversation_id=conversation_id,
+                             broker_accounts=broker_accounts)
+    except Exception as e:
+        logger.error(f"Error loading Research Assistant: {str(e)}")
+        flash('Error loading Research Assistant. Please try again.', 'error')
+        return redirect(url_for('dashboard'))
+
+@app.route('/api/research/query', methods=['POST'])
+@login_required
+def api_research_query():
+    """Handle research queries with RAG"""
+    try:
+        from services.research_assistant_service import ResearchAssistantService
+        
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        conversation_id = data.get('conversation_id')
+        
+        if not query:
+            return jsonify({'success': False, 'error': 'Query is required'}), 400
+        
+        research_service = ResearchAssistantService()
+        result = research_service.perform_research(current_user.id, query, conversation_id)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Research query error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred. Please try again.'
+        }), 500
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required

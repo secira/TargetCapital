@@ -72,7 +72,7 @@ Indian Market Focus:
 
 Remember: This is educational research with proper disclaimers - not guaranteed investment advice."""
 
-    def create_or_get_conversation(self, user_id: int, conversation_id: int = None) -> ResearchConversation:
+    def create_or_get_conversation(self, user_id: int, conversation_id: Optional[int] = None) -> ResearchConversation:
         """Create new conversation or retrieve existing one"""
         if conversation_id:
             conversation = ResearchConversation.query.filter_by(
@@ -171,7 +171,7 @@ Remember: This is educational research with proper disclaimers - not guaranteed 
             return []
     
     def vector_search(self, query_embedding: List[float], limit: int = 5, 
-                     symbol: str = None) -> List[Dict]:
+                     symbol: Optional[str] = None) -> List[Dict]:
         """Perform vector similarity search using pgvector"""
         if not query_embedding:
             return []
@@ -358,7 +358,7 @@ Provide comprehensive research with:
             raise
     
     def perform_research(self, user_id: int, query: str, 
-                        conversation_id: int = None) -> Dict:
+                        conversation_id: Optional[int] = None) -> Dict:
         """Main research method combining RAG and Perplexity"""
         try:
             # Get or create conversation
