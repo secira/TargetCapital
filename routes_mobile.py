@@ -40,7 +40,7 @@ def mobile_register():
 
 @app.route('/mobile-login', methods=['GET', 'POST'])
 def mobile_login():
-    """Mobile number login with OTP verification"""
+    """Mobile number login with OTP verification - auto-registers new users"""
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     
@@ -51,21 +51,25 @@ def mobile_login():
             flash('Please enter your mobile number.', 'error')
             return render_template('auth/mobile_login.html')
         
-        # Check if user exists
+        # Validate mobile number format
+        if not sms_service.validate_mobile_number(mobile_number):
+            flash('Please enter a valid Indian mobile number.', 'error')
+            return render_template('auth/mobile_login.html')
+        
+        # Send OTP (will auto-create user if doesn't exist)
         formatted_mobile = sms_service.format_mobile_number(mobile_number)
-        user = User.query.filter_by(mobile_number=formatted_mobile).first()
-        
-        if not user:
-            flash('Mobile number not registered. Please register first.', 'error')
-            return redirect(url_for('mobile_register'))
-        
-        # Send OTP
         success, message = otp_service.send_otp_to_mobile(mobile_number, "login")
         
         if success:
             session['mobile_number'] = formatted_mobile
-            session['otp_purpose'] = 'login'
-            flash('OTP sent to your mobile number. Please verify to login.', 'info')
+            # Check if user exists to determine if they need to complete profile
+            user = User.query.filter_by(mobile_number=formatted_mobile).first()
+            if user and user.email and user.password_hash:
+                session['otp_purpose'] = 'login'
+            else:
+                session['otp_purpose'] = 'registration'
+            
+            flash('OTP sent to your mobile number. Please verify to continue.', 'info')
             return redirect(url_for('verify_mobile_otp'))
         else:
             flash(message, 'error')
