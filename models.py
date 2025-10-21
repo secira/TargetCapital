@@ -1174,6 +1174,10 @@ class TradingSignal(db.Model):
     notes = db.Column(db.Text, nullable=True)
     status = db.Column(db.String(20), default='ACTIVE')  # 'ACTIVE', 'EXPIRED', 'ACHIEVED', 'STOPPED'
     
+    # Filtering and categorization
+    sector = db.Column(db.String(100), nullable=True)  # 'Technology', 'Banking', 'Pharma', etc.
+    category = db.Column(db.String(50), nullable=True)  # 'Large Cap', 'Mid Cap', 'Small Cap'
+    
     # Admin who created the signal
     created_by = db.Column(db.Integer, db.ForeignKey('admins.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -1296,5 +1300,141 @@ class UserPayment(db.Model):
             now = datetime.utcnow()
             return self.subscription_start <= now <= self.subscription_end
         return False
+
+
+# ============================================================================
+# RAG System and Research Assistant Models
+# ============================================================================
+
+class ResearchConversation(db.Model):
+    """Stores research chat conversations for each user"""
+    __tablename__ = 'research_conversations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=True)  # Auto-generated from first query
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_archived = db.Column(db.Boolean, default=False)
+    
+    # Relationships
+    user = db.relationship('User', backref='research_conversations')
+    messages = db.relationship('ResearchMessage', backref='conversation', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<ResearchConversation {self.id} - {self.title}>'
+
+
+class ResearchMessage(db.Model):
+    """Individual messages in research conversations"""
+    __tablename__ = 'research_messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.Integer, db.ForeignKey('research_conversations.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Context used for this response
+    portfolio_context = db.Column(db.JSON, nullable=True)  # Snapshot of user portfolio at query time
+    market_context = db.Column(db.JSON, nullable=True)  # Market data at query time
+    
+    # Related citations
+    citations = db.relationship('SourceCitation', backref='message', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<ResearchMessage {self.id} - {self.role}>'
+
+
+class VectorDocument(db.Model):
+    """Stores documents and their vector embeddings for RAG"""
+    __tablename__ = 'vector_documents'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    document_type = db.Column(db.String(50), nullable=False)  # 'stock_data', 'news', 'earnings', 'user_note'
+    symbol = db.Column(db.String(50), nullable=True)  # Stock symbol if applicable
+    title = db.Column(db.String(300), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    
+    # Embedding (1536 dimensions for OpenAI embeddings)
+    embedding = db.Column(db.String, nullable=True)  # Store as JSONB or use pgvector type
+    
+    # Metadata
+    source_url = db.Column(db.String(500), nullable=True)
+    published_date = db.Column(db.DateTime, nullable=True)
+    sector = db.Column(db.String(100), nullable=True)
+    category = db.Column(db.String(100), nullable=True)
+    
+    # User-specific documents
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # NULL for public docs
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='vector_documents')
+    
+    def __repr__(self):
+        return f'<VectorDocument {self.id} - {self.title}>'
+
+
+class SourceCitation(db.Model):
+    """Tracks sources cited in research responses"""
+    __tablename__ = 'source_citations'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    message_id = db.Column(db.Integer, db.ForeignKey('research_messages.id'), nullable=False)
+    vector_doc_id = db.Column(db.Integer, db.ForeignKey('vector_documents.id'), nullable=True)
+    
+    # Citation details
+    source_type = db.Column(db.String(50), nullable=False)  # 'document', 'web', 'api'
+    source_title = db.Column(db.String(300), nullable=False)
+    source_url = db.Column(db.String(500), nullable=True)
+    relevance_score = db.Column(db.Numeric(5, 4), nullable=True)  # Similarity score from vector search
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    vector_document = db.relationship('VectorDocument', backref='citations')
+    
+    def __repr__(self):
+        return f'<SourceCitation {self.id} - {self.source_title}>'
+
+
+class SignalPerformance(db.Model):
+    """Tracks performance of trading signals for accuracy metrics"""
+    __tablename__ = 'signal_performance'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
+    
+    # Outcome tracking
+    outcome = db.Column(db.String(20), nullable=True)  # 'TARGET_HIT', 'STOP_LOSS_HIT', 'EXPIRED', 'MANUAL_EXIT'
+    actual_exit_price = db.Column(db.Numeric(10, 2), nullable=True)
+    actual_return_pct = db.Column(db.Numeric(10, 2), nullable=True)
+    
+    # Performance metrics
+    max_price_reached = db.Column(db.Numeric(10, 2), nullable=True)
+    min_price_reached = db.Column(db.Numeric(10, 2), nullable=True)
+    days_active = db.Column(db.Integer, nullable=True)
+    
+    # User feedback
+    user_rating = db.Column(db.Integer, nullable=True)  # 1-5 stars
+    user_feedback = db.Column(db.Text, nullable=True)
+    
+    outcome_date = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    trading_signal = db.relationship('TradingSignal', backref='performance')
+    
+    @property
+    def is_successful(self):
+        """Check if signal was successful"""
+        return self.outcome in ['TARGET_HIT', 'MANUAL_EXIT'] and self.actual_return_pct and self.actual_return_pct > 0
+    
+    def __repr__(self):
+        return f'<SignalPerformance {self.id} - {self.outcome}>'
 
 

@@ -1,0 +1,46 @@
+The Left side menu we will have
+1.	Smart Signals (Rename Trading Signals)
+•	The one we have. This will be created our Research analysis to provide, Daily Trading signals, Investment Advisory and Trading Strategies. These signals and strategies can be directly executed with the connected broker. It will be given by the Research Analyst daily. We need a  date based view to retrieve data. 
+
+2.	Research Flow
+
+•	Top level flow
+	User submits query via chat.
+	System creates query embedding in Python.
+	PostgreSQL (pgvector) performs fast vector search to retrieve relevant content.
+	Python app formats prompt for LLM, adds context chunks.
+	LLM generates grounded, reliable response or trade decision.
+	If trading action, orchestrator executes via broker API.
+	Chat UI displays answer, with source references and next steps.
+
+1.	Replace the current "AI Advisor" page, change it to "Research Assistant" section
+•	LLM Layer:
+o	Use cloud-hosted or local LLMs such as OpenAI GPT-4/3.5, Anthropic Claude, Mistral, or Llama2 via API (for regulatory reasons, open-source models can be hosted on-premises).[9][10][5]
+o	LLM generates answers, explanations, or trade/signal recommendations, grounded in retrieved documents (reduces hallucination).
+•	RAG (Retrieval-Augmented Generation) Pipeline:
+o	Input: User’s query via chat interface. Research should under the user context the background, Broker details for better analysis.
+
+o	RAG system retrieves relevant financial data, news, reports from vector database. Historical stock data & technical indicators. Financial news articles (live feeds). Company earnings reports, SEC filings, Analyst reports, User's own research notes/documents, their risk profile, trading strategy, current portfolio score, other investments like, Insurance, FD, crypto and gold.
+
+o	Store source documents, transactional data, and metadata in structured tables.
+
+o	Retrieval: Use dense/sparse/hybrid search over a vector database pgvector (PostgreSQL extension since we use PostgreSQL already) to pull relevant chunks from PDFs, research reports, regulations, or custom docs. Save vector embedding (from text chunks, PDFs, emails, research reports) to a dedicated vectors table using pgvector for semantic search.
+
+o	Context Assembly: Embed retrieved content, add to LLM prompt for grounded, compliant responses.
+o	Generation: LLM answers, citing sources and providing actionable insights, with reference IDs
+•	Integration Layer:
+o	Python backend (whatever packages we are using we continue) 
+o	Connect existing business logic and workflows in Python to the chat interface and monitoring modules.
+o	Legacy database sync via secure APIs or micro services.
+•	Broker APIs:
+o	Support multiple broker integrations using standard REST/Websocket APIs—Zerodha Kite Connect, Upstox, Angel One, DhanHQ, Fyers, and Samco all allow third-party algo access.
+o	Modular API design lets users select and connect to supported brokers.
+
+3.	Portfolio Analysis:
+1.	Connect to brokers (already working)
+2.	Future: Add bank accounts, insurance policies
+3.	Unified view of all financial assets
+
+4.	Trade Execution:
+•	After research, one-click to trade page with pre-filled stock
+
