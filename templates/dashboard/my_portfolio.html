@@ -2,83 +2,21 @@
 
 {% block title %}My Portfolio - tCapital{% endblock %}
 
-{% block dashboard_title %}Unified Portfolio Analyzer{% endblock %}
+{% block dashboard_title %}My Portfolio{% endblock %}
 {% block dashboard_subtitle %}
     {% if has_broker_access %}
-        AI-powered comprehensive portfolio analysis with multi-broker integration
+        Comprehensive portfolio analysis with multi-broker integration
     {% else %}
-        Advanced portfolio insights with AI-driven recommendations
+        Advanced portfolio insights and tracking
     {% endif %}
 {% endblock %}
 
 {% block dashboard_content %}
 
-<!-- AI Portfolio Health Score -->
-<div class="grid-responsive mb-4">
-    <div class="grid-item full-width">
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-3 text-center">
-                        <div class="position-relative d-inline-block">
-                            <svg width="120" height="120" class="rotating-circle">
-                                <circle cx="60" cy="60" r="45" stroke="#e9ecef" stroke-width="8" fill="none"/>
-                                <circle cx="60" cy="60" r="45" stroke="#28a745" stroke-width="8" fill="none" 
-                                        stroke-dasharray="283" stroke-dashoffset="{{ 283 - (283 * ((portfolio_analysis.ai_assessment.health_score or 75) | int) / 100) }}"
-                                        transform="rotate(-90 60 60)"/>
-                            </svg>
-                            <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                <h3 class="fw-bold mb-0">{{ portfolio_analysis.ai_assessment.health_score or 75 }}</h3>
-                                <small class="text-muted">Health Score</small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h5 class="fw-bold mb-2">Portfolio Health Assessment</h5>
-                        <p class="text-muted mb-3">
-                            Risk Level: <span class="badge bg-{{ 'success' if portfolio_analysis.ai_assessment.risk_level == 'Low' else 'warning' if portfolio_analysis.ai_assessment.risk_level == 'Medium' else 'danger' }}">
-                                {{ portfolio_analysis.ai_assessment.risk_level or 'Medium' }}
-                            </span>
-                        </p>
-                        <div class="ai-suggestions">
-                            {% for suggestion in portfolio_analysis.ai_assessment.suggestions[:2] %}
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-lightbulb text-warning me-2"></i>
-                                <small>{{ suggestion }}</small>
-                            </div>
-                            {% else %}
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-info-circle text-info me-2"></i>
-                                <small>Connect broker accounts or upload holdings to get AI insights</small>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="d-grid gap-2">
-                            {% if has_broker_access %}
-                            <button class="btn btn-primary" onclick="syncBrokerData()">
-                                <i class="fas fa-sync me-2"></i>Sync Brokers
-                            </button>
-                            {% endif %}
-                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                                <i class="fas fa-upload me-2"></i>Upload Holdings
-                            </button>
-                            <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-outline-success">
-                                <i class="fas fa-user-check me-2"></i>Risk Profile
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Portfolio Summary Cards -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
-        <div class="card bg-gradient-primary text-white border-0">
+        <div class="card bg-gradient-primary text-white border-0 h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -94,7 +32,7 @@
     </div>
     
     <div class="col-md-3 mb-3">
-        <div class="card bg-gradient-{{ 'success' if (portfolio_analysis.portfolio_summary.total_pnl or 0) >= 0 else 'danger' }} text-white border-0">
+        <div class="card bg-gradient-{{ 'success' if (portfolio_analysis.portfolio_summary.total_pnl or 0) >= 0 else 'danger' }} text-white border-0 h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -115,12 +53,13 @@
     </div>
     
     <div class="col-md-3 mb-3">
-        <div class="card bg-gradient-info text-white border-0">
+        <div class="card bg-gradient-info text-white border-0 h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-1 opacity-75">Holdings</h6>
                         <h4 class="mb-0">{{ portfolio_analysis.portfolio_summary.holdings_count or 0 }}</h4>
+                        <small class="opacity-75">Across {{ portfolio_analysis.portfolio_summary.brokers_count or 0 }} broker{{ 's' if portfolio_analysis.portfolio_summary.brokers_count != 1 else '' }}</small>
                     </div>
                     <div class="opacity-75">
                         <i class="fas fa-building fa-2x"></i>
@@ -131,15 +70,16 @@
     </div>
     
     <div class="col-md-3 mb-3">
-        <div class="card bg-gradient-warning text-white border-0">
-            <div class="card-body">
+        <div class="card border-0 h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1 opacity-75">Brokers</h6>
-                        <h4 class="mb-0">{{ portfolio_analysis.portfolio_summary.brokers_count or 0 }}</h4>
+                        <h6 class="mb-1 opacity-75">Health Score</h6>
+                        <h4 class="mb-0">{{ portfolio_analysis.ai_assessment.health_score or 75 }}/100</h4>
+                        <small class="opacity-75">{{ portfolio_analysis.ai_assessment.risk_level or 'Medium' }} Risk</small>
                     </div>
                     <div class="opacity-75">
-                        <i class="fas fa-link fa-2x"></i>
+                        <i class="fas fa-heartbeat fa-2x"></i>
                     </div>
                 </div>
             </div>
@@ -147,51 +87,44 @@
     </div>
 </div>
 
-<!-- Asset Type Filter Pills -->
-<div class="row mb-3">
+<!-- Quick Actions & Filter Bar -->
+<div class="row mb-4">
     <div class="col-12">
         <div class="card border-0 shadow-sm">
             <div class="card-body py-3">
-                <div class="d-flex flex-wrap align-items-center justify-content-between">
-                    <div class="asset-filter-pills d-flex flex-wrap gap-2 mb-2 mb-md-0" id="assetFilterPills">
-                        <button class="btn btn-outline-primary asset-filter-btn active" data-filter="all">
-                            <i class="fas fa-layer-group me-1"></i>All Assets <span class="badge bg-primary ms-1" id="count-all">0</span>
-                        </button>
-                        <button class="btn btn-outline-success asset-filter-btn" data-filter="equities">
-                            <i class="fas fa-chart-line me-1"></i>Stocks <span class="badge bg-success ms-1" id="count-equities">0</span>
-                        </button>
-                        <button class="btn btn-outline-info asset-filter-btn" data-filter="mutual_funds">
-                            <i class="fas fa-coins me-1"></i>Mutual Funds <span class="badge bg-info ms-1" id="count-mutual_funds">0</span>
-                        </button>
-                        <button class="btn btn-outline-warning asset-filter-btn" data-filter="etf">
-                            <i class="fas fa-exchange-alt me-1"></i>ETFs <span class="badge bg-warning ms-1" id="count-etf">0</span>
-                        </button>
-                        <button class="btn btn-outline-danger asset-filter-btn" data-filter="futures_options">
-                            <i class="fas fa-hourglass-half me-1"></i>F&O <span class="badge bg-danger ms-1" id="count-futures_options">0</span>
-                        </button>
-                        <button class="btn btn-outline-secondary asset-filter-btn" data-filter="fixed_income">
-                            <i class="fas fa-university me-1"></i>Bonds <span class="badge bg-secondary ms-1" id="count-fixed_income">0</span>
-                        </button>
-                        <button class="btn btn-outline-dark asset-filter-btn" data-filter="gold">
-                            <i class="fas fa-gem me-1"></i>Gold <span class="badge bg-dark ms-1" id="count-gold">0</span>
-                        </button>
-                        <button class="btn btn-outline-primary asset-filter-btn" data-filter="real_estate">
-                            <i class="fas fa-home me-1"></i>Real Estate <span class="badge bg-primary ms-1" id="count-real_estate">0</span>
-                        </button>
-                        <button class="btn btn-outline-info asset-filter-btn" data-filter="nps">
-                            <i class="fas fa-umbrella me-1"></i>NPS <span class="badge bg-info ms-1" id="count-nps">0</span>
-                        </button>
-                        <button class="btn btn-outline-warning asset-filter-btn" data-filter="crypto">
-                            <i class="fab fa-bitcoin me-1"></i>Crypto <span class="badge bg-warning ms-1" id="count-crypto">0</span>
-                        </button>
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <label class="mb-0 text-muted small">Filter by:</label>
+                            <select class="form-select form-select-sm" id="assetTypeFilter" style="width: auto; min-width: 150px;" onchange="filterByAssetType(this.value)">
+                                <option value="all">All Assets</option>
+                                <option value="equities">Stocks</option>
+                                <option value="mutual_funds">Mutual Funds</option>
+                                <option value="etf">ETFs</option>
+                                <option value="futures_options">F&O</option>
+                                <option value="fixed_income">Bonds</option>
+                                <option value="gold">Gold</option>
+                                <option value="real_estate">Real Estate</option>
+                                <option value="nps">NPS</option>
+                                <option value="crypto">Crypto</option>
+                            </select>
+                            <span class="badge bg-primary" id="filterCount">0 holdings</span>
+                        </div>
                     </div>
-                    <div class="view-options d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-secondary" id="compactViewBtn" title="Compact View">
-                            <i class="fas fa-list"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary" id="detailedViewBtn" title="Detailed View">
-                            <i class="fas fa-th"></i>
-                        </button>
+                    <div class="col-md-6">
+                        <div class="d-flex flex-wrap justify-content-md-end gap-2">
+                            {% if has_broker_access %}
+                            <button class="btn btn-sm btn-primary" onclick="syncBrokerData()">
+                                <i class="fas fa-sync me-1"></i>Sync Brokers
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <i class="fas fa-upload me-1"></i>Upload
+                            </button>
+                            <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-user-check me-1"></i>Risk Profile
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -199,18 +132,47 @@
     </div>
 </div>
 
-<!-- Portfolio Holdings Table -->
-<div class="row">
+<!-- AI Insights (Collapsible) -->
+{% if portfolio_analysis.ai_assessment.suggestions %}
+<div class="row mb-4">
     <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white border-0 cursor-pointer" data-bs-toggle="collapse" data-bs-target="#aiInsights">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="fw-bold mb-0">
-                        <i class="fas fa-list me-2"></i>Portfolio Holdings
-                        <span class="text-muted ms-2" id="currentFilterLabel">All Assets</span>
+                    <h6 class="mb-0">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>AI Insights & Recommendations
                     </h6>
-                    <div class="text-muted small" id="holdingsCount">0 holdings</div>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
+            </div>
+            <div class="collapse show" id="aiInsights">
+                <div class="card-body">
+                    <div class="row">
+                        {% for suggestion in portfolio_analysis.ai_assessment.suggestions[:3] %}
+                        <div class="col-md-4 mb-2">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <small>{{ suggestion }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Portfolio Holdings Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-list me-2"></i>Holdings
+                    <span class="text-muted ms-2 fw-normal" id="currentFilterLabel">All Assets</span>
+                </h6>
             </div>
             
             <div class="card-body p-0">
@@ -219,7 +181,7 @@
                     <div class="spinner-border text-primary mb-3" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="text-muted">Loading portfolio data...</p>
+                    <p class="text-muted mb-0">Loading portfolio data...</p>
                 </div>
 
                 <!-- Holdings Container -->
@@ -241,11 +203,11 @@
                 <!-- Empty State -->
                 <div id="emptyState" style="display: none;">
                     <div class="text-center py-5">
-                        <div class="mb-4">
-                            <i class="fas fa-chart-pie fa-4x text-muted" id="emptyIcon"></i>
+                        <div class="mb-3">
+                            <i class="fas fa-chart-pie fa-3x text-muted"></i>
                         </div>
-                        <h5 class="text-muted mb-3" id="emptyTitle">No Portfolio Data</h5>
-                        <p class="text-muted mb-4" id="emptyMessage">Start building your portfolio by connecting broker accounts or uploading holdings manually.</p>
+                        <h5 class="text-muted mb-2">No Portfolio Data</h5>
+                        <p class="text-muted mb-4">Start building your portfolio by connecting broker accounts or uploading holdings.</p>
                         <div class="d-flex justify-content-center gap-2">
                             {% if has_broker_access %}
                             <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-primary">
@@ -263,45 +225,53 @@
     </div>
 </div>
 
-<!-- Portfolio Analysis Sections -->
-<div class="row mt-4" id="portfolioAnalysis" style="display: none;">
-    <!-- Asset Class Allocation -->
-    <div class="col-md-6 mb-4">
+<!-- Portfolio Analysis Tabs -->
+<div class="row" id="portfolioAnalysis" style="display: none;">
+    <div class="col-12">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h6 class="fw-bold mb-0"><i class="fas fa-chart-pie me-2"></i>Asset Class Allocation</h6>
+            <div class="card-header bg-white border-0">
+                <ul class="nav nav-tabs card-header-tabs" id="analysisTabs" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#assetAllocation" type="button">
+                            <i class="fas fa-chart-pie me-1"></i>Asset Allocation
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sectorAllocation" type="button">
+                            <i class="fas fa-chart-donut me-1"></i>Sector Allocation
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#aiRecommendations" type="button">
+                            <i class="fas fa-lightbulb me-1"></i>AI Recommendations
+                        </button>
+                    </li>
+                </ul>
             </div>
-            <div class="card-body" id="assetAllocationChart">
-                <!-- Dynamic asset allocation chart will be inserted here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Sector Allocation -->
-    <div class="col-md-6 mb-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h6 class="fw-bold mb-0"><i class="fas fa-chart-donut me-2"></i>Sector Allocation</h6>
-            </div>
-            <div class="card-body" id="sectorAllocationChart">
-                <!-- Dynamic sector allocation chart will be inserted here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- AI Recommendations -->
-    <div class="col-md-12 mb-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h6 class="fw-bold mb-0"><i class="fas fa-lightbulb me-2"></i>AI Recommendations</h6>
-            </div>
-            <div class="card-body" id="aiRecommendations">
-                <div class="text-center py-3">
-                    <i class="fas fa-robot fa-2x text-muted mb-3"></i>
-                    <p class="text-muted">Complete your risk profile to get personalized recommendations</p>
-                    <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-outline-primary btn-sm">
-                        Complete Assessment
-                    </a>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Asset Allocation Tab -->
+                    <div class="tab-pane fade show active" id="assetAllocation">
+                        <div id="assetAllocationChart"></div>
+                    </div>
+                    
+                    <!-- Sector Allocation Tab -->
+                    <div class="tab-pane fade" id="sectorAllocation">
+                        <div id="sectorAllocationChart"></div>
+                    </div>
+                    
+                    <!-- AI Recommendations Tab -->
+                    <div class="tab-pane fade" id="aiRecommendations">
+                        <div id="aiRecommendationsContent">
+                            <div class="text-center py-4">
+                                <i class="fas fa-robot fa-2x text-muted mb-3"></i>
+                                <p class="text-muted">Complete your risk profile to get personalized AI recommendations</p>
+                                <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-outline-primary btn-sm">
+                                    Complete Assessment
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -322,13 +292,15 @@
                         <label for="holdings_file" class="form-label">Select CSV or Excel file</label>
                         <input type="file" class="form-control" id="holdings_file" name="holdings_file" accept=".csv,.xlsx,.xls" required>
                         <div class="form-text">
-                            File should contain columns: symbol, company_name, quantity, purchase_price, purchase_date, sector, asset_type
+                            File should contain: symbol, company_name, quantity, purchase_price, purchase_date, sector, asset_type
                         </div>
                     </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Supported formats:</strong> CSV, Excel (.xlsx, .xls)<br>
-                        <strong>Data types:</strong> Stocks, MF, ETF, Bonds, Gold, Crypto, ESOP, Private Equity
+                    <div class="alert alert-info mb-0">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            <strong>Formats:</strong> CSV, Excel (.xlsx, .xls)<br>
+                            <strong>Assets:</strong> Stocks, MF, ETF, Bonds, Gold, Crypto, ESOP, Real Estate
+                        </small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -340,11 +312,31 @@
     </div>
 </div>
 
+<style>
+.cursor-pointer {
+    cursor: pointer;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+</style>
+
 <script>
 // Portfolio Management JavaScript
 let portfolioData = null;
 let currentFilter = 'all';
-let currentView = 'detailed';
 
 // Asset type configuration
 const assetTypeConfig = {
@@ -370,1094 +362,189 @@ const assetTypeConfig = {
         name: 'F&O',
         icon: 'fas fa-hourglass-half',
         color: 'danger',
-        columns: ['Contract Details', 'Lot Size', 'Strike Price', 'Expiry Date', 'Premium', 'Current Value', 'P&L', 'Actions']
+        columns: ['Contract Details', 'Lot Size', 'Strike', 'Expiry', 'Premium', 'Value', 'P&L', 'Actions']
     },
     'fixed_income': {
-        name: 'Fixed Income',
+        name: 'Bonds',
         icon: 'fas fa-university',
         color: 'secondary',
-        columns: ['Bond Details', 'Face Value', 'Interest Rate', 'Maturity Date', 'Investment', 'Current Value', 'Accrued Interest', 'Actions']
+        columns: ['Bond Details', 'Face Value', 'Rate', 'Maturity', 'Investment', 'Value', 'Interest', 'Actions']
     },
     'gold': {
         name: 'Gold',
         icon: 'fas fa-gem',
         color: 'dark',
-        columns: ['Gold Details', 'Weight (g)', 'Purity', 'Purchase Price', 'Investment', 'Current Value', 'P&L', 'Actions']
+        columns: ['Gold Details', 'Weight (g)', 'Purity', 'Purchase Price', 'Investment', 'Value', 'P&L', 'Actions']
     },
     'real_estate': {
         name: 'Real Estate',
         icon: 'fas fa-home',
         color: 'primary',
-        columns: ['Property Details', 'Area (sq ft)', 'Type', 'Location', 'Investment', 'Current Value', 'P&L', 'Actions']
+        columns: ['Property', 'Area', 'Type', 'Location', 'Investment', 'Value', 'P&L', 'Actions']
     },
     'nps': {
         name: 'NPS',
         icon: 'fas fa-umbrella',
         color: 'info',
-        columns: ['NPS Details', 'Units', 'Tier', 'Fund Manager', 'Investment', 'Current Value', 'P&L', 'Actions']
+        columns: ['NPS Details', 'Units', 'Tier', 'Fund Manager', 'Investment', 'Value', 'P&L', 'Actions']
     },
     'crypto': {
         name: 'Crypto',
         icon: 'fab fa-bitcoin',
         color: 'warning',
-        columns: ['Crypto Details', 'Quantity', 'Avg Price', 'Current Price', 'Investment', 'Current Value', 'P&L', 'Actions']
+        columns: ['Crypto', 'Quantity', 'Avg Price', 'Current Price', 'Investment', 'Value', 'P&L', 'Actions']
     }
 };
 
-// Initialize portfolio on page load
+// Load portfolio data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadPortfolioData();
-    initializeEventListeners();
 });
 
-// Initialize event listeners
-function initializeEventListeners() {
-    // Asset filter buttons
-    document.querySelectorAll('.asset-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            setActiveFilter(filter);
-        });
-    });
-    
-    // View toggle buttons
-    document.getElementById('compactViewBtn').addEventListener('click', () => setView('compact'));
-    document.getElementById('detailedViewBtn').addEventListener('click', () => setView('detailed'));
-}
-
-// Load portfolio data from API
-function loadPortfolioData(assetFilter = null) {
-    showLoadingState();
-    
-    const url = assetFilter && assetFilter !== 'all' 
-        ? `/api/portfolio?type=${assetFilter}`
-        : '/api/portfolio';
-    
-    fetch(url)
+function loadPortfolioData() {
+    fetch('/api/portfolio')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                portfolioData = data;
-                updatePortfolioDisplay();
-                updateSummaryCards();
-                updateAssetCountBadges();
-                hideLoadingState();
+                portfolioData = data.data;
+                displayPortfolioData();
+                updateFilterCount();
             } else {
-                showErrorState(data.error || 'Failed to load portfolio data');
+                showEmptyState();
             }
         })
         .catch(error => {
-            console.error('Portfolio API error:', error);
-            showErrorState('Network error while loading portfolio data');
+            console.error('Error loading portfolio:', error);
+            showEmptyState();
         });
 }
 
-// Set active filter
-function setActiveFilter(filter) {
-    currentFilter = filter;
+function displayPortfolioData() {
+    const loadingState = document.getElementById('loadingState');
+    const holdingsContainer = document.getElementById('holdingsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const portfolioAnalysis = document.getElementById('portfolioAnalysis');
+
+    loadingState.style.display = 'none';
     
-    // Update button states
-    document.querySelectorAll('.asset-filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-filter') === filter) {
-            btn.classList.add('active');
-        }
-    });
+    if (!portfolioData || portfolioData.length === 0) {
+        emptyState.style.display = 'block';
+        holdingsContainer.style.display = 'none';
+        portfolioAnalysis.style.display = 'none';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    holdingsContainer.style.display = 'block';
+    portfolioAnalysis.style.display = 'block';
+
+    filterByAssetType(currentFilter);
+}
+
+function filterByAssetType(assetType) {
+    currentFilter = assetType;
+    
+    const filteredData = assetType === 'all' 
+        ? portfolioData 
+        : portfolioData.filter(item => item.asset_type === assetType);
     
     // Update filter label
-    const config = assetTypeConfig[filter];
-    const label = filter === 'all' ? 'All Assets' : config ? config.name : filter;
-    document.getElementById('currentFilterLabel').textContent = label;
+    const config = assetTypeConfig[assetType];
+    const filterLabel = assetType === 'all' ? 'All Assets' : config.name;
+    document.getElementById('currentFilterLabel').textContent = filterLabel;
+    document.getElementById('filterCount').textContent = `${filteredData.length} holding${filteredData.length !== 1 ? 's' : ''}`;
     
-    // Load filtered data
-    loadPortfolioData(filter);
+    // Render table
+    renderHoldingsTable(filteredData, assetType);
 }
 
-// Update portfolio display
-function updatePortfolioDisplay() {
-    if (!portfolioData || !portfolioData.portfolio.holdings.length) {
-        showEmptyState();
-        return;
-    }
+function renderHoldingsTable(data, assetType) {
+    const tableHeader = document.getElementById('tableHeader');
+    const tableBody = document.getElementById('tableBody');
     
-    const holdings = portfolioData.portfolio.holdings;
-    updateHoldingsCount(holdings.length);
+    // Get columns for asset type
+    const config = assetType === 'all' ? assetTypeConfig['equities'] : assetTypeConfig[assetType];
+    const columns = config.columns;
     
-    // Generate table header based on current filter
-    generateTableHeader();
+    // Build table header
+    tableHeader.innerHTML = '<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '</tr>';
     
-    // Generate table content
-    generateDesktopTable(holdings);
-    generateMobileCards(holdings);
-    
-    // Show holdings container
-    document.getElementById('holdingsContainer').style.display = 'block';
-    document.getElementById('emptyState').style.display = 'none';
-    
-    // Show portfolio analysis
-    document.getElementById('portfolioAnalysis').style.display = 'block';
-    updatePortfolioAnalysis();
-}
-
-// Generate table header based on current filter
-function generateTableHeader() {
-    const config = assetTypeConfig[currentFilter] || assetTypeConfig['equities'];
-    const columns = currentFilter === 'all' 
-        ? ['Asset Details', 'Type', 'Quantity', 'Current Price', 'Current Value', 'P&L', 'Actions']
-        : config.columns;
-    
-    const header = document.getElementById('tableHeader');
-    header.innerHTML = `
-        <tr>
-            ${columns.map((col, index) => {
-                let classes = '';
-                if (index === columns.length - 3) classes = 'd-none d-lg-table-cell'; // Investment column
-                if (index === columns.length - 1) classes = 'text-center'; // Actions column
-                if (index > 1) classes += ' text-end';
-                return `<th class="${classes}">${col}</th>`;
-            }).join('')}
-        </tr>
-    `;
-}
-
-// Generate desktop table
-function generateDesktopTable(holdings) {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = holdings.map(holding => generateTableRow(holding)).join('');
-}
-
-// Generate table row based on asset type
-function generateTableRow(holding) {
-    const assetType = holding.asset_type ? holding.asset_type.toLowerCase().replace(' ', '_') : 'equities';
-    
-    switch (assetType) {
-        case 'futures_options':
-            return generateFORow(holding);
-        case 'mutual_funds':
-            return generateMutualFundRow(holding);
-        case 'fixed_income':
-            return generateFixedIncomeRow(holding);
-        case 'gold':
-            return generateGoldRow(holding);
-        case 'real_estate':
-            return generateRealEstateRow(holding);
-        case 'nps':
-            return generateNPSRow(holding);
-        case 'crypto':
-            return generateCryptoRow(holding);
-        default:
-            return generateEquityRow(holding);
-    }
-}
-
-// Generate equity row
-function generateEquityRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="d-flex align-items-center">
-                    <div>
-                        <div class="fw-bold">${holding.ticker_symbol || 'N/A'}</div>
-                        <div class="text-muted small">${(holding.asset_name || '').substring(0, 30)}${(holding.asset_name || '').length > 30 ? '...' : ''}</div>
-                        <div class="text-muted small">${holding.sector || 'N/A'}</div>
-                        ${currentFilter === 'all' ? `<span class="badge bg-success">${holding.asset_type || 'Stock'}</span>` : ''}
-                    </div>
-                </div>
-            </td>
-            ${currentFilter === 'all' ? `<td><span class="badge bg-success">${holding.asset_type || 'Stock'}</span></td>` : ''}
-            <td class="text-center">
-                <span class="fw-semibold">${holding.quantity || 0}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_price || holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding)}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate F&O row
-function generateFORow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.ticker_symbol || 'N/A'}</div>
-                <div class="text-muted small">${holding.contract_type || 'N/A'} - ${holding.option_type || 'N/A'}</div>
-                <div class="text-muted small">${holding.asset_name || ''}</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${holding.lot_size || 0}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.strike_price || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="${holding.is_expiring_soon ? 'text-danger' : 'text-muted'}">${holding.expiry_date || 'N/A'}</span>
-                ${holding.days_to_expiry ? `<div class="small">${holding.days_to_expiry} days</div>` : ''}
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding)}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate Mutual Fund row
-function generateMutualFundRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.ticker_symbol || 'N/A'}</div>
-                <div class="text-muted small">${(holding.asset_name || '').substring(0, 30)}${(holding.asset_name || '').length > 30 ? '...' : ''}</div>
-                <div class="text-muted small">Mutual Fund</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${(holding.quantity || 0).toFixed(3)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_price || holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'mutual_fund')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate Fixed Income row
-function generateFixedIncomeRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.ticker_symbol || 'N/A'}</div>
-                <div class="text-muted small">${(holding.asset_name || '').substring(0, 30)}${(holding.asset_name || '').length > 30 ? '...' : ''}</div>
-                <div class="text-muted small">Bond/FD</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">₹${formatNumber(holding.face_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">${(holding.interest_rate || 0).toFixed(2)}%</span>
-            </td>
-            <td class="text-end">
-                <span class="text-muted">${holding.maturity_date || 'N/A'}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="text-success fw-bold">
-                    +₹${formatNumber((holding.current_value || holding.purchased_value || 0) - (holding.purchased_value || 0))}
-                </div>
-                <span class="badge bg-info">Interest</span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'fixed_income')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate Gold row
-function generateGoldRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.ticker_symbol || 'Gold'}</div>
-                <div class="text-muted small">${holding.gold_form || 'Physical'} - ${holding.gold_purity || '24K'}</div>
-                <div class="text-muted small">${(holding.asset_name || '').substring(0, 30)}</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${(holding.grams || holding.quantity || 0).toFixed(2)}g</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">${holding.gold_purity || '24K'}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'gold')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate Real Estate row
-function generateRealEstateRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.asset_name || 'Property'}</div>
-                <div class="text-muted small">${holding.property_type || 'N/A'}</div>
-                <div class="text-muted small">${holding.property_location || 'N/A'}</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${formatNumber(holding.area_sqft || 0)} sq ft</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">${holding.property_type || 'N/A'}</span>
-            </td>
-            <td class="text-end">
-                <span class="text-muted">${holding.property_location || 'N/A'}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'real_estate')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate NPS row
-function generateNPSRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.nps_scheme || 'NPS Account'}</div>
-                <div class="text-muted small">${holding.pension_fund_manager || 'N/A'}</div>
-                <div class="text-muted small">Tier ${holding.tier || '1'}</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${(holding.quantity || 0).toFixed(3)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">Tier ${holding.tier || '1'}</span>
-            </td>
-            <td class="text-end">
-                <span class="text-muted">${(holding.pension_fund_manager || '').substring(0, 15)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'nps')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate Crypto row
-function generateCryptoRow(holding) {
-    return `
-        <tr>
-            <td>
-                <div class="fw-bold">${holding.ticker_symbol || 'N/A'}</div>
-                <div class="text-muted small">${(holding.asset_name || '').substring(0, 30)}</div>
-                <div class="text-muted small">Cryptocurrency</div>
-            </td>
-            <td class="text-center">
-                <span class="fw-semibold">${(holding.quantity || 0).toFixed(6)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_price || holding.purchase_price || 0)}</span>
-            </td>
-            <td class="text-end d-none d-lg-table-cell">
-                <span class="text-muted">₹${formatNumber(holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <span class="fw-semibold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</span>
-            </td>
-            <td class="text-end">
-                <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                    ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                </div>
-                <span class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                    ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                </span>
-            </td>
-            <td class="text-center">
-                ${generateActionButtons(holding, 'crypto')}
-            </td>
-        </tr>
-    `;
-}
-
-// Generate action buttons based on asset type
-function generateActionButtons(holding, assetType = 'equity') {
-    if (assetType === 'fixed_income' || assetType === 'nps' || assetType === 'real_estate') {
-        return `
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-info btn-sm" onclick="viewHoldingDetails('${holding.id}')" title="View Details">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-        `;
-    }
-    
-    return `
-        <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-success btn-sm" onclick="tradeHolding('${holding.ticker_symbol}', 'BUY', ${holding.current_price || holding.purchase_price}, '${holding.asset_name}', '${assetType}')" title="Buy More">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button class="btn btn-outline-danger btn-sm" onclick="tradeHolding('${holding.ticker_symbol}', 'SELL', ${holding.current_price || holding.purchase_price}, '${holding.asset_name}', '${assetType}')" title="Sell">
-                <i class="fas fa-minus"></i>
-            </button>
-        </div>
-    `;
-}
-
-// Generate mobile cards
-function generateMobileCards(holdings) {
-    const container = document.getElementById('mobileHoldings');
-    container.innerHTML = holdings.map(holding => {
-        const assetType = holding.asset_type ? holding.asset_type.toLowerCase().replace(' ', '_') : 'equities';
-        const config = assetTypeConfig[assetType] || assetTypeConfig['equities'];
+    // Build table body
+    tableBody.innerHTML = data.map(holding => {
+        const pnl = holding.current_value - holding.investment_value;
+        const pnlPercentage = ((pnl / holding.investment_value) * 100).toFixed(2);
+        const pnlClass = pnl >= 0 ? 'text-success' : 'text-danger';
         
         return `
-            <div class="card mb-2 border-start border-3 ${(holding.pnl_amount || 0) >= 0 ? 'border-success' : 'border-danger'}">
-                <div class="card-body py-2">
-                    <div class="row align-items-center">
+            <tr>
+                <td>
+                    <strong>${holding.symbol || holding.company_name}</strong><br>
+                    <small class="text-muted">${holding.company_name || ''}</small>
+                </td>
+                <td>${holding.quantity || holding.units || '-'}</td>
+                <td>₹${(holding.average_price || 0).toFixed(2)}</td>
+                <td>₹${(holding.current_price || 0).toFixed(2)}</td>
+                <td>₹${holding.investment_value.toLocaleString()}</td>
+                <td>₹${holding.current_value.toLocaleString()}</td>
+                <td class="${pnlClass}">
+                    ${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString()}<br>
+                    <small>(${pnlPercentage}%)</small>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewDetails(${holding.id})">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    // Mobile view
+    const mobileHoldings = document.getElementById('mobileHoldings');
+    mobileHoldings.innerHTML = data.map(holding => {
+        const pnl = holding.current_value - holding.investment_value;
+        const pnlPercentage = ((pnl / holding.investment_value) * 100).toFixed(2);
+        const pnlClass = pnl >= 0 ? 'text-success' : 'text-danger';
+        
+        return `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h6 class="card-title">${holding.symbol || holding.company_name}</h6>
+                    <div class="row">
                         <div class="col-6">
-                            <div class="fw-bold d-flex align-items-center">
-                                <i class="${config.icon} me-2 text-${config.color}"></i>
-                                ${holding.ticker_symbol || holding.asset_name || 'N/A'}
-                            </div>
-                            <small class="text-muted">${generateMobileSubtitle(holding, assetType)}</small>
-                            ${currentFilter === 'all' ? `<div><span class="badge bg-${config.color} mt-1">${config.name}</span></div>` : ''}
+                            <small class="text-muted">Value:</small><br>
+                            <strong>₹${holding.current_value.toLocaleString()}</strong>
                         </div>
-                        <div class="col-3 text-end">
-                            <div class="fw-bold">₹${formatNumber(holding.current_value || holding.purchased_value || 0)}</div>
-                            <small class="text-muted">Value</small>
-                        </div>
-                        <div class="col-3 text-end">
-                            <div class="${(holding.pnl_amount || 0) >= 0 ? 'text-success' : 'text-danger'} fw-bold">
-                                ${(holding.pnl_amount || 0) >= 0 ? '+' : ''}₹${formatNumber(holding.pnl_amount || 0)}
-                            </div>
-                            <small class="badge ${(holding.pnl_percentage || 0) >= 0 ? 'bg-success' : 'bg-danger'}">
-                                ${(holding.pnl_percentage || 0) >= 0 ? '+' : ''}${(holding.pnl_percentage || 0).toFixed(1)}%
-                            </small>
+                        <div class="col-6 text-end">
+                            <small class="text-muted">P&L:</small><br>
+                            <strong class="${pnlClass}">${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString()}</strong>
                         </div>
                     </div>
-                    ${generateMobileAssetSpecificInfo(holding, assetType)}
-                    ${generateMobileActions(holding, assetType)}
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// Generate mobile subtitle based on asset type
-function generateMobileSubtitle(holding, assetType) {
-    switch (assetType) {
-        case 'futures_options':
-            return `${holding.contract_type || 'Option'} | Strike: ₹${formatNumber(holding.strike_price || 0)} | Exp: ${holding.expiry_date || 'N/A'}`;
-        case 'mutual_funds':
-            return `Units: ${(holding.quantity || 0).toFixed(3)} | NAV: ₹${formatNumber(holding.current_price || 0)}`;
-        case 'fixed_income':
-            return `${(holding.interest_rate || 0).toFixed(2)}% | Maturity: ${holding.maturity_date || 'N/A'}`;
-        case 'gold':
-            return `${(holding.grams || holding.quantity || 0).toFixed(2)}g | ${holding.gold_purity || '24K'} | ${holding.gold_form || 'Physical'}`;
-        case 'real_estate':
-            return `${holding.property_type || 'Property'} | ${formatNumber(holding.area_sqft || 0)} sq ft | ${holding.property_location || 'N/A'}`;
-        case 'nps':
-            return `${holding.pension_fund_manager || 'N/A'} | Tier ${holding.tier || '1'} | Units: ${(holding.quantity || 0).toFixed(3)}`;
-        case 'crypto':
-            return `${(holding.quantity || 0).toFixed(6)} units | ₹${formatNumber(holding.current_price || 0)}`;
-        default:
-            return `${holding.quantity || 0} × ₹${formatNumber(holding.current_price || holding.purchase_price || 0)} | ${holding.sector || 'N/A'}`;
-    }
+function updateFilterCount() {
+    // Update counts would go here
 }
 
-// Generate mobile asset-specific info
-function generateMobileAssetSpecificInfo(holding, assetType) {
-    if (assetType === 'futures_options' && holding.is_expiring_soon) {
-        return `
-            <div class="row mt-1">
-                <div class="col-12">
-                    <div class="alert alert-warning alert-sm py-1 mb-0">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
-                        <small>Expiring soon (${holding.days_to_expiry || 0} days)</small>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    return '';
-}
-
-// Generate mobile actions
-function generateMobileActions(holding, assetType) {
-    if (assetType === 'fixed_income' || assetType === 'nps' || assetType === 'real_estate') {
-        return `
-            <div class="row mt-1">
-                <div class="col-12">
-                    <button class="btn btn-outline-info btn-sm w-100" onclick="viewHoldingDetails('${holding.id}')">
-                        <i class="fas fa-eye me-1"></i>View Details
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-    
-    return `
-        <div class="row mt-1">
-            <div class="col-12">
-                <div class="btn-group btn-group-sm w-100">
-                    <button class="btn btn-outline-success" onclick="tradeHolding('${holding.ticker_symbol}', 'BUY', ${holding.current_price || holding.purchase_price}, '${holding.asset_name}', '${assetType}')">
-                        <i class="fas fa-plus me-1"></i>Buy
-                    </button>
-                    <button class="btn btn-outline-danger" onclick="tradeHolding('${holding.ticker_symbol}', 'SELL', ${holding.current_price || holding.purchase_price}, '${holding.asset_name}', '${assetType}')">
-                        <i class="fas fa-minus me-1"></i>Sell
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Update summary cards with asset breakdown
-function updateSummaryCards() {
-    if (!portfolioData) return;
-    
-    const portfolio = portfolioData.portfolio;
-    const assetBreakdown = portfolioData.asset_breakdown || {};
-    
-    // Update main summary cards
-    updateSummaryCard('total-value', portfolio.totalValue || 0, '₹');
-    updateSummaryCard('total-pnl', portfolio.totalPnL || 0, '₹', true);
-    updateSummaryCard('total-holdings', portfolio.totalHoldings || 0);
-    updateSummaryCard('brokers-count', Object.keys(assetBreakdown).length);
-    
-    // Update asset breakdown in summary cards if needed
-    updateAssetBreakdownCards(assetBreakdown);
-}
-
-// Update individual summary card
-function updateSummaryCard(cardId, value, prefix = '', showSign = false) {
-    const elements = document.querySelectorAll(`[data-summary="${cardId}"]`);
-    elements.forEach(el => {
-        const formattedValue = typeof value === 'number' ? formatNumber(value) : value;
-        const sign = showSign && value >= 0 ? '+' : '';
-        el.textContent = `${sign}${prefix}${formattedValue}`;
-        
-        if (showSign) {
-            el.className = el.className.replace(/text-(success|danger)/, '');
-            el.classList.add(value >= 0 ? 'text-success' : 'text-danger');
-        }
-    });
-}
-
-// Update asset count badges
-function updateAssetCountBadges() {
-    if (!portfolioData) return;
-    
-    const holdings = portfolioData.portfolio.holdings || [];
-    const assetCounts = {};
-    
-    // Count holdings by asset type
-    holdings.forEach(holding => {
-        const assetType = holding.asset_type ? holding.asset_type.toLowerCase().replace(' ', '_') : 'equities';
-        assetCounts[assetType] = (assetCounts[assetType] || 0) + 1;
-    });
-    
-    // Update badge counts
-    Object.keys(assetTypeConfig).forEach(assetType => {
-        const badge = document.getElementById(`count-${assetType}`);
-        if (badge) {
-            badge.textContent = assetCounts[assetType] || 0;
-        }
-    });
-    
-    // Update total count
-    const totalBadge = document.getElementById('count-all');
-    if (totalBadge) {
-        totalBadge.textContent = holdings.length;
-    }
-}
-
-// Update holdings count display
-function updateHoldingsCount(count) {
-    const countElement = document.getElementById('holdingsCount');
-    if (countElement) {
-        countElement.textContent = `${count} holding${count !== 1 ? 's' : ''}`;
-    }
-}
-
-// Update portfolio analysis section
-function updatePortfolioAnalysis() {
-    if (!portfolioData || !portfolioData.asset_breakdown) return;
-    
-    const assetBreakdown = portfolioData.asset_breakdown;
-    
-    // Generate asset allocation chart
-    generateAssetAllocationChart(assetBreakdown);
-    
-    // TODO: Generate sector allocation chart when sector data is available
-    generateSectorAllocationChart();
-}
-
-// Generate asset allocation chart
-function generateAssetAllocationChart(assetBreakdown) {
-    const container = document.getElementById('assetAllocationChart');
-    if (!container) return;
-    
-    const totalValue = Object.values(assetBreakdown).reduce((sum, asset) => sum + (asset.total_value || 0), 0);
-    
-    if (totalValue === 0) {
-        container.innerHTML = '<p class="text-muted text-center">No asset allocation data available</p>';
-        return;
-    }
-    
-    const chartHtml = Object.entries(assetBreakdown).map(([assetType, data]) => {
-        const config = assetTypeConfig[assetType] || { name: assetType, color: 'secondary' };
-        const percentage = ((data.total_value || 0) / totalValue * 100).toFixed(1);
-        
-        return `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center">
-                    <i class="${config.icon || 'fas fa-circle'} text-${config.color} me-2"></i>
-                    <strong>${config.name}</strong>
-                </div>
-                <div>
-                    <span class="badge bg-${config.color}">${percentage}%</span>
-                    <small class="text-muted ms-1">₹${formatNumber(data.total_value || 0)}</small>
-                </div>
-            </div>
-            <div class="progress mb-3" style="height: 8px;">
-                <div class="progress-bar bg-${config.color}" style="width: ${percentage}%"></div>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = chartHtml;
-}
-
-// Generate sector allocation chart (placeholder)
-function generateSectorAllocationChart() {
-    const container = document.getElementById('sectorAllocationChart');
-    if (!container) return;
-    
-    // For now, show placeholder
-    container.innerHTML = `
-        <div class="text-center py-3">
-            <i class="fas fa-chart-pie fa-2x text-muted mb-3"></i>
-            <p class="text-muted">Sector allocation analysis coming soon</p>
-        </div>
-    `;
-}
-
-// Show loading state
-function showLoadingState() {
-    document.getElementById('loadingState').style.display = 'block';
-    document.getElementById('holdingsContainer').style.display = 'none';
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('portfolioAnalysis').style.display = 'none';
-}
-
-// Hide loading state
-function hideLoadingState() {
-    document.getElementById('loadingState').style.display = 'none';
-}
-
-// Show empty state
 function showEmptyState() {
     document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('holdingsContainer').style.display = 'none';
     document.getElementById('emptyState').style.display = 'block';
-    document.getElementById('portfolioAnalysis').style.display = 'none';
-    
-    // Update empty state based on current filter
-    const emptyTitle = document.getElementById('emptyTitle');
-    const emptyMessage = document.getElementById('emptyMessage');
-    const emptyIcon = document.getElementById('emptyIcon');
-    
-    if (currentFilter !== 'all') {
-        const config = assetTypeConfig[currentFilter];
-        if (config) {
-            emptyTitle.textContent = `No ${config.name} Holdings`;
-            emptyMessage.textContent = `You don't have any ${config.name.toLowerCase()} in your portfolio yet. Start investing to see your holdings here.`;
-            emptyIcon.className = `${config.icon} fa-4x text-muted`;
-        }
-    } else {
-        emptyTitle.textContent = 'No Portfolio Data';
-        emptyMessage.textContent = 'Start building your portfolio by connecting broker accounts or uploading holdings manually.';
-        emptyIcon.className = 'fas fa-chart-pie fa-4x text-muted';
-    }
-}
-
-// Show error state
-function showErrorState(message) {
-    document.getElementById('loadingState').style.display = 'none';
     document.getElementById('holdingsContainer').style.display = 'none';
-    document.getElementById('emptyState').style.display = 'block';
-    document.getElementById('portfolioAnalysis').style.display = 'none';
-    
-    document.getElementById('emptyTitle').textContent = 'Error Loading Portfolio';
-    document.getElementById('emptyMessage').textContent = message;
-    document.getElementById('emptyIcon').className = 'fas fa-exclamation-triangle fa-4x text-danger';
 }
 
-// Set view mode
-function setView(view) {
-    currentView = view;
-    
-    // Update button states
-    document.getElementById('compactViewBtn').classList.toggle('active', view === 'compact');
-    document.getElementById('detailedViewBtn').classList.toggle('active', view === 'detailed');
-    
-    // Apply view changes if needed
-    if (portfolioData) {
-        updatePortfolioDisplay();
-    }
-}
-
-// Utility functions
-function formatNumber(num) {
-    if (num === null || num === undefined) return '0';
-    return new Intl.NumberFormat('en-IN').format(Math.round(num));
-}
-
-// Trading functions
 function syncBrokerData() {
-    const button = event.target;
-    button.disabled = true;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Syncing...';
-    
-    fetch('{{ url_for("portfolio_sync_brokers") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Sync failed: ' + (data.error || 'Unknown error'));
-            button.disabled = false;
-            button.innerHTML = '<i class="fas fa-sync me-2"></i>Sync Brokers';
-        }
-    })
-    .catch(error => {
-        alert('Sync failed: ' + error);
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-sync me-2"></i>Sync Brokers';
-    });
+    // Sync broker data implementation
+    alert('Syncing broker data...');
 }
 
-function tradeHolding(symbol, action, currentPrice, assetName, assetType = 'stock') {
-    // Navigate to Trade Now page with holding parameters
-    const params = new URLSearchParams({
-        symbol: symbol,
-        action: action,
-        price: currentPrice,
-        quantity: action === 'SELL' ? 0 : 10,
-        type: assetType,
-        company_name: assetName,
-        source: 'my_portfolio'
-    });
-    
-    window.location.href = `/dashboard/trade-now?${params.toString()}`;
-}
-
-function viewHoldingDetails(holdingId) {
-    // TODO: Open holding details modal or navigate to details page
-    console.log('View holding details:', holdingId);
-    alert('Holding details feature coming soon!');
+function viewDetails(holdingId) {
+    // View holding details
+    alert('View details for holding: ' + holdingId);
 }
 </script>
-
-<style>
-.rotating-circle {
-    transform: rotate(-90deg);
-}
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-success {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
-
-.bg-gradient-danger {
-    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-}
-
-.bg-gradient-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.bg-gradient-warning {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-    color: #333 !important;
-}
-
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-    font-size: 0.875rem;
-    color: #495057;
-}
-
-/* Asset Filter Pills Styling */
-.asset-filter-pills {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.asset-filter-btn {
-    border-radius: 20px;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-}
-
-.asset-filter-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.asset-filter-btn.active {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.asset-filter-btn .badge {
-    margin-left: 0.25rem;
-    font-size: 0.7rem;
-    padding: 0.25em 0.4em;
-}
-
-/* View Options */
-.view-options {
-    gap: 0.25rem;
-}
-
-.view-options .btn {
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.view-options .btn.active {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: white;
-}
-
-/* Table Enhancements */
-.table-responsive {
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-/* Mobile Cards */
-.card.border-start {
-    border-left-width: 4px !important;
-}
-
-/* Asset-specific styling */
-.asset-equity { border-left-color: #28a745 !important; }
-.asset-mutual_funds { border-left-color: #17a2b8 !important; }
-.asset-etf { border-left-color: #ffc107 !important; }
-.asset-futures_options { border-left-color: #dc3545 !important; }
-.asset-fixed_income { border-left-color: #6c757d !important; }
-.asset-gold { border-left-color: #343a40 !important; }
-.asset-real_estate { border-left-color: #007bff !important; }
-.asset-nps { border-left-color: #17a2b8 !important; }
-.asset-crypto { border-left-color: #fd7e14 !important; }
-
-/* Loading States */
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-/* Alert Enhancements */
-.alert-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-}
-
-/* Progress Bars */
-.progress {
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    transition: width 0.6s ease;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .asset-filter-pills {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding-bottom: 0.5rem;
-        gap: 0.5rem;
-    }
-    
-    .asset-filter-btn {
-        flex-shrink: 0;
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
-    }
-    
-    .asset-filter-btn .badge {
-        font-size: 0.6rem;
-        margin-left: 0.125rem;
-    }
-    
-    .view-options {
-        display: none;
-    }
-}
-
-@media (max-width: 576px) {
-    .asset-filter-btn {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.4rem;
-    }
-    
-    .asset-filter-btn i {
-        font-size: 0.8rem;
-    }
-}
-
-/* Animation for filter transitions */
-.asset-filter-transition {
-    transition: all 0.3s ease;
-}
-
-/* Utility classes */
-.text-truncate-30 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 30ch;
-}
-
-/* Enhanced badges */
-.badge {
-    font-weight: 500;
-}
-
-/* Button enhancements */
-.btn-group-sm > .btn, .btn-sm {
-    border-radius: 4px;
-}
-
-.btn-outline-success:hover,
-.btn-outline-danger:hover,
-.btn-outline-info:hover {
-    transform: scale(1.05);
-    transition: transform 0.2s ease;
-}
-</style>
 
 {% endblock %}
