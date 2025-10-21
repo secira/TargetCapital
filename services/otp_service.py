@@ -53,14 +53,15 @@ class OTPService:
         user.last_otp_request = datetime.utcnow()
         
         # Send OTP via SMS
-        success = sms_service.send_otp(formatted_mobile, otp)
+        success, error_msg = sms_service.send_otp(formatted_mobile, otp)
         
         if success:
             db.session.commit()
             return True, "OTP sent successfully"
         else:
             db.session.rollback()
-            return False, "Failed to send OTP. Please try again."
+            # Return specific error message from SMS service
+            return False, error_msg or "Failed to send OTP. Please try again."
     
     @staticmethod
     def verify_otp(mobile_number: str, otp: str):

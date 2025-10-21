@@ -35,8 +35,8 @@ class SMSService:
         """Generate a random OTP"""
         return ''.join(random.choices(string.digits, k=length))
     
-    def send_otp(self, mobile_number: str, otp: str) -> bool:
-        """Send OTP via SMS"""
+    def send_otp(self, mobile_number: str, otp: str) -> tuple:
+        """Send OTP via SMS - Returns (success: bool, error_message: str or None)"""
         message_body = f"Your Target Capital OTP is: {otp}. Valid for 10 minutes. Do not share this code."
         
         try:
@@ -46,25 +46,40 @@ class SMSService:
                     # Assume Indian number if no country code
                     mobile_number = f"+91{mobile_number}"
                 
+                # Check if trying to send to same number
+                if mobile_number == TWILIO_PHONE_NUMBER:
+                    return False, f"Cannot send OTP to Twilio sender number. Please use a different mobile number to receive OTP."
+                
                 message = self.client.messages.create(
                     body=message_body,
                     from_=TWILIO_PHONE_NUMBER,
                     to=mobile_number
                 )
                 print(f"✅ OTP sent via SMS. Message SID: {message.sid}")
-                return True
+                return True, None
             else:
                 # Development mode - log OTP instead of sending
                 print(f"📱 DEV MODE - OTP for {mobile_number}: {otp}")
-                return True
+                return True, None
                 
         except Exception as e:
-            print(f"❌ Failed to send OTP: {str(e)}")
+            error_str = str(e)
+            print(f"❌ Failed to send OTP: {error_str}")
+            
             # In development, still return True and log the OTP
             if not self.client:
                 print(f"📱 DEV MODE - OTP for {mobile_number}: {otp}")
-                return True
-            return False
+                return True, None
+            
+            # Check for common Twilio errors
+            if "21266" in error_str or "cannot be the same" in error_str.lower():
+                return False, "Cannot send OTP to the Twilio sender number. Please use a different mobile number."
+            elif "21211" in error_str:
+                return False, "Invalid mobile number format. Please enter a valid phone number."
+            elif "21608" in error_str:
+                return False, "This phone number is not verified for Twilio trial account. Please verify it or upgrade your account."
+            else:
+                return False, "Failed to send OTP. Please check your mobile number and try again."
     
     def format_mobile_number(self, mobile_number: str) -> str:
         """Format mobile number to standard format"""
