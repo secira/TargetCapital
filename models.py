@@ -234,9 +234,8 @@ class User(UserMixin, db.Model):
             return code
         return self.referral_code
 
-class OAuth(OAuthConsumerMixin, db.Model):
+class ReplitOAuth(OAuthConsumerMixin, db.Model):
     """Store OAuth tokens for Replit Auth - from blueprint:python_log_in_with_replit"""
-    __tablename__ = 'oauth'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     browser_session_key = db.Column(db.String(100), nullable=False)
     user = db.relationship(User, backref='oauth_tokens')
