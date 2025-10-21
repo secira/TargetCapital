@@ -25,6 +25,23 @@
                             {% endif %}
                         {% endwith %}
 
+                        <!-- Quick Mobile Login -->
+                        <div class="d-grid gap-2 mb-4">
+                            <a href="{{ url_for('mobile_login') }}" class="btn btn-success w-100 py-3">
+                                <i class="fas fa-mobile-alt me-2"></i>Login with Mobile Number (OTP)
+                            </a>
+                            <small class="text-center text-muted">
+                                <i class="fas fa-star text-warning"></i> Quick & Secure - No password needed
+                            </small>
+                        </div>
+                        
+                        <!-- Or Divider -->
+                        <div class="d-flex align-items-center mb-4">
+                            <hr class="flex-grow-1">
+                            <span class="px-3 text-muted">or login with email</span>
+                            <hr class="flex-grow-1">
+                        </div>
+
                         <form method="POST" action="{{ url_for('login') }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="mb-3">
