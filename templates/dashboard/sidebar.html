@@ -55,17 +55,27 @@
                     </a>
                 </li>
 
-                <!-- Trading Features (Trader+ only) -->
+                <!-- Smart Signals (Trader+ only) -->
                 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
                 <li class="nav-item">
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" 
                        href="{{ url_for('dashboard_trading_signals') }}">
                         <i class="nav-icon fas fa-chart-line"></i>
-                        <span class="nav-text">Trading Signals</span>
+                        <span class="nav-text">Smart Signals</span>
                         <span class="nav-badge">Live</span>
                     </a>
                 </li>
                 {% endif %}
+
+                <!-- Research Assistant (All users) -->
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_research_assistant' else '' }}" 
+                       href="{{ url_for('dashboard_ai_advisor') }}">
+                        <i class="nav-icon fas fa-robot"></i>
+                        <span class="nav-text">Research Assistant</span>
+                        <span class="nav-badge">AI</span>
+                    </a>
+                </li>
 
 
                 <!-- Portfolio (Trader+ only) -->

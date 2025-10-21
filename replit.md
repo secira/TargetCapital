@@ -68,6 +68,18 @@ Updated Subscription Model: Target Plus users can connect 1 broker for portfolio
 - Mobile-first approach with passwordless login option for quick access
 - All three methods unified under single User model with flexible nullable fields
 
+**RAG-Powered Research Assistant System** (October 2025):
+- **Menu Changes**: "Trading Signals" renamed to "Smart Signals", "AI Advisor" renamed to "Research Assistant"
+- **Vector Database**: pgvector extension enabled in PostgreSQL for semantic search capabilities
+- **Database Models**: ResearchConversation, ResearchMessage, VectorDocument, SourceCitation, SignalPerformance
+- **Enhanced Smart Signals**: Added sector and category fields for filtering, performance tracking with accuracy metrics
+- **Research Flow**: User query → Vector search → Context assembly → LLM response with citations → Trade execution option
+- **Data Sources**: Stock data, financial news, earnings reports, user research notes, portfolio context
+- **AI Integration**: GPT-3.5-turbo for research, Perplexity for real-time web data, with planned GPT-4 upgrade
+- **Trade Execution**: Pre-filled form flow with user review before broker execution
+- **Archive System**: Daily/Weekly/Monthly tabs with performance tracking and Stock/Sector/Strategy filters
+- **Compliance**: SEBI Research Analyst registration in progress, proper disclaimers and audit trails
+
 ## System Architecture
 ### Production Backend Architecture
 - **Primary Framework**: Flask (Python web framework) for web interface and dashboard
