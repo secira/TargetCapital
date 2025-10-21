@@ -39,11 +39,17 @@ def login():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
+    # Build the redirect URI
+    redirect_uri = request.base_url.replace("http://", "https://") + "/callback"
+    print(f"🔍 Google OAuth Debug - Redirect URI being sent: {redirect_uri}")
+    print(f"🔍 Request base URL: {request.base_url}")
+    print(f"🔍 Request host URL: {request.host_url}")
+    
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
         # Replacing http:// with https:// is important as the external
         # protocol must be https to match the URI whitelisted
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+        redirect_uri=redirect_uri,
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
