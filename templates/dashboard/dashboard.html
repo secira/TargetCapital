@@ -115,43 +115,132 @@
 
 <!-- Main Dashboard Content -->
 <div class="dashboard-grid cols-3">
-    <!-- Market Overview -->
+    <!-- Allocation by Asset Types -->
     <div class="dashboard-card">
         <div class="card-header">
-            <h3>Market Overview</h3>
-            <span class="update-time">Last updated: 2 mins ago</span>
+            <h3>Allocation by Asset Types</h3>
+            <a href="{{ url_for('dashboard_my_portfolio') if current_user.can_access_menu('dashboard_my_portfolio') else '#' }}" class="view-all">
+                Details
+            </a>
         </div>
         <div class="card-body">
-            <div class="market-indices">
-                <div class="index-item">
-                    <div class="index-info">
-                        <span class="index-name">NIFTY 50</span>
-                        <span class="index-value">21,894.50</span>
+            <div class="asset-allocation">
+                <div class="allocation-item">
+                    <div class="allocation-header">
+                        <div class="allocation-info">
+                            <i class="fas fa-chart-line text-primary me-2"></i>
+                            <span class="asset-name">Equities</span>
+                        </div>
+                        <span class="allocation-percentage">45.2%</span>
                     </div>
-                    <div class="index-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+156.30 (+0.72%)</span>
+                    <div class="progress" style="height: 8px; margin-top: 8px;">
+                        <div class="progress-bar bg-primary" style="width: 45.2%"></div>
+                    </div>
+                    <small class="text-muted">₹1,10,968</small>
+                </div>
+                <div class="allocation-item">
+                    <div class="allocation-header">
+                        <div class="allocation-info">
+                            <i class="fas fa-coins text-success me-2"></i>
+                            <span class="asset-name">Mutual Funds</span>
+                        </div>
+                        <span class="allocation-percentage">28.5%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; margin-top: 8px;">
+                        <div class="progress-bar bg-success" style="width: 28.5%"></div>
+                    </div>
+                    <small class="text-muted">₹69,999</small>
+                </div>
+                <div class="allocation-item">
+                    <div class="allocation-header">
+                        <div class="allocation-info">
+                            <i class="fas fa-university text-info me-2"></i>
+                            <span class="asset-name">Fixed Income</span>
+                        </div>
+                        <span class="allocation-percentage">18.3%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; margin-top: 8px;">
+                        <div class="progress-bar bg-info" style="width: 18.3%"></div>
+                    </div>
+                    <small class="text-muted">₹44,959</small>
+                </div>
+                <div class="allocation-item">
+                    <div class="allocation-header">
+                        <div class="allocation-info">
+                            <i class="fas fa-exchange-alt text-warning me-2"></i>
+                            <span class="asset-name">F&O</span>
+                        </div>
+                        <span class="allocation-percentage">8.0%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; margin-top: 8px;">
+                        <div class="progress-bar bg-warning" style="width: 8%"></div>
+                    </div>
+                    <small class="text-muted">₹19,654</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Health Status -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Overall Health Status</h3>
+            <div class="health-score">
+                <span class="score-badge excellent">8.2/10</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="health-metrics">
+                <div class="health-item">
+                    <div class="health-label">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        Diversification
+                    </div>
+                    <div class="health-status">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                        </div>
+                        <span class="health-value">Excellent</span>
                     </div>
                 </div>
-                <div class="index-item">
-                    <div class="index-info">
-                        <span class="index-name">SENSEX</span>
-                        <span class="index-value">72,240.26</span>
+                <div class="health-item">
+                    <div class="health-label">
+                        <i class="fas fa-shield-alt text-success me-2"></i>
+                        Risk Management
                     </div>
-                    <div class="index-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>+485.90 (+0.68%)</span>
+                    <div class="health-status">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-success" style="width: 78%"></div>
+                        </div>
+                        <span class="health-value">Good</span>
                     </div>
                 </div>
-                <div class="index-item">
-                    <div class="index-info">
-                        <span class="index-name">NIFTY BANK</span>
-                        <span class="index-value">47,325.80</span>
+                <div class="health-item">
+                    <div class="health-label">
+                        <i class="fas fa-chart-line text-warning me-2"></i>
+                        Performance
                     </div>
-                    <div class="index-change negative">
-                        <i class="fas fa-arrow-down"></i>
-                        <span>-123.45 (-0.26%)</span>
+                    <div class="health-status">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-warning" style="width: 68%"></div>
+                        </div>
+                        <span class="health-value">Moderate</span>
                     </div>
+                </div>
+                <div class="health-item">
+                    <div class="health-label">
+                        <i class="fas fa-balance-scale text-success me-2"></i>
+                        Asset Balance
+                    </div>
+                    <div class="health-status">
+                        <div class="progress" style="height: 6px; width: 100px;">
+                            <div class="progress-bar bg-success" style="width: 82%"></div>
+                        </div>
+                        <span class="health-value">Excellent</span>
+                    </div>
+                </div>
+                <div class="health-summary">
+                    <p class="mb-0"><i class="fas fa-info-circle text-primary me-1"></i> Your portfolio is well-balanced with good diversification across asset classes. Consider reviewing F&O positions for better risk optimization.</p>
                 </div>
             </div>
         </div>
@@ -678,6 +767,122 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .index-change.negative {
     color: #f56565;
+}
+
+/* Asset Allocation */
+.asset-allocation {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.allocation-item {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.allocation-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.allocation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.allocation-info {
+    display: flex;
+    align-items: center;
+}
+
+.asset-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.allocation-percentage {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+/* Health Status */
+.health-score {
+    display: flex;
+    align-items: center;
+}
+
+.score-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.score-badge.excellent {
+    background: rgba(72, 187, 120, 0.15);
+    color: #2f855a;
+}
+
+.score-badge.good {
+    background: rgba(66, 153, 225, 0.15);
+    color: #2c5282;
+}
+
+.score-badge.moderate {
+    background: rgba(237, 137, 54, 0.15);
+    color: #c05621;
+}
+
+.health-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.health-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.health-label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.health-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.health-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 70px;
+    text-align: right;
+}
+
+.health-summary {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.health-summary p {
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.6;
 }
 
 /* Holdings */
