@@ -165,7 +165,8 @@
                 
                 <!-- Real Estate -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}" 
+                       href="{{ url_for('dashboard_real_estate') }}">
                         <i class="nav-icon fas fa-building"></i>
                         <span class="nav-text">Real Estate</span>
                     </a>

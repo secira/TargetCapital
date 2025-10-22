@@ -1,0 +1,406 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Real Estate - Target Capital{% endblock %}
+{% block dashboard_title %}Real Estate Portfolio{% endblock %}
+{% block dashboard_subtitle %}Manage your property investments and track valuations{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddPropertyForm()">
+        <i class="fas fa-plus me-1"></i>Add Property
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add Property Form (Initially Hidden) -->
+<div class="card mb-4" id="addPropertyFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Real Estate Property</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddPropertyForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_real_estate') }}">
+            <div class="row">
+                <!-- Property Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="property_name" class="form-label">Property Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="property_name" name="property_name" required placeholder="e.g., My Apartment">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="property_type" class="form-label">Property Type</label>
+                    <select class="form-select" id="property_type" name="property_type">
+                        <option value="">Select Type</option>
+                        <option value="Residential">Residential</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Land">Land/Plot</option>
+                        <option value="Agricultural">Agricultural</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="property_subtype" class="form-label">Property Subtype</label>
+                    <select class="form-select" id="property_subtype" name="property_subtype">
+                        <option value="">Select Subtype</option>
+                        <option value="Apartment">Apartment</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Independent House">Independent House</option>
+                        <option value="Plot">Plot</option>
+                        <option value="Office">Office</option>
+                        <option value="Shop">Shop</option>
+                        <option value="Warehouse">Warehouse</option>
+                    </select>
+                </div>
+                
+                <!-- Location -->
+                <div class="col-12 mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" name="address" rows="2" placeholder="Full address"></textarea>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city" placeholder="e.g., Mumbai">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state" name="state" placeholder="e.g., Maharashtra">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="pincode" class="form-label">Pincode</label>
+                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="400001">
+                </div>
+                
+                <!-- Property Specifications -->
+                <div class="col-md-4 mb-3">
+                    <label for="area_sqft" class="form-label">Area</label>
+                    <input type="number" class="form-control" id="area_sqft" name="area_sqft" step="0.01" placeholder="1200">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="area_unit" class="form-label">Area Unit</label>
+                    <select class="form-select" id="area_unit" name="area_unit">
+                        <option value="sqft" selected>Sq. Ft.</option>
+                        <option value="sqm">Sq. Meter</option>
+                        <option value="acres">Acres</option>
+                        <option value="hectares">Hectares</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="bedrooms" class="form-label">Bedrooms</label>
+                    <input type="number" class="form-control" id="bedrooms" name="bedrooms" placeholder="3">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="bathrooms" class="form-label">Bathrooms</label>
+                    <input type="number" class="form-control" id="bathrooms" name="bathrooms" placeholder="2">
+                </div>
+                
+                <!-- Purchase Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Purchase Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_date" class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="purchase_date" name="purchase_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_price" class="form-label">Purchase Price (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="purchase_price" name="purchase_price" step="0.01" required placeholder="5000000">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="stamp_duty" class="form-label">Stamp Duty (₹)</label>
+                    <input type="number" class="form-control" id="stamp_duty" name="stamp_duty" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="registration_charges" class="form-label">Registration (₹)</label>
+                    <input type="number" class="form-control" id="registration_charges" name="registration_charges" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="brokerage" class="form-label">Brokerage (₹)</label>
+                    <input type="number" class="form-control" id="brokerage" name="brokerage" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="other_charges" class="form-label">Other Charges (₹)</label>
+                    <input type="number" class="form-control" id="other_charges" name="other_charges" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Loan Details (Optional) -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Loan Details (Optional)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="loan_amount" class="form-label">Loan Amount (₹)</label>
+                    <input type="number" class="form-control" id="loan_amount" name="loan_amount" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="loan_bank" class="form-label">Loan Bank</label>
+                    <input type="text" class="form-control" id="loan_bank" name="loan_bank" placeholder="e.g., HDFC Bank">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="loan_account_number" class="form-label">Loan Account Number</label>
+                    <input type="text" class="form-control" id="loan_account_number" name="loan_account_number" placeholder="Loan A/C">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="emi_amount" class="form-label">EMI Amount (₹)</label>
+                    <input type="number" class="form-control" id="emi_amount" name="emi_amount" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="loan_tenure_months" class="form-label">Loan Tenure (Months)</label>
+                    <input type="number" class="form-control" id="loan_tenure_months" name="loan_tenure_months" placeholder="240">
+                </div>
+                
+                <!-- Current Valuation -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Current Valuation (Optional)</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="current_market_value" class="form-label">Current Market Value (₹)</label>
+                    <input type="number" class="form-control" id="current_market_value" name="current_market_value" step="0.01" placeholder="6000000">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="valuation_date" class="form-label">Valuation Date</label>
+                    <input type="date" class="form-control" id="valuation_date" name="valuation_date">
+                </div>
+                
+                <!-- Rental Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Rental Details (If Rented)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is_rented" name="is_rented">
+                        <label class="form-check-label" for="is_rented">
+                            Currently Rented
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="monthly_rent" class="form-label">Monthly Rent (₹)</label>
+                    <input type="number" class="form-control" id="monthly_rent" name="monthly_rent" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="tenant_name" class="form-label">Tenant Name</label>
+                    <input type="text" class="form-control" id="tenant_name" name="tenant_name" placeholder="Tenant name">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lease_start_date" class="form-label">Lease Start Date</label>
+                    <input type="date" class="form-control" id="lease_start_date" name="lease_start_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lease_end_date" class="form-label">Lease End Date</label>
+                    <input type="date" class="form-control" id="lease_end_date" name="lease_end_date">
+                </div>
+                
+                <!-- Recurring Costs -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Recurring Costs</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="property_tax_annual" class="form-label">Property Tax (Annual ₹)</label>
+                    <input type="number" class="form-control" id="property_tax_annual" name="property_tax_annual" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="maintenance_monthly" class="form-label">Maintenance (Monthly ₹)</label>
+                    <input type="number" class="form-control" id="maintenance_monthly" name="maintenance_monthly" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="insurance_annual" class="form-label">Insurance (Annual ₹)</label>
+                    <input type="number" class="form-control" id="insurance_annual" name="insurance_annual" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Legal Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="ownership_type" class="form-label">Ownership Type</label>
+                    <select class="form-select" id="ownership_type" name="ownership_type">
+                        <option value="">Select Ownership</option>
+                        <option value="Freehold">Freehold</option>
+                        <option value="Leasehold">Leasehold</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="deed_number" class="form-label">Deed Number</label>
+                    <input type="text" class="form-control" id="deed_number" name="deed_number" placeholder="Deed number">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddPropertyForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Property
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Holdings Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Investment</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_investment) if total_investment else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Current Value</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(current_value) if current_value else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Unrealized Gain</h6>
+                <h3 class="mb-0 {% if total_gain >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ₹{{ "{:,.0f}".format(total_gain) if total_gain else '0' }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Properties</h6>
+                <h3 class="mb-0">{{ holdings_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Holdings Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Real Estate Holdings</h5>
+    </div>
+    <div class="card-body">
+        {% if holdings %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Property Name</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Area</th>
+                        <th>Purchase Price</th>
+                        <th>Current Value</th>
+                        <th>Gain/Loss</th>
+                        <th>Gain %</th>
+                        <th>Rental Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for holding in holdings %}
+                    <tr>
+                        <td><strong>{{ holding.property_name }}</strong></td>
+                        <td>{{ holding.property_type or '-' }}<br><small class="text-muted">{{ holding.property_subtype or '' }}</small></td>
+                        <td>{{ holding.city or '-' }}, {{ holding.state or '-' }}</td>
+                        <td>{{ "{:,.0f}".format(holding.area_sqft) if holding.area_sqft else '-' }} {{ holding.area_unit }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.purchase_price) }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.current_market_value) if holding.current_market_value else '-' }}</td>
+                        <td class="{% if holding.unrealized_gain >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_gain %}
+                            ₹{{ "{:,.0f}".format(holding.unrealized_gain) }}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="{% if holding.unrealized_gain_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_gain_percentage %}
+                            {{ "{:,.1f}".format(holding.unrealized_gain_percentage) }}%
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            {% if holding.is_rented %}
+                            <span class="badge bg-success">Rented</span><br>
+                            <small class="text-muted">₹{{ "{:,.0f}".format(holding.monthly_rent) }}/mo</small>
+                            {% else %}
+                            <span class="badge bg-secondary">Self-Occupied</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editHolding({{ holding.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteHolding({{ holding.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-building fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No real estate properties found. Add your first property!</p>
+            <button class="btn btn-primary" onclick="toggleAddPropertyForm()">
+                <i class="fas fa-plus me-2"></i>Add Property
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const purchaseDateInput = document.getElementById('purchase_date');
+    if (purchaseDateInput) {
+        purchaseDateInput.max = new Date().toISOString().split('T')[0];
+    }
+});
+
+function toggleAddPropertyForm() {
+    const formCard = document.getElementById('addPropertyFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstInput = formCard.querySelector('input[type="text"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function editHolding(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deleteHolding(id) {
+    if (confirm('Are you sure you want to delete this property?')) {
+        fetch(`/api/real-estate/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting property: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

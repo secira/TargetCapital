@@ -2160,6 +2160,113 @@ def delete_fixed_deposit_holding(holding_id):
         logger.error(f"Error deleting fixed deposit: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/real-estate', methods=['GET', 'POST'])
+@login_required
+def dashboard_real_estate():
+    """Real Estate portfolio management - manual entries"""
+    from models import ManualRealEstateHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual real estate holding
+            new_holding = ManualRealEstateHolding(
+                user_id=current_user.id,
+                property_name=request.form.get('property_name'),
+                property_type=request.form.get('property_type'),
+                property_subtype=request.form.get('property_subtype'),
+                address=request.form.get('address'),
+                city=request.form.get('city'),
+                state=request.form.get('state'),
+                pincode=request.form.get('pincode'),
+                area_sqft=float(request.form.get('area_sqft')) if request.form.get('area_sqft') else None,
+                area_unit=request.form.get('area_unit', 'sqft'),
+                bedrooms=int(request.form.get('bedrooms')) if request.form.get('bedrooms') else None,
+                bathrooms=int(request.form.get('bathrooms')) if request.form.get('bathrooms') else None,
+                purchase_date=datetime.strptime(request.form.get('purchase_date'), '%Y-%m-%d').date(),
+                purchase_price=float(request.form.get('purchase_price')),
+                stamp_duty=float(request.form.get('stamp_duty') or 0),
+                registration_charges=float(request.form.get('registration_charges') or 0),
+                brokerage=float(request.form.get('brokerage') or 0),
+                other_charges=float(request.form.get('other_charges') or 0),
+                loan_amount=float(request.form.get('loan_amount') or 0),
+                loan_bank=request.form.get('loan_bank'),
+                loan_account_number=request.form.get('loan_account_number'),
+                emi_amount=float(request.form.get('emi_amount') or 0),
+                loan_tenure_months=int(request.form.get('loan_tenure_months')) if request.form.get('loan_tenure_months') else None,
+                current_market_value=float(request.form.get('current_market_value')) if request.form.get('current_market_value') else None,
+                valuation_date=datetime.strptime(request.form.get('valuation_date'), '%Y-%m-%d').date() if request.form.get('valuation_date') else None,
+                is_rented=bool(request.form.get('is_rented')),
+                monthly_rent=float(request.form.get('monthly_rent') or 0),
+                tenant_name=request.form.get('tenant_name'),
+                lease_start_date=datetime.strptime(request.form.get('lease_start_date'), '%Y-%m-%d').date() if request.form.get('lease_start_date') else None,
+                lease_end_date=datetime.strptime(request.form.get('lease_end_date'), '%Y-%m-%d').date() if request.form.get('lease_end_date') else None,
+                property_tax_annual=float(request.form.get('property_tax_annual') or 0),
+                maintenance_monthly=float(request.form.get('maintenance_monthly') or 0),
+                insurance_annual=float(request.form.get('insurance_annual') or 0),
+                ownership_type=request.form.get('ownership_type'),
+                deed_number=request.form.get('deed_number'),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate values
+            new_holding.calculate_values()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_holding.property_name} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_real_estate'))
+            
+        except Exception as e:
+            logger.error(f"Error adding real estate: {str(e)}")
+            flash(f'Error adding real estate: {str(e)}', 'error')
+            return redirect(url_for('dashboard_real_estate'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualRealEstateHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_investment = sum(h.total_investment for h in manual_holdings)
+    current_value = sum(h.current_market_value or h.total_investment for h in manual_holdings)
+    total_gain = sum(h.unrealized_gain or 0 for h in manual_holdings)
+    holdings_count = len(manual_holdings)
+    
+    return render_template('dashboard/real_estate.html',
+                         holdings=manual_holdings,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_gain=total_gain,
+                         holdings_count=holdings_count)
+
+@app.route('/api/real-estate/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_real_estate_holding(holding_id):
+    """Delete a manual real estate holding"""
+    from models import ManualRealEstateHolding
+    
+    try:
+        holding = ManualRealEstateHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting real estate: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

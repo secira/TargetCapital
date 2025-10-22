@@ -695,6 +695,99 @@ class ManualFixedDepositHolding(db.Model):
             else:
                 self.current_value = self.principal_amount
 
+class ManualRealEstateHolding(db.Model):
+    """Manual real estate holdings entered by users"""
+    __tablename__ = 'manual_real_estate_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Property Details
+    property_name = db.Column(db.String(200), nullable=False)
+    property_type = db.Column(db.String(50), nullable=True)  # Residential, Commercial, Land, Agricultural
+    property_subtype = db.Column(db.String(50), nullable=True)  # Apartment, Villa, Plot, Office, etc.
+    
+    # Location
+    address = db.Column(db.Text, nullable=True)
+    city = db.Column(db.String(100), nullable=True)
+    state = db.Column(db.String(100), nullable=True)
+    pincode = db.Column(db.String(10), nullable=True)
+    
+    # Property Specifications
+    area_sqft = db.Column(db.Float, nullable=True)
+    area_unit = db.Column(db.String(20), default='sqft')  # sqft, sqm, acres, etc.
+    bedrooms = db.Column(db.Integer, nullable=True)
+    bathrooms = db.Column(db.Integer, nullable=True)
+    
+    # Purchase Details
+    purchase_date = db.Column(db.Date, nullable=False)
+    purchase_price = db.Column(db.Float, nullable=False)
+    stamp_duty = db.Column(db.Float, default=0.0)
+    registration_charges = db.Column(db.Float, default=0.0)
+    brokerage = db.Column(db.Float, default=0.0)
+    other_charges = db.Column(db.Float, default=0.0)
+    total_investment = db.Column(db.Float, nullable=False)
+    
+    # Loan Details
+    loan_amount = db.Column(db.Float, default=0.0)
+    loan_bank = db.Column(db.String(100), nullable=True)
+    loan_account_number = db.Column(db.String(50), nullable=True)
+    emi_amount = db.Column(db.Float, default=0.0)
+    loan_tenure_months = db.Column(db.Integer, nullable=True)
+    
+    # Current Valuation
+    current_market_value = db.Column(db.Float, nullable=True)
+    valuation_date = db.Column(db.Date, nullable=True)
+    unrealized_gain = db.Column(db.Float, nullable=True)
+    unrealized_gain_percentage = db.Column(db.Float, nullable=True)
+    
+    # Rental Income
+    is_rented = db.Column(db.Boolean, default=False)
+    monthly_rent = db.Column(db.Float, default=0.0)
+    tenant_name = db.Column(db.String(100), nullable=True)
+    lease_start_date = db.Column(db.Date, nullable=True)
+    lease_end_date = db.Column(db.Date, nullable=True)
+    
+    # Recurring Costs
+    property_tax_annual = db.Column(db.Float, default=0.0)
+    maintenance_monthly = db.Column(db.Float, default=0.0)
+    insurance_annual = db.Column(db.Float, default=0.0)
+    
+    # Legal & Documents
+    ownership_type = db.Column(db.String(50), nullable=True)  # Freehold, Leasehold
+    deed_number = db.Column(db.String(100), nullable=True)
+    survey_number = db.Column(db.String(100), nullable=True)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Real Estate')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_real_estate_holdings')
+    
+    def calculate_values(self):
+        """Calculate total investment and unrealized gains"""
+        self.total_investment = (
+            self.purchase_price + 
+            (self.stamp_duty or 0) + 
+            (self.registration_charges or 0) + 
+            (self.brokerage or 0) + 
+            (self.other_charges or 0)
+        )
+        
+        if self.current_market_value:
+            self.unrealized_gain = self.current_market_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     
