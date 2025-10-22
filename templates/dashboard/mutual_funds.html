@@ -1,0 +1,341 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Mutual Funds - Target Capital{% endblock %}
+{% block dashboard_title %}Mutual Funds Portfolio{% endblock %}
+{% block dashboard_subtitle %}Manage your mutual fund holdings from brokers or manual entries{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddMFForm()">
+        <i class="fas fa-plus me-1"></i>Add Mutual Fund
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add Mutual Fund Form (Initially Hidden) -->
+<div class="card mb-4" id="addMFFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Mutual Fund Holding</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddMFForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_mutual_funds') }}">
+            <div class="row">
+                <!-- Fund Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="scheme_name" class="form-label">Scheme Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="scheme_name" name="scheme_name" required placeholder="e.g., HDFC Equity Fund">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fund_house" class="form-label">Fund House (AMC)</label>
+                    <input type="text" class="form-control" id="fund_house" name="fund_house" placeholder="e.g., HDFC Asset Management">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="isin" class="form-label">ISIN</label>
+                    <input type="text" class="form-control" id="isin" name="isin" placeholder="e.g., INF179K01070">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="folio_number" class="form-label">Folio Number</label>
+                    <input type="text" class="form-control" id="folio_number" name="folio_number" placeholder="e.g., 12345678">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fund_category" class="form-label">Fund Category</label>
+                    <select class="form-select" id="fund_category" name="fund_category">
+                        <option value="">Select Category</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Debt">Debt</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Liquid">Liquid</option>
+                        <option value="ELSS">ELSS</option>
+                        <option value="Index">Index</option>
+                        <option value="Sectoral">Sectoral</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="transaction_type" class="form-label">Transaction Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="transaction_type" name="transaction_type" required>
+                        <option value="PURCHASE" selected>PURCHASE</option>
+                        <option value="REDEMPTION">REDEMPTION</option>
+                        <option value="SWITCH_IN">SWITCH IN</option>
+                        <option value="SWITCH_OUT">SWITCH OUT</option>
+                        <option value="DIVIDEND">DIVIDEND</option>
+                    </select>
+                </div>
+                
+                <!-- Transaction Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="transaction_date" class="form-label">Transaction Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="transaction_date" name="transaction_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="units" class="form-label">Units <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="units" name="units" step="0.001" required placeholder="100.500">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nav" class="form-label">NAV (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="nav" name="nav" step="0.01" required placeholder="250.50">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="amount" name="amount" step="0.01" required placeholder="25000.00">
+                    <small class="text-muted">Total transaction amount before charges</small>
+                </div>
+                
+                <!-- Charges (Optional) -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Transaction Charges (Optional)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="entry_load" class="form-label">Entry Load (₹)</label>
+                    <input type="number" class="form-control" id="entry_load" name="entry_load" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="exit_load" class="form-label">Exit Load (₹)</label>
+                    <input type="number" class="form-control" id="exit_load" name="exit_load" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="stamp_duty" class="form-label">Stamp Duty (₹)</label>
+                    <input type="number" class="form-control" id="stamp_duty" name="stamp_duty" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="stt" class="form-label">STT (₹)</label>
+                    <input type="number" class="form-control" id="stt" name="stt" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="other_charges" class="form-label">Other Charges (₹)</label>
+                    <input type="number" class="form-control" id="other_charges" name="other_charges" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddMFForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Mutual Fund
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Holdings Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Investment</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_investment) if total_investment else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Current Value</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(current_value) if current_value else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total P&L</h6>
+                <h3 class="mb-0 {% if total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ₹{{ "{:,.0f}".format(total_pnl) if total_pnl else '0' }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Funds</h6>
+                <h3 class="mb-0">{{ holdings_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Holdings Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Mutual Fund Holdings</h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="viewType" id="manualView" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="manualView" onclick="filterHoldings('manual')">Manual</label>
+            
+            <input type="radio" class="btn-check" name="viewType" id="brokerView" autocomplete="off">
+            <label class="btn btn-outline-primary" for="brokerView" onclick="filterHoldings('broker')">Broker</label>
+            
+            <input type="radio" class="btn-check" name="viewType" id="allView" autocomplete="off">
+            <label class="btn btn-outline-primary" for="allView" onclick="filterHoldings('all')">All</label>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if holdings %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Scheme Name</th>
+                        <th>Fund House</th>
+                        <th>Folio</th>
+                        <th>Units</th>
+                        <th>NAV</th>
+                        <th>Current NAV</th>
+                        <th>Investment</th>
+                        <th>Current Value</th>
+                        <th>P&L</th>
+                        <th>P&L %</th>
+                        <th>Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingsTable">
+                    {% for holding in holdings %}
+                    <tr class="holding-row" data-source="{{ 'manual' if holding.source == 'manual' else 'broker' }}">
+                        <td><strong>{{ holding.scheme_name }}</strong></td>
+                        <td>{{ holding.fund_house or '-' }}</td>
+                        <td>{{ holding.folio_number or '-' }}</td>
+                        <td>{{ "{:,.3f}".format(holding.units) }}</td>
+                        <td>₹{{ "{:,.2f}".format(holding.nav) }}</td>
+                        <td>₹{{ "{:,.2f}".format(holding.current_nav) if holding.current_nav else '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.total_investment) }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.current_value) if holding.current_value else '-' }}</td>
+                        <td class="{% if holding.unrealized_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_pnl %}
+                            ₹{{ "{:,.0f}".format(holding.unrealized_pnl) }}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="{% if holding.unrealized_pnl_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_pnl_percentage %}
+                            {{ "{:,.2f}".format(holding.unrealized_pnl_percentage) }}%
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            {% if holding.source == 'manual' %}
+                            <span class="badge bg-info">Manual</span>
+                            {% else %}
+                            <span class="badge bg-primary">Broker</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if holding.source == 'manual' %}
+                            <button class="btn btn-sm btn-outline-primary" onclick="editHolding({{ holding.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteHolding({{ holding.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No mutual fund holdings found. Add your first mutual fund!</p>
+            <button class="btn btn-primary" onclick="toggleAddMFForm()">
+                <i class="fas fa-plus me-2"></i>Add Mutual Fund
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const transactionDateInput = document.getElementById('transaction_date');
+    if (transactionDateInput) {
+        transactionDateInput.max = new Date().toISOString().split('T')[0];
+    }
+    
+    // Calculate amount based on units and NAV
+    const unitsInput = document.getElementById('units');
+    const navInput = document.getElementById('nav');
+    const amountInput = document.getElementById('amount');
+    
+    function calculateAmount() {
+        const units = parseFloat(unitsInput.value) || 0;
+        const nav = parseFloat(navInput.value) || 0;
+        if (units > 0 && nav > 0) {
+            amountInput.value = (units * nav).toFixed(2);
+        }
+    }
+    
+    if (unitsInput && navInput && amountInput) {
+        unitsInput.addEventListener('input', calculateAmount);
+        navInput.addEventListener('input', calculateAmount);
+    }
+});
+
+function toggleAddMFForm() {
+    const formCard = document.getElementById('addMFFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstInput = formCard.querySelector('input[type="text"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function filterHoldings(type) {
+    const rows = document.querySelectorAll('.holding-row');
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else {
+            row.style.display = row.dataset.source === type ? '' : 'none';
+        }
+    });
+}
+
+function editHolding(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deleteHolding(id) {
+    if (confirm('Are you sure you want to delete this holding?')) {
+        fetch(`/api/mutual-funds/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting holding: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

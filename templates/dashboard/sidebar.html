@@ -147,7 +147,8 @@
                 
                 <!-- Mutual Funds -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_mutual_funds' else '' }}" 
+                       href="{{ url_for('dashboard_mutual_funds') }}">
                         <i class="nav-icon fas fa-coins"></i>
                         <span class="nav-text">Mutual Funds</span>
                     </a>

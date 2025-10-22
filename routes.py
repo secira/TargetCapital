@@ -1962,6 +1962,114 @@ def delete_equity_holding(holding_id):
         logger.error(f"Error deleting equity holding: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/mutual-funds', methods=['GET', 'POST'])
+@login_required
+def dashboard_mutual_funds():
+    """Mutual Funds portfolio management - manual and broker holdings"""
+    from models import ManualMutualFundHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual mutual fund holding
+            new_holding = ManualMutualFundHolding(
+                user_id=current_user.id,
+                scheme_name=request.form.get('scheme_name'),
+                fund_house=request.form.get('fund_house'),
+                isin=request.form.get('isin'),
+                folio_number=request.form.get('folio_number'),
+                fund_category=request.form.get('fund_category'),
+                transaction_type=request.form.get('transaction_type', 'PURCHASE'),
+                transaction_date=datetime.strptime(request.form.get('transaction_date'), '%Y-%m-%d').date(),
+                units=float(request.form.get('units')),
+                nav=float(request.form.get('nav')),
+                amount=float(request.form.get('amount')),
+                entry_load=float(request.form.get('entry_load') or 0),
+                exit_load=float(request.form.get('exit_load') or 0),
+                stamp_duty=float(request.form.get('stamp_duty') or 0),
+                stt=float(request.form.get('stt') or 0),
+                other_charges=float(request.form.get('other_charges') or 0),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate totals
+            new_holding.calculate_totals()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_holding.scheme_name} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_mutual_funds'))
+            
+        except Exception as e:
+            logger.error(f"Error adding mutual fund holding: {str(e)}")
+            flash(f'Error adding mutual fund holding: {str(e)}', 'error')
+            return redirect(url_for('dashboard_mutual_funds'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualMutualFundHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Combine holdings for display
+    combined_holdings = []
+    
+    # Add manual holdings
+    for holding in manual_holdings:
+        combined_holdings.append({
+            'id': holding.id,
+            'scheme_name': holding.scheme_name,
+            'fund_house': holding.fund_house,
+            'folio_number': holding.folio_number,
+            'units': holding.units,
+            'nav': holding.nav,
+            'current_nav': holding.current_nav,
+            'total_investment': holding.total_investment,
+            'current_value': holding.current_value,
+            'unrealized_pnl': holding.unrealized_pnl,
+            'unrealized_pnl_percentage': holding.unrealized_pnl_percentage,
+            'source': 'manual'
+        })
+    
+    # Calculate summary
+    total_investment = sum(h['total_investment'] for h in combined_holdings)
+    current_value = sum(h['current_value'] or h['total_investment'] for h in combined_holdings)
+    total_pnl = current_value - total_investment
+    holdings_count = len(combined_holdings)
+    
+    return render_template('dashboard/mutual_funds.html',
+                         holdings=combined_holdings,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_pnl=total_pnl,
+                         holdings_count=holdings_count)
+
+@app.route('/api/mutual-funds/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_mutual_fund_holding(holding_id):
+    """Delete a manual mutual fund holding"""
+    from models import ManualMutualFundHolding
+    
+    try:
+        holding = ManualMutualFundHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting mutual fund holding: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

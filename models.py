@@ -513,6 +513,77 @@ class ManualEquityHolding(db.Model):
             if self.total_investment > 0:
                 self.unrealized_pnl_percentage = (self.unrealized_pnl / self.total_investment) * 100
 
+class ManualMutualFundHolding(db.Model):
+    """Manual mutual fund holdings entered by users"""
+    __tablename__ = 'manual_mutual_fund_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Fund Details
+    scheme_name = db.Column(db.String(200), nullable=False)
+    fund_house = db.Column(db.String(100), nullable=True)  # AMC Name
+    isin = db.Column(db.String(20), nullable=True)
+    folio_number = db.Column(db.String(50), nullable=True)
+    fund_category = db.Column(db.String(50), nullable=True)  # Equity, Debt, Hybrid, etc.
+    
+    # Transaction Details
+    transaction_type = db.Column(db.String(20), nullable=False, default='PURCHASE')  # PURCHASE/REDEMPTION/SWITCH_IN/SWITCH_OUT/DIVIDEND
+    transaction_date = db.Column(db.Date, nullable=False)
+    units = db.Column(db.Float, nullable=False)
+    nav = db.Column(db.Float, nullable=False)  # Net Asset Value at transaction
+    
+    # Investment Amount
+    amount = db.Column(db.Float, nullable=False)  # Total transaction amount
+    
+    # Costs & Charges
+    entry_load = db.Column(db.Float, default=0.0)
+    exit_load = db.Column(db.Float, default=0.0)
+    stamp_duty = db.Column(db.Float, default=0.0)
+    stt = db.Column(db.Float, default=0.0)
+    other_charges = db.Column(db.Float, default=0.0)
+    total_charges = db.Column(db.Float, default=0.0)
+    
+    # Investment Calculation
+    total_investment = db.Column(db.Float, nullable=False)  # amount + charges
+    
+    # Current Market Data (updated periodically)
+    current_nav = db.Column(db.Float, nullable=True)
+    current_value = db.Column(db.Float, nullable=True)
+    unrealized_pnl = db.Column(db.Float, nullable=True)
+    unrealized_pnl_percentage = db.Column(db.Float, nullable=True)
+    
+    # Returns & Performance
+    xirr = db.Column(db.Float, nullable=True)  # Extended Internal Rate of Return
+    absolute_return = db.Column(db.Float, nullable=True)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Mutual Fund')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_mutual_fund_holdings')
+    
+    def calculate_totals(self):
+        """Calculate total investment and current values"""
+        self.total_charges = (self.entry_load or 0) + (self.exit_load or 0) + (self.stamp_duty or 0) + (self.stt or 0) + (self.other_charges or 0)
+        self.total_investment = self.amount + self.total_charges
+        
+        if self.current_nav:
+            self.current_value = self.units * self.current_nav
+            self.unrealized_pnl = self.current_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_pnl_percentage = (self.unrealized_pnl / self.total_investment) * 100
+                self.absolute_return = self.unrealized_pnl_percentage
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     
