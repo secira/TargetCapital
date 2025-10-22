@@ -612,10 +612,10 @@
         <div class="conversation-list" id="conversationList">
             {% if conversations %}
                 {% for conv in conversations %}
-                <div class="conversation-item {% if conversation_id == conv.id %}active{% endif %}" 
-                     onclick="loadConversation({{ conv.id }})">
-                    <div class="conversation-title">{{ conv.title }}</div>
-                    <div class="conversation-meta">{{ conv.message_count }} messages • {{ conv.updated_at[:10] }}</div>
+                <div class="conversation-item {% if conversation_id == conv['id'] %}active{% endif %}" 
+                     onclick="loadConversation({{ conv['id'] }})">
+                    <div class="conversation-title">{{ conv['title'] or 'New Research' }}</div>
+                    <div class="conversation-meta">{{ conv['message_count'] }} messages • {{ conv['updated_at'][:10] }}</div>
                 </div>
                 {% endfor %}
             {% else %}
