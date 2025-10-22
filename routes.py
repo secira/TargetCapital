@@ -2572,6 +2572,92 @@ def delete_insurance_policy(policy_id):
         logger.error(f"Error deleting insurance policy: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/banks', methods=['GET', 'POST'])
+@login_required
+def dashboard_banks():
+    """Bank accounts and cash management - manual entries"""
+    from models import ManualBankAccount
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual bank account
+            new_account = ManualBankAccount(
+                user_id=current_user.id,
+                account_type=request.form.get('account_type'),
+                bank_name=request.form.get('bank_name'),
+                account_number=request.form.get('account_number'),
+                branch_name=request.form.get('branch_name'),
+                ifsc_code=request.form.get('ifsc_code'),
+                account_holder_name=request.form.get('account_holder_name'),
+                current_balance=float(request.form.get('current_balance')),
+                as_on_date=datetime.strptime(request.form.get('as_on_date'), '%Y-%m-%d').date() if request.form.get('as_on_date') else None,
+                interest_rate=float(request.form.get('interest_rate')) if request.form.get('interest_rate') else None,
+                interest_earned_ytd=float(request.form.get('interest_earned_ytd') or 0),
+                account_status=request.form.get('account_status', 'Active'),
+                account_opening_date=datetime.strptime(request.form.get('account_opening_date'), '%Y-%m-%d').date() if request.form.get('account_opening_date') else None,
+                has_debit_card=bool(request.form.get('has_debit_card')),
+                has_internet_banking=bool(request.form.get('has_internet_banking')),
+                has_mobile_banking=bool(request.form.get('has_mobile_banking')),
+                has_cheque_book=bool(request.form.get('has_cheque_book')),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            db.session.add(new_account)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_account.bank_name} account to your portfolio!', 'success')
+            return redirect(url_for('dashboard_banks'))
+            
+        except Exception as e:
+            logger.error(f"Error adding bank account: {str(e)}")
+            flash(f'Error adding bank account: {str(e)}', 'error')
+            return redirect(url_for('dashboard_banks'))
+    
+    # GET request - display accounts
+    # Get manual accounts
+    manual_accounts = ManualBankAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_balance = sum(a.current_balance for a in manual_accounts if a.account_status == 'Active')
+    savings_balance = sum(a.current_balance for a in manual_accounts if a.account_type == 'Savings Account' and a.account_status == 'Active')
+    total_interest = sum(a.interest_earned_ytd or 0 for a in manual_accounts)
+    accounts_count = len([a for a in manual_accounts if a.account_status == 'Active'])
+    
+    return render_template('dashboard/banks.html',
+                         accounts=manual_accounts,
+                         total_balance=total_balance,
+                         savings_balance=savings_balance,
+                         total_interest=total_interest,
+                         accounts_count=accounts_count)
+
+@app.route('/api/banks/<int:account_id>', methods=['DELETE'])
+@login_required
+def delete_bank_account(account_id):
+    """Delete a manual bank account"""
+    from models import ManualBankAccount
+    
+    try:
+        account = ManualBankAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not account:
+            return jsonify({'success': False, 'error': 'Account not found'}), 404
+        
+        db.session.delete(account)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Account deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting bank account: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

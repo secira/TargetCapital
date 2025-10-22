@@ -129,7 +129,7 @@
                 <!-- Banks (FDs & Cash) -->
                 <li class="nav-item submenu-item">
                     <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_banks' else '' }}" 
-                       href="#" onclick="alert('Banks module coming soon! This will allow you to manage FDs and Cash holdings.'); return false;">
+                       href="{{ url_for('dashboard_banks') }}">
                         <i class="nav-icon fas fa-university"></i>
                         <span class="nav-text">Banks</span>
                         <span class="nav-badge-sm">FD & Cash</span>

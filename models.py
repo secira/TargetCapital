@@ -1020,6 +1020,56 @@ class ManualInsuranceHolding(db.Model):
     # Relationships
     user = db.relationship('User', backref='manual_insurance_holdings')
 
+class ManualBankAccount(db.Model):
+    """Manual bank accounts and cash holdings entered by users"""
+    __tablename__ = 'manual_bank_accounts'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Account Details
+    account_type = db.Column(db.String(50), nullable=False)  # Savings, Current, Cash, Salary
+    bank_name = db.Column(db.String(100), nullable=False)
+    account_number = db.Column(db.String(50), nullable=True)
+    branch_name = db.Column(db.String(100), nullable=True)
+    ifsc_code = db.Column(db.String(20), nullable=True)
+    
+    # Account Holder Details
+    account_holder_name = db.Column(db.String(100), nullable=True)
+    
+    # Balance Details
+    current_balance = db.Column(db.Float, nullable=False)
+    as_on_date = db.Column(db.Date, nullable=True)
+    
+    # Interest Details (for Savings accounts)
+    interest_rate = db.Column(db.Float, nullable=True)  # Annual interest rate
+    interest_earned_ytd = db.Column(db.Float, default=0.0)  # Year to date
+    
+    # Account Status
+    account_status = db.Column(db.String(20), default='Active')  # Active, Closed, Dormant
+    account_opening_date = db.Column(db.Date, nullable=True)
+    
+    # Linked Services
+    has_debit_card = db.Column(db.Boolean, default=False)
+    has_internet_banking = db.Column(db.Boolean, default=False)
+    has_mobile_banking = db.Column(db.Boolean, default=False)
+    has_cheque_book = db.Column(db.Boolean, default=False)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Cash & Bank')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_bank_accounts')
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     
