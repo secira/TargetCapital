@@ -1,0 +1,385 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Insurance - Target Capital{% endblock %}
+{% block dashboard_title %}Insurance Policies{% endblock %}
+{% block dashboard_subtitle %}Manage your life, health, motor, and other insurance policies{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddPolicyForm()">
+        <i class="fas fa-plus me-1"></i>Add Policy
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add Insurance Policy Form (Initially Hidden) -->
+<div class="card mb-4" id="addPolicyFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Insurance Policy</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddPolicyForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_insurance') }}">
+            <div class="row">
+                <!-- Policy Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="insurance_type" class="form-label">Insurance Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="insurance_type" name="insurance_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Life Insurance">Life Insurance</option>
+                        <option value="Term Insurance">Term Insurance</option>
+                        <option value="Health Insurance">Health Insurance</option>
+                        <option value="Motor Insurance">Motor Insurance (Vehicle)</option>
+                        <option value="Home Insurance">Home Insurance</option>
+                        <option value="Travel Insurance">Travel Insurance</option>
+                        <option value="Personal Accident">Personal Accident Insurance</option>
+                        <option value="Critical Illness">Critical Illness Insurance</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_name" class="form-label">Policy Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="policy_name" name="policy_name" required placeholder="e.g., LIC Jeevan Anand">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_number" class="form-label">Policy Number <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="policy_number" name="policy_number" required placeholder="Policy number">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="insurance_company" class="form-label">Insurance Company <span class="text-danger">*</span></label>
+                    <select class="form-select" id="insurance_company" name="insurance_company" required>
+                        <option value="">Select Company</option>
+                        <option value="LIC">LIC (Life Insurance Corporation)</option>
+                        <option value="HDFC Life">HDFC Life</option>
+                        <option value="ICICI Prudential">ICICI Prudential</option>
+                        <option value="SBI Life">SBI Life</option>
+                        <option value="Max Life">Max Life</option>
+                        <option value="Bajaj Allianz">Bajaj Allianz</option>
+                        <option value="Star Health">Star Health</option>
+                        <option value="HDFC Ergo">HDFC Ergo</option>
+                        <option value="ICICI Lombard">ICICI Lombard</option>
+                        <option value="New India Assurance">New India Assurance</option>
+                        <option value="Oriental Insurance">Oriental Insurance</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <!-- Policy Holder Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Policy Holder Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_holder_name" class="form-label">Policy Holder Name</label>
+                    <input type="text" class="form-control" id="policy_holder_name" name="policy_holder_name" placeholder="Policy holder">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="insured_person_name" class="form-label">Insured Person Name</label>
+                    <input type="text" class="form-control" id="insured_person_name" name="insured_person_name" placeholder="Insured person">
+                </div>
+                
+                <!-- Coverage Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Coverage Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="sum_assured" class="form-label">Sum Assured / Coverage (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="sum_assured" name="sum_assured" step="0.01" required placeholder="1000000.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_term_years" class="form-label">Policy Term (Years)</label>
+                    <input type="number" class="form-control" id="policy_term_years" name="policy_term_years" placeholder="20">
+                </div>
+                
+                <!-- Premium Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Premium Details</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="premium_amount" class="form-label">Premium Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="premium_amount" name="premium_amount" step="0.01" required placeholder="25000.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="premium_frequency" class="form-label">Premium Frequency</label>
+                    <select class="form-select" id="premium_frequency" name="premium_frequency">
+                        <option value="">Select Frequency</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Half-Yearly">Half-Yearly</option>
+                        <option value="Annual">Annual</option>
+                        <option value="Single Premium">Single Premium</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="premium_payment_term_years" class="form-label">Payment Term (Years)</label>
+                    <input type="number" class="form-control" id="premium_payment_term_years" name="premium_payment_term_years" placeholder="15">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="total_premiums_paid" class="form-label">Total Premiums Paid (₹)</label>
+                    <input type="number" class="form-control" id="total_premiums_paid" name="total_premiums_paid" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Dates -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Important Dates</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_start_date" class="form-label">Policy Start Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="policy_start_date" name="policy_start_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="policy_end_date" class="form-label">Policy End Date</label>
+                    <input type="date" class="form-control" id="policy_end_date" name="policy_end_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="maturity_date" class="form-label">Maturity Date</label>
+                    <input type="date" class="form-control" id="maturity_date" name="maturity_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="next_premium_due_date" class="form-label">Next Premium Due Date</label>
+                    <input type="date" class="form-control" id="next_premium_due_date" name="next_premium_due_date">
+                </div>
+                
+                <!-- Maturity & Returns -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Maturity & Returns (If Applicable)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="maturity_amount" class="form-label">Maturity Amount (₹)</label>
+                    <input type="number" class="form-control" id="maturity_amount" name="maturity_amount" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="bonus_accumulated" class="form-label">Bonus Accumulated (₹)</label>
+                    <input type="number" class="form-control" id="bonus_accumulated" name="bonus_accumulated" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="surrender_value" class="form-label">Surrender Value (₹)</label>
+                    <input type="number" class="form-control" id="surrender_value" name="surrender_value" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Nominee Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Nominee Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nominee_name" class="form-label">Nominee Name</label>
+                    <input type="text" class="form-control" id="nominee_name" name="nominee_name" placeholder="Nominee name">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nominee_relation" class="form-label">Nominee Relation</label>
+                    <input type="text" class="form-control" id="nominee_relation" name="nominee_relation" placeholder="e.g., Spouse">
+                </div>
+                
+                <!-- Agent Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="agent_name" class="form-label">Agent Name</label>
+                    <input type="text" class="form-control" id="agent_name" name="agent_name" placeholder="Agent name">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="agent_contact" class="form-label">Agent Contact</label>
+                    <input type="text" class="form-control" id="agent_contact" name="agent_contact" placeholder="Agent phone/email">
+                </div>
+                
+                <!-- Status & Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="policy_status" class="form-label">Policy Status</label>
+                    <select class="form-select" id="policy_status" name="policy_status">
+                        <option value="Active" selected>Active</option>
+                        <option value="Lapsed">Lapsed</option>
+                        <option value="Matured">Matured</option>
+                        <option value="Surrendered">Surrendered</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddPolicyForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Policy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Holdings Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Coverage</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_coverage) if total_coverage else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Premiums Paid</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_premiums) if total_premiums else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Annual Premium</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(annual_premium) if annual_premium else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Active Policies</h6>
+                <h3 class="mb-0">{{ policies_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Policies Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Insurance Policies</h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="filterType" id="allFilter" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="allFilter" onclick="filterPolicies('all')">All</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="lifeFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="lifeFilter" onclick="filterPolicies('Life Insurance')">Life</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="healthFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="healthFilter" onclick="filterPolicies('Health Insurance')">Health</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="motorFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="motorFilter" onclick="filterPolicies('Motor Insurance')">Motor</label>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if policies %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Policy Name</th>
+                        <th>Company</th>
+                        <th>Policy Number</th>
+                        <th>Sum Assured</th>
+                        <th>Premium</th>
+                        <th>Frequency</th>
+                        <th>Next Due</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="policiesTable">
+                    {% for policy in policies %}
+                    <tr class="policy-row" data-type="{{ policy.insurance_type }}">
+                        <td><span class="badge bg-info">{{ policy.insurance_type }}</span></td>
+                        <td><strong>{{ policy.policy_name }}</strong></td>
+                        <td>{{ policy.insurance_company }}</td>
+                        <td>{{ policy.policy_number }}</td>
+                        <td>₹{{ "{:,.0f}".format(policy.sum_assured) }}</td>
+                        <td>₹{{ "{:,.0f}".format(policy.premium_amount) }}</td>
+                        <td>{{ policy.premium_frequency or '-' }}</td>
+                        <td>{{ policy.next_premium_due_date.strftime('%d-%b-%Y') if policy.next_premium_due_date else '-' }}</td>
+                        <td>
+                            {% if policy.policy_status == 'Active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif policy.policy_status == 'Lapsed' %}
+                            <span class="badge bg-warning">Lapsed</span>
+                            {% elif policy.policy_status == 'Matured' %}
+                            <span class="badge bg-info">Matured</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ policy.policy_status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editPolicy({{ policy.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePolicy({{ policy.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No insurance policies found. Add your first policy!</p>
+            <button class="btn btn-primary" onclick="toggleAddPolicyForm()">
+                <i class="fas fa-plus me-2"></i>Add Policy
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleAddPolicyForm() {
+    const formCard = document.getElementById('addPolicyFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstSelect = formCard.querySelector('select');
+                if (firstSelect) {
+                    firstSelect.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function filterPolicies(type) {
+    const rows = document.querySelectorAll('.policy-row');
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else {
+            row.style.display = row.dataset.type === type ? '' : 'none';
+        }
+    });
+}
+
+function editPolicy(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deletePolicy(id) {
+    if (confirm('Are you sure you want to delete this insurance policy?')) {
+        fetch(`/api/insurance/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting policy: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -2463,6 +2463,115 @@ def delete_cryptocurrency_holding(holding_id):
         logger.error(f"Error deleting cryptocurrency: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/insurance', methods=['GET', 'POST'])
+@login_required
+def dashboard_insurance():
+    """Insurance policies management - manual entries"""
+    from models import ManualInsuranceHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual insurance policy
+            new_policy = ManualInsuranceHolding(
+                user_id=current_user.id,
+                insurance_type=request.form.get('insurance_type'),
+                policy_name=request.form.get('policy_name'),
+                policy_number=request.form.get('policy_number'),
+                insurance_company=request.form.get('insurance_company'),
+                policy_holder_name=request.form.get('policy_holder_name'),
+                insured_person_name=request.form.get('insured_person_name'),
+                sum_assured=float(request.form.get('sum_assured')),
+                policy_term_years=int(request.form.get('policy_term_years')) if request.form.get('policy_term_years') else None,
+                premium_amount=float(request.form.get('premium_amount')),
+                premium_frequency=request.form.get('premium_frequency'),
+                premium_payment_term_years=int(request.form.get('premium_payment_term_years')) if request.form.get('premium_payment_term_years') else None,
+                total_premiums_paid=float(request.form.get('total_premiums_paid') or 0),
+                policy_start_date=datetime.strptime(request.form.get('policy_start_date'), '%Y-%m-%d').date(),
+                policy_end_date=datetime.strptime(request.form.get('policy_end_date'), '%Y-%m-%d').date() if request.form.get('policy_end_date') else None,
+                maturity_date=datetime.strptime(request.form.get('maturity_date'), '%Y-%m-%d').date() if request.form.get('maturity_date') else None,
+                next_premium_due_date=datetime.strptime(request.form.get('next_premium_due_date'), '%Y-%m-%d').date() if request.form.get('next_premium_due_date') else None,
+                maturity_amount=float(request.form.get('maturity_amount')) if request.form.get('maturity_amount') else None,
+                bonus_accumulated=float(request.form.get('bonus_accumulated') or 0),
+                surrender_value=float(request.form.get('surrender_value')) if request.form.get('surrender_value') else None,
+                nominee_name=request.form.get('nominee_name'),
+                nominee_relation=request.form.get('nominee_relation'),
+                agent_name=request.form.get('agent_name'),
+                agent_contact=request.form.get('agent_contact'),
+                policy_status=request.form.get('policy_status', 'Active'),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            db.session.add(new_policy)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_policy.policy_name} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_insurance'))
+            
+        except Exception as e:
+            logger.error(f"Error adding insurance policy: {str(e)}")
+            flash(f'Error adding insurance policy: {str(e)}', 'error')
+            return redirect(url_for('dashboard_insurance'))
+    
+    # GET request - display policies
+    # Get manual policies
+    manual_policies = ManualInsuranceHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_coverage = sum(p.sum_assured for p in manual_policies if p.policy_status == 'Active')
+    total_premiums = sum(p.total_premiums_paid for p in manual_policies)
+    
+    # Calculate annual premium (convert all to annual equivalent)
+    annual_premium = 0
+    for p in manual_policies:
+        if p.policy_status == 'Active':
+            if p.premium_frequency == 'Monthly':
+                annual_premium += p.premium_amount * 12
+            elif p.premium_frequency == 'Quarterly':
+                annual_premium += p.premium_amount * 4
+            elif p.premium_frequency == 'Half-Yearly':
+                annual_premium += p.premium_amount * 2
+            elif p.premium_frequency == 'Annual':
+                annual_premium += p.premium_amount
+            elif p.premium_frequency == 'Single Premium':
+                pass  # Already paid, no annual premium
+    
+    policies_count = len([p for p in manual_policies if p.policy_status == 'Active'])
+    
+    return render_template('dashboard/insurance.html',
+                         policies=manual_policies,
+                         total_coverage=total_coverage,
+                         total_premiums=total_premiums,
+                         annual_premium=annual_premium,
+                         policies_count=policies_count)
+
+@app.route('/api/insurance/<int:policy_id>', methods=['DELETE'])
+@login_required
+def delete_insurance_policy(policy_id):
+    """Delete a manual insurance policy"""
+    from models import ManualInsuranceHolding
+    
+    try:
+        policy = ManualInsuranceHolding.query.filter_by(
+            id=policy_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not policy:
+            return jsonify({'success': False, 'error': 'Policy not found'}), 404
+        
+        db.session.delete(policy)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Policy deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting insurance policy: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

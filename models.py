@@ -956,6 +956,70 @@ class ManualCryptocurrencyHolding(db.Model):
             if self.total_investment > 0:
                 self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
 
+class ManualInsuranceHolding(db.Model):
+    """Manual insurance policies entered by users"""
+    __tablename__ = 'manual_insurance_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Policy Details
+    insurance_type = db.Column(db.String(50), nullable=False)  # Life, Health, Motor, Term, etc.
+    policy_name = db.Column(db.String(200), nullable=False)
+    policy_number = db.Column(db.String(100), nullable=False)
+    insurance_company = db.Column(db.String(100), nullable=False)
+    
+    # Policy Holder Details
+    policy_holder_name = db.Column(db.String(100), nullable=True)
+    insured_person_name = db.Column(db.String(100), nullable=True)
+    
+    # Coverage Details
+    sum_assured = db.Column(db.Float, nullable=False)  # Coverage amount
+    policy_term_years = db.Column(db.Integer, nullable=True)
+    
+    # Premium Details
+    premium_amount = db.Column(db.Float, nullable=False)
+    premium_frequency = db.Column(db.String(20), nullable=True)  # Monthly, Quarterly, Half-Yearly, Annual
+    premium_payment_term_years = db.Column(db.Integer, nullable=True)
+    total_premiums_paid = db.Column(db.Float, default=0.0)
+    
+    # Dates
+    policy_start_date = db.Column(db.Date, nullable=False)
+    policy_end_date = db.Column(db.Date, nullable=True)
+    maturity_date = db.Column(db.Date, nullable=True)
+    next_premium_due_date = db.Column(db.Date, nullable=True)
+    
+    # Maturity & Returns
+    maturity_amount = db.Column(db.Float, nullable=True)
+    bonus_accumulated = db.Column(db.Float, default=0.0)
+    surrender_value = db.Column(db.Float, nullable=True)
+    
+    # Nominee Details
+    nominee_name = db.Column(db.String(100), nullable=True)
+    nominee_relation = db.Column(db.String(50), nullable=True)
+    
+    # Agent Details
+    agent_name = db.Column(db.String(100), nullable=True)
+    agent_contact = db.Column(db.String(50), nullable=True)
+    
+    # Status
+    policy_status = db.Column(db.String(20), default='Active')  # Active, Lapsed, Matured, Surrendered
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Insurance')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_insurance_holdings')
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     

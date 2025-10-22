@@ -136,6 +136,15 @@
                     </a>
                 </li>
                 
+                <!-- Insurance -->
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_insurance' else '' }}" 
+                       href="{{ url_for('dashboard_insurance') }}">
+                        <i class="nav-icon fas fa-shield-alt"></i>
+                        <span class="nav-text">Insurance</span>
+                    </a>
+                </li>
+                
                 <!-- Equities -->
                 <li class="nav-item submenu-item">
                     <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}" 
