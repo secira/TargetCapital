@@ -1,0 +1,437 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Gold & Commodities - Target Capital{% endblock %}
+{% block dashboard_title %}Gold & Commodities{% endblock %}
+{% block dashboard_subtitle %}Manage your gold, silver, and other commodity holdings{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddCommodityForm()">
+        <i class="fas fa-plus me-1"></i>Add Commodity
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add Commodity Form (Initially Hidden) -->
+<div class="card mb-4" id="addCommodityFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Commodity Holding</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddCommodityForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_commodities') }}">
+            <div class="row">
+                <!-- Commodity Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="commodity_type" class="form-label">Commodity Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="commodity_type" name="commodity_type" required>
+                        <option value="">Select Type</option>
+                        <option value="Gold">Gold</option>
+                        <option value="Silver">Silver</option>
+                        <option value="Platinum">Platinum</option>
+                        <option value="Palladium">Palladium</option>
+                        <option value="Diamond">Diamond</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="commodity_form" class="form-label">Form</label>
+                    <select class="form-select" id="commodity_form" name="commodity_form">
+                        <option value="">Select Form</option>
+                        <option value="Physical">Physical (Bars/Coins/Jewelry)</option>
+                        <option value="Digital Gold">Digital Gold</option>
+                        <option value="Gold ETF">Gold ETF</option>
+                        <option value="Sovereign Gold Bond">Sovereign Gold Bond</option>
+                        <option value="Gold Fund">Gold Mutual Fund</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="sub_form" class="form-label">Sub Form</label>
+                    <select class="form-select" id="sub_form" name="sub_form">
+                        <option value="">Select Sub Form</option>
+                        <option value="Coin">Coin</option>
+                        <option value="Bar">Bar/Biscuit</option>
+                        <option value="Jewelry">Jewelry</option>
+                        <option value="Ornament">Ornament</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="item_name" class="form-label">Item Name</label>
+                    <input type="text" class="form-control" id="item_name" name="item_name" placeholder="e.g., Gold Necklace, 10g Gold Coin">
+                </div>
+                
+                <!-- Item Specifications -->
+                <div class="col-md-4 mb-3">
+                    <label for="purity" class="form-label">Purity</label>
+                    <select class="form-select" id="purity" name="purity">
+                        <option value="">Select Purity</option>
+                        <option value="24K">24K (999)</option>
+                        <option value="22K">22K (916)</option>
+                        <option value="18K">18K (750)</option>
+                        <option value="14K">14K (585)</option>
+                        <option value="999">999 (Silver)</option>
+                        <option value="925">925 (Sterling Silver)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="weight_grams" class="form-label">Weight</label>
+                    <input type="number" class="form-control" id="weight_grams" name="weight_grams" step="0.001" placeholder="10.500">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="weight_unit" class="form-label">Unit</label>
+                    <select class="form-select" id="weight_unit" name="weight_unit">
+                        <option value="grams" selected>Grams</option>
+                        <option value="kg">Kilograms</option>
+                        <option value="troy_oz">Troy Ounce</option>
+                        <option value="tola">Tola</option>
+                    </select>
+                </div>
+                
+                <!-- Purchase Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Purchase Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_date" class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="purchase_date" name="purchase_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="quantity" class="form-label">Quantity (Units/Pieces)</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" step="0.01" placeholder="1">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_rate_per_gram" class="form-label">Purchase Rate (₹/gram)</label>
+                    <input type="number" class="form-control" id="purchase_rate_per_gram" name="purchase_rate_per_gram" step="0.01" placeholder="6500.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_amount" class="form-label">Purchase Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="purchase_amount" name="purchase_amount" step="0.01" required placeholder="68250.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="making_charges" class="form-label">Making Charges (₹)</label>
+                    <input type="number" class="form-control" id="making_charges" name="making_charges" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="gst" class="form-label">GST (₹)</label>
+                    <input type="number" class="form-control" id="gst" name="gst" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="other_charges" class="form-label">Other Charges (₹)</label>
+                    <input type="number" class="form-control" id="other_charges" name="other_charges" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Vendor Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="vendor_name" class="form-label">Vendor/Jeweler Name</label>
+                    <input type="text" class="form-control" id="vendor_name" name="vendor_name" placeholder="e.g., Tanishq">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="bill_number" class="form-label">Bill Number</label>
+                    <input type="text" class="form-control" id="bill_number" name="bill_number" placeholder="Bill number">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="hallmark_number" class="form-label">Hallmark Number (BIS)</label>
+                    <input type="text" class="form-control" id="hallmark_number" name="hallmark_number" placeholder="Hallmark number">
+                </div>
+                
+                <!-- Current Valuation -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Current Valuation (Optional)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="current_rate_per_gram" class="form-label">Current Rate (₹/gram)</label>
+                    <input type="number" class="form-control" id="current_rate_per_gram" name="current_rate_per_gram" step="0.01" placeholder="7200.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="current_market_value" class="form-label">Current Value (₹)</label>
+                    <input type="number" class="form-control" id="current_market_value" name="current_market_value" step="0.01" placeholder="75600.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="valuation_date" class="form-label">Valuation Date</label>
+                    <input type="date" class="form-control" id="valuation_date" name="valuation_date">
+                </div>
+                
+                <!-- Storage Details (for Physical) -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Storage Details (For Physical Holdings)</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="storage_location" class="form-label">Storage Location</label>
+                    <select class="form-select" id="storage_location" name="storage_location">
+                        <option value="">Select Location</option>
+                        <option value="Bank Locker">Bank Locker</option>
+                        <option value="Home Safe">Home Safe</option>
+                        <option value="Vault">Vault</option>
+                        <option value="With Self">With Self</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="locker_number" class="form-label">Locker Number</label>
+                    <input type="text" class="form-control" id="locker_number" name="locker_number" placeholder="Locker number">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="locker_rent_annual" class="form-label">Locker Rent (Annual ₹)</label>
+                    <input type="number" class="form-control" id="locker_rent_annual" name="locker_rent_annual" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="insurance_annual" class="form-label">Insurance (Annual ₹)</label>
+                    <input type="number" class="form-control" id="insurance_annual" name="insurance_annual" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Digital Gold Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Digital Gold Details (If Applicable)</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="digital_platform" class="form-label">Digital Platform</label>
+                    <select class="form-select" id="digital_platform" name="digital_platform">
+                        <option value="">Select Platform</option>
+                        <option value="Paytm">Paytm</option>
+                        <option value="PhonePe">PhonePe</option>
+                        <option value="Google Pay">Google Pay</option>
+                        <option value="MMTC-PAMP">MMTC-PAMP</option>
+                        <option value="Augmont">Augmont</option>
+                        <option value="SafeGold">SafeGold</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="digital_account_id" class="form-label">Account/User ID</label>
+                    <input type="text" class="form-control" id="digital_account_id" name="digital_account_id" placeholder="Digital account ID">
+                </div>
+                
+                <!-- Sovereign Gold Bond Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Sovereign Gold Bond Details (If Applicable)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="bond_issue_number" class="form-label">Issue Number</label>
+                    <input type="text" class="form-control" id="bond_issue_number" name="bond_issue_number" placeholder="e.g., Series IV">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="bond_maturity_date" class="form-label">Maturity Date</label>
+                    <input type="date" class="form-control" id="bond_maturity_date" name="bond_maturity_date">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="bond_interest_rate" class="form-label">Interest Rate (%)</label>
+                    <input type="number" class="form-control" id="bond_interest_rate" name="bond_interest_rate" step="0.01" placeholder="2.50">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddCommodityForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Commodity
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Holdings Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Investment</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_investment) if total_investment else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Current Value</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(current_value) if current_value else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Unrealized Gain</h6>
+                <h3 class="mb-0 {% if total_gain >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ₹{{ "{:,.0f}".format(total_gain) if total_gain else '0' }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Holdings</h6>
+                <h3 class="mb-0">{{ holdings_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Holdings Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Commodity Holdings</h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="filterType" id="allFilter" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="allFilter" onclick="filterHoldings('all')">All</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="goldFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="goldFilter" onclick="filterHoldings('Gold')">Gold</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="silverFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="silverFilter" onclick="filterHoldings('Silver')">Silver</label>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if holdings %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Item Name</th>
+                        <th>Form</th>
+                        <th>Purity</th>
+                        <th>Weight</th>
+                        <th>Purchase Date</th>
+                        <th>Investment</th>
+                        <th>Current Value</th>
+                        <th>Gain/Loss</th>
+                        <th>Gain %</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingsTable">
+                    {% for holding in holdings %}
+                    <tr class="holding-row" data-type="{{ holding.commodity_type }}">
+                        <td><span class="badge bg-warning text-dark">{{ holding.commodity_type }}</span></td>
+                        <td><strong>{{ holding.item_name or '-' }}</strong></td>
+                        <td>{{ holding.commodity_form or '-' }}<br><small class="text-muted">{{ holding.sub_form or '' }}</small></td>
+                        <td>{{ holding.purity or '-' }}</td>
+                        <td>{{ "{:.3f}".format(holding.weight_grams) if holding.weight_grams else '-' }} {{ holding.weight_unit }}</td>
+                        <td>{{ holding.purchase_date.strftime('%d-%b-%Y') if holding.purchase_date else '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.total_investment) }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.current_market_value) if holding.current_market_value else '-' }}</td>
+                        <td class="{% if holding.unrealized_gain and holding.unrealized_gain >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_gain %}
+                            ₹{{ "{:,.0f}".format(holding.unrealized_gain) }}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="{% if holding.unrealized_gain_percentage and holding.unrealized_gain_percentage >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if holding.unrealized_gain_percentage %}
+                            {{ "{:,.1f}".format(holding.unrealized_gain_percentage) }}%
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editHolding({{ holding.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteHolding({{ holding.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-gem fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No commodity holdings found. Add your first holding!</p>
+            <button class="btn btn-primary" onclick="toggleAddCommodityForm()">
+                <i class="fas fa-plus me-2"></i>Add Commodity
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const purchaseDateInput = document.getElementById('purchase_date');
+    if (purchaseDateInput) {
+        purchaseDateInput.max = new Date().toISOString().split('T')[0];
+    }
+    
+    // Auto-calculate purchase amount based on weight and rate
+    const weightInput = document.getElementById('weight_grams');
+    const rateInput = document.getElementById('purchase_rate_per_gram');
+    const amountInput = document.getElementById('purchase_amount');
+    
+    function calculateAmount() {
+        const weight = parseFloat(weightInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        if (weight > 0 && rate > 0) {
+            amountInput.value = (weight * rate).toFixed(2);
+        }
+    }
+    
+    if (weightInput && rateInput && amountInput) {
+        weightInput.addEventListener('input', calculateAmount);
+        rateInput.addEventListener('input', calculateAmount);
+    }
+});
+
+function toggleAddCommodityForm() {
+    const formCard = document.getElementById('addCommodityFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstSelect = formCard.querySelector('select');
+                if (firstSelect) {
+                    firstSelect.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function filterHoldings(type) {
+    const rows = document.querySelectorAll('.holding-row');
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else {
+            row.style.display = row.dataset.type === type ? '' : 'none';
+        }
+    });
+}
+
+function editHolding(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deleteHolding(id) {
+    if (confirm('Are you sure you want to delete this commodity holding?')) {
+        fetch(`/api/commodities/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting holding: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -2267,6 +2267,108 @@ def delete_real_estate_holding(holding_id):
         logger.error(f"Error deleting real estate: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/commodities', methods=['GET', 'POST'])
+@login_required
+def dashboard_commodities():
+    """Gold, Silver & Commodities portfolio management - manual entries"""
+    from models import ManualCommodityHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual commodity holding
+            new_holding = ManualCommodityHolding(
+                user_id=current_user.id,
+                commodity_type=request.form.get('commodity_type'),
+                commodity_form=request.form.get('commodity_form'),
+                sub_form=request.form.get('sub_form'),
+                item_name=request.form.get('item_name'),
+                purity=request.form.get('purity'),
+                weight_grams=float(request.form.get('weight_grams')) if request.form.get('weight_grams') else None,
+                weight_unit=request.form.get('weight_unit', 'grams'),
+                purchase_date=datetime.strptime(request.form.get('purchase_date'), '%Y-%m-%d').date(),
+                quantity=float(request.form.get('quantity')) if request.form.get('quantity') else None,
+                purchase_rate_per_gram=float(request.form.get('purchase_rate_per_gram')) if request.form.get('purchase_rate_per_gram') else None,
+                purchase_amount=float(request.form.get('purchase_amount')),
+                making_charges=float(request.form.get('making_charges') or 0),
+                gst=float(request.form.get('gst') or 0),
+                other_charges=float(request.form.get('other_charges') or 0),
+                vendor_name=request.form.get('vendor_name'),
+                bill_number=request.form.get('bill_number'),
+                hallmark_number=request.form.get('hallmark_number'),
+                current_rate_per_gram=float(request.form.get('current_rate_per_gram')) if request.form.get('current_rate_per_gram') else None,
+                current_market_value=float(request.form.get('current_market_value')) if request.form.get('current_market_value') else None,
+                valuation_date=datetime.strptime(request.form.get('valuation_date'), '%Y-%m-%d').date() if request.form.get('valuation_date') else None,
+                storage_location=request.form.get('storage_location'),
+                locker_number=request.form.get('locker_number'),
+                locker_rent_annual=float(request.form.get('locker_rent_annual') or 0),
+                insurance_annual=float(request.form.get('insurance_annual') or 0),
+                digital_platform=request.form.get('digital_platform'),
+                digital_account_id=request.form.get('digital_account_id'),
+                bond_issue_number=request.form.get('bond_issue_number'),
+                bond_maturity_date=datetime.strptime(request.form.get('bond_maturity_date'), '%Y-%m-%d').date() if request.form.get('bond_maturity_date') else None,
+                bond_interest_rate=float(request.form.get('bond_interest_rate')) if request.form.get('bond_interest_rate') else None,
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate values
+            new_holding.calculate_values()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_holding.commodity_type} holding to your portfolio!', 'success')
+            return redirect(url_for('dashboard_commodities'))
+            
+        except Exception as e:
+            logger.error(f"Error adding commodity: {str(e)}")
+            flash(f'Error adding commodity: {str(e)}', 'error')
+            return redirect(url_for('dashboard_commodities'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualCommodityHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_investment = sum(h.total_investment for h in manual_holdings)
+    current_value = sum(h.current_market_value or h.total_investment for h in manual_holdings)
+    total_gain = sum(h.unrealized_gain or 0 for h in manual_holdings)
+    holdings_count = len(manual_holdings)
+    
+    return render_template('dashboard/commodities.html',
+                         holdings=manual_holdings,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_gain=total_gain,
+                         holdings_count=holdings_count)
+
+@app.route('/api/commodities/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_commodity_holding(holding_id):
+    """Delete a manual commodity holding"""
+    from models import ManualCommodityHolding
+    
+    try:
+        holding = ManualCommodityHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting commodity: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

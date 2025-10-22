@@ -788,6 +788,96 @@ class ManualRealEstateHolding(db.Model):
             if self.total_investment > 0:
                 self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
 
+class ManualCommodityHolding(db.Model):
+    """Manual commodity holdings (Gold, Silver, etc.) entered by users"""
+    __tablename__ = 'manual_commodity_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Commodity Details
+    commodity_type = db.Column(db.String(50), nullable=False)  # Gold, Silver, Platinum, Palladium, etc.
+    commodity_form = db.Column(db.String(50), nullable=True)  # Physical, Digital Gold, ETF, Sovereign Gold Bond
+    sub_form = db.Column(db.String(50), nullable=True)  # Coins, Bars, Jewelry, Biscuit
+    
+    # Item Details
+    item_name = db.Column(db.String(200), nullable=True)
+    purity = db.Column(db.String(20), nullable=True)  # 24K, 22K, 18K for gold; 999, 925 for silver
+    weight_grams = db.Column(db.Float, nullable=True)
+    weight_unit = db.Column(db.String(10), default='grams')
+    
+    # Purchase Details
+    purchase_date = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Float, nullable=True)  # Number of units/pieces
+    purchase_rate_per_gram = db.Column(db.Float, nullable=True)
+    purchase_amount = db.Column(db.Float, nullable=False)
+    making_charges = db.Column(db.Float, default=0.0)  # For jewelry
+    gst = db.Column(db.Float, default=0.0)
+    other_charges = db.Column(db.Float, default=0.0)
+    total_investment = db.Column(db.Float, nullable=False)
+    
+    # Vendor/Store Details
+    vendor_name = db.Column(db.String(100), nullable=True)
+    bill_number = db.Column(db.String(50), nullable=True)
+    hallmark_number = db.Column(db.String(50), nullable=True)  # For hallmarked jewelry
+    
+    # Current Valuation
+    current_rate_per_gram = db.Column(db.Float, nullable=True)
+    current_market_value = db.Column(db.Float, nullable=True)
+    valuation_date = db.Column(db.Date, nullable=True)
+    unrealized_gain = db.Column(db.Float, nullable=True)
+    unrealized_gain_percentage = db.Column(db.Float, nullable=True)
+    
+    # Storage Details (for physical commodities)
+    storage_location = db.Column(db.String(100), nullable=True)  # Bank Locker, Home Safe, etc.
+    locker_number = db.Column(db.String(50), nullable=True)
+    locker_rent_annual = db.Column(db.Float, default=0.0)
+    insurance_annual = db.Column(db.Float, default=0.0)
+    
+    # Digital Gold Specific
+    digital_platform = db.Column(db.String(100), nullable=True)  # Paytm, PhonePe, Google Pay, etc.
+    digital_account_id = db.Column(db.String(100), nullable=True)
+    
+    # Sovereign Gold Bond Specific
+    bond_issue_number = db.Column(db.String(50), nullable=True)
+    bond_maturity_date = db.Column(db.Date, nullable=True)
+    bond_interest_rate = db.Column(db.Float, nullable=True)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Commodity')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_commodity_holdings')
+    
+    def calculate_values(self):
+        """Calculate total investment and unrealized gains"""
+        self.total_investment = (
+            self.purchase_amount + 
+            (self.making_charges or 0) + 
+            (self.gst or 0) + 
+            (self.other_charges or 0)
+        )
+        
+        if self.current_market_value:
+            self.unrealized_gain = self.current_market_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
+        elif self.current_rate_per_gram and self.weight_grams:
+            # Calculate current value based on weight and current rate
+            self.current_market_value = self.weight_grams * self.current_rate_per_gram
+            self.unrealized_gain = self.current_market_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     

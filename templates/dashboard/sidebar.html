@@ -174,7 +174,8 @@
                 
                 <!-- Gold & Commodities -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_commodities' else '' }}" 
+                       href="{{ url_for('dashboard_commodities') }}">
                         <i class="nav-icon fas fa-gem"></i>
                         <span class="nav-text">Gold & Commodities</span>
                     </a>
