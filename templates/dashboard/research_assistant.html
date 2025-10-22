@@ -2,7 +2,7 @@
 
 {% block title %}Research Assistant - Target Capital{% endblock %}
 {% block dashboard_title %}Research Assistant{% endblock %}
-{% block dashboard_subtitle %}AI-powered stock research with real-time data & portfolio context{% endblock %}
+{% block dashboard_subtitle %}AI-powered stock research with real-time data{% endblock %}
 
 {% block dashboard_toolbar %}
 <div class="header-actions">
@@ -14,16 +14,14 @@
 
 {% block extra_css %}
 <style>
-/* Research Assistant - RAG-Powered Interface */
+/* Perplexity-Style Research Assistant */
 .research-container {
     background: #ffffff;
     border-radius: 12px;
-    padding: 0;
     height: calc(100vh - 220px);
     display: flex;
     flex-direction: column;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .research-content {
@@ -31,14 +29,76 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 24px 28px;
 }
 
-/* Chat Messages */
+/* Welcome State - Perplexity Style */
+.welcome-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.welcome-title {
+    font-size: 32px;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.welcome-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.suggestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+    max-width: 900px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.suggestion-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.suggestion-card:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-2px);
+}
+
+.suggestion-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 4px;
+}
+
+.suggestion-card-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Chat Messages - Perplexity Style */
 .research-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 0;
+    padding: 24px;
     scroll-behavior: smooth;
 }
 
@@ -47,8 +107,7 @@
 }
 
 .research-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
+    background: transparent;
 }
 
 .research-messages::-webkit-scrollbar-thumb {
@@ -57,7 +116,7 @@
 }
 
 .research-message {
-    margin-bottom: 24px;
+    margin-bottom: 32px;
     animation: fadeIn 0.3s ease;
 }
 
@@ -69,84 +128,85 @@
 .message-user {
     display: flex;
     justify-content: flex-end;
+    margin-bottom: 24px;
 }
 
 .message-user-content {
-    background: #667eea;
-    color: white;
-    padding: 12px 16px;
-    border-radius: 16px 16px 4px 16px;
-    max-width: 70%;
-    word-wrap: break-word;
+    background: #f8f9fa;
+    color: #000;
+    padding: 12px 18px;
+    border-radius: 18px;
+    max-width: 75%;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
 .message-assistant {
-    display: flex;
-    gap: 12px;
-}
-
-.assistant-avatar {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 14px;
-    flex-shrink: 0;
+    max-width: 100%;
 }
 
 .assistant-content {
-    flex: 1;
-    max-width: 85%;
+    background: transparent;
 }
 
 .assistant-text {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 4px 16px 16px 16px;
     color: #000;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 15px;
     white-space: pre-wrap;
+    margin-bottom: 16px;
 }
 
-/* Citations */
+/* Citations - Perplexity Style */
 .message-citations {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #e5e5e5;
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 12px;
 }
 
 .citations-title {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #666;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .citation-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    font-size: 12px;
+    gap: 10px;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
     text-decoration: none;
-    color: #667eea;
-    transition: background 0.2s;
+    color: #000;
+    transition: all 0.2s;
 }
 
 .citation-item:hover {
-    background: #e9ecef;
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateX(4px);
 }
 
-.citation-icon {
-    font-size: 10px;
-    color: #999;
+.citation-number {
+    width: 24px;
+    height: 24px;
+    background: #667eea;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
 }
 
 .citation-text {
@@ -154,67 +214,61 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: #000;
 }
 
-/* Trade Action Button */
-.trade-action {
-    margin-top: 12px;
-    padding: 12px;
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: 8px;
+.citation-icon {
+    color: #999;
+    font-size: 12px;
 }
 
-.trade-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #0ea5e9;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 6px;
-    border: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-    text-decoration: none;
-}
-
-.trade-button:hover {
-    background: #0284c7;
-    color: white;
-}
-
-/* Input Area */
+/* Input Area - Large Perplexity Style */
 .research-input-area {
     flex-shrink: 0;
-    padding: 16px 0 0 0;
-    border-top: 1px solid #e5e5e5;
+    padding: 24px;
+    background: #ffffff;
+}
+
+.input-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .input-container {
     position: relative;
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 24px;
+    transition: all 0.2s;
+    padding: 4px;
+}
+
+.input-container:focus-within {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .research-input {
-    flex: 1;
-    min-height: 50px;
-    max-height: 150px;
-    padding: 12px 48px 12px 16px;
-    border: 2px solid #e5e5e5;
-    border-radius: 12px;
-    font-size: 14px;
+    width: 100%;
+    min-height: 56px;
+    max-height: 200px;
+    padding: 16px 60px 16px 20px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
     font-family: inherit;
     resize: none;
-    transition: border-color 0.2s;
+    line-height: 1.5;
+    color: #000;
+}
+
+.research-input::placeholder {
+    color: #999;
 }
 
 .research-input:focus {
     outline: none;
-    border-color: #667eea;
 }
 
 .send-button {
@@ -224,18 +278,19 @@
     background: #667eea;
     color: white;
     border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
 }
 
 .send-button:hover:not(:disabled) {
     background: #5568d3;
+    transform: scale(1.05);
 }
 
 .send-button:disabled {
@@ -243,40 +298,11 @@
     cursor: not-allowed;
 }
 
-/* Context Panel */
-.context-panel {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 13px;
-}
-
-.context-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
-
-.context-item:last-child {
-    margin-bottom: 0;
-}
-
-.context-label {
-    font-weight: 600;
-    color: #666;
-}
-
-.context-value {
-    color: #000;
-}
-
-/* Loading State */
+/* Typing Indicator */
 .typing-indicator {
     display: flex;
-    gap: 4px;
-    padding: 12px;
+    gap: 6px;
+    padding: 16px 0;
 }
 
 .typing-dot {
@@ -292,7 +318,21 @@
 
 @keyframes typing {
     0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-10px); }
+    30% { transform: translateY(-8px); }
+}
+
+/* Context Badge */
+.context-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #0369a1;
+    margin-bottom: 16px;
 }
 
 /* Mobile Responsive */
@@ -301,13 +341,21 @@
         height: calc(100vh - 180px);
     }
     
-    .research-content {
-        padding: 16px;
+    .welcome-title {
+        font-size: 24px;
     }
     
-    .message-user-content,
-    .assistant-content {
-        max-width: 90%;
+    .suggestion-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .message-user-content {
+        max-width: 85%;
+    }
+    
+    .research-input {
+        font-size: 15px;
+        min-height: 48px;
     }
 }
 </style>
@@ -315,117 +363,94 @@
 
 {% block dashboard_content %}
 <div class="research-container">
-    <!-- Content -->
     <div class="research-content">
-        <!-- User Context Panel -->
-        {% if context %}
-        <div class="context-panel">
-            <div class="context-item">
+        <!-- Welcome State (when no messages) -->
+        {% if not messages %}
+        <div class="welcome-state">
+            <h1 class="welcome-title">What can I help you research today?</h1>
+            <p class="welcome-subtitle">Get AI-powered insights on stocks, markets, and your portfolio</p>
+            
+            <div class="suggestion-grid">
+                <div class="suggestion-card" onclick="useSuggestion('Analyze RELIANCE stock fundamentals and give me buy/sell recommendation')">
+                    <div class="suggestion-card-title">Stock Analysis</div>
+                    <div class="suggestion-card-desc">Analyze RELIANCE fundamentals and get recommendation</div>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('What are the top 5 banking stocks in India right now?')">
+                    <div class="suggestion-card-title">Sector Research</div>
+                    <div class="suggestion-card-desc">Top 5 banking stocks in India</div>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('Compare TCS and INFY based on recent quarterly results')">
+                    <div class="suggestion-card-title">Stock Comparison</div>
+                    <div class="suggestion-card-desc">Compare TCS vs INFY quarterly results</div>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('What is the market outlook for IT sector in India?')">
+                    <div class="suggestion-card-title">Market Trends</div>
+                    <div class="suggestion-card-desc">IT sector outlook in India</div>
+                </div>
+            </div>
+            
+            {% if context %}
+            <div class="context-badge">
                 <i class="fas fa-briefcase"></i>
-                <span class="context-label">Portfolio:</span>
-                <span class="context-value">₹{{ "{:,.0f}".format(context.portfolio_value) }} ({{ context.holdings_count }} holdings)</span>
-            </div>
-            <div class="context-item">
-                <i class="fas fa-link"></i>
-                <span class="context-label">Connected Brokers:</span>
-                <span class="context-value">{{ context.brokers_connected }}</span>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Chat Messages -->
-        <div class="research-messages" id="researchMessages">
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.role == 'user' %}
-                    <div class="research-message message-user">
-                        <div class="message-user-content">
-                            {{ message.content }}
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="research-message message-assistant">
-                        <div class="assistant-avatar">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="assistant-content">
-                            <div class="assistant-text">{{ message.content }}</div>
-                            
-                            {% if message.citations and message.citations|length > 0 %}
-                            <div class="message-citations">
-                                <div class="citations-title">
-                                    <i class="fas fa-link"></i> Sources ({{ message.citations|length }})
-                                </div>
-                                {% for citation in message.citations %}
-                                <a href="{{ citation.url }}" target="_blank" class="citation-item">
-                                    <span class="citation-icon">📄</span>
-                                    <span class="citation-text">{{ citation.title }}</span>
-                                    <i class="fas fa-external-link-alt" style="font-size: 10px;"></i>
-                                </a>
-                                {% endfor %}
-                            </div>
-                            {% endif %}
-                            
-                            {% if message.stock_symbol %}
-                            <div class="trade-action">
-                                <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
-                                    Ready to trade {{ message.stock_symbol }}?
-                                </div>
-                                <a href="{{ url_for('dashboard_trade_now', symbol=message.stock_symbol) }}" class="trade-button">
-                                    <i class="fas fa-chart-line"></i>
-                                    Trade {{ message.stock_symbol }}
-                                </a>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-            <!-- Welcome Message -->
-            <div class="research-message message-assistant">
-                <div class="assistant-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="assistant-content">
-                    <div class="assistant-text">
-👋 Welcome to your AI Research Assistant!
-
-I'm here to help you with:
-• Stock analysis and research
-• Market insights and trends
-• Portfolio recommendations
-• Investment education
-
-I have access to:
-✓ Real-time market data
-✓ Your portfolio context
-✓ Historical research
-✓ Latest news and filings
-
-Ask me anything about stocks, sectors, or your portfolio!
-                    </div>
-                </div>
+                <span>Portfolio: ₹{{ "{:,.0f}".format(context.portfolio_value) }}</span>
+                <span>•</span>
+                <span>{{ context.holdings_count }} holdings</span>
             </div>
             {% endif %}
         </div>
+        {% else %}
+        <!-- Chat Messages -->
+        <div class="research-messages" id="researchMessages">
+            {% for message in messages %}
+                {% if message.role == 'user' %}
+                <div class="research-message message-user">
+                    <div class="message-user-content">
+                        {{ message.content }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="research-message message-assistant">
+                    <div class="assistant-content">
+                        <div class="assistant-text">{{ message.content }}</div>
+                        
+                        {% if message.citations and message.citations|length > 0 %}
+                        <div class="message-citations">
+                            <div class="citations-title">Sources</div>
+                            {% for citation in message.citations %}
+                            <a href="{{ citation.url }}" target="_blank" class="citation-item">
+                                <div class="citation-number">{{ loop.index }}</div>
+                                <div class="citation-text">{{ citation.title }}</div>
+                                <i class="fas fa-external-link-alt citation-icon"></i>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <!-- Input Area -->
         <div class="research-input-area">
-            <form id="researchForm" onsubmit="submitResearch(event)">
-                <div class="input-container">
-                    <textarea 
-                        id="researchInput" 
-                        class="research-input" 
-                        placeholder="Ask about stocks, market trends, or your portfolio..."
-                        rows="1"
-                        required
-                    ></textarea>
-                    <button type="submit" class="send-button" id="sendButton">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </form>
+            <div class="input-wrapper">
+                <form id="researchForm" onsubmit="submitResearch(event)">
+                    <div class="input-container">
+                        <textarea 
+                            id="researchInput" 
+                            class="research-input" 
+                            placeholder="Ask anything about stocks, markets, or your portfolio..."
+                            rows="1"
+                            required
+                            autofocus
+                        ></textarea>
+                        <button type="submit" class="send-button" id="sendButton">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -435,8 +460,14 @@ Ask me anything about stocks, sectors, or your portfolio!
 const textarea = document.getElementById('researchInput');
 textarea.addEventListener('input', function() {
     this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 150) + 'px';
+    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
 });
+
+// Use suggestion
+function useSuggestion(text) {
+    document.getElementById('researchInput').value = text;
+    document.getElementById('researchInput').focus();
+}
 
 // Submit research query
 async function submitResearch(event) {
@@ -453,22 +484,29 @@ async function submitResearch(event) {
     input.disabled = true;
     sendButton.disabled = true;
     
-    // Add user message to chat
+    // If on welcome screen, create messages container
+    if (!messagesDiv) {
+        const welcomeState = document.querySelector('.welcome-state');
+        if (welcomeState) {
+            welcomeState.outerHTML = '<div class="research-messages" id="researchMessages"></div>';
+        }
+    }
+    
+    const msgContainer = document.getElementById('researchMessages');
+    
+    // Add user message
     const userMessage = document.createElement('div');
     userMessage.className = 'research-message message-user';
     userMessage.innerHTML = `
         <div class="message-user-content">${escapeHtml(query)}</div>
     `;
-    messagesDiv.appendChild(userMessage);
+    msgContainer.appendChild(userMessage);
     
     // Add typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'research-message message-assistant';
     typingDiv.id = 'typingIndicator';
     typingDiv.innerHTML = `
-        <div class="assistant-avatar">
-            <i class="fas fa-robot"></i>
-        </div>
         <div class="assistant-content">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
@@ -477,14 +515,14 @@ async function submitResearch(event) {
             </div>
         </div>
     `;
-    messagesDiv.appendChild(typingDiv);
+    msgContainer.appendChild(typingDiv);
     
     // Clear input
     input.value = '';
     input.style.height = 'auto';
     
     // Scroll to bottom
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    msgContainer.scrollTop = msgContainer.scrollHeight;
     
     try {
         // Send request
@@ -513,14 +551,12 @@ async function submitResearch(event) {
             if (data.citations && data.citations.length > 0) {
                 citationsHtml = `
                     <div class="message-citations">
-                        <div class="citations-title">
-                            <i class="fas fa-link"></i> Sources (${data.citations.length})
-                        </div>
-                        ${data.citations.map(c => `
+                        <div class="citations-title">Sources</div>
+                        ${data.citations.map((c, i) => `
                             <a href="${c.source_url || '#'}" target="_blank" class="citation-item">
-                                <span class="citation-icon">📄</span>
-                                <span class="citation-text">${escapeHtml(c.source_title)}</span>
-                                ${c.source_url ? '<i class="fas fa-external-link-alt" style="font-size: 10px;"></i>' : ''}
+                                <div class="citation-number">${i + 1}</div>
+                                <div class="citation-text">${escapeHtml(c.source_title)}</div>
+                                ${c.source_url ? '<i class="fas fa-external-link-alt citation-icon"></i>' : ''}
                             </a>
                         `).join('')}
                     </div>
@@ -528,31 +564,25 @@ async function submitResearch(event) {
             }
             
             assistantMessage.innerHTML = `
-                <div class="assistant-avatar">
-                    <i class="fas fa-robot"></i>
-                </div>
                 <div class="assistant-content">
                     <div class="assistant-text">${escapeHtml(data.response)}</div>
                     ${citationsHtml}
                 </div>
             `;
             
-            messagesDiv.appendChild(assistantMessage);
+            msgContainer.appendChild(assistantMessage);
         } else {
             // Show error
             const errorMessage = document.createElement('div');
             errorMessage.className = 'research-message message-assistant';
             errorMessage.innerHTML = `
-                <div class="assistant-avatar">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
                 <div class="assistant-content">
                     <div class="assistant-text" style="color: #dc3545;">
                         Sorry, I encountered an error: ${escapeHtml(data.error || 'Unknown error')}
                     </div>
                 </div>
             `;
-            messagesDiv.appendChild(errorMessage);
+            msgContainer.appendChild(errorMessage);
         }
     } catch (error) {
         // Remove typing indicator
@@ -563,16 +593,13 @@ async function submitResearch(event) {
         const errorMessage = document.createElement('div');
         errorMessage.className = 'research-message message-assistant';
         errorMessage.innerHTML = `
-            <div class="assistant-avatar">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
             <div class="assistant-content">
                 <div class="assistant-text" style="color: #dc3545;">
                     Network error. Please try again.
                 </div>
             </div>
         `;
-        messagesDiv.appendChild(errorMessage);
+        msgContainer.appendChild(errorMessage);
     } finally {
         // Re-enable input
         input.disabled = false;
@@ -580,7 +607,7 @@ async function submitResearch(event) {
         input.focus();
         
         // Scroll to bottom
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        msgContainer.scrollTop = msgContainer.scrollHeight;
     }
 }
 
@@ -593,7 +620,9 @@ function escapeHtml(text) {
 // Auto-scroll to bottom on load
 window.addEventListener('load', function() {
     const messagesDiv = document.getElementById('researchMessages');
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    if (messagesDiv) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 });
 </script>
 {% endblock %}
