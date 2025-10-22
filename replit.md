@@ -69,7 +69,7 @@ Updated Subscription Model: Target Plus users can connect 1 broker for portfolio
 - All three methods unified under single User model with flexible nullable fields
 
 **RAG-Powered Research Assistant System** (October 2025):
-- **Menu Changes**: "Trading Signals" renamed to "Smart Signals", "AI Advisor" renamed to "Research Assistant"
+- **Menu Changes**: "Trading Signals" renamed to "Smart Signals", "AI Advisor" renamed to "Research Assistant", "HNI Account" menu removed and features integrated into Dashboard
 - **Vector Database**: pgvector extension enabled in PostgreSQL for semantic search capabilities
 - **Database Models**: ResearchConversation, ResearchMessage, VectorDocument, SourceCitation, SignalPerformance
 - **Enhanced Smart Signals**: Added sector and category fields for filtering, performance tracking with accuracy metrics
@@ -116,7 +116,7 @@ Updated Subscription Model: Target Plus users can connect 1 broker for portfolio
 - **Agentic AI Tools**: Fully autonomous AI system with OpenAI and Perplexity integration for stock analysis, real-time research, portfolio optimization, and adaptive decision-making with n8n workflow coordination.
 - **Multi-Broker Integration**: Complete support for 12 major Indian brokers with unified API interface: Dhan (free API), Zerodha (₹500/month), Angel One (free API), Upstox (official SDK), FYERS (official SDK), Groww (REST API), ICICIDirect (REST API), HDFC Securities (REST API), Kotak Securities (REST API), 5Paisa (free API), Choice India (REST API), and Goodwill (REST API). Broker Management is now accessible to all user types without subscription restrictions.
 - **Trading Infrastructure**: Direct order execution, portfolio synchronization, and real-time balance tracking across all connected broker accounts with encrypted credential storage.
-- **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages.
+- **Comprehensive Page Structure**: Includes Home, About, Services (Trading Signals, Stock Research, Portfolio Analysis, Algorithmic Trading, Account Management), Blog, Authentication, Dashboard (Stock Analysis, Watchlist, NSE India Stocks, AI Advisor), Pricing, Company (Careers, In the News, Partners), Support (Help Center, Privacy Policy, Terms of Service, Risk Disclosure, Compliance), and Contact pages. HNI Account features consolidated into Dashboard with dedicated Account Manager section for HNI subscribers (October 2025).
 - **Navigation**: Enhanced menu structure with dropdowns, dedicated pricing link, and professional organization.
 - **Data Flow**: Flask's URL routing, SQLAlchemy for database operations, Jinja2 for rendering, and JavaScript for client-side interactions.
 
