@@ -259,6 +259,7 @@ with app.app_context():
     # Import models
     import models
     import models_broker  # Import broker models too
+    import models_vector  # Import vector database models for RAG
     import routes_mobile  # Import mobile OTP routes
     db.create_all()
 
