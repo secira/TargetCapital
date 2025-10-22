@@ -138,7 +138,8 @@
                 
                 <!-- Equities -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}" 
+                       href="{{ url_for('dashboard_equities') }}">
                         <i class="nav-icon fas fa-chart-line"></i>
                         <span class="nav-text">Equities</span>
                     </a>

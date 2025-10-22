@@ -452,6 +452,67 @@ class AIStockPick(db.Model):
             return ((self.target_price - self.current_price) / self.current_price) * 100
         return 0
 
+class ManualEquityHolding(db.Model):
+    """Manual equity holdings entered by users"""
+    __tablename__ = 'manual_equity_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Stock Details
+    symbol = db.Column(db.String(20), nullable=False)
+    company_name = db.Column(db.String(200), nullable=True)
+    isin = db.Column(db.String(20), nullable=True)
+    
+    # Transaction Details
+    transaction_type = db.Column(db.String(10), nullable=False, default='BUY')  # BUY/SELL
+    purchase_date = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Float, nullable=False)
+    purchase_price = db.Column(db.Float, nullable=False)
+    
+    # Costs & Charges
+    brokerage = db.Column(db.Float, default=0.0)
+    stt = db.Column(db.Float, default=0.0)
+    transaction_charges = db.Column(db.Float, default=0.0)
+    gst = db.Column(db.Float, default=0.0)
+    stamp_duty = db.Column(db.Float, default=0.0)
+    total_charges = db.Column(db.Float, default=0.0)
+    
+    # Investment Calculation
+    total_investment = db.Column(db.Float, nullable=False)  # (quantity * price) + charges
+    
+    # Current Market Data (updated periodically)
+    current_price = db.Column(db.Float, nullable=True)
+    current_value = db.Column(db.Float, nullable=True)
+    unrealized_pnl = db.Column(db.Float, nullable=True)
+    unrealized_pnl_percentage = db.Column(db.Float, nullable=True)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Equity')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_equity_holdings')
+    
+    def calculate_totals(self):
+        """Calculate total investment and current values"""
+        self.total_charges = (self.brokerage or 0) + (self.stt or 0) + (self.transaction_charges or 0) + (self.gst or 0) + (self.stamp_duty or 0)
+        self.total_investment = (self.quantity * self.purchase_price) + self.total_charges
+        
+        if self.current_price:
+            self.current_value = self.quantity * self.current_price
+            self.unrealized_pnl = self.current_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_pnl_percentage = (self.unrealized_pnl / self.total_investment) * 100
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     

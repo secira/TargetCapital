@@ -1822,6 +1822,146 @@ def dashboard_my_portfolio():
                              valid_asset_types=valid_asset_types,
                              has_broker_access=False)
 
+@app.route('/dashboard/equities', methods=['GET', 'POST'])
+@login_required
+def dashboard_equities():
+    """Equities portfolio management - manual and broker holdings"""
+    from models import ManualEquityHolding
+    from models_broker import BrokerHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual equity holding
+            new_holding = ManualEquityHolding(
+                user_id=current_user.id,
+                symbol=request.form.get('symbol').upper(),
+                company_name=request.form.get('company_name'),
+                isin=request.form.get('isin'),
+                transaction_type=request.form.get('transaction_type', 'BUY'),
+                purchase_date=datetime.strptime(request.form.get('purchase_date'), '%Y-%m-%d').date(),
+                quantity=float(request.form.get('quantity')),
+                purchase_price=float(request.form.get('purchase_price')),
+                brokerage=float(request.form.get('brokerage') or 0),
+                stt=float(request.form.get('stt') or 0),
+                transaction_charges=float(request.form.get('transaction_charges') or 0),
+                gst=float(request.form.get('gst') or 0),
+                stamp_duty=float(request.form.get('stamp_duty') or 0),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate totals
+            new_holding.calculate_totals()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_holding.symbol} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_equities'))
+            
+        except Exception as e:
+            logger.error(f"Error adding equity holding: {str(e)}")
+            flash(f'Error adding equity holding: {str(e)}', 'error')
+            return redirect(url_for('dashboard_equities'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualEquityHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Get broker holdings if user has broker access
+    broker_holdings_list = []
+    if current_user.can_access_menu('dashboard_broker_accounts'):
+        try:
+            from models_broker import BrokerAccount
+            broker_accounts = BrokerAccount.query.filter_by(
+                user_id=current_user.id,
+                connection_status='connected'
+            ).all()
+            
+            for account in broker_accounts:
+                broker_holdings = BrokerHolding.query.filter_by(
+                    broker_account_id=account.id,
+                    asset_type='equity'
+                ).all()
+                broker_holdings_list.extend(broker_holdings)
+        except:
+            pass
+    
+    # Combine holdings for display
+    combined_holdings = []
+    
+    # Add manual holdings
+    for holding in manual_holdings:
+        combined_holdings.append({
+            'id': holding.id,
+            'symbol': holding.symbol,
+            'company_name': holding.company_name or holding.symbol,
+            'quantity': holding.quantity,
+            'purchase_price': holding.purchase_price,
+            'current_price': holding.current_price,
+            'total_investment': holding.total_investment,
+            'current_value': holding.current_value,
+            'unrealized_pnl': holding.unrealized_pnl,
+            'unrealized_pnl_percentage': holding.unrealized_pnl_percentage,
+            'source': 'manual'
+        })
+    
+    # Add broker holdings
+    for holding in broker_holdings_list:
+        combined_holdings.append({
+            'id': holding.id,
+            'symbol': holding.symbol,
+            'company_name': holding.company_name or holding.symbol,
+            'quantity': holding.available_quantity,
+            'purchase_price': holding.avg_cost_price,
+            'current_price': holding.current_price,
+            'total_investment': holding.investment_value,
+            'current_value': holding.total_value,
+            'unrealized_pnl': holding.pnl,
+            'unrealized_pnl_percentage': holding.pnl_percentage,
+            'source': 'broker'
+        })
+    
+    # Calculate summary
+    total_investment = sum(h['total_investment'] for h in combined_holdings)
+    current_value = sum(h['current_value'] or h['total_investment'] for h in combined_holdings)
+    total_pnl = current_value - total_investment
+    holdings_count = len(combined_holdings)
+    
+    return render_template('dashboard/equities.html',
+                         holdings=combined_holdings,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_pnl=total_pnl,
+                         holdings_count=holdings_count)
+
+@app.route('/api/equities/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_equity_holding(holding_id):
+    """Delete a manual equity holding"""
+    from models import ManualEquityHolding
+    
+    try:
+        holding = ManualEquityHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting equity holding: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():
