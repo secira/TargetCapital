@@ -14,25 +14,23 @@
 
 {% block extra_css %}
 <style>
-/* Override dashboard container max-width for full-width input */
+/* Override dashboard container for full-width layout */
 .content-container {
     max-width: 100% !important;
     padding: 0 !important;
 }
 
 .dashboard-content {
-    padding: 32px 0 !important;
+    padding: 0 !important;
 }
 
-/* Perplexity-Style Research Assistant */
+/* Perplexity-Style Research Assistant - Full Width */
 .research-container {
     background: #ffffff;
-    border-radius: 12px;
-    height: calc(100vh - 220px);
+    height: calc(100vh - 160px);
     display: flex;
     flex-direction: column;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    padding: 0 32px;
 }
 
 .research-content {
@@ -42,14 +40,14 @@
     overflow: hidden;
 }
 
-/* Welcome State - Perplexity Style */
+/* Welcome State - Centered Content with Padding */
 .welcome-state {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: 40px 32px;
 }
 
 .welcome-title {
@@ -72,6 +70,7 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 12px;
     width: 100%;
+    max-width: 900px;
     margin-bottom: 40px;
 }
 
@@ -104,11 +103,11 @@
     line-height: 1.4;
 }
 
-/* Chat Messages - Perplexity Style */
+/* Chat Messages - Padded Content */
 .research-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 24px;
+    padding: 24px 32px;
     scroll-behavior: smooth;
 }
 
@@ -232,15 +231,12 @@
     font-size: 12px;
 }
 
-/* Input Area - Large Perplexity Style */
+/* Input Area - FULL WIDTH like Perplexity */
 .research-input-area {
     flex-shrink: 0;
-    padding: 24px;
+    padding: 24px 32px;
     background: #ffffff;
-}
-
-.input-wrapper {
-    width: 100%;
+    border-top: 1px solid #f0f0f0;
 }
 
 .input-container {
@@ -347,7 +343,7 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .research-container {
-        height: calc(100vh - 180px);
+        height: calc(100vh - 140px);
     }
     
     .welcome-title {
@@ -365,6 +361,14 @@
     .research-input {
         font-size: 15px;
         min-height: 48px;
+    }
+    
+    .research-messages {
+        padding: 16px;
+    }
+    
+    .research-input-area {
+        padding: 16px;
     }
 }
 </style>
@@ -441,25 +445,23 @@
         </div>
         {% endif %}
 
-        <!-- Input Area -->
+        <!-- Input Area - FULL WIDTH -->
         <div class="research-input-area">
-            <div class="input-wrapper">
-                <form id="researchForm" onsubmit="submitResearch(event)">
-                    <div class="input-container">
-                        <textarea 
-                            id="researchInput" 
-                            class="research-input" 
-                            placeholder="Ask anything about stocks, markets, or your portfolio..."
-                            rows="1"
-                            required
-                            autofocus
-                        ></textarea>
-                        <button type="submit" class="send-button" id="sendButton">
-                            <i class="fas fa-arrow-up"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <form id="researchForm" onsubmit="submitResearch(event)">
+                <div class="input-container">
+                    <textarea 
+                        id="researchInput" 
+                        class="research-input" 
+                        placeholder="Ask anything about stocks, markets, or your portfolio..."
+                        rows="1"
+                        required
+                        autofocus
+                    ></textarea>
+                    <button type="submit" class="send-button" id="sendButton">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
