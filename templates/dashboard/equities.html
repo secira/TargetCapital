@@ -6,7 +6,7 @@
 
 {% block dashboard_toolbar %}
 <div class="header-actions">
-    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEquityModal">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddEquityForm()">
         <i class="fas fa-plus me-1"></i>Add Equity
     </button>
     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
@@ -16,6 +16,97 @@
 {% endblock %}
 
 {% block dashboard_content %}
+<!-- Add Equity Form (Initially Hidden) -->
+<div class="card mb-4" id="addEquityFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Equity Holding</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddEquityForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_equities') }}">
+            <div class="row">
+                <!-- Stock Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="symbol" class="form-label">Stock Symbol <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="symbol" name="symbol" required placeholder="e.g., RELIANCE">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="company_name" class="form-label">Company Name</label>
+                    <input type="text" class="form-control" id="company_name" name="company_name" placeholder="e.g., Reliance Industries Ltd">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="isin" class="form-label">ISIN</label>
+                    <input type="text" class="form-control" id="isin" name="isin" placeholder="e.g., INE002A01018">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="transaction_type" class="form-label">Transaction Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="transaction_type" name="transaction_type" required>
+                        <option value="BUY" selected>BUY</option>
+                        <option value="SELL">SELL</option>
+                    </select>
+                </div>
+                
+                <!-- Transaction Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_date" class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="purchase_date" name="purchase_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" step="0.01" required placeholder="100">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="purchase_price" class="form-label">Purchase Price (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="purchase_price" name="purchase_price" step="0.01" required placeholder="2500.00">
+                </div>
+                
+                <!-- Charges (Optional) -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Transaction Charges (Optional)</h6>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="brokerage" class="form-label">Brokerage (₹)</label>
+                    <input type="number" class="form-control" id="brokerage" name="brokerage" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="stt" class="form-label">STT (₹)</label>
+                    <input type="number" class="form-control" id="stt" name="stt" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="transaction_charges" class="form-label">Transaction Charges (₹)</label>
+                    <input type="number" class="form-control" id="transaction_charges" name="transaction_charges" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="gst" class="form-label">GST (₹)</label>
+                    <input type="number" class="form-control" id="gst" name="gst" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="stamp_duty" class="form-label">Stamp Duty (₹)</label>
+                    <input type="number" class="form-control" id="stamp_duty" name="stamp_duty" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddEquityForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Equity
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="row">
     <!-- Holdings Summary -->
     <div class="col-md-3 mb-4">
@@ -136,7 +227,7 @@
         <div class="text-center py-5">
             <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
             <p class="text-muted">No equity holdings found. Add your first equity holding!</p>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEquityModal">
+            <button class="btn btn-primary" onclick="toggleAddEquityForm()">
                 <i class="fas fa-plus me-2"></i>Add Equity
             </button>
         </div>
@@ -144,141 +235,33 @@
     </div>
 </div>
 
-<!-- Add Equity Modal -->
-<div class="modal fade" id="addEquityModal" tabindex="-1" aria-labelledby="addEquityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addEquityModalLabel">Add Equity Holding</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="{{ url_for('dashboard_equities') }}">
-                <div class="modal-body">
-                    <div class="row">
-                        <!-- Stock Details -->
-                        <div class="col-md-6 mb-3">
-                            <label for="symbol" class="form-label">Stock Symbol <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="symbol" name="symbol" required placeholder="e.g., RELIANCE">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="company_name" class="form-label">Company Name</label>
-                            <input type="text" class="form-control" id="company_name" name="company_name" placeholder="e.g., Reliance Industries Ltd">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="isin" class="form-label">ISIN</label>
-                            <input type="text" class="form-control" id="isin" name="isin" placeholder="e.g., INE002A01018">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="transaction_type" class="form-label">Transaction Type <span class="text-danger">*</span></label>
-                            <select class="form-select" id="transaction_type" name="transaction_type" required>
-                                <option value="BUY" selected>BUY</option>
-                                <option value="SELL">SELL</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Transaction Details -->
-                        <div class="col-md-6 mb-3">
-                            <label for="purchase_date" class="form-label">Purchase Date <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" id="purchase_date" name="purchase_date" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" step="0.01" required placeholder="100">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="purchase_price" class="form-label">Purchase Price (₹) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="purchase_price" name="purchase_price" step="0.01" required placeholder="2500.00">
-                        </div>
-                        
-                        <!-- Charges (Optional) -->
-                        <div class="col-12 mb-2">
-                            <h6 class="text-muted">Transaction Charges (Optional)</h6>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="brokerage" class="form-label">Brokerage (₹)</label>
-                            <input type="number" class="form-control" id="brokerage" name="brokerage" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="stt" class="form-label">STT (₹)</label>
-                            <input type="number" class="form-control" id="stt" name="stt" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="transaction_charges" class="form-label">Transaction Charges (₹)</label>
-                            <input type="number" class="form-control" id="transaction_charges" name="transaction_charges" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="gst" class="form-label">GST (₹)</label>
-                            <input type="number" class="form-control" id="gst" name="gst" step="0.01" placeholder="0.00">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="stamp_duty" class="form-label">Stamp Duty (₹)</label>
-                            <input type="number" class="form-control" id="stamp_duty" name="stamp_duty" step="0.01" placeholder="0.00">
-                        </div>
-                        
-                        <!-- Additional Info -->
-                        <div class="col-md-6 mb-3">
-                            <label for="portfolio_name" class="form-label">Portfolio Name</label>
-                            <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-2"></i>Save Equity
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<style>
-/* Ensure modal appears on top with proper z-index */
-#addEquityModal {
-    z-index: 1060 !important;
-}
-
-#addEquityModal .modal-dialog {
-    z-index: 1061 !important;
-}
-
-.modal-backdrop {
-    z-index: 1055 !important;
-}
-
-/* Ensure modal is scrollable on smaller screens */
-#addEquityModal .modal-body {
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
-}
-</style>
-
 <script>
-// Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Set max date to today
     const purchaseDateInput = document.getElementById('purchase_date');
     if (purchaseDateInput) {
         purchaseDateInput.max = new Date().toISOString().split('T')[0];
     }
-    
-    // Ensure modal works properly
-    const addEquityModal = document.getElementById('addEquityModal');
-    if (addEquityModal) {
-        addEquityModal.addEventListener('shown.bs.modal', function () {
-            // Focus on first input when modal opens
-            const firstInput = addEquityModal.querySelector('input[type="text"]');
-            if (firstInput) {
-                firstInput.focus();
-            }
-        });
-    }
 });
+
+function toggleAddEquityForm() {
+    const formCard = document.getElementById('addEquityFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            // Scroll to the form
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Focus on first input
+            setTimeout(() => {
+                const firstInput = formCard.querySelector('input[type="text"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
 
 function filterHoldings(type) {
     const rows = document.querySelectorAll('.holding-row');
