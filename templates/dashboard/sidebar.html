@@ -172,6 +172,15 @@
                     </a>
                 </li>
                 
+                <!-- F&O -->
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_futures_options' else '' }}" 
+                       href="{{ url_for('dashboard_futures_options') }}">
+                        <i class="nav-icon fas fa-chart-area"></i>
+                        <span class="nav-text">F&O</span>
+                    </a>
+                </li>
+                
                 <!-- Real Estate -->
                 <li class="nav-item submenu-item">
                     <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}" 

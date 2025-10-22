@@ -2658,6 +2658,99 @@ def delete_bank_account(account_id):
         logger.error(f"Error deleting bank account: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/futures-options', methods=['GET', 'POST'])
+@login_required
+def dashboard_futures_options():
+    """Futures and Options positions - manual entries"""
+    from models import ManualFuturesOptionsHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual F&O position
+            new_position = ManualFuturesOptionsHolding(
+                user_id=current_user.id,
+                contract_type=request.form.get('contract_type'),
+                underlying_asset=request.form.get('underlying_asset'),
+                symbol=request.form.get('symbol'),
+                strike_price=float(request.form.get('strike_price')) if request.form.get('strike_price') else None,
+                lot_size=int(request.form.get('lot_size')),
+                quantity_lots=int(request.form.get('quantity_lots')),
+                total_quantity=0,  # Will be calculated
+                expiry_date=datetime.strptime(request.form.get('expiry_date'), '%Y-%m-%d').date(),
+                trade_date=datetime.strptime(request.form.get('trade_date'), '%Y-%m-%d').date(),
+                position_type=request.form.get('position_type'),
+                entry_price=float(request.form.get('entry_price')),
+                premium_paid=float(request.form.get('premium_paid') or 0),
+                brokerage=float(request.form.get('brokerage') or 0),
+                stt=float(request.form.get('stt') or 0),
+                exchange_charges=float(request.form.get('exchange_charges') or 0),
+                gst=float(request.form.get('gst') or 0),
+                other_charges=float(request.form.get('other_charges') or 0),
+                total_charges=0,  # Will be calculated
+                total_investment=0,  # Will be calculated
+                current_market_price=float(request.form.get('current_market_price')) if request.form.get('current_market_price') else None,
+                position_status=request.form.get('position_status', 'Open'),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate values
+            new_position.calculate_values()
+            
+            db.session.add(new_position)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_position.contract_type} position for {new_position.underlying_asset}!', 'success')
+            return redirect(url_for('dashboard_futures_options'))
+            
+        except Exception as e:
+            logger.error(f"Error adding F&O position: {str(e)}")
+            flash(f'Error adding position: {str(e)}', 'error')
+            return redirect(url_for('dashboard_futures_options'))
+    
+    # GET request - display positions
+    positions = ManualFuturesOptionsHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_investment = sum(p.total_investment for p in positions if p.position_status == 'Open')
+    current_value = sum(p.current_value or 0 for p in positions if p.position_status == 'Open')
+    total_pnl = sum(p.unrealized_pnl or 0 for p in positions if p.position_status == 'Open')
+    positions_count = len([p for p in positions if p.position_status == 'Open'])
+    
+    return render_template('dashboard/futures_options.html',
+                         positions=positions,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_pnl=total_pnl,
+                         positions_count=positions_count)
+
+@app.route('/api/futures-options/<int:position_id>', methods=['DELETE'])
+@login_required
+def delete_futures_options_position(position_id):
+    """Delete a manual F&O position"""
+    from models import ManualFuturesOptionsHolding
+    
+    try:
+        position = ManualFuturesOptionsHolding.query.filter_by(
+            id=position_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not position:
+            return jsonify({'success': False, 'error': 'Position not found'}), 404
+        
+        db.session.delete(position)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Position deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting F&O position: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

@@ -1070,6 +1070,107 @@ class ManualBankAccount(db.Model):
     # Relationships
     user = db.relationship('User', backref='manual_bank_accounts')
 
+class ManualFuturesOptionsHolding(db.Model):
+    """Manual futures and options holdings entered by users"""
+    __tablename__ = 'manual_futures_options_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Contract Details
+    contract_type = db.Column(db.String(20), nullable=False)  # Future, Call Option, Put Option
+    underlying_asset = db.Column(db.String(100), nullable=False)  # Stock/Index name
+    symbol = db.Column(db.String(50), nullable=True)  # Trading symbol
+    
+    # Contract Specifications
+    strike_price = db.Column(db.Float, nullable=True)  # For options only
+    lot_size = db.Column(db.Integer, nullable=False)
+    quantity_lots = db.Column(db.Integer, nullable=False)  # Number of lots
+    total_quantity = db.Column(db.Integer, nullable=False)  # lot_size * quantity_lots
+    
+    # Dates
+    expiry_date = db.Column(db.Date, nullable=False)
+    trade_date = db.Column(db.Date, nullable=False)
+    
+    # Position Details
+    position_type = db.Column(db.String(10), nullable=False)  # Buy/Long or Sell/Short
+    entry_price = db.Column(db.Float, nullable=False)
+    premium_paid = db.Column(db.Float, default=0.0)  # For options
+    
+    # Charges
+    brokerage = db.Column(db.Float, default=0.0)
+    stt = db.Column(db.Float, default=0.0)  # Securities Transaction Tax
+    exchange_charges = db.Column(db.Float, default=0.0)
+    gst = db.Column(db.Float, default=0.0)
+    other_charges = db.Column(db.Float, default=0.0)
+    total_charges = db.Column(db.Float, default=0.0)
+    
+    # Investment & Current Value
+    total_investment = db.Column(db.Float, nullable=False)
+    current_market_price = db.Column(db.Float, nullable=True)
+    current_value = db.Column(db.Float, nullable=True)
+    
+    # P&L
+    unrealized_pnl = db.Column(db.Float, nullable=True)
+    unrealized_pnl_percentage = db.Column(db.Float, nullable=True)
+    
+    # Status
+    position_status = db.Column(db.String(20), default='Open')  # Open, Closed, Expired
+    exit_price = db.Column(db.Float, nullable=True)
+    exit_date = db.Column(db.Date, nullable=True)
+    realized_pnl = db.Column(db.Float, nullable=True)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='F&O')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_futures_options_holdings')
+    
+    def calculate_values(self):
+        """Calculate total investment, charges, and P&L"""
+        # Calculate total quantity
+        self.total_quantity = self.lot_size * self.quantity_lots
+        
+        # Calculate total charges
+        self.total_charges = (
+            (self.brokerage or 0) + 
+            (self.stt or 0) + 
+            (self.exchange_charges or 0) + 
+            (self.gst or 0) + 
+            (self.other_charges or 0)
+        )
+        
+        # Calculate total investment
+        if self.contract_type == 'Future':
+            self.total_investment = (self.entry_price * self.total_quantity) + self.total_charges
+        else:  # Options
+            self.total_investment = (self.premium_paid * self.total_quantity) + self.total_charges
+        
+        # Calculate current value and P&L if current price is available
+        if self.current_market_price and self.position_status == 'Open':
+            if self.contract_type == 'Future':
+                self.current_value = self.current_market_price * self.total_quantity
+            else:  # Options
+                self.current_value = self.current_market_price * self.total_quantity
+            
+            # Calculate unrealized P&L based on position type
+            if self.position_type in ['Buy', 'Long']:
+                self.unrealized_pnl = self.current_value - self.total_investment
+            else:  # Sell/Short
+                self.unrealized_pnl = self.total_investment - self.current_value
+            
+            if self.total_investment > 0:
+                self.unrealized_pnl_percentage = (self.unrealized_pnl / self.total_investment) * 100
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     

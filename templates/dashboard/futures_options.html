@@ -1,0 +1,386 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}F&O - Target Capital{% endblock %}
+{% block dashboard_title %}Futures & Options{% endblock %}
+{% block dashboard_subtitle %}Manage your futures and options positions{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddPositionForm()">
+        <i class="fas fa-plus me-1"></i>Add Position
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add F&O Position Form (Initially Hidden) -->
+<div class="card mb-4" id="addPositionFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add F&O Position</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddPositionForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_futures_options') }}">
+            <div class="row">
+                <!-- Contract Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="contract_type" class="form-label">Contract Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="contract_type" name="contract_type" required onchange="toggleStrikePrice()">
+                        <option value="">Select Type</option>
+                        <option value="Future">Future</option>
+                        <option value="Call Option">Call Option (CE)</option>
+                        <option value="Put Option">Put Option (PE)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="underlying_asset" class="form-label">Underlying Asset <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="underlying_asset" name="underlying_asset" required placeholder="e.g., NIFTY, BANKNIFTY, RELIANCE">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="symbol" class="form-label">Symbol</label>
+                    <input type="text" class="form-control" id="symbol" name="symbol" placeholder="Trading symbol">
+                </div>
+                <div class="col-md-6 mb-3" id="strike_price_field" style="display: none;">
+                    <label for="strike_price" class="form-label">Strike Price</label>
+                    <input type="number" class="form-control" id="strike_price" name="strike_price" step="0.01" placeholder="18000">
+                </div>
+                
+                <!-- Position Details -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Position Details</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="position_type" class="form-label">Position Type <span class="text-danger">*</span></label>
+                    <select class="form-select" id="position_type" name="position_type" required>
+                        <option value="">Select Position</option>
+                        <option value="Buy">Buy/Long</option>
+                        <option value="Sell">Sell/Short</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lot_size" class="form-label">Lot Size <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="lot_size" name="lot_size" required placeholder="50">
+                    <small class="text-muted">Quantity per lot</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="quantity_lots" class="form-label">Number of Lots <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="quantity_lots" name="quantity_lots" required placeholder="1">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="total_quantity" class="form-label">Total Quantity</label>
+                    <input type="number" class="form-control" id="total_quantity" name="total_quantity" readonly placeholder="Auto-calculated">
+                    <small class="text-muted">Lot Size × Number of Lots</small>
+                </div>
+                
+                <!-- Pricing -->
+                <div class="col-md-6 mb-3">
+                    <label for="entry_price" class="form-label">Entry Price (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="entry_price" name="entry_price" step="0.01" required placeholder="18250.00">
+                </div>
+                <div class="col-md-6 mb-3" id="premium_field" style="display: none;">
+                    <label for="premium_paid" class="form-label">Premium (₹)</label>
+                    <input type="number" class="form-control" id="premium_paid" name="premium_paid" step="0.01" placeholder="150.00">
+                    <small class="text-muted">Premium per unit for options</small>
+                </div>
+                
+                <!-- Dates -->
+                <div class="col-md-6 mb-3">
+                    <label for="trade_date" class="form-label">Trade Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="trade_date" name="trade_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="expiry_date" class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="expiry_date" name="expiry_date" required>
+                </div>
+                
+                <!-- Charges -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Charges</h6>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="brokerage" class="form-label">Brokerage (₹)</label>
+                    <input type="number" class="form-control" id="brokerage" name="brokerage" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="stt" class="form-label">STT (₹)</label>
+                    <input type="number" class="form-control" id="stt" name="stt" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="exchange_charges" class="form-label">Exchange Charges (₹)</label>
+                    <input type="number" class="form-control" id="exchange_charges" name="exchange_charges" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="gst" class="form-label">GST (₹)</label>
+                    <input type="number" class="form-control" id="gst" name="gst" step="0.01" placeholder="0.00">
+                </div>
+                
+                <!-- Current Market Price -->
+                <div class="col-12 mb-2">
+                    <h6 class="text-muted">Current Market Data (Optional)</h6>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="current_market_price" class="form-label">Current Market Price (₹)</label>
+                    <input type="number" class="form-control" id="current_market_price" name="current_market_price" step="0.01" placeholder="18400.00">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="position_status" class="form-label">Position Status</label>
+                    <select class="form-select" id="position_status" name="position_status">
+                        <option value="Open" selected>Open</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Expired">Expired</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddPositionForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Position
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Summary Cards -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Investment</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_investment) if total_investment else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Current Value</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(current_value) if current_value else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Unrealized P&L</h6>
+                <h3 class="mb-0 {% if total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ₹{{ "{:,.0f}".format(total_pnl) if total_pnl else '0' }}
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Open Positions</h6>
+                <h3 class="mb-0">{{ positions_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Positions Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">F&O Positions</h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="filterType" id="allFilter" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="allFilter" onclick="filterPositions('all')">All</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="futuresFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="futuresFilter" onclick="filterPositions('Future')">Futures</label>
+            
+            <input type="radio" class="btn-check" name="filterType" id="optionsFilter" autocomplete="off">
+            <label class="btn btn-outline-primary" for="optionsFilter" onclick="filterPositions('Options')">Options</label>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if positions %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Underlying</th>
+                        <th>Strike</th>
+                        <th>Position</th>
+                        <th>Qty (Lots)</th>
+                        <th>Entry Price</th>
+                        <th>Current Price</th>
+                        <th>Investment</th>
+                        <th>P&L</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="positionsTable">
+                    {% for position in positions %}
+                    <tr class="position-row" data-type="{{ position.contract_type }}">
+                        <td>
+                            {% if position.contract_type == 'Future' %}
+                            <span class="badge bg-primary">FUT</span>
+                            {% elif position.contract_type == 'Call Option' %}
+                            <span class="badge bg-success">CE</span>
+                            {% else %}
+                            <span class="badge bg-danger">PE</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ position.underlying_asset }}</strong></td>
+                        <td>{{ "{:,.0f}".format(position.strike_price) if position.strike_price else '-' }}</td>
+                        <td>
+                            <span class="badge {% if position.position_type == 'Buy' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ position.position_type }}
+                            </span>
+                        </td>
+                        <td>{{ position.quantity_lots }} ({{ position.total_quantity }})</td>
+                        <td>₹{{ "{:,.2f}".format(position.entry_price) }}</td>
+                        <td>₹{{ "{:,.2f}".format(position.current_market_price) if position.current_market_price else '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(position.total_investment) }}</td>
+                        <td class="{% if position.unrealized_pnl and position.unrealized_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            {% if position.unrealized_pnl %}
+                            ₹{{ "{:,.0f}".format(position.unrealized_pnl) }}
+                            ({{ "{:,.1f}".format(position.unrealized_pnl_percentage) }}%)
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>{{ position.expiry_date.strftime('%d-%b-%Y') if position.expiry_date else '-' }}</td>
+                        <td>
+                            {% if position.position_status == 'Open' %}
+                            <span class="badge bg-success">Open</span>
+                            {% elif position.position_status == 'Closed' %}
+                            <span class="badge bg-secondary">Closed</span>
+                            {% else %}
+                            <span class="badge bg-warning">Expired</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editPosition({{ position.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePosition({{ position.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-chart-area fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No F&O positions found. Add your first position!</p>
+            <button class="btn btn-primary" onclick="toggleAddPositionForm()">
+                <i class="fas fa-plus me-2"></i>Add Position
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tradeDateInput = document.getElementById('trade_date');
+    if (tradeDateInput) {
+        tradeDateInput.max = new Date().toISOString().split('T')[0];
+    }
+    
+    // Auto-calculate total quantity
+    const lotSizeInput = document.getElementById('lot_size');
+    const quantityLotsInput = document.getElementById('quantity_lots');
+    const totalQuantityInput = document.getElementById('total_quantity');
+    
+    function calculateTotalQuantity() {
+        const lotSize = parseInt(lotSizeInput.value) || 0;
+        const quantityLots = parseInt(quantityLotsInput.value) || 0;
+        totalQuantityInput.value = lotSize * quantityLots;
+    }
+    
+    if (lotSizeInput && quantityLotsInput) {
+        lotSizeInput.addEventListener('input', calculateTotalQuantity);
+        quantityLotsInput.addEventListener('input', calculateTotalQuantity);
+    }
+});
+
+function toggleStrikePrice() {
+    const contractType = document.getElementById('contract_type').value;
+    const strikePriceField = document.getElementById('strike_price_field');
+    const premiumField = document.getElementById('premium_field');
+    
+    if (contractType === 'Call Option' || contractType === 'Put Option') {
+        strikePriceField.style.display = 'block';
+        premiumField.style.display = 'block';
+    } else {
+        strikePriceField.style.display = 'none';
+        premiumField.style.display = 'none';
+    }
+}
+
+function toggleAddPositionForm() {
+    const formCard = document.getElementById('addPositionFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstSelect = formCard.querySelector('select');
+                if (firstSelect) {
+                    firstSelect.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function filterPositions(type) {
+    const rows = document.querySelectorAll('.position-row');
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else if (type === 'Options') {
+            const contractType = row.dataset.type;
+            row.style.display = (contractType === 'Call Option' || contractType === 'Put Option') ? '' : 'none';
+        } else {
+            row.style.display = row.dataset.type === type ? '' : 'none';
+        }
+    });
+}
+
+function editPosition(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deletePosition(id) {
+    if (confirm('Are you sure you want to delete this position?')) {
+        fetch(`/api/futures-options/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting position: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
