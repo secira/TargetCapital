@@ -458,6 +458,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
     display: flex;
     min-height: 100vh;
     background-color: #f8fafc;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 /* Mobile Menu Toggle */
@@ -537,11 +539,14 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
     flex-direction: column;
     margin-left: 280px;
     min-height: 100vh;
+    width: calc(100% - 280px);
+    max-width: 100%;
 }
 
 @media (max-width: 991.98px) {
     .dashboard-main {
         margin-left: 0;
+        width: 100%;
     }
 }
 
@@ -657,8 +662,9 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
     margin-bottom: 20px;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
@@ -697,24 +703,24 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
 }
 
 .card-header {
-    padding: 20px 24px;
+    padding: 16px 20px;
     border-bottom: 1px solid #e2e8f0;
     background: #f8fafc;
 }
 
 .card-header h3 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #1a202c;
     margin: 0;
 }
 
 .card-body {
-    padding: 24px;
+    padding: 20px;
 }
 
 .card-footer {
-    padding: 16px 24px;
+    padding: 14px 20px;
     border-top: 1px solid #e2e8f0;
     background: #f8fafc;
 }
