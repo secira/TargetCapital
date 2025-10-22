@@ -2751,6 +2751,147 @@ def delete_futures_options_position(position_id):
         logger.error(f"Error deleting F&O position: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/import/<asset_class>', methods=['GET'])
+@login_required
+def import_holdings(asset_class):
+    """Import holdings page for any asset class"""
+    from models_broker import BrokerAccount
+    from models import ManualBankAccount
+    
+    # Map asset class to display name
+    asset_class_names = {
+        'equities': 'Equities',
+        'mutual_funds': 'Mutual Funds',
+        'fixed_deposits': 'Fixed Deposits',
+        'real_estate': 'Real Estate',
+        'commodities': 'Gold & Commodities',
+        'cryptocurrency': 'Cryptocurrency',
+        'insurance': 'Insurance',
+        'banks': 'Banks & Cash',
+        'futures_options': 'F&O'
+    }
+    
+    asset_class_name = asset_class_names.get(asset_class, asset_class.title())
+    
+    # Get connected brokers
+    connected_brokers = BrokerAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Get connected banks
+    connected_banks = ManualBankAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True,
+        account_status='Active'
+    ).all()
+    
+    return render_template('dashboard/import_holdings.html',
+                         asset_class=asset_class,
+                         asset_class_name=asset_class_name,
+                         connected_brokers=connected_brokers,
+                         connected_banks=connected_banks)
+
+@app.route('/api/import/broker/<int:broker_id>/<asset_class>', methods=['POST'])
+@login_required
+def import_from_broker(broker_id, asset_class):
+    """Import holdings from a connected broker"""
+    from models_broker import BrokerAccount
+    
+    try:
+        broker = BrokerAccount.query.filter_by(
+            id=broker_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not broker:
+            return jsonify({'success': False, 'error': 'Broker not found'}), 404
+        
+        # TODO: Implement actual broker sync based on broker_name and asset_class
+        # This is a placeholder that will be implemented with actual broker APIs
+        
+        return jsonify({
+            'success': True,
+            'count': 0,
+            'message': f'Broker import for {asset_class} will be implemented soon'
+        })
+    except Exception as e:
+        logger.error(f"Error importing from broker: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/import/bank/<int:bank_id>/<asset_class>', methods=['POST'])
+@login_required
+def import_from_bank(bank_id, asset_class):
+    """Import holdings from a connected bank"""
+    from models import ManualBankAccount
+    
+    try:
+        bank = ManualBankAccount.query.filter_by(
+            id=bank_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not bank:
+            return jsonify({'success': False, 'error': 'Bank not found'}), 404
+        
+        # TODO: Implement actual bank sync based on bank_name and asset_class
+        # This is a placeholder that will be implemented with actual bank APIs
+        
+        return jsonify({
+            'success': True,
+            'count': 0,
+            'message': f'Bank import for {asset_class} will be implemented soon'
+        })
+    except Exception as e:
+        logger.error(f"Error importing from bank: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/import/upload', methods=['POST'])
+@login_required
+def import_holdings_upload():
+    """Upload and import holdings from Excel or PDF file"""
+    try:
+        asset_class = request.form.get('asset_class')
+        file_type = request.form.get('file_type')
+        
+        if 'file' not in request.files:
+            flash('No file uploaded', 'error')
+            return redirect(url_for('import_holdings', asset_class=asset_class))
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(url_for('import_holdings', asset_class=asset_class))
+        
+        # TODO: Implement file parsing logic
+        # - For Excel: Use pandas to read and parse
+        # - For PDF: Use AI/OCR to extract data
+        
+        flash(f'File upload and import for {asset_class} will be implemented soon', 'info')
+        return redirect(url_for('import_holdings', asset_class=asset_class))
+        
+    except Exception as e:
+        logger.error(f"Error uploading file: {str(e)}")
+        flash(f'Error uploading file: {str(e)}', 'error')
+        return redirect(url_for('import_holdings', asset_class=asset_class))
+
+@app.route('/api/import/template/<asset_class>/<format>')
+@login_required
+def download_import_template(asset_class, format):
+    """Download Excel template for importing holdings"""
+    try:
+        # TODO: Generate actual Excel template based on asset class
+        # For now, return a simple message
+        
+        flash(f'Template download for {asset_class} will be implemented soon', 'info')
+        return redirect(url_for('import_holdings', asset_class=asset_class))
+        
+    except Exception as e:
+        logger.error(f"Error downloading template: {str(e)}")
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('import_holdings', asset_class=asset_class))
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

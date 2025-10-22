@@ -1,0 +1,249 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Import Holdings - Target Capital{% endblock %}
+{% block dashboard_title %}Import {{ asset_class_name }} Holdings{% endblock %}
+{% block dashboard_subtitle %}Import your holdings from brokers, banks, or upload files{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <!-- Import from Brokers -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-link me-2"></i>Import from Connected Brokers</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Automatically sync your holdings from connected broker accounts.</p>
+                
+                {% if connected_brokers %}
+                <div class="list-group mb-3">
+                    {% for broker in connected_brokers %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-building text-primary me-2"></i>
+                            <strong>{{ broker.broker_name }}</strong>
+                            <br>
+                            <small class="text-muted">Account: {{ broker.client_id }}</small>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="importFromBroker({{ broker.id }}, '{{ asset_class }}')">
+                            <i class="fas fa-download me-1"></i>Import
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No brokers connected. 
+                    <a href="{{ url_for('dashboard_broker_accounts') }}" class="alert-link">Connect a broker</a> to sync holdings automatically.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import from Banks -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-university me-2"></i>Import from Connected Banks</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Sync holdings from your connected bank accounts (for FDs, Bonds, etc.)</p>
+                
+                {% if connected_banks %}
+                <div class="list-group mb-3">
+                    {% for bank in connected_banks %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-university text-success me-2"></i>
+                            <strong>{{ bank.bank_name }}</strong>
+                            <br>
+                            <small class="text-muted">Account: {{ bank.account_number }}</small>
+                        </div>
+                        <button class="btn btn-sm btn-success" onclick="importFromBank({{ bank.id }}, '{{ asset_class }}')">
+                            <i class="fas fa-download me-1"></i>Import
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No banks connected. 
+                    <a href="{{ url_for('dashboard_banks') }}" class="alert-link">Add bank accounts</a> to enable bank imports.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Excel File -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-file-excel me-2"></i>Upload Excel File</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload an Excel file (.xlsx, .xls, .csv) with your holdings data.</p>
+                
+                <form method="POST" action="{{ url_for('import_holdings_upload') }}" enctype="multipart/form-data" id="excelUploadForm">
+                    <input type="hidden" name="asset_class" value="{{ asset_class }}">
+                    <input type="hidden" name="file_type" value="excel">
+                    
+                    <div class="mb-3">
+                        <label for="excelFile" class="form-label">Choose Excel File</label>
+                        <input type="file" class="form-control" id="excelFile" name="file" accept=".xlsx,.xls,.csv" required>
+                        <small class="text-muted">Supported formats: .xlsx, .xls, .csv</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <a href="{{ url_for('download_import_template', asset_class=asset_class, format='excel') }}" class="btn btn-sm btn-outline-info">
+                            <i class="fas fa-download me-1"></i>Download Template
+                        </a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-upload me-2"></i>Upload & Import
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload PDF File -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-file-pdf me-2"></i>Upload PDF Statement</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Upload a PDF statement from your broker or depository (CDSL/NSDL).</p>
+                
+                <form method="POST" action="{{ url_for('import_holdings_upload') }}" enctype="multipart/form-data" id="pdfUploadForm">
+                    <input type="hidden" name="asset_class" value="{{ asset_class }}">
+                    <input type="hidden" name="file_type" value="pdf">
+                    
+                    <div class="mb-3">
+                        <label for="pdfFile" class="form-label">Choose PDF File</label>
+                        <input type="file" class="form-control" id="pdfFile" name="file" accept=".pdf" required>
+                        <small class="text-muted">Supported format: .pdf</small>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> PDF parsing uses AI to extract data. Please review imported data carefully.
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-upload me-2"></i>Upload & Parse PDF
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Instructions -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Import Instructions for {{ asset_class_name }}</h5>
+    </div>
+    <div class="card-body">
+        {% if asset_class == 'equities' %}
+        <h6>Equities Import:</h6>
+        <ul>
+            <li><strong>From Brokers:</strong> Automatically fetches all equity holdings from your connected broker account</li>
+            <li><strong>Excel Format:</strong> Stock Symbol, Quantity, Buy Price, Buy Date, Current Price (optional)</li>
+            <li><strong>PDF:</strong> Upload broker statement or CDSL/NSDL holding statement</li>
+        </ul>
+        {% elif asset_class == 'mutual_funds' %}
+        <h6>Mutual Funds Import:</h6>
+        <ul>
+            <li><strong>From Brokers:</strong> Syncs mutual fund holdings including SIP details</li>
+            <li><strong>Excel Format:</strong> Fund Name, Folio Number, Units, NAV, Investment Date</li>
+            <li><strong>PDF:</strong> Upload CAS (Consolidated Account Statement) from CAMS/Karvy</li>
+        </ul>
+        {% elif asset_class == 'fixed_deposits' %}
+        <h6>Fixed Deposits Import:</h6>
+        <ul>
+            <li><strong>From Banks:</strong> Automatically fetches FD details from connected bank accounts</li>
+            <li><strong>Excel Format:</strong> Bank Name, FD Number, Amount, Interest Rate, Start Date, Maturity Date</li>
+            <li><strong>PDF:</strong> Upload FD certificate or bank statement showing FD details</li>
+        </ul>
+        {% elif asset_class == 'real_estate' %}
+        <h6>Real Estate Import:</h6>
+        <ul>
+            <li><strong>Excel Format:</strong> Property Type, Location, Purchase Price, Purchase Date, Current Value</li>
+            <li><strong>PDF:</strong> Upload property documents (Sale Deed, Registry details will be extracted)</li>
+        </ul>
+        {% elif asset_class == 'commodities' %}
+        <h6>Gold & Commodities Import:</h6>
+        <ul>
+            <li><strong>From Brokers:</strong> Syncs Gold ETF, Gold Bonds, and commodity holdings</li>
+            <li><strong>Excel Format:</strong> Commodity Type, Form (Physical/Digital), Quantity, Purchase Price, Date</li>
+            <li><strong>PDF:</strong> Upload purchase invoices or digital gold statements</li>
+        </ul>
+        {% elif asset_class == 'cryptocurrency' %}
+        <h6>Cryptocurrency Import:</h6>
+        <ul>
+            <li><strong>Excel Format:</strong> Crypto Name, Exchange, Quantity, Purchase Price, Purchase Date</li>
+            <li><strong>PDF:</strong> Upload exchange transaction statements</li>
+        </ul>
+        {% elif asset_class == 'insurance' %}
+        <h6>Insurance Import:</h6>
+        <ul>
+            <li><strong>Excel Format:</strong> Policy Type, Insurer, Policy Number, Premium, Sum Assured, Start Date</li>
+            <li><strong>PDF:</strong> Upload policy documents (policy details will be extracted)</li>
+        </ul>
+        {% elif asset_class == 'futures_options' %}
+        <h6>F&O Import:</h6>
+        <ul>
+            <li><strong>From Brokers:</strong> Syncs open F&O positions from your broker account</li>
+            <li><strong>Excel Format:</strong> Contract Type, Underlying, Strike, Lot Size, Lots, Entry Price, Expiry</li>
+            <li><strong>PDF:</strong> Upload broker contract notes or position statements</li>
+        </ul>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function importFromBroker(brokerId, assetClass) {
+    if (confirm('Import holdings from this broker? This will fetch the latest data.')) {
+        fetch(`/api/import/broker/${brokerId}/${assetClass}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully imported ${data.count} holdings from broker!`);
+                window.location.href = `/dashboard/${assetClass.replace('_', '-')}`;
+            } else {
+                alert('Error importing from broker: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+}
+
+function importFromBank(bankId, assetClass) {
+    if (confirm('Import holdings from this bank? This will fetch the latest data.')) {
+        fetch(`/api/import/bank/${bankId}/${assetClass}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Successfully imported ${data.count} holdings from bank!`);
+                window.location.href = `/dashboard/${assetClass.replace('_', '-')}`;
+            } else {
+                alert('Error importing from bank: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+}
+</script>
+{% endblock %}
