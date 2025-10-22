@@ -136,27 +136,6 @@
                 </div>
             {% endif %}
         </div>
-
-
-        <!-- AI Status Section -->
-        <div class="menu-section">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fas fa-brain"></i>
-                    AI Status
-                </h3>
-            </div>
-            
-            <div class="ai-status">
-                <div class="status-indicator">
-                    <div class="status-dot active"></div>
-                    <span class="status-text">Agentic AI Active</span>
-                </div>
-                <div class="status-details">
-                    <span class="status-count">Monitoring <strong>245</strong> stocks</span>
-                </div>
-            </div>
-        </div>
     </div>
 </nav>
 
@@ -502,53 +481,6 @@
     color: #63b3ed;
 }
 
-/* AI Status */
-.ai-status {
-    padding: 0 20px;
-}
-
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #68d391;
-    animation: statusPulse 2s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-}
-
-.status-text {
-    font-size: 12px;
-    font-weight: 500;
-    color: white;
-}
-
-.status-details {
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.status-count strong {
-    color: #68d391;
-    font-weight: 600;
-}
-
 /* Mobile Responsiveness */
 @media (max-width: 991.98px) {
     .sidebar-brand {
@@ -583,8 +515,7 @@
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
     .nav-link,
-    .nav-icon,
-    .status-dot {
+    .nav-icon {
         transition: none;
         animation: none;
     }
