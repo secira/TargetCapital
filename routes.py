@@ -2070,6 +2070,96 @@ def delete_mutual_fund_holding(holding_id):
         logger.error(f"Error deleting mutual fund holding: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/fixed-deposits', methods=['GET', 'POST'])
+@login_required
+def dashboard_fixed_deposits():
+    """Fixed Deposits portfolio management - manual entries"""
+    from models import ManualFixedDepositHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual fixed deposit holding
+            new_holding = ManualFixedDepositHolding(
+                user_id=current_user.id,
+                bank_name=request.form.get('bank_name'),
+                fd_number=request.form.get('fd_number'),
+                account_number=request.form.get('account_number'),
+                branch_name=request.form.get('branch_name'),
+                deposit_type=request.form.get('deposit_type'),
+                principal_amount=float(request.form.get('principal_amount')),
+                interest_rate=float(request.form.get('interest_rate')),
+                tenure_months=int(request.form.get('tenure_months')) if request.form.get('tenure_months') else None,
+                tenure_days=int(request.form.get('tenure_days')) if request.form.get('tenure_days') else None,
+                deposit_date=datetime.strptime(request.form.get('deposit_date'), '%Y-%m-%d').date(),
+                maturity_date=datetime.strptime(request.form.get('maturity_date'), '%Y-%m-%d').date(),
+                interest_frequency=request.form.get('interest_frequency'),
+                interest_payout=request.form.get('interest_payout'),
+                tds_applicable=bool(request.form.get('tds_applicable')),
+                tds_deducted=float(request.form.get('tds_deducted') or 0),
+                nominee_name=request.form.get('nominee_name'),
+                nominee_relation=request.form.get('nominee_relation'),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate maturity amount and current value
+            new_holding.calculate_maturity()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added FD from {new_holding.bank_name} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_fixed_deposits'))
+            
+        except Exception as e:
+            logger.error(f"Error adding fixed deposit: {str(e)}")
+            flash(f'Error adding fixed deposit: {str(e)}', 'error')
+            return redirect(url_for('dashboard_fixed_deposits'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualFixedDepositHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_principal = sum(h.principal_amount for h in manual_holdings)
+    current_value = sum(h.current_value or h.principal_amount for h in manual_holdings)
+    total_interest = sum(h.interest_earned or 0 for h in manual_holdings)
+    holdings_count = len(manual_holdings)
+    
+    return render_template('dashboard/fixed_deposits.html',
+                         holdings=manual_holdings,
+                         total_principal=total_principal,
+                         current_value=current_value,
+                         total_interest=total_interest,
+                         holdings_count=holdings_count)
+
+@app.route('/api/fixed-deposits/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_fixed_deposit_holding(holding_id):
+    """Delete a manual fixed deposit holding"""
+    from models import ManualFixedDepositHolding
+    
+    try:
+        holding = ManualFixedDepositHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting fixed deposit: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

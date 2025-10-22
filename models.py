@@ -584,6 +584,117 @@ class ManualMutualFundHolding(db.Model):
                 self.unrealized_pnl_percentage = (self.unrealized_pnl / self.total_investment) * 100
                 self.absolute_return = self.unrealized_pnl_percentage
 
+class ManualFixedDepositHolding(db.Model):
+    """Manual fixed deposit holdings entered by users"""
+    __tablename__ = 'manual_fixed_deposit_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Institution Details
+    bank_name = db.Column(db.String(100), nullable=False)
+    fd_number = db.Column(db.String(50), nullable=True)
+    account_number = db.Column(db.String(50), nullable=True)
+    branch_name = db.Column(db.String(100), nullable=True)
+    
+    # FD Details
+    deposit_type = db.Column(db.String(50), nullable=True)  # Regular, Tax Saver, Senior Citizen
+    principal_amount = db.Column(db.Float, nullable=False)
+    interest_rate = db.Column(db.Float, nullable=False)  # Annual interest rate in percentage
+    tenure_months = db.Column(db.Integer, nullable=True)  # Tenure in months
+    tenure_days = db.Column(db.Integer, nullable=True)  # Tenure in days
+    
+    # Dates
+    deposit_date = db.Column(db.Date, nullable=False)
+    maturity_date = db.Column(db.Date, nullable=False)
+    
+    # Interest Details
+    interest_frequency = db.Column(db.String(20), nullable=True)  # Monthly, Quarterly, Half-Yearly, Annual, Cumulative
+    interest_payout = db.Column(db.String(20), nullable=True)  # Payout, Reinvest, Cumulative
+    tds_applicable = db.Column(db.Boolean, default=False)
+    tds_deducted = db.Column(db.Float, default=0.0)
+    
+    # Maturity & Current Values
+    maturity_amount = db.Column(db.Float, nullable=True)
+    interest_earned = db.Column(db.Float, default=0.0)
+    current_value = db.Column(db.Float, nullable=True)
+    
+    # Nomination
+    nominee_name = db.Column(db.String(100), nullable=True)
+    nominee_relation = db.Column(db.String(50), nullable=True)
+    
+    # Status & Classification
+    status = db.Column(db.String(20), default='Active')  # Active, Matured, Closed
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Fixed Deposit')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_fixed_deposit_holdings')
+    
+    def calculate_maturity(self):
+        """Calculate maturity amount and interest earned"""
+        from datetime import date
+        
+        # Simple interest calculation
+        if self.interest_frequency == 'Cumulative':
+            # Compound interest for cumulative deposits
+            if self.tenure_months:
+                years = self.tenure_months / 12
+            elif self.tenure_days:
+                years = self.tenure_days / 365
+            else:
+                years = 0
+            
+            # A = P(1 + r/n)^(nt) - for quarterly compounding
+            n = 4  # Quarterly compounding
+            rate = self.interest_rate / 100
+            self.maturity_amount = self.principal_amount * ((1 + rate/n) ** (n * years))
+        else:
+            # Simple interest for regular payouts
+            if self.tenure_months:
+                time_years = self.tenure_months / 12
+            elif self.tenure_days:
+                time_years = self.tenure_days / 365
+            else:
+                time_years = 0
+            
+            interest = self.principal_amount * (self.interest_rate / 100) * time_years
+            self.maturity_amount = self.principal_amount + interest
+        
+        self.interest_earned = self.maturity_amount - self.principal_amount
+        
+        # Calculate current value based on days elapsed
+        today = date.today()
+        if today >= self.maturity_date:
+            self.current_value = self.maturity_amount
+            self.status = 'Matured'
+        else:
+            days_elapsed = (today - self.deposit_date).days
+            total_days = (self.maturity_date - self.deposit_date).days
+            
+            if total_days > 0:
+                if self.interest_frequency == 'Cumulative':
+                    # Pro-rata compound interest
+                    years_elapsed = days_elapsed / 365
+                    n = 4
+                    rate = self.interest_rate / 100
+                    self.current_value = self.principal_amount * ((1 + rate/n) ** (n * years_elapsed))
+                else:
+                    # Pro-rata simple interest
+                    time_years = days_elapsed / 365
+                    interest_accrued = self.principal_amount * (self.interest_rate / 100) * time_years
+                    self.current_value = self.principal_amount + interest_accrued
+            else:
+                self.current_value = self.principal_amount
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     

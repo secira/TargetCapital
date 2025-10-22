@@ -1,0 +1,355 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Fixed Deposits - Target Capital{% endblock %}
+{% block dashboard_title %}Fixed Deposits{% endblock %}
+{% block dashboard_subtitle %}Manage your fixed deposit holdings and track maturity{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-primary" onclick="toggleAddFDForm()">
+        <i class="fas fa-plus me-1"></i>Add Fixed Deposit
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+        <i class="fas fa-sync me-1"></i>Refresh
+    </button>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Add Fixed Deposit Form (Initially Hidden) -->
+<div class="card mb-4" id="addFDFormCard" style="display: none;">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Add Fixed Deposit</h5>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddFDForm()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('dashboard_fixed_deposits') }}">
+            <div class="row">
+                <!-- Bank Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="bank_name" class="form-label">Bank Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="bank_name" name="bank_name" required placeholder="e.g., HDFC Bank">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fd_number" class="form-label">FD Number</label>
+                    <input type="text" class="form-control" id="fd_number" name="fd_number" placeholder="e.g., FD12345678">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="account_number" class="form-label">Account Number</label>
+                    <input type="text" class="form-control" id="account_number" name="account_number" placeholder="e.g., 12345678901234">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="branch_name" class="form-label">Branch Name</label>
+                    <input type="text" class="form-control" id="branch_name" name="branch_name" placeholder="e.g., Connaught Place">
+                </div>
+                
+                <!-- FD Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="deposit_type" class="form-label">Deposit Type</label>
+                    <select class="form-select" id="deposit_type" name="deposit_type">
+                        <option value="">Select Type</option>
+                        <option value="Regular">Regular FD</option>
+                        <option value="Tax Saver">Tax Saver FD</option>
+                        <option value="Senior Citizen">Senior Citizen FD</option>
+                        <option value="Flexi FD">Flexi FD</option>
+                        <option value="Corporate FD">Corporate FD</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="principal_amount" class="form-label">Principal Amount (₹) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="principal_amount" name="principal_amount" step="0.01" required placeholder="100000.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="interest_rate" class="form-label">Interest Rate (% p.a.) <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control" id="interest_rate" name="interest_rate" step="0.01" required placeholder="7.50">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tenure_months" class="form-label">Tenure (Months)</label>
+                    <input type="number" class="form-control" id="tenure_months" name="tenure_months" placeholder="12">
+                    <small class="text-muted">Or enter days below</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tenure_days" class="form-label">Tenure (Days)</label>
+                    <input type="number" class="form-control" id="tenure_days" name="tenure_days" placeholder="365">
+                    <small class="text-muted">Leave blank if using months</small>
+                </div>
+                
+                <!-- Dates -->
+                <div class="col-md-6 mb-3">
+                    <label for="deposit_date" class="form-label">Deposit Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="deposit_date" name="deposit_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="maturity_date" class="form-label">Maturity Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="maturity_date" name="maturity_date" required>
+                </div>
+                
+                <!-- Interest Details -->
+                <div class="col-md-6 mb-3">
+                    <label for="interest_frequency" class="form-label">Interest Frequency</label>
+                    <select class="form-select" id="interest_frequency" name="interest_frequency">
+                        <option value="">Select Frequency</option>
+                        <option value="Monthly">Monthly</option>
+                        <option value="Quarterly">Quarterly</option>
+                        <option value="Half-Yearly">Half-Yearly</option>
+                        <option value="Annual">Annual</option>
+                        <option value="Cumulative">Cumulative (on maturity)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="interest_payout" class="form-label">Interest Payout</label>
+                    <select class="form-select" id="interest_payout" name="interest_payout">
+                        <option value="">Select Payout</option>
+                        <option value="Payout">Payout</option>
+                        <option value="Reinvest">Reinvest</option>
+                        <option value="Cumulative">Cumulative</option>
+                    </select>
+                </div>
+                
+                <!-- TDS & Nomination -->
+                <div class="col-md-6 mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="tds_applicable" name="tds_applicable">
+                        <label class="form-check-label" for="tds_applicable">
+                            TDS Applicable
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tds_deducted" class="form-label">TDS Deducted (₹)</label>
+                    <input type="number" class="form-control" id="tds_deducted" name="tds_deducted" step="0.01" placeholder="0.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nominee_name" class="form-label">Nominee Name</label>
+                    <input type="text" class="form-control" id="nominee_name" name="nominee_name" placeholder="e.g., John Doe">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="nominee_relation" class="form-label">Nominee Relation</label>
+                    <input type="text" class="form-control" id="nominee_relation" name="nominee_relation" placeholder="e.g., Spouse">
+                </div>
+                
+                <!-- Additional Info -->
+                <div class="col-md-6 mb-3">
+                    <label for="portfolio_name" class="form-label">Portfolio Name</label>
+                    <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" value="Default" placeholder="Default">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Any additional notes..."></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddFDForm()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Fixed Deposit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Holdings Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Total Principal</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(total_principal) if total_principal else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Current Value</h6>
+                <h3 class="mb-0">₹{{ "{:,.0f}".format(current_value) if current_value else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Interest Earned</h6>
+                <h3 class="mb-0 text-success">₹{{ "{:,.0f}".format(total_interest) if total_interest else '0' }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Active FDs</h6>
+                <h3 class="mb-0">{{ holdings_count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Holdings Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Fixed Deposit Holdings</h5>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="viewType" id="activeView" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="activeView" onclick="filterHoldings('Active')">Active</label>
+            
+            <input type="radio" class="btn-check" name="viewType" id="maturedView" autocomplete="off">
+            <label class="btn btn-outline-primary" for="maturedView" onclick="filterHoldings('Matured')">Matured</label>
+            
+            <input type="radio" class="btn-check" name="viewType" id="allView" autocomplete="off">
+            <label class="btn btn-outline-primary" for="allView" onclick="filterHoldings('all')">All</label>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if holdings %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Bank Name</th>
+                        <th>FD Number</th>
+                        <th>Principal</th>
+                        <th>Interest Rate</th>
+                        <th>Deposit Date</th>
+                        <th>Maturity Date</th>
+                        <th>Current Value</th>
+                        <th>Maturity Amount</th>
+                        <th>Interest Earned</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="holdingsTable">
+                    {% for holding in holdings %}
+                    <tr class="holding-row" data-status="{{ holding.status }}">
+                        <td><strong>{{ holding.bank_name }}</strong></td>
+                        <td>{{ holding.fd_number or '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.principal_amount) }}</td>
+                        <td>{{ "{:.2f}".format(holding.interest_rate) }}%</td>
+                        <td>{{ holding.deposit_date.strftime('%d-%b-%Y') if holding.deposit_date else '-' }}</td>
+                        <td>{{ holding.maturity_date.strftime('%d-%b-%Y') if holding.maturity_date else '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.current_value) if holding.current_value else '-' }}</td>
+                        <td>₹{{ "{:,.0f}".format(holding.maturity_amount) if holding.maturity_amount else '-' }}</td>
+                        <td class="text-success">₹{{ "{:,.0f}".format(holding.interest_earned) if holding.interest_earned else '0' }}</td>
+                        <td>
+                            {% if holding.status == 'Active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif holding.status == 'Matured' %}
+                            <span class="badge bg-info">Matured</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Closed</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editHolding({{ holding.id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteHolding({{ holding.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-landmark fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No fixed deposits found. Add your first FD!</p>
+            <button class="btn btn-primary" onclick="toggleAddFDForm()">
+                <i class="fas fa-plus me-2"></i>Add Fixed Deposit
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const depositDateInput = document.getElementById('deposit_date');
+    const maturityDateInput = document.getElementById('maturity_date');
+    const tenureMonthsInput = document.getElementById('tenure_months');
+    const tenureDaysInput = document.getElementById('tenure_days');
+    
+    if (depositDateInput) {
+        depositDateInput.max = new Date().toISOString().split('T')[0];
+    }
+    
+    // Auto-calculate maturity date based on tenure
+    function calculateMaturityDate() {
+        const depositDate = new Date(depositDateInput.value);
+        const tenureMonths = parseInt(tenureMonthsInput.value) || 0;
+        const tenureDays = parseInt(tenureDaysInput.value) || 0;
+        
+        if (depositDate && (tenureMonths > 0 || tenureDays > 0)) {
+            const maturityDate = new Date(depositDate);
+            
+            if (tenureMonths > 0) {
+                maturityDate.setMonth(maturityDate.getMonth() + tenureMonths);
+            } else if (tenureDays > 0) {
+                maturityDate.setDate(maturityDate.getDate() + tenureDays);
+            }
+            
+            maturityDateInput.value = maturityDate.toISOString().split('T')[0];
+        }
+    }
+    
+    if (depositDateInput && tenureMonthsInput && tenureDaysInput && maturityDateInput) {
+        depositDateInput.addEventListener('change', calculateMaturityDate);
+        tenureMonthsInput.addEventListener('input', calculateMaturityDate);
+        tenureDaysInput.addEventListener('input', calculateMaturityDate);
+    }
+});
+
+function toggleAddFDForm() {
+    const formCard = document.getElementById('addFDFormCard');
+    if (formCard) {
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstInput = formCard.querySelector('input[type="text"]');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 300);
+        } else {
+            formCard.style.display = 'none';
+        }
+    }
+}
+
+function filterHoldings(status) {
+    const rows = document.querySelectorAll('.holding-row');
+    rows.forEach(row => {
+        if (status === 'all') {
+            row.style.display = '';
+        } else {
+            row.style.display = row.dataset.status === status ? '' : 'none';
+        }
+    });
+}
+
+function editHolding(id) {
+    alert('Edit functionality coming soon!');
+}
+
+function deleteHolding(id) {
+    if (confirm('Are you sure you want to delete this fixed deposit?')) {
+        fetch(`/api/fixed-deposits/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error deleting holding: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

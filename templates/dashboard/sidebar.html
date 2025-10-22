@@ -156,7 +156,8 @@
                 
                 <!-- Fixed Income -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_fixed_deposits' else '' }}" 
+                       href="{{ url_for('dashboard_fixed_deposits') }}">
                         <i class="nav-icon fas fa-landmark"></i>
                         <span class="nav-text">Fixed Income</span>
                     </a>
