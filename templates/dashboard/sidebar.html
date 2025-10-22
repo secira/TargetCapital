@@ -183,7 +183,8 @@
                 
                 <!-- Crypto -->
                 <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link" href="#">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_cryptocurrency' else '' }}" 
+                       href="{{ url_for('dashboard_cryptocurrency') }}">
                         <i class="nav-icon fab fa-bitcoin"></i>
                         <span class="nav-text">Cryptocurrency</span>
                     </a>

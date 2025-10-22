@@ -2369,6 +2369,100 @@ def delete_commodity_holding(holding_id):
         logger.error(f"Error deleting commodity: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/dashboard/cryptocurrency', methods=['GET', 'POST'])
+@login_required
+def dashboard_cryptocurrency():
+    """Cryptocurrency portfolio management - manual entries"""
+    from models import ManualCryptocurrencyHolding
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            # Create new manual cryptocurrency holding
+            new_holding = ManualCryptocurrencyHolding(
+                user_id=current_user.id,
+                crypto_symbol=request.form.get('crypto_symbol'),
+                crypto_name=request.form.get('crypto_name'),
+                platform=request.form.get('platform'),
+                wallet_type=request.form.get('wallet_type'),
+                wallet_address=request.form.get('wallet_address'),
+                purchase_date=datetime.strptime(request.form.get('purchase_date'), '%Y-%m-%d').date(),
+                quantity=float(request.form.get('quantity')),
+                purchase_rate_inr=float(request.form.get('purchase_rate_inr')),
+                purchase_amount=float(request.form.get('purchase_amount')),
+                transaction_fee=float(request.form.get('transaction_fee') or 0),
+                gas_fee=float(request.form.get('gas_fee') or 0),
+                other_charges=float(request.form.get('other_charges') or 0),
+                transaction_id=request.form.get('transaction_id'),
+                transaction_hash=request.form.get('transaction_hash'),
+                current_rate_inr=float(request.form.get('current_rate_inr')) if request.form.get('current_rate_inr') else None,
+                current_market_value=float(request.form.get('current_market_value')) if request.form.get('current_market_value') else None,
+                valuation_date=datetime.strptime(request.form.get('valuation_date'), '%Y-%m-%d').date() if request.form.get('valuation_date') else None,
+                is_staked=bool(request.form.get('is_staked')),
+                staking_platform=request.form.get('staking_platform'),
+                staking_apy=float(request.form.get('staking_apy')) if request.form.get('staking_apy') else None,
+                staking_rewards_earned=float(request.form.get('staking_rewards_earned') or 0),
+                portfolio_name=request.form.get('portfolio_name', 'Default'),
+                notes=request.form.get('notes')
+            )
+            
+            # Calculate values
+            new_holding.calculate_values()
+            
+            db.session.add(new_holding)
+            db.session.commit()
+            
+            flash(f'Successfully added {new_holding.crypto_name} to your portfolio!', 'success')
+            return redirect(url_for('dashboard_cryptocurrency'))
+            
+        except Exception as e:
+            logger.error(f"Error adding cryptocurrency: {str(e)}")
+            flash(f'Error adding cryptocurrency: {str(e)}', 'error')
+            return redirect(url_for('dashboard_cryptocurrency'))
+    
+    # GET request - display holdings
+    # Get manual holdings
+    manual_holdings = ManualCryptocurrencyHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate summary
+    total_investment = sum(h.total_investment for h in manual_holdings)
+    current_value = sum(h.current_market_value or h.total_investment for h in manual_holdings)
+    total_gain = sum(h.unrealized_gain or 0 for h in manual_holdings)
+    holdings_count = len(manual_holdings)
+    
+    return render_template('dashboard/cryptocurrency.html',
+                         holdings=manual_holdings,
+                         total_investment=total_investment,
+                         current_value=current_value,
+                         total_gain=total_gain,
+                         holdings_count=holdings_count)
+
+@app.route('/api/cryptocurrency/<int:holding_id>', methods=['DELETE'])
+@login_required
+def delete_cryptocurrency_holding(holding_id):
+    """Delete a manual cryptocurrency holding"""
+    from models import ManualCryptocurrencyHolding
+    
+    try:
+        holding = ManualCryptocurrencyHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+        db.session.delete(holding)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Holding deleted successfully'})
+    except Exception as e:
+        logger.error(f"Error deleting cryptocurrency: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/portfolio/sync-brokers', methods=['POST'])
 @login_required
 def portfolio_sync_brokers():

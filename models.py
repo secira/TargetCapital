@@ -878,6 +878,84 @@ class ManualCommodityHolding(db.Model):
             if self.total_investment > 0:
                 self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
 
+class ManualCryptocurrencyHolding(db.Model):
+    """Manual cryptocurrency holdings entered by users"""
+    __tablename__ = 'manual_cryptocurrency_holdings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Cryptocurrency Details
+    crypto_symbol = db.Column(db.String(10), nullable=False)  # BTC, ETH, BNB, etc.
+    crypto_name = db.Column(db.String(50), nullable=False)  # Bitcoin, Ethereum, etc.
+    
+    # Platform/Exchange Details
+    platform = db.Column(db.String(100), nullable=True)  # WazirX, CoinDCX, Binance, etc.
+    wallet_type = db.Column(db.String(50), nullable=True)  # Exchange, Hardware Wallet, Software Wallet, Cold Storage
+    wallet_address = db.Column(db.String(200), nullable=True)
+    
+    # Purchase Details
+    purchase_date = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Float, nullable=False)  # Number of coins/tokens
+    purchase_rate_inr = db.Column(db.Float, nullable=False)  # Purchase rate per coin in INR
+    purchase_amount = db.Column(db.Float, nullable=False)  # Total purchase amount
+    transaction_fee = db.Column(db.Float, default=0.0)
+    gas_fee = db.Column(db.Float, default=0.0)  # For ETH and similar
+    other_charges = db.Column(db.Float, default=0.0)
+    total_investment = db.Column(db.Float, nullable=False)
+    
+    # Transaction Details
+    transaction_id = db.Column(db.String(200), nullable=True)
+    transaction_hash = db.Column(db.String(200), nullable=True)
+    
+    # Current Valuation
+    current_rate_inr = db.Column(db.Float, nullable=True)
+    current_market_value = db.Column(db.Float, nullable=True)
+    valuation_date = db.Column(db.Date, nullable=True)
+    unrealized_gain = db.Column(db.Float, nullable=True)
+    unrealized_gain_percentage = db.Column(db.Float, nullable=True)
+    
+    # Staking Details (if applicable)
+    is_staked = db.Column(db.Boolean, default=False)
+    staking_platform = db.Column(db.String(100), nullable=True)
+    staking_apy = db.Column(db.Float, nullable=True)
+    staking_rewards_earned = db.Column(db.Float, default=0.0)
+    
+    # Portfolio Classification
+    portfolio_name = db.Column(db.String(100), default='Default')
+    asset_class = db.Column(db.String(50), default='Cryptocurrency')
+    
+    # Additional Information
+    notes = db.Column(db.Text, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='manual_cryptocurrency_holdings')
+    
+    def calculate_values(self):
+        """Calculate total investment and unrealized gains"""
+        self.total_investment = (
+            self.purchase_amount + 
+            (self.transaction_fee or 0) + 
+            (self.gas_fee or 0) + 
+            (self.other_charges or 0)
+        )
+        
+        if self.current_market_value:
+            self.unrealized_gain = self.current_market_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
+        elif self.current_rate_inr and self.quantity:
+            # Calculate current value based on quantity and current rate
+            self.current_market_value = self.quantity * self.current_rate_inr
+            self.unrealized_gain = self.current_market_value - self.total_investment
+            if self.total_investment > 0:
+                self.unrealized_gain_percentage = (self.unrealized_gain / self.total_investment) * 100
+
 class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     
