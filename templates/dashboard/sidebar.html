@@ -99,17 +99,6 @@
                     </a>
                 </li>
                 {% endif %}
-
-                <!-- HNI Account (HNI only) -->
-                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_account_handling' else '' }}" 
-                       href="{{ url_for('dashboard_account_handling') }}">
-                        <i class="nav-icon fas fa-crown"></i>
-                        <span class="nav-text">HNI Account</span>
-                    </a>
-                </li>
-                {% endif %}
             </ul>
         </div>
 
