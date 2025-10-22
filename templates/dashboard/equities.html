@@ -237,7 +237,49 @@
     </div>
 </div>
 
+<style>
+/* Ensure modal appears on top with proper z-index */
+#addEquityModal {
+    z-index: 1060 !important;
+}
+
+#addEquityModal .modal-dialog {
+    z-index: 1061 !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+}
+
+/* Ensure modal is scrollable on smaller screens */
+#addEquityModal .modal-body {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+</style>
+
 <script>
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Set max date to today
+    const purchaseDateInput = document.getElementById('purchase_date');
+    if (purchaseDateInput) {
+        purchaseDateInput.max = new Date().toISOString().split('T')[0];
+    }
+    
+    // Ensure modal works properly
+    const addEquityModal = document.getElementById('addEquityModal');
+    if (addEquityModal) {
+        addEquityModal.addEventListener('shown.bs.modal', function () {
+            // Focus on first input when modal opens
+            const firstInput = addEquityModal.querySelector('input[type="text"]');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        });
+    }
+});
+
 function filterHoldings(type) {
     const rows = document.querySelectorAll('.holding-row');
     rows.forEach(row => {
@@ -250,7 +292,6 @@ function filterHoldings(type) {
 }
 
 function editHolding(id) {
-    // TODO: Implement edit functionality
     alert('Edit functionality coming soon!');
 }
 
@@ -269,8 +310,5 @@ function deleteHolding(id) {
         });
     }
 }
-
-// Set max date to today
-document.getElementById('purchase_date').max = new Date().toISOString().split('T')[0];
 </script>
 {% endblock %}
