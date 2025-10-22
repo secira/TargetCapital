@@ -50,10 +50,6 @@ localPort = 34025
 externalPort = 5173
 
 [[ports]]
-localPort = 35463
-externalPort = 6800
-
-[[ports]]
 localPort = 35941
 externalPort = 3001
 
@@ -68,6 +64,10 @@ externalPort = 4200
 [[ports]]
 localPort = 40601
 externalPort = 6000
+
+[[ports]]
+localPort = 42323
+externalPort = 6800
 
 [agent]
 integrations = ["perplexity_v0:1.0.0", "flask_google_oauth:1.0.0", "twilio_send_message:1.0.0"]

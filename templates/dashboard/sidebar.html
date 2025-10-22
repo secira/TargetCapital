@@ -104,14 +104,15 @@
 
         <!-- Portfolio Hub Section -->
         <div class="menu-section">
-            <div class="section-header">
+            <div class="section-header collapsible-header" onclick="togglePortfolioHub()">
                 <h3 class="section-title">
                     <i class="fas fa-layer-group"></i>
                     Portfolio Hub
+                    <i class="fas fa-chevron-down toggle-icon" id="portfolioHubToggle"></i>
                 </h3>
             </div>
             
-            <ul class="nav-list submenu-list">
+            <ul class="nav-list submenu-list" id="portfolioHubMenu" style="display: none;">
                 <!-- Broker Management -->
                 <li class="nav-item submenu-item">
                     <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" 
@@ -377,6 +378,8 @@
 /* Submenu Styles */
 .submenu-list {
     padding-left: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .submenu-item {
@@ -417,6 +420,16 @@
     padding: 0 20px 12px;
 }
 
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.2s ease;
+}
+
+.collapsible-header:hover {
+    opacity: 0.8;
+}
+
 .section-title {
     font-size: 9px;
     font-weight: 500;
@@ -427,10 +440,21 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative;
 }
 
 .section-title i {
     font-size: 11px;
+}
+
+.toggle-icon {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+}
+
+.toggle-icon.expanded {
+    transform: rotate(180deg);
 }
 
 .section-title-link {
@@ -629,3 +653,39 @@
     }
 }
 </style>
+
+<script>
+// Portfolio Hub Toggle Function
+function togglePortfolioHub() {
+    const menu = document.getElementById('portfolioHubMenu');
+    const toggleIcon = document.getElementById('portfolioHubToggle');
+    
+    if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'block';
+        toggleIcon.classList.add('expanded');
+        // Save state to localStorage
+        localStorage.setItem('portfolioHubExpanded', 'true');
+    } else {
+        menu.style.display = 'none';
+        toggleIcon.classList.remove('expanded');
+        // Save state to localStorage
+        localStorage.setItem('portfolioHubExpanded', 'false');
+    }
+}
+
+// Restore Portfolio Hub state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const isExpanded = localStorage.getItem('portfolioHubExpanded');
+    const menu = document.getElementById('portfolioHubMenu');
+    const toggleIcon = document.getElementById('portfolioHubToggle');
+    
+    // If previously expanded or if we're on a portfolio hub page, show it
+    const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks'];
+    const currentEndpoint = '{{ request.endpoint }}';
+    
+    if (isExpanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
+        menu.style.display = 'block';
+        toggleIcon.classList.add('expanded');
+    }
+});
+</script>
