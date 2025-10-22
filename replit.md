@@ -70,6 +70,12 @@ Updated Subscription Model: Target Plus users can connect 1 broker for portfolio
 
 **RAG-Powered Research Assistant System** (October 2025):
 - **Menu Changes**: "Trading Signals" renamed to "Smart Signals", "AI Advisor" renamed to "Research Assistant", "HNI Account" menu removed and features integrated into Dashboard
+- **Research Assistant Archive System**: Complete sidebar implementation with Daily/Weekly/Monthly tabs, Stock/Sector/Strategy filters, conversation history management, and Execute Trade button integration for seamless trade execution from AI recommendations
+- **AI Status Section Removed**: Cleaned up sidebar navigation by removing redundant AI Status and "Agentic AI Active" indicators (October 2025)
+- **Portfolio Hub Menu**: New consolidated menu structure organizing all portfolio-related features (October 2025):
+  - Broker Management (moved from standalone section)
+  - Banks (FDs & Cash) - placeholder for future implementation
+  - Asset class sub-menus: Equities, Mutual Funds, Fixed Income, Real Estate, Gold & Commodities, Cryptocurrency
 - **Vector Database**: pgvector extension enabled in PostgreSQL for semantic search capabilities
 - **Database Models**: ResearchConversation, ResearchMessage, VectorDocument, SourceCitation, SignalPerformance
 - **Enhanced Smart Signals**: Added sector and category fields for filtering, performance tracking with accuracy metrics
