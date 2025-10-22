@@ -14,6 +14,16 @@
 
 {% block extra_css %}
 <style>
+/* Override dashboard container max-width for full-width input */
+.content-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+}
+
+.dashboard-content {
+    padding: 32px 0 !important;
+}
+
 /* Perplexity-Style Research Assistant */
 .research-container {
     background: #ffffff;
@@ -22,6 +32,7 @@
     display: flex;
     flex-direction: column;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 0 32px;
 }
 
 .research-content {
