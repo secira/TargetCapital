@@ -4659,7 +4659,7 @@ def handle_payment_success():
         # Determine plan and amount
         if plan_type == 'target_plus':
             current_user.pricing_plan = PricingPlan.TARGET_PLUS
-            amount = 1999
+            amount = 1499
         elif plan_type == 'target_pro':
             current_user.pricing_plan = PricingPlan.TARGET_PRO
             amount = 2999

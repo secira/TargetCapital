@@ -205,7 +205,7 @@ class User(UserMixin, db.Model):
         """Get monthly price for the current plan"""
         prices = {
             PricingPlan.FREE: 0,
-            PricingPlan.TARGET_PLUS: 1999,
+            PricingPlan.TARGET_PLUS: 1499,
             PricingPlan.TARGET_PRO: 2999,
             PricingPlan.HNI: 9999
         }

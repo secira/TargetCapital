@@ -165,7 +165,7 @@ class RazorpayService:
             },
             'TARGET_PLUS': {
                 'name': 'Target Plus Plan',
-                'price': 1999,
+                'price': 1499,
                 'duration_days': 30,
                 'features': ['Advanced charts', 'Real-time data', 'Trading signals', 'Single broker connection', 'Portfolio analysis only', 'Basic AI advisor'],
                 'limits': {'portfolios': 3, 'watchlist': 50, 'ai_queries': 100, 'brokers': 1}
