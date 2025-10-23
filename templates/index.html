@@ -85,7 +85,7 @@
     </div>
 </section>
 
-<!-- Feature Section 1: Portfolio Import -->
+<!-- Feature Section 1: Multi-Asset Portfolio System -->
 <section class="content-section bg-light">
     <div class="container">
         <div class="row align-items-center">
@@ -95,18 +95,26 @@
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-primary">
                             <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z" fill="currentColor"/>
                         </svg>
-                        <span class="fw-semibold text-primary">Easy portfolio import</span>
+                        <span class="fw-semibold text-primary">Multi-Asset Portfolio</span>
                     </div>
-                    <h2 class="display-5 fw-bold text-dark mb-4">See your complete trading picture</h2>
+                    <h2 class="display-5 fw-bold text-dark mb-4">Manage All Your Assets in One Place</h2>
                     <p class="lead text-muted mb-4" style="font-size: 1.2rem;">
-                        Easily connect all your trading accounts—from NSE and BSE to international brokers—via secure API integration with thousands of providers.
+                        Track your complete financial portfolio across 11 asset classes with unified views across up to 3 brokers. From Equities and Mutual Funds to Real Estate, Gold, Crypto, and more—all in one comprehensive dashboard.
                     </p>
+                    <div class="row g-2 mt-3">
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Equities & F&O</small></div>
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Mutual Funds</small></div>
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Real Estate</small></div>
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Gold & Commodities</small></div>
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Cryptocurrency</small></div>
+                        <div class="col-6"><small class="text-muted"><i class="fas fa-check text-success me-2"></i>Fixed Deposits</small></div>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-2 order-1 mb-5 mb-lg-0">
                 <div class="position-relative">
                     <img src="{{ url_for('static', filename='img/portfolio-import.svg') }}" 
-                         alt="Portfolio Import" class="responsive-img shadow lazy-img" loading="lazy" decoding="async">
+                         alt="Multi-Asset Portfolio" class="responsive-img shadow lazy-img" loading="lazy" decoding="async">
                 </div>
             </div>
         </div>
@@ -157,7 +165,7 @@
     </div>
 </section>
 
-<!-- Feature Section 3: Real-time Tracking -->
+<!-- Feature Section 3: 12 Broker Integration -->
 <section style="padding: 120px 0; background: #fafbfc;">
     <div class="container">
         <div class="row align-items-center">
@@ -167,32 +175,126 @@
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-primary">
                             <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
                         </svg>
-                        <span class="fw-semibold text-primary">Portfolio tracking</span>
+                        <span class="fw-semibold text-primary">Multi-Broker Integration</span>
                     </div>
-                    <h2 class="display-5 fw-bold text-dark mb-4">Get real-time updates</h2>
+                    <h2 class="display-5 fw-bold text-dark mb-4">Connect All Your Brokers Seamlessly</h2>
                     <p class="lead text-muted mb-4" style="font-size: 1.2rem;">
-                        Monitor your investments in real time with powerful performance tracking tools.
+                        Integrate with 12 major Indian brokers including Zerodha, Angel One, Upstox, FYERS, Dhan, and more. Get unified portfolio views, real-time balance tracking, and direct order execution—all from one platform.
                     </p>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Zerodha</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Angel One</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Upstox</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">FYERS</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Dhan</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">+7 More</span>
+                    </div>
                 </div>
             </div>
             <div class="col-lg-6 order-lg-2 order-1 mb-5 mb-lg-0">
                 <div class="position-relative">
                     <img src="{{ url_for('static', filename='img/real-time-tracking.svg') }}" 
-                         alt="Real-time Tracking" class="img-fluid rounded-3 shadow-lg">
+                         alt="Multi-Broker Integration" class="img-fluid rounded-3 shadow-lg">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Feature Section 4: Agentic AI Trading & Portfolio Management -->
+<!-- Feature Section 4: RAG-Powered Research Assistant -->
+<section style="padding: 120px 0; background: white;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='img/ai-analytics.svg') }}" 
+                         alt="Research Assistant" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="ps-lg-5">
+                    <div class="d-inline-flex align-items-center gap-2 mb-4">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-success">
+                            <path d="M12 2L2 7V10C2 16 6 21.5 12 23C18 21.5 22 16 22 10V7L12 2Z" fill="currentColor"/>
+                        </svg>
+                        <span class="fw-semibold text-success">RAG-Powered Research</span>
+                    </div>
+                    <h2 class="display-5 fw-bold text-dark mb-4">AI Research Assistant with Memory</h2>
+                    <p class="lead text-muted mb-4" style="font-size: 1.2rem;">
+                        Ask questions about stocks, sectors, or strategies and get AI-powered responses with real citations from financial news, earnings reports, and market data. Execute trades directly from AI recommendations with conversation history tracking.
+                    </p>
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-database text-success me-3"></i>
+                            <span class="text-muted">Vector database for semantic search</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-quote-right text-success me-3"></i>
+                            <span class="text-muted">Real citations from trusted sources</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-chart-line text-success me-3"></i>
+                            <span class="text-muted">One-click trade execution from insights</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Section 5: Smart Signals -->
+<section style="padding: 120px 0; background: #fafbfc;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-1 order-2">
+                <div class="pe-lg-5">
+                    <div class="d-inline-flex align-items-center gap-2 mb-4">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-warning">
+                            <path d="M12 2L2 7V10C2 16 6 21.5 12 23C18 21.5 22 16 22 10V7L12 2Z" fill="currentColor"/>
+                        </svg>
+                        <span class="fw-semibold text-warning">Smart Signals</span>
+                    </div>
+                    <h2 class="display-5 fw-bold text-dark mb-4">High-Confidence Trading Signals</h2>
+                    <p class="lead text-muted mb-4" style="font-size: 1.2rem;">
+                        Receive AI-generated trading signals with performance tracking and accuracy metrics. Filter by stock, sector, or strategy, and monitor signal performance over daily, weekly, and monthly periods.
+                    </p>
+                    <div class="row g-3 mt-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-success bg-opacity-10 rounded">
+                                <i class="fas fa-signal text-success mb-2"></i>
+                                <div class="fw-semibold text-dark">Real-Time Alerts</div>
+                                <small class="text-muted">Instant notifications via WhatsApp & Telegram</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                <i class="fas fa-chart-bar text-primary mb-2"></i>
+                                <div class="fw-semibold text-dark">Performance Tracking</div>
+                                <small class="text-muted">Track accuracy and success rates</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-2 order-1 mb-5 mb-lg-0">
+                <div class="position-relative">
+                    <img src="{{ url_for('static', filename='img/ai-trading-agents.svg') }}" 
+                         alt="Smart Signals" class="img-fluid rounded-3 shadow-lg">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature Section 6: Portfolio Analytics & Insights -->
 <section style="padding: 120px 0; background: white;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
                 <div class="position-relative">
                     <img src="{{ url_for('static', filename='img/ai-trading-agents.svg') }}" 
-                         alt="Agentic AI Trading Agents" class="img-fluid rounded-3 shadow-lg">
+                         alt="Portfolio Analytics" class="img-fluid rounded-3 shadow-lg">
                 </div>
             </div>
             <div class="col-lg-6">
@@ -201,40 +303,39 @@
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-primary">
                             <path d="M12 2L2 7V10C2 16 6 21.5 12 23C18 21.5 22 16 22 10V7L12 2Z" fill="currentColor"/>
                         </svg>
-                        <span class="fw-semibold text-primary">Agentic AI Algo Trading</span>
+                        <span class="fw-semibold text-primary">Portfolio Analytics</span>
                     </div>
-                    <h2 class="display-5 fw-bold text-dark mb-4">From Passive Automation to True Autonomous Intelligence</h2>
+                    <h2 class="display-5 fw-bold text-dark mb-4">AI-Powered Portfolio Health Scoring</h2>
                     <p class="lead text-muted mb-4" style="font-size: 1.2rem;">
-                        Agentic AI in trading marks a shift from passive automation to true autonomous decision-making—empowering 
-                        platforms to learn, reason, act, and adapt in real-market conditions for smarter, safer, and more profitable outcomes.
+                        Get comprehensive portfolio analysis with AI-driven recommendations for rebalancing. Track sector allocation, asset distribution, risk metrics, and performance across all your holdings with interactive charts and detailed insights.
                     </p>
                     <div class="row g-3 mt-3">
                         <div class="col-6">
                             <div class="p-3 bg-primary bg-opacity-10 rounded">
-                                <i class="fas fa-robot text-primary mb-2"></i>
-                                <div class="fw-semibold text-dark">Learn</div>
-                                <small class="text-muted">Continuously learns from market patterns</small>
+                                <i class="fas fa-chart-pie text-primary mb-2"></i>
+                                <div class="fw-semibold text-dark">Asset Allocation</div>
+                                <small class="text-muted">Visual breakdown by asset class</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="p-3 bg-success bg-opacity-10 rounded">
-                                <i class="fas fa-lightbulb text-success mb-2"></i>
-                                <div class="fw-semibold text-dark">Reason</div>
-                                <small class="text-muted">Analyzes complex market scenarios</small>
+                                <i class="fas fa-shield-alt text-success mb-2"></i>
+                                <div class="fw-semibold text-dark">Risk Analysis</div>
+                                <small class="text-muted">Comprehensive risk profiling</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="p-3 bg-warning bg-opacity-10 rounded">
-                                <i class="fas fa-play text-warning mb-2"></i>
-                                <div class="fw-semibold text-dark">Act</div>
-                                <small class="text-muted">Executes trades autonomously</small>
+                                <i class="fas fa-balance-scale text-warning mb-2"></i>
+                                <div class="fw-semibold text-dark">Rebalancing</div>
+                                <small class="text-muted">AI-driven suggestions</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="p-3 bg-info bg-opacity-10 rounded">
-                                <i class="fas fa-sync text-info mb-2"></i>
-                                <div class="fw-semibold text-dark">Adapt</div>
-                                <small class="text-muted">Evolves with changing conditions</small>
+                                <i class="fas fa-chart-line text-info mb-2"></i>
+                                <div class="fw-semibold text-dark">Performance</div>
+                                <small class="text-muted">Real-time tracking & insights</small>
                             </div>
                         </div>
                     </div>
