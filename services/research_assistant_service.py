@@ -278,7 +278,11 @@ Provide comprehensive research with:
                 json=payload,
                 timeout=30
             )
-            response.raise_for_status()
+            
+            # Log error details if request fails
+            if response.status_code != 200:
+                logger.error(f"Perplexity API error {response.status_code}: {response.text}")
+                response.raise_for_status()
             
             data = response.json()
             answer = data['choices'][0]['message']['content']
