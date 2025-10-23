@@ -458,6 +458,7 @@ class ManualEquityHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
     # Stock Details
     symbol = db.Column(db.String(20), nullable=False)
@@ -501,6 +502,7 @@ class ManualEquityHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_equity_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_equity_holdings', foreign_keys=[broker_account_id])
     
     def calculate_totals(self):
         """Calculate total investment and current values"""
@@ -519,6 +521,7 @@ class ManualMutualFundHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
     # Fund Details
     scheme_name = db.Column(db.String(200), nullable=False)
@@ -571,6 +574,7 @@ class ManualMutualFundHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_mutual_fund_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_mutual_fund_holdings', foreign_keys=[broker_account_id])
     
     def calculate_totals(self):
         """Calculate total investment and current values"""
@@ -590,6 +594,7 @@ class ManualFixedDepositHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/bank holds this
     
     # Institution Details
     bank_name = db.Column(db.String(100), nullable=False)
@@ -638,6 +643,7 @@ class ManualFixedDepositHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_fixed_deposit_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_fixed_deposit_holdings', foreign_keys=[broker_account_id])
     
     def calculate_maturity(self):
         """Calculate maturity amount and interest earned"""
@@ -701,6 +707,7 @@ class ManualRealEstateHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Property management broker
     
     # Property Details
     property_name = db.Column(db.String(200), nullable=False)
@@ -772,6 +779,7 @@ class ManualRealEstateHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_real_estate_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_real_estate_holdings', foreign_keys=[broker_account_id])
     
     def calculate_values(self):
         """Calculate total investment and unrealized gains"""
@@ -794,6 +802,7 @@ class ManualCommodityHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
     # Commodity Details
     commodity_type = db.Column(db.String(50), nullable=False)  # Gold, Silver, Platinum, Palladium, etc.
@@ -857,6 +866,7 @@ class ManualCommodityHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_commodity_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_commodity_holdings', foreign_keys=[broker_account_id])
     
     def calculate_values(self):
         """Calculate total investment and unrealized gains"""
@@ -884,6 +894,7 @@ class ManualCryptocurrencyHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/exchange holds this
     
     # Cryptocurrency Details
     crypto_symbol = db.Column(db.String(10), nullable=False)  # BTC, ETH, BNB, etc.
@@ -935,6 +946,7 @@ class ManualCryptocurrencyHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_cryptocurrency_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_cryptocurrency_holdings', foreign_keys=[broker_account_id])
     
     def calculate_values(self):
         """Calculate total investment and unrealized gains"""
@@ -962,6 +974,7 @@ class ManualInsuranceHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Insurance broker/agent
     
     # Policy Details
     insurance_type = db.Column(db.String(50), nullable=False)  # Life, Health, Motor, Term, etc.
@@ -1019,6 +1032,7 @@ class ManualInsuranceHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_insurance_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_insurance_holdings', foreign_keys=[broker_account_id])
 
 class ManualBankAccount(db.Model):
     """Manual bank accounts and cash holdings entered by users"""
@@ -1076,6 +1090,7 @@ class ManualFuturesOptionsHolding(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this position
     
     # Contract Details
     contract_type = db.Column(db.String(20), nullable=False)  # Future, Call Option, Put Option
@@ -1134,6 +1149,7 @@ class ManualFuturesOptionsHolding(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='manual_futures_options_holdings')
+    broker_account = db.relationship('BrokerAccount', backref='manual_futures_options_holdings', foreign_keys=[broker_account_id])
     
     def calculate_values(self):
         """Calculate total investment, charges, and P&L"""
