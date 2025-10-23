@@ -1,11 +1,4 @@
 <nav class="sidebar-nav">
-    <!-- Logo/Brand -->
-    <div class="sidebar-brand">
-        <a href="{{ url_for('index') }}" class="brand-link">
-            <img src="{{ url_for('static', filename='img/target-black.png') }}" alt="Target Capital" class="brand-logo">
-        </a>
-    </div>
-
     <!-- User Plan Section -->
     {% if current_user.is_authenticated %}
     <div class="menu-section plan-section">
