@@ -31,13 +31,12 @@ class VectorService:
     def _setup_openai(self):
         """Initialize OpenAI client"""
         try:
-            import openai
-            openai.api_key = self.openai_api_key
-            self.openai = openai
+            from openai import OpenAI
+            self.openai_client = OpenAI(api_key=self.openai_api_key)
             logger.info("OpenAI client initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize OpenAI: {str(e)}")
-            self.openai = None
+            self.openai_client = None
     
     def generate_embedding(self, text: str, model: str = "text-embedding-ada-002") -> Optional[List[float]]:
         """
@@ -50,7 +49,7 @@ class VectorService:
         Returns:
             List of floats (embedding vector) or None if error
         """
-        if not self.openai:
+        if not self.openai_client:
             logger.error("OpenAI not initialized")
             return None
         
@@ -61,12 +60,12 @@ class VectorService:
             if not text:
                 return None
             
-            response = self.openai.Embedding.create(
+            response = self.openai_client.embeddings.create(
                 model=model,
                 input=text
             )
             
-            embedding = response['data'][0]['embedding']
+            embedding = response.data[0].embedding
             logger.debug(f"Generated embedding with {len(embedding)} dimensions")
             
             return embedding
@@ -87,7 +86,7 @@ class VectorService:
         Returns:
             List of embeddings (same length as input)
         """
-        if not self.openai:
+        if not self.openai_client:
             return [None] * len(texts)
         
         try:
@@ -98,12 +97,12 @@ class VectorService:
                 return [None] * len(texts)
             
             # Batch API call
-            response = self.openai.Embedding.create(
+            response = self.openai_client.embeddings.create(
                 model=model,
                 input=cleaned_texts
             )
             
-            embeddings = [item['embedding'] for item in response['data']]
+            embeddings = [item.embedding for item in response.data]
             logger.info(f"Generated {len(embeddings)} embeddings")
             
             return embeddings
