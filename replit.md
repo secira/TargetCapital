@@ -1,9 +1,9 @@
 # Target Capital - Flask Web Application
 
-## Overview
-Target Capital is an advanced Agentic AI-powered stock trading platform built with Flask, providing autonomous portfolio analysis, algorithmic trading services, and market insights. It aims for true autonomous, intelligent, and adaptive financial decision-making in real-market conditions, moving beyond passive automation. The project envisions significant market potential for such intelligent financial tools.
+### Overview
+Target Capital is an advanced AI-powered stock trading platform built with Flask, providing autonomous portfolio analysis, algorithmic trading services, and market insights. It aims for true autonomous, intelligent, and adaptive financial decision-making in real-market conditions, moving beyond passive automation. The project envisions significant market potential for such intelligent financial tools.
 
-## User Preferences
+### User Preferences
 Preferred communication style: Simple, everyday language.
 Brand name: Target Capital
 Design preference: Clean white backgrounds instead of blue gradients
@@ -45,7 +45,7 @@ Updated Trade Now page template structure to match other dashboard pages for vis
 Removed Stock Analysis menu and functionality - charts now work wherever stocks/indices are displayed
 Moved AI Advisor menu item below Account Handling in sidebar navigation
 Restructured AI Advisor interface layout: search input as main focal point, advanced functions moved to right sidebar
-Removed redundant welcome screen text box to eliminate user confusion - now uses single text input box at bottom consistently
+Removed redundant welcome screen text box to eliminate user confusion - now uses single text input at bottom consistently
 UI/UX improvements for AI Advisor text input: 40 characters width, 3 lines height, fixed size to prevent collapse, removed "Thinking" text, colorful "New Chat" button below text box, changed up arrow to "Send" button
 Fixed sidebar navigation to correctly point to AI Advisor (/dashboard/ai-advisor) instead of AI Chat - ensuring users access the proper Perplexity-style interface
 UI/UX improvements: Removed Market Opportunities and Risk Factors sections from Stock Picker page
@@ -107,55 +107,19 @@ Research Assistant UI/UX Redesign (October 2025):
 - Mobile Optimized: Fully responsive with collapsible sidebar and touch-friendly controls
 - Visual Polish: Smooth animations, subtle hover effects, and clean transitions throughout
 
-## System Architecture
-### Production Backend Architecture
-- **Primary Frameworks**: Flask (web interface), FastAPI (high-performance trading operations).
-- **Real-time Data**: WebSocket-based market data streaming.
-- **Background Processing**: Celery with Redis.
-- **Load Balancing**: Production-grade traffic distribution and rate limiting.
-- **Database**: PostgreSQL with Redis caching.
-- **ORM**: SQLAlchemy with Flask-SQLAlchemy.
-- **Session Management**: Flask sessions with Redis.
-- **Deployment**: Multi-service architecture with health monitoring and auto-scaling.
-
-### Frontend Architecture
-- **Template Engine**: Jinja2.
-- **CSS Framework**: Bootstrap 5.3.0.
-- **Icons**: Font Awesome 6.4.0.
-- **Fonts**: Google Fonts (Inter).
-- **JavaScript**: Vanilla JavaScript (ES6+).
-- **Responsive Design**: Mobile-first approach using Bootstrap's grid system with comprehensive breakpoints (1024px, 768px, 576px, 375px).
+### System Architecture
+- **Production Backend Architecture**: Flask (web interface), FastAPI (high-performance trading operations), WebSocket for real-time data, Celery with Redis for background processing, PostgreSQL with Redis caching, SQLAlchemy, and multi-service deployment with auto-scaling.
+- **Frontend Architecture**: Jinja2 templating, Bootstrap 5.3.0 for CSS, Font Awesome 6.4.0 for icons, Google Fonts (Inter), and vanilla JavaScript. Employs a mobile-first responsive design with Bootstrap's grid system.
 - **UI/UX Decisions**: Clean white backgrounds, subtle shadows, rounded elements, modern typography (Poppins/Inter), inspired by getquin.com and arvat.ai.
+- **Key Features & Design Patterns**:
+    - **Agentic AI Tools**: Autonomous AI system with OpenAI and Perplexity integration for analysis, research, optimization, and adaptive decision-making, coordinated by n8n workflows.
+    - **Multi-Broker Integration**: Supports 12 major Indian brokers with unified API, direct order execution, and encrypted credential storage.
+    - **Authentication**: Three methods: Google OAuth, Mobile Number + OTP (Twilio), and Email/Password.
+    - **RAG-Powered Research Assistant**: Semantic search via pgvector, LLM responses with citations, trade execution options, and an archive system.
+    - **Multi-Asset Portfolio System**: Supports 11 asset classes across multiple brokers, with asset-specific filtering and real-time data.
+    - **Broker-Specific Holdings**: Manual holdings tables enhanced to track assets per broker account.
 
-### Key Features & Design Patterns
-- **Agentic AI Tools**: Autonomous AI system with OpenAI and Perplexity integration for analysis, research, optimization, and adaptive decision-making, coordinated by n8n.
-- **Multi-Broker Integration**: Support for 12 major Indian brokers with unified API, direct order execution, portfolio synchronization, and encrypted credential storage.
-- **Authentication**: Three methods: Google OAuth, Mobile Number + OTP (Twilio), and Email/Password.
-- **RAG-Powered Research Assistant**: Semantic search via pgvector, LLM responses with citations, trade execution options, and archive system for recommendations.
-- **Multi-Asset Portfolio System**: Supports 11 asset classes across multiple brokers, with asset-specific filtering and real-time data.
-- **Broker-Specific Holdings**: Manual holdings tables enhanced to track assets per broker account.
-
-## External Dependencies
-### Python Packages
-- Flask
-- Flask-SQLAlchemy
-- Werkzeug
-- NSEPython
-- Pandas
-- Requests
-
-### Frontend Libraries
-- Bootstrap 5.3.0
-- Font Awesome 6.4.0
-- Google Fonts (Inter)
-
-### Infrastructure Dependencies
-- Database: SQLite (development) / PostgreSQL (production)
-- OpenAI API
-- Perplexity API
-- n8n
-- Twilio (for SMS OTP)
-- WhatsApp Business API
-- Telegram Bot API
-- Razorpay API
-- TradingView (for charts, custom implementation)
+### External Dependencies
+- **Python Packages**: Flask, Flask-SQLAlchemy, Werkzeug, NSEPython, Pandas, Requests.
+- **Frontend Libraries**: Bootstrap 5.3.0, Font Awesome 6.4.0, Google Fonts (Inter).
+- **Infrastructure Dependencies**: PostgreSQL, Redis, OpenAI API, Perplexity API, n8n, Twilio, WhatsApp Business API, Telegram Bot API, Razorpay API, TradingView (custom implementation).

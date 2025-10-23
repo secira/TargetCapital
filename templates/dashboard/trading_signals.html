@@ -55,7 +55,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="d-flex align-items-center">
         <div class="me-3">
-            <input type="date" class="form-control form-control-sm" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" max="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
+            <input type="date" class="form-control form-control-sm" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
         </div>
         <div class="btn-group me-2">
             <button class="btn btn-sm btn-success" onclick="refreshSignals()" title="Auto-refresh every 2 minutes">
@@ -421,7 +421,7 @@
                             </div>
                         </div>
                         <div class="d-flex flex-wrap gap-1">
-                            <input type="date" class="form-control form-control-sm" id="picksDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" max="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadAIPicksForDate(this.value)" style="width: 140px; max-width: 140px;">
+                            <input type="date" class="form-control form-control-sm" id="picksDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadAIPicksForDate(this.value)" style="width: 140px; max-width: 140px;">
                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="refreshStockPrices()" title="Refresh prices">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
