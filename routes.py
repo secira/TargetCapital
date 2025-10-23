@@ -4139,16 +4139,24 @@ def api_trading_signals():
         for signal in signals:
             signals_data.append({
                 'id': signal.id,
+                'signal_type': signal.signal_type,
                 'symbol': signal.symbol,
+                'company_name': signal.company_name,
                 'action': signal.action,
-                'entry_price': signal.entry_price,
-                'target_price': signal.target_price,
-                'stop_loss': signal.stop_loss,
+                'entry_price': float(signal.entry_price) if signal.entry_price else None,
+                'target_price': float(signal.target_price) if signal.target_price else None,
+                'stop_loss': float(signal.stop_loss) if signal.stop_loss else None,
+                'quantity': signal.quantity,
                 'risk_level': signal.risk_level,
-                'strategy': signal.strategy,
-                'expiry_date': signal.expiry_date.isoformat() if signal.expiry_date else None,
+                'time_frame': signal.time_frame,
+                'strategy': signal.strategy_name,
+                'notes': signal.notes,
+                'sector': signal.sector,
+                'category': signal.category,
+                'expiry_date': signal.expires_at.isoformat() if signal.expires_at else None,
                 'created_at': signal.created_at.isoformat(),
-                'status': signal.status
+                'status': signal.status,
+                'potential_return': signal.potential_return
             })
         
         return jsonify({
