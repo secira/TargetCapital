@@ -95,16 +95,17 @@ Broker-Specific Holdings Tracking:
 - Performance: Indexed for optimal query performance with foreign key constraints ensuring data integrity
 
 Research Assistant UI/UX Redesign (October 2025):
-- Modern Interface: Complete redesign with ChatGPT/Claude-inspired layout featuring gradient accents, enhanced spacing, and polished animations
-- Enhanced Welcome Screen: Prominent research icon with gradient background, improved suggestion cards with hover effects, and clear value proposition
-- Improved Message Display: User messages with gradient bubbles, assistant messages with avatar header and name badge, better visual hierarchy
-- Professional Citations: Enhanced citation cards with numbered badges, source type indicators, smooth hover transitions, and external link icons
-- Trade Execution Cards: Eye-catching gradient cards for buy/sell recommendations with clear call-to-action buttons and signal badges
-- Better Sidebar: Compact conversation history with time filters (Today/Week/Month), improved empty states, and new chat button
-- Context Header: Persistent portfolio context display with badges showing total value and holdings count at the top of chat area
-- Enhanced Input Area: Modern textarea with smooth focus effects, gradient send button with rotation animation on hover
-- Mobile Optimized: Fully responsive design with collapsible sidebar, optimized layouts for tablets and phones
-- Visual Polish: Consistent gradient theme (#667eea to #764ba2), smooth animations, professional micro-interactions, and accessibility improvements
+- Perplexity-Style Interface: Clean, minimalist design inspired by Perplexity.ai with focus on simplicity and elegance
+- Welcome Screen: Just a large, centered search box with "Ask anything..." placeholder - no text, no clutter, no suggestions
+- Clean Color Scheme: Neutral grays (#2d2d2d for text, #fafafa for backgrounds) for a professional, distraction-free experience
+- Large Search Input: 120px tall textarea on welcome screen, auto-resizes up to 400px for long queries
+- Minimal Sidebar: 260px compact sidebar with simple conversation history, time filters (Today/Week/Month), and new chat button
+- Message Display: Clean user messages in light gray bubbles, AI messages with small avatar and simple formatting
+- Professional Citations: Minimalist citation cards with numbered badges and clean typography
+- Trade Execution: Subtle trade cards with buy/sell badges and execute button
+- Responsive Input: Auto-resizing textarea that adapts to content length, maximum 200px in chat mode
+- Mobile Optimized: Fully responsive with collapsible sidebar and touch-friendly controls
+- Visual Polish: Smooth animations, subtle hover effects, and clean transitions throughout
 
 ## System Architecture
 ### Production Backend Architecture
