@@ -74,31 +74,6 @@
     background: #1a1a1a;
 }
 
-/* Time Filters */
-.time-filters {
-    padding: 12px 16px;
-    display: flex;
-    gap: 8px;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.time-filter {
-    flex: 1;
-    padding: 6px 12px;
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.time-filter.active {
-    background: #f0f0f0;
-    color: #000;
-    font-weight: 500;
-}
 
 /* Conversation List */
 .conversation-list {
@@ -185,7 +160,7 @@
 
 .welcome-content {
     width: 100%;
-    max-width: 720px;
+    max-width: 900px;
 }
 
 .search-box-large {
@@ -195,11 +170,11 @@
 
 .search-input-large {
     width: 100%;
-    min-height: 120px;
-    max-height: 400px;
-    padding: 24px 60px 24px 24px;
+    min-height: 180px;
+    max-height: 600px;
+    padding: 28px 70px 28px 28px;
     border: 2px solid #e0e0e0;
-    border-radius: 16px;
+    border-radius: 20px;
     font-size: 18px;
     font-family: inherit;
     color: #2d2d2d;
@@ -222,10 +197,10 @@
 
 .search-btn-large {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 48px;
-    height: 48px;
+    right: 16px;
+    bottom: 16px;
+    width: 56px;
+    height: 56px;
     background: #2d2d2d;
     color: white;
     border: none;
@@ -511,13 +486,13 @@
 
 /* Input Area - Chat Mode */
 .chat-input-area {
-    padding: 20px;
+    padding: 24px;
     background: white;
     border-top: 1px solid #e5e5e5;
 }
 
 .input-wrapper {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -525,7 +500,7 @@
     position: relative;
     background: #fafafa;
     border: 2px solid #e0e0e0;
-    border-radius: 16px;
+    border-radius: 20px;
     transition: all 0.3s;
 }
 
@@ -536,16 +511,16 @@
 
 .chat-input {
     width: 100%;
-    min-height: 56px;
-    max-height: 200px;
-    padding: 16px 60px 16px 20px;
+    min-height: 80px;
+    max-height: 300px;
+    padding: 20px 70px 20px 24px;
     border: none;
     background: transparent;
-    font-size: 15px;
+    font-size: 16px;
     font-family: inherit;
     color: #2d2d2d;
     resize: none;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .chat-input::placeholder {
@@ -558,10 +533,10 @@
 
 .send-btn {
     position: absolute;
-    right: 8px;
-    bottom: 8px;
-    width: 44px;
-    height: 44px;
+    right: 12px;
+    bottom: 12px;
+    width: 52px;
+    height: 52px;
     background: #2d2d2d;
     color: white;
     border: none;
@@ -628,12 +603,6 @@
                 <i class="fas fa-plus"></i>
                 <span>New</span>
             </button>
-        </div>
-
-        <div class="time-filters">
-            <button class="time-filter active" onclick="filterByTime('daily', this)">Today</button>
-            <button class="time-filter" onclick="filterByTime('weekly', this)">Week</button>
-            <button class="time-filter" onclick="filterByTime('monthly', this)">Month</button>
         </div>
 
         <div class="conversation-list" id="conversationList">
@@ -773,7 +742,7 @@ function setupAutoResize(textarea) {
     if (!textarea) return;
     textarea.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, this.id.includes('Large') ? 400 : 200) + 'px';
+        this.style.height = Math.min(this.scrollHeight, this.id.includes('Large') ? 600 : 300) + 'px';
     });
 }
 
@@ -788,30 +757,6 @@ function startNewChat() {
 // Load conversation
 function loadConversation(convId) {
     window.location.href = `{{ url_for('dashboard_ai_advisor') }}?conversation_id=${convId}`;
-}
-
-// Filter by time
-function filterByTime(period, btn) {
-    document.querySelectorAll('.time-filter').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    btn.classList.add('active');
-
-    const now = new Date();
-    const conversations = document.querySelectorAll('.conversation-item');
-
-    conversations.forEach(conv => {
-        const dateStr = conv.getAttribute('data-date');
-        const convDate = new Date(dateStr);
-        const daysDiff = Math.floor((now - convDate) / (1000 * 60 * 60 * 24));
-
-        let show = false;
-        if (period === 'daily' && daysDiff <= 1) show = true;
-        if (period === 'weekly' && daysDiff <= 7) show = true;
-        if (period === 'monthly' && daysDiff <= 30) show = true;
-
-        conv.style.display = show ? 'block' : 'none';
-    });
 }
 
 // Submit research
