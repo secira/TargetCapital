@@ -263,7 +263,7 @@ Provide comprehensive research with:
             }
             
             payload = {
-                'model': 'llama-3.1-sonar-small-128k-online',  # Fast, cost-effective model
+                'model': 'sonar',  # Current Perplexity model
                 'messages': [
                     {'role': 'system', 'content': self.system_prompt},
                     {'role': 'user', 'content': full_prompt}
