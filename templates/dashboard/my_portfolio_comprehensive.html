@@ -1,0 +1,292 @@
+{% extends "dashboard_layout.html" %}
+{% block title %}My Portfolio - Target Capital{% endblock %}
+
+{% block content %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 4px solid;
+    }
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin: 20px 0;
+    }
+    .asset-row {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 4px solid;
+    }
+    .progress-bar-custom {
+        height: 8px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-1"><i class="fas fa-chart-pie text-primary"></i> My Portfolio</h2>
+            <p class="text-muted">Comprehensive analysis across all asset classes</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #4CAF50;">
+                <h6 class="text-muted mb-2">Total Portfolio Value</h6>
+                <h3 class="mb-0">₹{{ "%.2f"|format(portfolio_summary.total_current_value / 10000000) }} Cr</h3>
+                <small class="text-muted">₹{{ "{:,.0f}".format(portfolio_summary.total_current_value) }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #2196F3;">
+                <h6 class="text-muted mb-2">Total Investment</h6>
+                <h3 class="mb-0">₹{{ "%.2f"|format(portfolio_summary.total_investment / 10000000) }} Cr</h3>
+                <small class="text-muted">₹{{ "{:,.0f}".format(portfolio_summary.total_investment) }}</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: {% if portfolio_summary.total_pnl >= 0 %}#4CAF50{% else %}#f44336{% endif %};">
+                <h6 class="text-muted mb-2">Total Returns</h6>
+                <h3 class="mb-0 {% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ "%.2f"|format(portfolio_summary.pnl_percentage) }}%
+                </h3>
+                <small class="{% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ₹{{ "{:,.0f}".format(portfolio_summary.total_pnl) }}
+                </small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="border-left-color: #FF9800;">
+                <h6 class="text-muted mb-2">Risk Profile</h6>
+                <h3 class="mb-0">{{ portfolio_summary.risk_profile.category }}</h3>
+                <small class="text-muted">Score: {{ "%.0f"|format(portfolio_summary.risk_profile.score) }}/100</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Asset Distribution Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Asset Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="assetDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Distribution Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Risk Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="riskDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-robot"></i> AI-Powered Portfolio Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="line-height: 1.8; white-space: pre-line;">{{ ai_insights }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Class Breakdown -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-layer-group"></i> Asset Class Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% for asset in portfolio_summary.asset_classes %}
+                    <div class="asset-row" style="border-left-color: {{ asset.color }};">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <h6 class="mb-1">{{ asset.name }}</h6>
+                                <small class="text-muted">{{ asset.count }} holdings | {{ asset.risk_level }}</small>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong>₹{{ "{:,.0f}".format(asset.current_value) }}</strong>
+                                <br><small class="text-muted">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100) }}%</small>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <span class="{% if asset.pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    {{ "%.2f"|format(asset.pnl_percentage) }}%
+                                </span>
+                                <br><small class="{% if asset.pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    ₹{{ "{:,.0f}".format(asset.pnl) }}
+                                </small>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="progress progress-bar-custom">
+                                    <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 }}%; background-color: {{ asset.color }};"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    {% if top_performers %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy text-warning"></i> Top Performers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Asset Name</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                    <th>Returns</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for performer in top_performers %}
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">#{{ loop.index }}</span></td>
+                                    <td><strong>{{ performer.name }}</strong></td>
+                                    <td><span class="badge bg-secondary">{{ performer.type }}</span></td>
+                                    <td>₹{{ "{:,.0f}".format(performer.value) }}</td>
+                                    <td><span class="badge {% if performer.return >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ "%.2f"|format(performer.return) }}%
+                                    </span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Asset Distribution Pie Chart
+const assetDistCtx = document.getElementById('assetDistributionChart').getContext('2d');
+new Chart(assetDistCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ portfolio_summary.asset_distribution | map(attribute='label') | list | tojson }},
+        datasets: [{
+            data: {{ portfolio_summary.asset_distribution | map(attribute='value') | list | tojson }},
+            backgroundColor: {{ portfolio_summary.asset_distribution | map(attribute='color') | list | tojson }},
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+                labels: {
+                    generateLabels: function(chart) {
+                        const data = chart.data;
+                        return data.labels.map((label, i) => ({
+                            text: label + ' (' + data.datasets[0].data[i].toFixed(1) + '%)',
+                            fillStyle: data.datasets[0].backgroundColor[i],
+                            hidden: false,
+                            index: i
+                        }));
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        const amount = {{ portfolio_summary.asset_distribution | map(attribute='amount') | list | tojson }}[context.dataIndex];
+                        return label + ': ' + value.toFixed(1) + '% (₹' + amount.toLocaleString('en-IN') + ')';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Risk Distribution Chart
+const riskDistCtx = document.getElementById('riskDistributionChart').getContext('2d');
+const riskData = {{ portfolio_summary.risk_profile.distribution | tojson }};
+new Chart(riskDistCtx, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(riskData),
+        datasets: [{
+            label: 'Portfolio Allocation (%)',
+            data: Object.values(riskData),
+            backgroundColor: ['#f44336', '#FF9800', '#4CAF50', '#2196F3', '#9E9E9E'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.y.toFixed(1) + '% of portfolio';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1585,7 +1585,30 @@ def dashboard_my_portfolio():
     if not current_user.can_access_menu('dashboard_my_portfolio'):
         flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
         return redirect(url_for('pricing'))
-    """Unified Portfolio Analyzer with AI-powered insights and multi-broker integration with filtering support"""
+    """Comprehensive Portfolio View with AI Analysis across all asset classes"""
+    from datetime import date, datetime
+    from services.comprehensive_portfolio_service import get_comprehensive_portfolio_service
+    
+    # Get comprehensive portfolio analysis
+    portfolio_service = get_comprehensive_portfolio_service(current_user.id)
+    portfolio_summary = portfolio_service.get_complete_portfolio_summary()
+    
+    # Generate AI insights
+    ai_insights = portfolio_service.generate_ai_insights(portfolio_summary)
+    
+    # Get top performers
+    top_performers = portfolio_service.get_top_performers(limit=5)
+    
+    return render_template('dashboard/my_portfolio_comprehensive.html',
+                         portfolio_summary=portfolio_summary,
+                         ai_insights=ai_insights,
+                         top_performers=top_performers,
+                         current_user=current_user)
+
+@app.route('/dashboard/my-portfolio-old')
+@login_required
+def dashboard_my_portfolio_old():
+    """Legacy Portfolio Analyzer with AI-powered insights and multi-broker integration with filtering support"""
     from datetime import date, datetime
     from sqlalchemy import func
     from services.portfolio_analyzer_service import PortfolioAnalyzerService
