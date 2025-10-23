@@ -302,7 +302,64 @@
     font-size: 15px;
     line-height: 1.7;
     color: #2d2d2d;
-    white-space: pre-wrap;
+}
+
+.assistant-bubble p {
+    margin: 0 0 16px 0;
+    line-height: 1.7;
+}
+
+.assistant-bubble p:last-child {
+    margin-bottom: 0;
+}
+
+.assistant-bubble strong {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.assistant-bubble em {
+    font-style: italic;
+}
+
+.assistant-bubble ul {
+    margin: 12px 0;
+    padding-left: 24px;
+    list-style: none;
+}
+
+.assistant-bubble li {
+    position: relative;
+    margin-bottom: 8px;
+    padding-left: 0;
+}
+
+.assistant-bubble li::before {
+    content: "•";
+    position: absolute;
+    left: -20px;
+    color: #666;
+    font-weight: bold;
+}
+
+.assistant-bubble h1,
+.assistant-bubble h2,
+.assistant-bubble h3 {
+    margin: 20px 0 12px 0;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.assistant-bubble h1 {
+    font-size: 20px;
+}
+
+.assistant-bubble h2 {
+    font-size: 18px;
+}
+
+.assistant-bubble h3 {
+    font-size: 16px;
 }
 
 /* Citations */
@@ -875,7 +932,7 @@ async function submitResearch(event) {
                     <div class="assistant-avatar"><i class="fas fa-sparkles"></i></div>
                     <span class="assistant-name">AI</span>
                 </div>
-                <div class="assistant-bubble">${escapeHtml(data.response)}</div>
+                <div class="assistant-bubble">${formatMarkdown(data.response)}</div>
                 ${citationsHtml}
             `;
             messagesContainer.appendChild(assistantMsg);
@@ -928,6 +985,43 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function formatMarkdown(text) {
+    if (!text) return '';
+    
+    // Convert markdown to HTML
+    let html = text;
+    
+    // Headers
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    
+    // Bold
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\_\_(.+?)\_\_/g, '<strong>$1</strong>');
+    
+    // Italic
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/\_(.+?)\_/g, '<em>$1</em>');
+    
+    // Bullet lists
+    html = html.replace(/^\s*[\*\-\+]\s+(.+)$/gim, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    
+    // Line breaks
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    
+    // Clean up
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p>(<ul>)/g, '$1');
+    html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<h[1-3]>)/g, '$1');
+    html = html.replace(/(<\/h[1-3]>)<\/p>/g, '$1');
+    
+    return html;
 }
 
 function executeTrade(messageContent, messageId) {
