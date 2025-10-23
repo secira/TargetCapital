@@ -1,7 +1,7 @@
 # Target Capital - Flask Web Application
 
 ## Overview
-Target Capital is an advanced Agentic AI-powered stock trading platform built with Flask. It provides autonomous portfolio analysis, algorithmic trading services, and market insights through a modern, responsive interface. The platform aims for true autonomous decision-making that learns, reasons, acts, and adapts in real-market conditions, moving beyond passive automation to intelligent, adaptive financial decision-making. The project envisions significant market potential for such intelligent financial tools.
+Target Capital is an advanced Agentic AI-powered stock trading platform built with Flask, providing autonomous portfolio analysis, algorithmic trading services, and market insights. It aims for true autonomous, intelligent, and adaptive financial decision-making in real-market conditions, moving beyond passive automation. The project envisions significant market potential for such intelligent financial tools.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -94,6 +94,18 @@ Broker-Specific Holdings Tracking:
 - Backward Compatibility: Field is nullable, so existing manual holdings continue to work without requiring broker assignment
 - Performance: Indexed for optimal query performance with foreign key constraints ensuring data integrity
 
+Research Assistant UI/UX Redesign (October 2025):
+- Modern Interface: Complete redesign with ChatGPT/Claude-inspired layout featuring gradient accents, enhanced spacing, and polished animations
+- Enhanced Welcome Screen: Prominent research icon with gradient background, improved suggestion cards with hover effects, and clear value proposition
+- Improved Message Display: User messages with gradient bubbles, assistant messages with avatar header and name badge, better visual hierarchy
+- Professional Citations: Enhanced citation cards with numbered badges, source type indicators, smooth hover transitions, and external link icons
+- Trade Execution Cards: Eye-catching gradient cards for buy/sell recommendations with clear call-to-action buttons and signal badges
+- Better Sidebar: Compact conversation history with time filters (Today/Week/Month), improved empty states, and new chat button
+- Context Header: Persistent portfolio context display with badges showing total value and holdings count at the top of chat area
+- Enhanced Input Area: Modern textarea with smooth focus effects, gradient send button with rotation animation on hover
+- Mobile Optimized: Fully responsive design with collapsible sidebar, optimized layouts for tablets and phones
+- Visual Polish: Consistent gradient theme (#667eea to #764ba2), smooth animations, professional micro-interactions, and accessibility improvements
+
 ## System Architecture
 ### Production Backend Architecture
 - **Primary Frameworks**: Flask (web interface), FastAPI (high-performance trading operations).
@@ -117,7 +129,6 @@ Broker-Specific Holdings Tracking:
 ### Key Features & Design Patterns
 - **Agentic AI Tools**: Autonomous AI system with OpenAI and Perplexity integration for analysis, research, optimization, and adaptive decision-making, coordinated by n8n.
 - **Multi-Broker Integration**: Support for 12 major Indian brokers with unified API, direct order execution, portfolio synchronization, and encrypted credential storage.
-- **Comprehensive Page Structure**: Includes Home, About, Services, Blog (now Knowledge Base), Authentication, Dashboard (Research Assistant, Stock Analysis, Watchlist, NSE India Stocks), Pricing, Company info, Support, and Contact pages.
 - **Authentication**: Three methods: Google OAuth, Mobile Number + OTP (Twilio), and Email/Password.
 - **RAG-Powered Research Assistant**: Semantic search via pgvector, LLM responses with citations, trade execution options, and archive system for recommendations.
 - **Multi-Asset Portfolio System**: Supports 11 asset classes across multiple brokers, with asset-specific filtering and real-time data.
@@ -139,7 +150,6 @@ Broker-Specific Holdings Tracking:
 
 ### Infrastructure Dependencies
 - Database: SQLite (development) / PostgreSQL (production)
-- Web server: Any WSGI-compatible server
 - OpenAI API
 - Perplexity API
 - n8n

@@ -2,73 +2,138 @@
 
 {% block title %}Research Assistant - Target Capital{% endblock %}
 {% block dashboard_title %}Research Assistant{% endblock %}
-{% block dashboard_subtitle %}AI-powered stock research with real-time data{% endblock %}
+{% block dashboard_subtitle %}AI-powered market research and analysis{% endblock %}
 
 {% block dashboard_toolbar %}
 <div class="header-actions">
-    <button type="button" class="btn btn-sm btn-outline-primary" onclick="location.reload()">
-        <i class="fas fa-plus me-1"></i>New Chat
+    <button type="button" class="btn btn-sm btn-primary" onclick="startNewChat()">
+        <i class="fas fa-plus me-1"></i>New Research
     </button>
 </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-/* Perplexity-Style Research Assistant - Full Width with Sidebar */
+/* Modern Research Assistant Design - Enhanced UX */
 .dashboard-content {
     padding: 0 !important;
+    height: calc(100vh - 120px);
 }
 
 .content-container {
     padding: 0 !important;
+    height: 100%;
 }
 
-/* Research Assistant Container with Sidebar Layout */
-.research-container {
-    background: #ffffff;
-    height: calc(100vh - 160px);
+/* Main Container - Two Column Layout */
+.research-wrapper {
     display: flex;
+    height: calc(100vh - 160px);
+    background: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* History Sidebar */
+/* ===== LEFT SIDEBAR - History ===== */
 .research-sidebar {
-    width: 300px;
-    background: #f8f9fa;
+    width: 280px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border-right: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    transition: width 0.3s ease;
 }
 
+.sidebar-collapsed {
+    width: 60px;
+}
+
+/* Sidebar Header */
 .sidebar-header {
     padding: 20px 16px;
     border-bottom: 1px solid #e9ecef;
+    background: white;
+}
+
+.sidebar-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .sidebar-title {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #1a202c;
-    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Archive Tabs */
+.sidebar-title i {
+    color: #667eea;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.sidebar-toggle:hover {
+    color: #667eea;
+}
+
+/* New Chat Button in Sidebar */
+.new-chat-btn {
+    margin: 12px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.new-chat-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+}
+
+/* Archive Navigation */
+.archive-nav {
+    padding: 16px 12px 8px;
+}
+
 .archive-tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 6px;
+    background: white;
+    padding: 4px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .archive-tab {
     flex: 1;
-    padding: 8px 12px;
+    padding: 8px 10px;
     background: transparent;
-    border: 1px solid #e9ecef;
+    border: none;
     border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    color: #718096;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -76,54 +141,47 @@
 .archive-tab.active {
     background: #667eea;
     color: white;
-    border-color: #667eea;
-}
-
-/* Archive Filters */
-.archive-filters {
-    display: flex;
-    gap: 8px;
-}
-
-.filter-select {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    font-size: 13px;
-    background: white;
-    color: #333;
 }
 
 /* Conversation List */
 .conversation-list {
     flex: 1;
     overflow-y: auto;
-    padding: 12px;
+    padding: 8px 12px;
+}
+
+.conversation-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 2px;
 }
 
 .conversation-item {
     padding: 12px;
     background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    margin-bottom: 8px;
+    border-radius: 10px;
+    margin-bottom: 6px;
     cursor: pointer;
     transition: all 0.2s;
+    border: 1px solid transparent;
 }
 
 .conversation-item:hover {
+    background: #f0f4ff;
     border-color: #667eea;
-    background: #f8f9ff;
+    transform: translateX(4px);
 }
 
 .conversation-item.active {
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
     border-color: #667eea;
-    background: #f0f4ff;
 }
 
 .conversation-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: #1a202c;
     margin-bottom: 4px;
@@ -133,164 +191,359 @@
 }
 
 .conversation-meta {
-    font-size: 12px;
-    color: #718096;
+    font-size: 11px;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* Main Chat Area */
+.empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: #a0aec0;
+}
+
+.empty-state i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 13px;
+    margin: 0;
+}
+
+/* ===== MAIN CHAT AREA ===== */
 .research-main {
     flex: 1;
     display: flex;
     flex-direction: column;
+    background: #ffffff;
     overflow: hidden;
 }
 
-.research-content {
-    flex: 1;
+/* Chat Header - Context Bar */
+.chat-header {
+    padding: 16px 24px;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
     display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    align-items: center;
+    justify-content: space-between;
 }
 
-/* Welcome State - Centered Content with Padding */
-.welcome-state {
+.context-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.context-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #0369a1;
+}
+
+.context-badge i {
+    font-size: 11px;
+}
+
+.header-actions-right {
+    display: flex;
+    gap: 8px;
+}
+
+.header-btn {
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+/* Welcome Screen - Modern Design */
+.welcome-screen {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px 16px;
+    padding: 40px 24px;
+    background: radial-gradient(circle at 50% 0%, #f0f4ff 0%, #ffffff 60%);
+}
+
+.welcome-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+}
+
+.welcome-icon i {
+    font-size: 36px;
+    color: white;
 }
 
 .welcome-title {
     font-size: 32px;
-    font-weight: 400;
-    color: #000;
-    margin-bottom: 12px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 8px;
     text-align: center;
 }
 
 .welcome-subtitle {
     font-size: 16px;
-    color: #666;
-    margin-bottom: 40px;
+    color: #718096;
+    margin-bottom: 48px;
     text-align: center;
+    max-width: 500px;
+}
+
+/* Suggestion Cards - Enhanced Grid */
+.suggestions-container {
+    width: 100%;
+    max-width: 1000px;
+}
+
+.suggestions-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.suggestions-title i {
+    color: #667eea;
 }
 
 .suggestion-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
-    width: 100%;
-    max-width: 900px;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
 }
 
 .suggestion-card {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 16px 20px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    padding: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: left;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.suggestion-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.suggestion-card:hover::before {
+    transform: scaleX(1);
 }
 
 .suggestion-card:hover {
-    background: #e9ecef;
-    border-color: #dee2e6;
-    transform: translateY(-2px);
+    border-color: #667eea;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+}
+
+.suggestion-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.suggestion-icon i {
+    color: #667eea;
+    font-size: 18px;
 }
 
 .suggestion-card-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: #000;
-    margin-bottom: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 6px;
 }
 
 .suggestion-card-desc {
     font-size: 13px;
-    color: #666;
-    line-height: 1.4;
+    color: #718096;
+    line-height: 1.5;
 }
 
-/* Chat Messages - Padded Content */
-.research-messages {
+/* Chat Messages Area */
+.chat-messages {
     flex: 1;
     overflow-y: auto;
-    padding: 24px 16px;
+    padding: 24px;
     scroll-behavior: smooth;
 }
 
-.research-messages::-webkit-scrollbar {
-    width: 6px;
+.chat-messages::-webkit-scrollbar {
+    width: 8px;
 }
 
-.research-messages::-webkit-scrollbar-track {
-    background: transparent;
+.chat-messages::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
 }
 
-.research-messages::-webkit-scrollbar-thumb {
+.chat-messages::-webkit-scrollbar-thumb {
     background: #cbd5e0;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 
-.research-message {
-    margin-bottom: 32px;
-    animation: fadeIn 0.3s ease;
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+/* Message Bubbles */
+.message-wrapper {
+    margin-bottom: 24px;
+    animation: messageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message-user {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 24px;
 }
 
-.message-user-content {
-    background: #f8f9fa;
-    color: #000;
-    padding: 12px 18px;
-    border-radius: 18px;
-    max-width: 75%;
+.message-user-bubble {
+    max-width: 70%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 18px 18px 4px 18px;
     font-size: 15px;
-    line-height: 1.5;
+    line-height: 1.6;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
 
 .message-assistant {
+    display: flex;
+    flex-direction: column;
     max-width: 100%;
 }
 
-.assistant-content {
-    background: transparent;
+.assistant-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
-.assistant-text {
-    color: #000;
-    line-height: 1.7;
+.assistant-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.assistant-avatar i {
+    color: white;
+    font-size: 14px;
+}
+
+.assistant-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.assistant-bubble {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    border-radius: 4px 18px 18px 18px;
     font-size: 15px;
+    line-height: 1.7;
+    color: #1a202c;
     white-space: pre-wrap;
-    margin-bottom: 16px;
 }
 
-/* Citations - Perplexity Style */
+/* Citations - Enhanced Design */
 .message-citations {
     margin-top: 16px;
     padding: 16px;
-    background: #f8f9fa;
+    background: white;
+    border: 1px solid #e9ecef;
     border-radius: 12px;
 }
 
-.citations-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
+.citations-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 12px;
+}
+
+.citations-header i {
+    color: #667eea;
+    font-size: 14px;
+}
+
+.citations-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a5568;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -298,188 +551,132 @@
 .citation-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border: 1px solid transparent;
+    border-radius: 10px;
     margin-bottom: 8px;
-    font-size: 13px;
     text-decoration: none;
-    color: #000;
     transition: all 0.2s;
 }
 
 .citation-item:hover {
+    background: white;
     border-color: #667eea;
-    background: #f8f9ff;
-    transform: translateX(4px);
+    transform: translateX(6px);
 }
 
 .citation-number {
-    width: 24px;
-    height: 24px;
-    background: #667eea;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border-radius: 50%;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     flex-shrink: 0;
+}
+
+.citation-content {
+    flex: 1;
 }
 
 .citation-text {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #000;
+    font-size: 13px;
+    color: #1a202c;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.citation-source {
+    font-size: 11px;
+    color: #a0aec0;
 }
 
 .citation-icon {
-    color: #999;
-    font-size: 12px;
-}
-
-/* Trade Execution Button */
-.trade-execution-area {
-    margin-top: 20px;
-    padding: 16px;
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: 12px;
-}
-
-.execute-trade-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
+    color: #cbd5e0;
     font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
 }
 
-.execute-trade-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+/* Trade Execution Card */
+.trade-card {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #67e8f9;
+    border-radius: 16px;
 }
 
-.trade-recommendation-badge {
-    display: inline-flex;
+.trade-header {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
+    gap: 10px;
     margin-bottom: 12px;
 }
 
-.trade-recommendation-badge.buy {
-    background: rgba(34, 197, 94, 0.15);
-    color: #15803d;
+.trade-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.trade-recommendation-badge.sell {
-    background: rgba(239, 68, 68, 0.15);
-    color: #b91c1c;
+.trade-badge.buy {
+    background: #059669;
+    color: white;
 }
 
-.trade-recommendation-badge.hold {
-    background: rgba(251, 191, 36, 0.15);
-    color: #b45309;
+.trade-badge.sell {
+    background: #dc2626;
+    color: white;
 }
 
-/* Input Area - FULL WIDTH like Perplexity */
-.research-input-area {
-    flex-shrink: 0;
-    padding: 24px 16px;
-    background: #ffffff;
-    border-top: 1px solid #f0f0f0;
-    width: 100%;
-}
-
-.input-container {
-    position: relative;
-    background: #f8f9fa;
-    border: 2px solid #e9ecef;
-    border-radius: 24px;
-    transition: all 0.2s;
-    padding: 4px;
-    width: 100%;
-    max-width: 100%;
-}
-
-.input-container:focus-within {
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-}
-
-.research-input {
-    width: 100% !important;
-    max-width: 100%;
-    min-height: 56px;
-    max-height: 200px;
-    padding: 16px 60px 16px 20px;
-    border: none;
-    background: transparent;
-    font-size: 16px;
-    font-family: inherit;
-    resize: none;
+.trade-description {
+    font-size: 13px;
+    color: #0c4a6e;
+    margin-bottom: 16px;
     line-height: 1.5;
-    color: #000;
-    box-sizing: border-box;
 }
 
-.research-input::placeholder {
-    color: #999;
-}
-
-.research-input:focus {
-    outline: none;
-}
-
-.send-button {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    background: #667eea;
+.trade-btn {
+    background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
     color: white;
     border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
 }
 
-.send-button:hover:not(:disabled) {
-    background: #5568d3;
-    transform: scale(1.05);
-}
-
-.send-button:disabled {
-    background: #cbd5e0;
-    cursor: not-allowed;
+.trade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
 }
 
 /* Typing Indicator */
 .typing-indicator {
     display: flex;
-    gap: 6px;
-    padding: 16px 0;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-radius: 4px 18px 18px 18px;
+    width: fit-content;
 }
 
 .typing-dot {
@@ -487,61 +684,122 @@
     height: 8px;
     background: #cbd5e0;
     border-radius: 50%;
-    animation: typing 1.4s infinite;
+    animation: typingBounce 1.4s infinite;
 }
 
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes typing {
+@keyframes typingBounce {
     0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-8px); }
+    30% { transform: translateY(-10px); }
 }
 
-/* Context Badge */
-.context-badge {
-    display: inline-flex;
+/* Input Area - Enhanced */
+.chat-input-area {
+    padding: 20px 24px 24px;
+    background: white;
+    border-top: 1px solid #f0f0f0;
+}
+
+.input-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.input-container {
+    position: relative;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 24px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.input-container:focus-within {
+    background: white;
+    border-color: #667eea;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+}
+
+.chat-input {
+    width: 100%;
+    min-height: 56px;
+    max-height: 200px;
+    padding: 16px 60px 16px 20px;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    font-family: inherit;
+    color: #1a202c;
+    resize: none;
+    line-height: 1.6;
+}
+
+.chat-input::placeholder {
+    color: #a0aec0;
+}
+
+.chat-input:focus {
+    outline: none;
+}
+
+.send-btn {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
-    border-radius: 20px;
-    font-size: 12px;
-    color: #0369a1;
-    margin-bottom: 16px;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.1) rotate(360deg);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.send-btn:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.input-footer {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.input-hint {
+    font-size: 11px;
+    color: #a0aec0;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .research-container {
-        height: calc(100vh - 140px);
-        flex-direction: column;
+    .research-wrapper {
+        height: calc(100vh - 120px);
     }
     
     .research-sidebar {
-        width: 100%;
-        height: auto;
-        max-height: 40%;
-        border-right: none;
-        border-bottom: 1px solid #e9ecef;
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        box-shadow: 2px 0 12px rgba(0,0,0,0.1);
     }
     
-    .archive-tabs {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .archive-filters {
-        flex-direction: column;
-    }
-    
-    .conversation-list {
-        max-height: 200px;
-    }
-    
-    .research-main {
-        flex: 1;
+    .research-sidebar.mobile-open {
+        left: 0;
     }
     
     .welcome-title {
@@ -552,274 +810,353 @@
         grid-template-columns: 1fr;
     }
     
-    .message-user-content {
+    .message-user-bubble {
         max-width: 85%;
     }
     
-    .research-input {
-        font-size: 15px;
-        min-height: 48px;
-    }
-    
-    .research-messages {
+    .chat-messages {
         padding: 16px;
     }
     
-    .research-input-area {
+    .chat-input-area {
         padding: 16px;
-    }
-    
-    .execute-trade-btn {
-        width: 100%;
-        justify-content: center;
     }
 }
 </style>
 {% endblock %}
 
 {% block dashboard_content %}
-<div class="research-container">
-    <!-- Research History Sidebar -->
-    <div class="research-sidebar">
+<div class="research-wrapper">
+    <!-- Left Sidebar - Conversation History -->
+    <aside class="research-sidebar" id="researchSidebar">
         <div class="sidebar-header">
-            <h3 class="sidebar-title">Research History</h3>
-            
-            <!-- Archive Tabs -->
-            <div class="archive-tabs">
-                <button class="archive-tab active" onclick="filterByTime('daily')">Daily</button>
-                <button class="archive-tab" onclick="filterByTime('weekly')">Weekly</button>
-                <button class="archive-tab" onclick="filterByTime('monthly')">Monthly</button>
-            </div>
-            
-            <!-- Filters -->
-            <div class="archive-filters">
-                <select class="filter-select" id="stockFilter" onchange="filterConversations()">
-                    <option value="">All Stocks</option>
-                    <option value="RELIANCE">RELIANCE</option>
-                    <option value="TCS">TCS</option>
-                    <option value="INFY">INFY</option>
-                </select>
-                <select class="filter-select" id="sectorFilter" onchange="filterConversations()">
-                    <option value="">All Sectors</option>
-                    <option value="IT">IT</option>
-                    <option value="Banking">Banking</option>
-                    <option value="Energy">Energy</option>
-                </select>
+            <div class="sidebar-header-content">
+                <div class="sidebar-title">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
         
-        <!-- Conversation List -->
+        <button class="new-chat-btn" onclick="startNewChat()">
+            <i class="fas fa-plus"></i>
+            <span>New Research</span>
+        </button>
+        
+        <div class="archive-nav">
+            <div class="archive-tabs">
+                <button class="archive-tab active" onclick="filterByTime('daily', this)">Today</button>
+                <button class="archive-tab" onclick="filterByTime('weekly', this)">Week</button>
+                <button class="archive-tab" onclick="filterByTime('monthly', this)">Month</button>
+            </div>
+        </div>
+        
         <div class="conversation-list" id="conversationList">
             {% if conversations %}
                 {% for conv in conversations %}
                 <div class="conversation-item {% if conversation_id == conv['id'] %}active{% endif %}" 
-                     onclick="loadConversation({{ conv['id'] }})">
+                     onclick="loadConversation({{ conv['id'] }})"
+                     data-date="{{ conv['updated_at'][:10] }}">
                     <div class="conversation-title">{{ conv['title'] or 'New Research' }}</div>
-                    <div class="conversation-meta">{{ conv['message_count'] }} messages • {{ conv['updated_at'][:10] }}</div>
+                    <div class="conversation-meta">
+                        <i class="fas fa-message"></i>
+                        <span>{{ conv['message_count'] }} msgs</span>
+                        <span>•</span>
+                        <span>{{ conv['updated_at'][:10] }}</span>
+                    </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div style="text-align: center; padding: 24px; color: #999;">
-                    <i class="fas fa-inbox fa-2x mb-2"></i>
-                    <p>No research history yet</p>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No conversations yet</p>
                 </div>
             {% endif %}
         </div>
-    </div>
+    </aside>
     
     <!-- Main Chat Area -->
-    <div class="research-main">
-        <div class="research-content">
-        <!-- Welcome State (when no messages) -->
+    <main class="research-main">
+        <!-- Context Header -->
+        <div class="chat-header">
+            <div class="context-info">
+                {% if context %}
+                <div class="context-badge">
+                    <i class="fas fa-wallet"></i>
+                    <span>Portfolio: ₹{{ "{:,.0f}".format(context.portfolio_value) }}</span>
+                </div>
+                <div class="context-badge">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>{{ context.holdings_count }} Holdings</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="header-actions-right">
+                <button class="header-btn" onclick="refreshData()">
+                    <i class="fas fa-sync"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Welcome Screen / Messages -->
         {% if not messages %}
-        <div class="welcome-state">
-            <h1 class="welcome-title">What can I help you research today?</h1>
-            <p class="welcome-subtitle">Get AI-powered insights on stocks, markets, and your portfolio</p>
+        <div class="welcome-screen">
+            <div class="welcome-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1 class="welcome-title">What would you like to research?</h1>
+            <p class="welcome-subtitle">Get AI-powered insights on Indian stocks, market trends, and personalized portfolio recommendations</p>
             
-            <div class="suggestion-grid">
-                <div class="suggestion-card" onclick="useSuggestion('Analyze RELIANCE stock fundamentals and give me buy/sell recommendation')">
-                    <div class="suggestion-card-title">Stock Analysis</div>
-                    <div class="suggestion-card-desc">Analyze RELIANCE fundamentals and get recommendation</div>
+            <div class="suggestions-container">
+                <div class="suggestions-title">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Popular Research Topics</span>
                 </div>
-                <div class="suggestion-card" onclick="useSuggestion('What are the top 5 banking stocks in India right now?')">
-                    <div class="suggestion-card-title">Sector Research</div>
-                    <div class="suggestion-card-desc">Top 5 banking stocks in India</div>
-                </div>
-                <div class="suggestion-card" onclick="useSuggestion('Compare TCS and INFY based on recent quarterly results')">
-                    <div class="suggestion-card-title">Stock Comparison</div>
-                    <div class="suggestion-card-desc">Compare TCS vs INFY quarterly results</div>
-                </div>
-                <div class="suggestion-card" onclick="useSuggestion('What is the market outlook for IT sector in India?')">
-                    <div class="suggestion-card-title">Market Trends</div>
-                    <div class="suggestion-card-desc">IT sector outlook in India</div>
+                <div class="suggestion-grid">
+                    <div class="suggestion-card" onclick="useSuggestion('Analyze RELIANCE stock - give me detailed fundamentals, technicals, and buy/sell recommendation')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="suggestion-card-title">Stock Analysis</div>
+                        <div class="suggestion-card-desc">Deep dive into RELIANCE fundamentals and technicals</div>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="useSuggestion('What are the top 5 performing banking stocks in India right now?')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <div class="suggestion-card-title">Sector Research</div>
+                        <div class="suggestion-card-desc">Top banking stocks performance analysis</div>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="useSuggestion('Compare TCS vs INFY - which is better based on recent quarterly results?')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <div class="suggestion-card-title">Stock Comparison</div>
+                        <div class="suggestion-card-desc">TCS vs INFY quarterly performance</div>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="useSuggestion('What is the market outlook for IT sector in India for next 6 months?')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-crystal-ball"></i>
+                        </div>
+                        <div class="suggestion-card-title">Market Outlook</div>
+                        <div class="suggestion-card-desc">IT sector 6-month forecast</div>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="useSuggestion('Should I invest in EV sector stocks in India? Which companies are best?')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="suggestion-card-title">Emerging Sectors</div>
+                        <div class="suggestion-card-desc">EV sector investment opportunities</div>
+                    </div>
+                    
+                    <div class="suggestion-card" onclick="useSuggestion('What are the top small-cap stocks with high growth potential?')">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="suggestion-card-title">Growth Stocks</div>
+                        <div class="suggestion-card-desc">High-potential small-cap picks</div>
+                    </div>
                 </div>
             </div>
-            
-            {% if context %}
-            <div class="context-badge">
-                <i class="fas fa-briefcase"></i>
-                <span>Portfolio: ₹{{ "{:,.0f}".format(context.portfolio_value) }}</span>
-                <span>•</span>
-                <span>{{ context.holdings_count }} holdings</span>
-            </div>
-            {% endif %}
         </div>
         {% else %}
-        <!-- Chat Messages -->
-        <div class="research-messages" id="researchMessages">
+        <div class="chat-messages" id="chatMessages">
             {% for message in messages %}
                 {% if message.role == 'user' %}
-                <div class="research-message message-user">
-                    <div class="message-user-content">
+                <div class="message-wrapper message-user">
+                    <div class="message-user-bubble">
                         {{ message.content }}
                     </div>
                 </div>
                 {% else %}
-                <div class="research-message message-assistant">
-                    <div class="assistant-content">
-                        <div class="assistant-text">{{ message.content }}</div>
-                        
-                        {% if message.citations and message.citations|length > 0 %}
-                        <div class="message-citations">
-                            <div class="citations-title">Sources</div>
-                            {% for citation in message.citations %}
-                            <a href="{{ citation.url }}" target="_blank" class="citation-item">
-                                <div class="citation-number">{{ loop.index }}</div>
-                                <div class="citation-text">{{ citation.title }}</div>
-                                <i class="fas fa-external-link-alt citation-icon"></i>
-                            </a>
-                            {% endfor %}
+                <div class="message-wrapper message-assistant">
+                    <div class="assistant-header">
+                        <div class="assistant-avatar">
+                            <i class="fas fa-brain"></i>
                         </div>
-                        {% endif %}
-                        
-                        <!-- Trade Execution Area (shown if recommendation detected) -->
-                        {% if 'BUY' in message.content.upper() or 'SELL' in message.content.upper() %}
-                        <div class="trade-execution-area">
+                        <span class="assistant-name">Research AI</span>
+                    </div>
+                    <div class="assistant-bubble">
+                        {{ message.content }}
+                    </div>
+                    
+                    {% if message.citations and message.citations|length > 0 %}
+                    <div class="message-citations">
+                        <div class="citations-header">
+                            <i class="fas fa-link"></i>
+                            <span class="citations-title">Sources</span>
+                        </div>
+                        {% for citation in message.citations %}
+                        <a href="{{ citation.url }}" target="_blank" class="citation-item">
+                            <div class="citation-number">{{ loop.index }}</div>
+                            <div class="citation-content">
+                                <div class="citation-text">{{ citation.title }}</div>
+                                <div class="citation-source">{{ citation.source or 'Web' }}</div>
+                            </div>
+                            <i class="fas fa-external-link-alt citation-icon"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if 'BUY' in message.content.upper() or 'SELL' in message.content.upper() %}
+                    <div class="trade-card">
+                        <div class="trade-header">
                             {% if 'BUY' in message.content.upper() %}
-                            <div class="trade-recommendation-badge buy">
-                                <i class="fas fa-arrow-up"></i> Buy Recommendation
+                            <div class="trade-badge buy">
+                                <i class="fas fa-arrow-trend-up"></i>
+                                <span>Buy Signal</span>
                             </div>
                             {% elif 'SELL' in message.content.upper() %}
-                            <div class="trade-recommendation-badge sell">
-                                <i class="fas fa-arrow-down"></i> Sell Recommendation
+                            <div class="trade-badge sell">
+                                <i class="fas fa-arrow-trend-down"></i>
+                                <span>Sell Signal</span>
                             </div>
                             {% endif %}
-                            <p style="font-size: 13px; color: #4a5568; margin-bottom: 12px;">
-                                Ready to execute this trade? Review the details and place your order.
-                            </p>
-                            <button class="execute-trade-btn" onclick="executeTrade('{{ message.content }}', {{ message.id }})">
-                                <i class="fas fa-chart-line"></i>
-                                Execute Trade
-                            </button>
                         </div>
-                        {% endif %}
+                        <p class="trade-description">
+                            Based on the analysis, you can execute this trade directly from your connected broker.
+                        </p>
+                        <button class="trade-btn" onclick="executeTrade('{{ message.content }}', {{ message.id }})">
+                            <i class="fas fa-bolt"></i>
+                            <span>Execute Trade</span>
+                        </button>
                     </div>
+                    {% endif %}
                 </div>
                 {% endif %}
             {% endfor %}
         </div>
         {% endif %}
-
-        <!-- Input Area - FULL WIDTH -->
-        <div class="research-input-area">
-            <form id="researchForm" onsubmit="submitResearch(event)">
-                <div class="input-container">
-                    <textarea 
-                        id="researchInput" 
-                        class="research-input" 
-                        placeholder="Ask anything about stocks, markets, or your portfolio..."
-                        rows="1"
-                        cols="50"
-                        style="width: 100% !important;"
-                        required
-                        autofocus
-                    ></textarea>
-                    <button type="submit" class="send-button" id="sendButton">
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
+        
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="input-wrapper">
+                <form id="researchForm" onsubmit="submitResearch(event)">
+                    <div class="input-container">
+                        <textarea 
+                            id="chatInput" 
+                            class="chat-input" 
+                            placeholder="Ask about stocks, sectors, market trends, or your portfolio..."
+                            rows="1"
+                            required
+                            autofocus
+                        ></textarea>
+                        <button type="submit" class="send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="input-footer">
+                    <p class="input-hint">AI can make mistakes. Please verify important information.</p>
                 </div>
-            </form>
+            </div>
         </div>
-        </div>
-    </div>
+    </main>
 </div>
 
 <script>
 // Auto-resize textarea
-const textarea = document.getElementById('researchInput');
-textarea.addEventListener('input', function() {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-});
+const textarea = document.getElementById('chatInput');
+if (textarea) {
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+    });
+}
+
+// Toggle sidebar on mobile
+function toggleSidebar() {
+    const sidebar = document.getElementById('researchSidebar');
+    sidebar.classList.toggle('mobile-open');
+}
+
+// Start new chat
+function startNewChat() {
+    window.location.href = '{{ url_for("dashboard_ai_advisor") }}';
+}
 
 // Use suggestion
 function useSuggestion(text) {
-    document.getElementById('researchInput').value = text;
-    document.getElementById('researchInput').focus();
+    document.getElementById('chatInput').value = text;
+    document.getElementById('chatInput').focus();
+    // Auto-resize after setting value
+    const event = new Event('input', { bubbles: true });
+    document.getElementById('chatInput').dispatchEvent(event);
 }
 
 // Submit research query
 async function submitResearch(event) {
     event.preventDefault();
     
-    const input = document.getElementById('researchInput');
-    const sendButton = document.getElementById('sendButton');
-    const messagesDiv = document.getElementById('researchMessages');
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
     const query = input.value.trim();
     
     if (!query) return;
     
     // Disable input
     input.disabled = true;
-    sendButton.disabled = true;
+    sendBtn.disabled = true;
     
-    // If on welcome screen, create messages container
-    if (!messagesDiv) {
-        const welcomeState = document.querySelector('.welcome-state');
-        if (welcomeState) {
-            welcomeState.outerHTML = '<div class="research-messages" id="researchMessages"></div>';
-        }
+    // Check if we're on welcome screen
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    let messagesContainer = document.getElementById('chatMessages');
+    
+    if (welcomeScreen) {
+        // Replace welcome screen with messages container
+        welcomeScreen.outerHTML = '<div class="chat-messages" id="chatMessages"></div>';
+        messagesContainer = document.getElementById('chatMessages');
     }
     
-    const msgContainer = document.getElementById('researchMessages');
-    
     // Add user message
-    const userMessage = document.createElement('div');
-    userMessage.className = 'research-message message-user';
-    userMessage.innerHTML = `
-        <div class="message-user-content">${escapeHtml(query)}</div>
-    `;
-    msgContainer.appendChild(userMessage);
-    
-    // Add typing indicator
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'research-message message-assistant';
-    typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = `
-        <div class="assistant-content">
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
+    const userMsg = document.createElement('div');
+    userMsg.className = 'message-wrapper message-user';
+    userMsg.innerHTML = `
+        <div class="message-user-bubble">
+            ${escapeHtml(query)}
         </div>
     `;
-    msgContainer.appendChild(typingDiv);
+    messagesContainer.appendChild(userMsg);
+    
+    // Add typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'message-wrapper message-assistant';
+    typingIndicator.id = 'typingIndicator';
+    typingIndicator.innerHTML = `
+        <div class="assistant-header">
+            <div class="assistant-avatar">
+                <i class="fas fa-brain"></i>
+            </div>
+            <span class="assistant-name">Research AI</span>
+        </div>
+        <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    messagesContainer.appendChild(typingIndicator);
     
     // Clear input
     input.value = '';
     input.style.height = 'auto';
     
     // Scroll to bottom
-    msgContainer.scrollTop = msgContainer.scrollHeight;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
     
     try {
-        // Send request
         const response = await fetch('/api/research/query', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 query: query,
                 conversation_id: {{ conversation_id if conversation_id else 'null' }}
@@ -832,19 +1169,22 @@ async function submitResearch(event) {
         document.getElementById('typingIndicator').remove();
         
         if (data.success) {
-            // Add assistant response
-            const assistantMessage = document.createElement('div');
-            assistantMessage.className = 'research-message message-assistant';
-            
+            // Build citations HTML
             let citationsHtml = '';
             if (data.citations && data.citations.length > 0) {
                 citationsHtml = `
                     <div class="message-citations">
-                        <div class="citations-title">Sources</div>
+                        <div class="citations-header">
+                            <i class="fas fa-link"></i>
+                            <span class="citations-title">Sources</span>
+                        </div>
                         ${data.citations.map((c, i) => `
                             <a href="${c.source_url || '#'}" target="_blank" class="citation-item">
                                 <div class="citation-number">${i + 1}</div>
-                                <div class="citation-text">${escapeHtml(c.source_title)}</div>
+                                <div class="citation-content">
+                                    <div class="citation-text">${escapeHtml(c.source_title)}</div>
+                                    <div class="citation-source">${c.source_type || 'Web'}</div>
+                                </div>
                                 ${c.source_url ? '<i class="fas fa-external-link-alt citation-icon"></i>' : ''}
                             </a>
                         `).join('')}
@@ -852,26 +1192,38 @@ async function submitResearch(event) {
                 `;
             }
             
-            assistantMessage.innerHTML = `
-                <div class="assistant-content">
-                    <div class="assistant-text">${escapeHtml(data.response)}</div>
-                    ${citationsHtml}
+            // Add assistant response
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'message-wrapper message-assistant';
+            assistantMsg.innerHTML = `
+                <div class="assistant-header">
+                    <div class="assistant-avatar">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <span class="assistant-name">Research AI</span>
                 </div>
+                <div class="assistant-bubble">
+                    ${escapeHtml(data.response)}
+                </div>
+                ${citationsHtml}
             `;
-            
-            msgContainer.appendChild(assistantMessage);
+            messagesContainer.appendChild(assistantMsg);
         } else {
             // Show error
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'research-message message-assistant';
-            errorMessage.innerHTML = `
-                <div class="assistant-content">
-                    <div class="assistant-text" style="color: #dc3545;">
-                        Sorry, I encountered an error: ${escapeHtml(data.error || 'Unknown error')}
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'message-wrapper message-assistant';
+            errorMsg.innerHTML = `
+                <div class="assistant-header">
+                    <div class="assistant-avatar">
+                        <i class="fas fa-exclamation-triangle"></i>
                     </div>
+                    <span class="assistant-name">Error</span>
+                </div>
+                <div class="assistant-bubble" style="color: #dc2626;">
+                    Sorry, I encountered an error: ${escapeHtml(data.error || 'Unknown error')}
                 </div>
             `;
-            msgContainer.appendChild(errorMessage);
+            messagesContainer.appendChild(errorMsg);
         }
     } catch (error) {
         // Remove typing indicator
@@ -879,60 +1231,57 @@ async function submitResearch(event) {
         if (typing) typing.remove();
         
         // Show error
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'research-message message-assistant';
-        errorMessage.innerHTML = `
-            <div class="assistant-content">
-                <div class="assistant-text" style="color: #dc3545;">
-                    Network error. Please try again.
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'message-wrapper message-assistant';
+        errorMsg.innerHTML = `
+            <div class="assistant-header">
+                <div class="assistant-avatar">
+                    <i class="fas fa-exclamation-triangle"></i>
                 </div>
+                <span class="assistant-name">Error</span>
+            </div>
+            <div class="assistant-bubble" style="color: #dc2626;">
+                Network error. Please check your connection and try again.
             </div>
         `;
-        msgContainer.appendChild(errorMessage);
+        messagesContainer.appendChild(errorMsg);
     } finally {
         // Re-enable input
         input.disabled = false;
-        sendButton.disabled = false;
+        sendBtn.disabled = false;
         input.focus();
         
         // Scroll to bottom
-        msgContainer.scrollTop = msgContainer.scrollHeight;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 }
 
+// Escape HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Auto-scroll to bottom on load
-window.addEventListener('load', function() {
-    const messagesDiv = document.getElementById('researchMessages');
-    if (messagesDiv) {
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-});
-
 // Load conversation
 function loadConversation(convId) {
     window.location.href = `{{ url_for('dashboard_ai_advisor') }}?conversation_id=${convId}`;
 }
 
-// Filter by time period
-function filterByTime(period) {
+// Filter by time
+function filterByTime(period, btn) {
     // Update active tab
     document.querySelectorAll('.archive-tab').forEach(tab => {
         tab.classList.remove('active');
     });
-    event.target.classList.add('active');
+    btn.classList.add('active');
     
-    // Filter conversations by time period
+    // Filter conversations
     const now = new Date();
     const conversations = document.querySelectorAll('.conversation-item');
     
     conversations.forEach(conv => {
-        const dateStr = conv.querySelector('.conversation-meta').textContent.split('•')[1].trim();
+        const dateStr = conv.getAttribute('data-date');
         const convDate = new Date(dateStr);
         const daysDiff = Math.floor((now - convDate) / (1000 * 60 * 60 * 24));
         
@@ -945,33 +1294,21 @@ function filterByTime(period) {
     });
 }
 
-// Filter conversations by stock/sector
-function filterConversations() {
-    const stockFilter = document.getElementById('stockFilter').value;
-    const sectorFilter = document.getElementById('sectorFilter').value;
-    const conversations = document.querySelectorAll('.conversation-item');
-    
-    conversations.forEach(conv => {
-        const title = conv.querySelector('.conversation-title').textContent.toUpperCase();
-        let show = true;
-        
-        if (stockFilter && !title.includes(stockFilter)) show = false;
-        if (sectorFilter && !title.includes(sectorFilter.toUpperCase())) show = false;
-        
-        conv.style.display = show ? 'block' : 'none';
-    });
+// Refresh data
+function refreshData() {
+    location.reload();
 }
 
-// Execute Trade - Extract stock symbol and redirect to Trade Now
+// Execute trade
 function executeTrade(messageContent, messageId) {
-    // Extract stock symbol from message (simple regex)
+    // Extract stock symbol
     const symbolMatch = messageContent.match(/\b([A-Z]{2,10})\b/);
     const symbol = symbolMatch ? symbolMatch[1] : '';
     
-    // Determine action (BUY or SELL)
+    // Determine action
     const action = messageContent.toUpperCase().includes('BUY') ? 'BUY' : 'SELL';
     
-    // Store research context in sessionStorage
+    // Store context
     sessionStorage.setItem('researchContext', JSON.stringify({
         messageId: messageId,
         symbol: symbol,
@@ -980,9 +1317,17 @@ function executeTrade(messageContent, messageId) {
         timestamp: new Date().toISOString()
     }));
     
-    // Redirect to Trade Now page
+    // Redirect to trade page
     const tradeUrl = `{{ url_for('dashboard_trade_now') }}?symbol=${symbol}&action=${action}&from=research`;
     window.location.href = tradeUrl;
 }
+
+// Auto-scroll to bottom on load
+window.addEventListener('load', function() {
+    const messagesDiv = document.getElementById('chatMessages');
+    if (messagesDiv) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+});
 </script>
 {% endblock %}
