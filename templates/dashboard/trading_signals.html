@@ -1,6 +1,6 @@
 {% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Trading Signals - tCapital Dashboard{% endblock %}
+{% block title %}Smart Signals - tCapital Dashboard{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -48,7 +48,7 @@
 </style>
 {% endblock %}
 
-{% block dashboard_title %}Trading Signals{% endblock %}
+{% block dashboard_title %}Smart Signals{% endblock %}
 {% block dashboard_subtitle %}Daily recommendations from our expert analysts{% endblock %}
 
 {% block dashboard_toolbar %}
@@ -69,10 +69,7 @@
         </div>
     </div>
     <div class="text-end">
-        <small class="text-muted">
-            <i class="fas fa-clock me-1"></i>Market Hours: 9:15 AM - 3:30 PM
-        </small>
-        <div id="live-indicator" class="badge bg-success ms-2">
+        <div id="live-indicator" class="badge bg-success">
             <i class="fas fa-circle me-1"></i>Live
         </div>
     </div>
@@ -265,8 +262,8 @@
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
-                <h4 class="text-muted">No Trading Signals Available</h4>
-                <p class="text-muted">Our analysts haven't posted any signals today. Check back later for new recommendations.</p>
+                <h4 class="text-muted">No Smart Signals Available</h4>
+                <p class="text-muted">Our AI hasn't generated any signals yet. Check back later for new recommendations.</p>
                 <button class="btn btn-primary" onclick="refreshSignals()">
                     <i class="fas fa-sync-alt me-2"></i>Refresh Signals
                 </button>
@@ -302,7 +299,7 @@
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-header bg-gradient-primary text-white border-0">
                     <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>How to Use Trading Signals
+                        <i class="fas fa-info-circle me-2"></i>How to Use Smart Signals
                     </h5>
                 </div>
                 <div class="card-body">
@@ -340,7 +337,7 @@
                     <div class="alert alert-warning border-0 bg-warning bg-opacity-10 mt-3">
                         <small>
                             <i class="fas fa-exclamation-triangle me-1"></i>
-                            <strong>Risk Disclaimer:</strong> Trading signals are for educational purposes. Past performance doesn't guarantee future results. Trade at your own risk and never invest more than you can afford to lose.
+                            <strong>Risk Disclaimer:</strong> Smart Signals are for educational purposes. Past performance doesn't guarantee future results. Trade at your own risk and never invest more than you can afford to lose.
                         </small>
                     </div>
                 </div>

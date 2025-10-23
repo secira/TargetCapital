@@ -4154,7 +4154,7 @@ def api_trading_signals():
                 'sector': signal.sector,
                 'category': signal.category,
                 'expiry_date': signal.expires_at.isoformat() if signal.expires_at else None,
-                'created_at': signal.created_at.isoformat(),
+                'created_at': signal.created_at.isoformat() if signal.created_at else None,
                 'status': signal.status,
                 'potential_return': signal.potential_return
             })
