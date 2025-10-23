@@ -9,6 +9,9 @@
     <button type="button" class="btn btn-sm btn-outline-primary" onclick="startNewChat()" style="border-radius: 20px;">
         <i class="fas fa-plus me-1"></i>New
     </button>
+    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="clearAllHistory()" style="border-radius: 20px;">
+        <i class="fas fa-trash-alt me-1"></i>Clear
+    </button>
 </div>
 {% endblock %}
 
@@ -736,9 +739,6 @@
                 <form id="welcomeForm" onsubmit="submitResearch(event)">
                     <div class="search-box-large">
                         <div class="action-buttons">
-                            <button type="button" class="action-btn" onclick="clearChat()" title="Clear chat">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
                             <button type="button" class="action-btn" onclick="triggerFileUpload()" title="Upload file or image">
                                 <i class="fas fa-paperclip"></i>
                             </button>
@@ -756,7 +756,7 @@
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
-                    <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple>
+                    <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple style="display: none;">
                 </form>
             </div>
         </div>
@@ -831,9 +831,6 @@
                 <form id="chatForm" onsubmit="submitResearch(event)">
                     <div class="input-container">
                         <div class="action-buttons">
-                            <button type="button" class="action-btn" onclick="clearChat()" title="Clear chat">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
                             <button type="button" class="action-btn" onclick="triggerFileUpload()" title="Upload file or image">
                                 <i class="fas fa-paperclip"></i>
                             </button>
@@ -851,7 +848,7 @@
                             <i class="fas fa-arrow-up"></i>
                         </button>
                     </div>
-                    <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple>
+                    <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple style="display: none;">
                 </form>
             </div>
         </div>
@@ -912,9 +909,6 @@ async function submitResearch(event) {
                     <form id="chatForm" onsubmit="submitResearch(event)">
                         <div class="input-container">
                             <div class="action-buttons">
-                                <button type="button" class="action-btn" onclick="clearChat()" title="Clear chat">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
                                 <button type="button" class="action-btn" onclick="triggerFileUpload()" title="Upload file or image">
                                     <i class="fas fa-paperclip"></i>
                                 </button>
@@ -924,7 +918,7 @@ async function submitResearch(event) {
                                 <i class="fas fa-arrow-up"></i>
                             </button>
                         </div>
-                        <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple>
+                        <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple style="display: none;">
                     </form>
                 </div>
             </div>
@@ -1119,10 +1113,49 @@ window.addEventListener('load', function() {
     }
 });
 
-// Clear chat function
-function clearChat() {
-    if (confirm('Are you sure you want to clear this conversation? This action cannot be undone.')) {
-        startNewChat();
+// Clear all history function (for header button)
+async function clearAllHistory() {
+    if (!confirm('Are you sure you want to clear ALL conversation history? This action cannot be undone and will delete all your past conversations.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/research/clear-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Show success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.innerHTML = `<i class="fas fa-check-circle me-2"></i>All conversation history cleared!`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+                // Redirect to fresh page
+                window.location.href = '{{ url_for("dashboard_ai_advisor") }}';
+            }, 1500);
+        } else {
+            alert('Failed to clear history: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Clear history error:', error);
+        alert('Failed to clear history. Please try again.');
     }
 }
 

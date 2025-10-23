@@ -3755,6 +3755,38 @@ def api_research_upload():
         logging.error(f"File upload error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/research/clear-history', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_research_clear_history():
+    """Clear all conversation history for the current user"""
+    try:
+        from models import ResearchConversation, ResearchMessage
+        
+        # Delete all messages for user's conversations
+        user_conversations = ResearchConversation.query.filter_by(user_id=current_user.id).all()
+        conversation_ids = [conv.id for conv in user_conversations]
+        
+        if conversation_ids:
+            ResearchMessage.query.filter(ResearchMessage.conversation_id.in_(conversation_ids)).delete(synchronize_session=False)
+        
+        # Delete all conversations
+        ResearchConversation.query.filter_by(user_id=current_user.id).delete()
+        
+        db.session.commit()
+        
+        logging.info(f"User {current_user.id} cleared all conversation history")
+        
+        return jsonify({
+            'success': True,
+            'message': 'All conversation history cleared successfully'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Clear history error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/research/query', methods=['POST'])
 @login_required
 @csrf.exempt
