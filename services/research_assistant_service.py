@@ -177,34 +177,44 @@ Remember: This is educational research with proper disclaimers - not guaranteed 
             return []
         
         try:
+            from sqlalchemy import text
+            
             # Convert embedding to PostgreSQL vector format
             embedding_str = '[' + ','.join(map(str, query_embedding)) + ']'
             
-            # Build query
-            query = """
-                SELECT id, title, content, symbol, sector, category, source_url,
-                       published_date, document_type,
-                       1 - (embedding::vector <=> :query_embedding::vector) as similarity
-                FROM vector_documents
-                WHERE embedding IS NOT NULL
-            """
-            
+            # Build query - use proper parameter binding
             if symbol:
-                query += " AND symbol = :symbol"
+                query = text("""
+                    SELECT id, title, content, symbol, sector, category, source_url,
+                           published_date, document_type,
+                           1 - (embedding <=> CAST(:query_embedding AS vector)) as similarity
+                    FROM vector_documents
+                    WHERE embedding IS NOT NULL
+                    AND symbol = :symbol
+                    ORDER BY embedding <=> CAST(:query_embedding AS vector)
+                    LIMIT :limit
+                """)
+                params = {
+                    'query_embedding': embedding_str,
+                    'symbol': symbol,
+                    'limit': limit
+                }
+            else:
+                query = text("""
+                    SELECT id, title, content, symbol, sector, category, source_url,
+                           published_date, document_type,
+                           1 - (embedding <=> CAST(:query_embedding AS vector)) as similarity
+                    FROM vector_documents
+                    WHERE embedding IS NOT NULL
+                    ORDER BY embedding <=> CAST(:query_embedding AS vector)
+                    LIMIT :limit
+                """)
+                params = {
+                    'query_embedding': embedding_str,
+                    'limit': limit
+                }
             
-            query += """
-                ORDER BY embedding::vector <=> :query_embedding::vector
-                LIMIT :limit
-            """
-            
-            params = {
-                'query_embedding': embedding_str,
-                'limit': limit
-            }
-            if symbol:
-                params['symbol'] = symbol
-            
-            result = db.session.execute(text(query), params)
+            result = db.session.execute(query, params)
             
             documents = []
             for row in result:
@@ -259,8 +269,7 @@ Provide comprehensive research with:
                     {'role': 'user', 'content': full_prompt}
                 ],
                 'temperature': 0.2,
-                'max_tokens': 1500,
-                'return_citations': True
+                'max_tokens': 1500
             }
             
             response = requests.post(
@@ -274,16 +283,19 @@ Provide comprehensive research with:
             data = response.json()
             answer = data['choices'][0]['message']['content']
             
-            # Extract citations
+            # Extract citations from response
             citations = []
-            if 'citations' in data:
-                for cite in data['citations'][:5]:  # Limit to top 5 citations
-                    citations.append({
-                        'source_type': 'web',
-                        'source_title': cite.get('title', 'Web Source'),
-                        'source_url': cite.get('url', ''),
-                        'relevance_score': None
-                    })
+            # Perplexity includes citations inline in the response text
+            # We'll parse URLs from the response as citations
+            import re
+            urls = re.findall(r'https?://[^\s\)]+', answer)
+            for url in urls[:5]:  # Limit to top 5 URLs
+                citations.append({
+                    'source_type': 'web',
+                    'source_title': 'Web Source',
+                    'source_url': url,
+                    'relevance_score': None
+                })
             
             logger.info(f"Perplexity research completed with {len(citations)} citations")
             return answer, citations
@@ -422,6 +434,7 @@ Provide comprehensive research with:
             }
             
         except Exception as e:
+            db.session.rollback()  # Rollback any pending transactions
             logger.error(f"Research error: {str(e)}")
             return {
                 'success': False,
