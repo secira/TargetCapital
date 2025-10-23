@@ -55,10 +55,17 @@ class NSEService:
                 current_time = dt.datetime.now()
                 delayed_timestamp = current_time - dt.timedelta(minutes=delayed_minutes)
                 
+                last_price = float(quote.get('lastPrice', 0))
+                
+                # If API returns 0 or no price (market closed), use fallback data
+                if last_price == 0:
+                    self.logger.info(f"NSE API returned 0 price for {symbol}, using fallback data")
+                    return self._get_fallback_quote(symbol)
+                
                 return {
                     'symbol': symbol,
                     'company_name': quote.get('companyName', symbol),
-                    'current_price': float(quote.get('lastPrice', 0)),
+                    'current_price': last_price,
                     'previous_close': float(quote.get('previousClose', 0)),
                     'change_amount': float(quote.get('change', 0)),
                     'change_percent': float(quote.get('pChange', 0)),
