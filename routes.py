@@ -3700,6 +3700,61 @@ def dashboard_ai_advisor():
         flash('Error loading Research Assistant. Please try again.', 'error')
         return redirect(url_for('dashboard'))
 
+@app.route('/api/research/upload', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_research_upload():
+    """Handle file uploads for Research Assistant"""
+    try:
+        import os
+        from werkzeug.utils import secure_filename
+        
+        # Check if files are in request
+        if 'files' not in request.files:
+            return jsonify({'success': False, 'error': 'No files provided'}), 400
+        
+        files = request.files.getlist('files')
+        if not files:
+            return jsonify({'success': False, 'error': 'No files selected'}), 400
+        
+        # Create upload directory if it doesn't exist
+        upload_folder = os.path.join('uploads', 'research', str(current_user.id))
+        os.makedirs(upload_folder, exist_ok=True)
+        
+        uploaded_files = []
+        for file in files:
+            if file.filename == '':
+                continue
+            
+            # Secure the filename
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(upload_folder, filename)
+            
+            # Save the file
+            file.save(filepath)
+            
+            # Get file info
+            file_size = os.path.getsize(filepath)
+            file_info = {
+                'name': filename,
+                'path': filepath,
+                'size': file_size,
+                'type': file.content_type
+            }
+            uploaded_files.append(file_info)
+            
+            logging.info(f"File uploaded: {filename} ({file_size} bytes) by user {current_user.id}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'{len(uploaded_files)} file(s) uploaded successfully',
+            'file_info': uploaded_files
+        })
+        
+    except Exception as e:
+        logging.error(f"File upload error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/research/query', methods=['POST'])
 @login_required
 @csrf.exempt
