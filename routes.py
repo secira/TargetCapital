@@ -3702,6 +3702,7 @@ def dashboard_ai_advisor():
 
 @app.route('/api/research/query', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_research_query():
     """Handle research queries with RAG"""
     try:
