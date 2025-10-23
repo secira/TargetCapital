@@ -1,0 +1,438 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block dashboard_title %}Dashboard{% endblock %}
+{% block dashboard_subtitle %}Your AI-powered trading command center{% endblock %}
+
+{% block dashboard_toolbar %}
+<div class="header-actions">
+    <button class="btn btn-outline-primary btn-sm me-2" onclick="location.reload()">
+        <i class="fas fa-sync-alt me-1"></i>
+        Refresh
+    </button>
+    <div class="dropdown">
+        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="fas fa-plus me-1"></i>
+            Quick Actions
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('dashboard_stock_picker') }}">
+                <i class="fas fa-robot me-2"></i>AI Stock Picker
+            </a></li>
+            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
+            <li><a class="dropdown-item" href="{{ url_for('dashboard_trade_now') }}">
+                <i class="fas fa-exchange-alt me-2"></i>Start Trading
+            </a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<style>
+    .clickable-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .clickable-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    .allocation-item-clickable {
+        cursor: pointer;
+        transition: background 0.2s ease;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .allocation-item-clickable:hover {
+        background: #f0f7ff !important;
+    }
+</style>
+
+<!-- Portfolio Overview Cards -->
+<div class="dashboard-grid cols-4">
+    <!-- Total Portfolio Value -->
+    <div class="dashboard-card clickable-card" onclick="window.location.href='{{ url_for('dashboard_my_portfolio') }}'">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-wallet text-primary"></i>
+                </div>
+                <div class="metric-change {% if portfolio_summary.pnl_percentage >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="fas fa-arrow-{% if portfolio_summary.pnl_percentage >= 0 %}up{% else %}down{% endif %}"></i>
+                    <span>{{ "%.1f"|format(portfolio_summary.pnl_percentage|abs) }}%</span>
+                </div>
+            </div>
+            <h3 class="metric-value">₹{{ "%.2f"|format(portfolio_summary.total_current_value / 10000000) }} Cr</h3>
+            <p class="metric-label">Total Portfolio Value</p>
+            <div class="metric-trend">
+                <small class="text-muted {% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ "+" if portfolio_summary.total_pnl >= 0 else "" }}₹{{ "{:,.0f}".format(portfolio_summary.total_pnl) }} P&L
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Trading Signals -->
+    <div class="dashboard-card clickable-card" onclick="window.location.href='{{ url_for('dashboard_trading_signals') }}'">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-chart-line text-success"></i>
+                </div>
+                <div class="metric-badge">
+                    <span class="badge bg-success">Live</span>
+                </div>
+            </div>
+            <h3 class="metric-value">{{ trading_signals_count }}</h3>
+            <p class="metric-label">Active Signals</p>
+            <div class="metric-trend">
+                <small class="text-muted">Click to view all signals</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Asset Classes -->
+    <div class="dashboard-card">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-layer-group text-warning"></i>
+                </div>
+                <div class="metric-change neutral">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+            </div>
+            <h3 class="metric-value">{{ portfolio_summary.asset_classes|length }}</h3>
+            <p class="metric-label">Asset Classes</p>
+            <div class="metric-trend">
+                <small class="text-muted">{{ portfolio_summary.risk_profile.category }} portfolio</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connected Brokers -->
+    <div class="dashboard-card clickable-card" onclick="window.location.href='{{ url_for('broker_management') }}'">
+        <div class="card-body">
+            <div class="flex-between mb-3">
+                <div class="metric-icon">
+                    <i class="fas fa-user-check text-info"></i>
+                </div>
+                <div class="metric-status">
+                    <div class="status-dot active"></div>
+                </div>
+            </div>
+            <h3 class="metric-value">{{ broker_accounts|length }}</h3>
+            <p class="metric-label">Connected Brokers</p>
+            <div class="metric-trend">
+                <small class="text-muted">All systems operational</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div class="dashboard-grid cols-3">
+    <!-- Asset Allocation - Clickable -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Asset Allocation</h3>
+            <a href="{{ url_for('dashboard_my_portfolio') }}" class="view-all">
+                Full Portfolio <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="asset-allocation">
+                {% for asset in portfolio_summary.asset_classes[:6] %}
+                <div class="allocation-item-clickable" onclick="navigateToAsset('{{ asset.name }}')">
+                    <div class="allocation-header">
+                        <div class="allocation-info">
+                            <i class="fas fa-circle me-2" style="color: {{ asset.color }};"></i>
+                            <span class="asset-name">{{ asset.name }}</span>
+                        </div>
+                        <span class="allocation-percentage">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100) }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px; margin-top: 8px;">
+                        <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 }}%; background-color: {{ asset.color }};"></div>
+                    </div>
+                    <small class="text-muted">₹{{ "{:,.0f}".format(asset.current_value) }} | {{ asset.count }} holdings | <span class="{% if asset.pnl >= 0 %}text-success{% else %}text-danger{% endif %}">{{ "%.1f"|format(asset.pnl_percentage) }}%</span></small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Health with Chart -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Portfolio Distribution</h3>
+            <div class="health-score">
+                <span class="score-badge excellent">{{ "%.0f"|format(portfolio_summary.risk_profile.score) }}/100</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="portfolioDonut" height="280"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Top Performers</h3>
+            <a href="{{ url_for('dashboard_my_portfolio') }}" class="view-all">
+                View All
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="holdings-list">
+                {% if top_performers %}
+                    {% for performer in top_performers %}
+                    <div class="holding-item">
+                        <div class="holding-info">
+                            <span class="stock-symbol">{{ performer.name[:15] }}</span>
+                            <span class="stock-name">{{ performer.type }}</span>
+                        </div>
+                        <div class="holding-metrics">
+                            <span class="holding-value">₹{{ "{:,.0f}".format(performer.value) }}</span>
+                            <span class="holding-change {% if performer.return >= 0 %}positive{% else %}negative{% endif %}">
+                                {{ "+" if performer.return >= 0 else "" }}{{ "%.1f"|format(performer.return) }}%
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-3">No holdings yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Risk Distribution Chart -->
+<div class="dashboard-grid cols-2" style="margin-top: 24px;">
+    <!-- Risk Distribution -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Risk Distribution</h3>
+            <span class="badge bg-info">{{ portfolio_summary.risk_profile.category }}</span>
+        </div>
+        <div class="card-body">
+            <canvas id="riskChart" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Asset Summary Table -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Quick Summary</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th class="text-end">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fas fa-coins text-primary me-2"></i>Total Investment</td>
+                        <td class="text-end">₹{{ "{:,.0f}".format(portfolio_summary.total_investment) }}</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-wallet text-success me-2"></i>Current Value</td>
+                        <td class="text-end">₹{{ "{:,.0f}".format(portfolio_summary.total_current_value) }}</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-chart-line {% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %} me-2"></i>Total P&L</td>
+                        <td class="text-end {% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ "{:,.0f}".format(portfolio_summary.total_pnl) }} ({{ "%.2f"|format(portfolio_summary.pnl_percentage) }}%)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-shield-alt text-warning me-2"></i>Risk Level</td>
+                        <td class="text-end">{{ portfolio_summary.risk_profile.category }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
+<!-- HNI Account Manager Section -->
+<div class="dashboard-grid cols-1" style="margin-top: 24px;">
+    <div class="dashboard-card account-manager-card">
+        <div class="card-header">
+            <h3><i class="fas fa-crown me-2"></i>Your Dedicated Account Manager</h3>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.location.href='tel:+919876543210'">
+                <i class="fas fa-phone me-1"></i>Contact Manager
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="account-manager-content">
+                <div class="manager-profile">
+                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='%234299e1'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='32'>RK</text></svg>" 
+                         alt="Account Manager" class="manager-avatar">
+                    <div class="manager-info">
+                        <h4 class="manager-name">Rajesh Kumar</h4>
+                        <p class="manager-title">Senior Account Manager</p>
+                        <div class="manager-experience">
+                            <i class="fas fa-award text-warning me-1"></i>
+                            <span>8+ Years Experience</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="manager-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-details">
+                            <div class="stat-label">Success Rate</div>
+                            <div class="stat-value">85.2%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-details">
+                            <div class="stat-label">Average Return</div>
+                            <div class="stat-value text-success">+12.3%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="manager-contact">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:rajesh.kumar@targetcapital.com">rajesh.kumar@targetcapital.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+919876543210">+91 98765 43210</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Navigation function for asset classes
+function navigateToAsset(assetName) {
+    const assetRoutes = {
+        'Equities': '{{ url_for("dashboard_equities") }}',
+        'Mutual Funds': '{{ url_for("dashboard_mutual_funds") }}',
+        'Fixed Deposits': '{{ url_for("dashboard_fixed_deposits") }}',
+        'Real Estate': '{{ url_for("dashboard_real_estate") }}',
+        'Gold & Commodities': '{{ url_for("dashboard_commodities") }}',
+        'Cryptocurrency': '{{ url_for("dashboard_cryptocurrency") }}',
+        'F&O Positions': '{{ url_for("dashboard_futures_options") }}',
+        'Insurance': '{{ url_for("dashboard_insurance") }}'
+    };
+    
+    const route = assetRoutes[assetName];
+    if (route) {
+        window.location.href = route;
+    }
+}
+
+// Portfolio Donut Chart
+const donutCtx = document.getElementById('portfolioDonut').getContext('2d');
+new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ portfolio_summary.asset_distribution | map(attribute='label') | list | tojson }},
+        datasets: [{
+            data: {{ portfolio_summary.asset_distribution | map(attribute='value') | list | tojson }},
+            backgroundColor: {{ portfolio_summary.asset_distribution | map(attribute='color') | list | tojson }},
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 15,
+                    usePointStyle: true,
+                    font: {
+                        size: 11
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.parsed || 0;
+                        return label + ': ' + value.toFixed(1) + '%';
+                    }
+                }
+            }
+        },
+        onClick: function(evt, item) {
+            if (item.length > 0) {
+                const index = item[0].index;
+                const label = this.data.labels[index];
+                navigateToAsset(label);
+            }
+        }
+    }
+});
+
+// Risk Distribution Chart
+const riskCtx = document.getElementById('riskChart').getContext('2d');
+const riskData = {{ portfolio_summary.risk_profile.distribution | tojson }};
+new Chart(riskCtx, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(riskData),
+        datasets: [{
+            label: 'Portfolio Allocation (%)',
+            data: Object.values(riskData),
+            backgroundColor: ['#f44336', '#FF9800', '#4CAF50', '#2196F3', '#9E9E9E'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.x.toFixed(1) + '% of portfolio';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

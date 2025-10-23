@@ -986,45 +986,61 @@ def facebook_oauth_success():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """Main dashboard route"""
-    # Get recent stock analyses
-    recent_analyses = StockAnalysis.query.order_by(StockAnalysis.analysis_date.desc()).limit(10).all()
+    """Main dashboard route with real portfolio data"""
+    from services.comprehensive_portfolio_service import get_comprehensive_portfolio_service
+    from models_broker import BrokerAccount
     
-    # Calculate user statistics with safe imports
-    days_active = (datetime.utcnow() - current_user.created_at).days
+    # Get comprehensive portfolio summary
+    portfolio_service = get_comprehensive_portfolio_service(current_user.id)
+    portfolio_summary = portfolio_service.get_complete_portfolio_summary()
+    top_performers = portfolio_service.get_top_performers(limit=3)
+    
+    # Get trading signals count
     try:
         from models import TradingSignal
         trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
     except (ImportError, AttributeError):
         trading_signals_count = 0
     
-    # Calculate user level based on trading activity
-    if trading_signals_count >= 20:
+    # Get connected brokers
+    broker_accounts = BrokerAccount.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+    
+    # Calculate user statistics
+    days_active = (datetime.utcnow() - current_user.created_at).days
+    
+    # Calculate user level based on portfolio value
+    portfolio_value_cr = portfolio_summary['total_current_value'] / 10000000  # Convert to Crores
+    if portfolio_value_cr >= 5:
         user_level = "Expert Trader"
         level_progress = 100
-    elif trading_signals_count >= 10:
+    elif portfolio_value_cr >= 2:
         user_level = "Advanced Trader"
         level_progress = 75
-    elif trading_signals_count >= 5:
+    elif portfolio_value_cr >= 0.5:
         user_level = "Intermediate"
         level_progress = 50
-    elif trading_signals_count >= 1:
+    elif portfolio_value_cr > 0:
         user_level = "Beginner"
         level_progress = 25
     else:
         user_level = "New User"
         level_progress = 10
     
-    # Use mock data for now to ensure dashboard loads properly
+    # Use mock data for market overview
     market_data = generate_mock_market_data()
     
-    return render_template('dashboard/dashboard.html', 
+    return render_template('dashboard/dashboard_improved.html', 
+                         portfolio_summary=portfolio_summary,
+                         top_performers=top_performers,
                          trading_signals_count=trading_signals_count,
-                         recent_analyses=recent_analyses,
                          market_data=market_data,
                          days_active=days_active,
                          user_level=user_level,
-                         level_progress=level_progress)
+                         level_progress=level_progress,
+                         broker_accounts=broker_accounts)
 
 # Stock Analysis route removed as requested by user
 
