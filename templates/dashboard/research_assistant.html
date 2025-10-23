@@ -50,34 +50,6 @@
     overflow: hidden;
 }
 
-.sidebar-header {
-    padding: 16px;
-    border-bottom: 1px solid #e5e5e5;
-    background: white;
-    display: none;
-}
-
-.new-chat-btn {
-    width: 100%;
-    padding: 10px 16px;
-    background: #2d2d2d;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.2s;
-}
-
-.new-chat-btn:hover {
-    background: #1a1a1a;
-}
-
 
 /* Conversation List */
 .conversation-list {
@@ -635,13 +607,6 @@
 <div class="research-wrapper">
     <!-- Sidebar -->
     <aside class="research-sidebar" id="researchSidebar">
-        <div class="sidebar-header">
-            <button class="new-chat-btn" onclick="startNewChat()">
-                <i class="fas fa-plus"></i>
-                <span>New</span>
-            </button>
-        </div>
-
         <div class="conversation-list" id="conversationList">
             {% if conversations %}
                 {% for conv in conversations %}
