@@ -5,6 +5,11 @@
 {% block dashboard_subtitle %}AI-powered market research{% endblock %}
 
 {% block dashboard_toolbar %}
+<div class="header-actions">
+    <button type="button" class="btn btn-sm btn-outline-primary" onclick="startNewChat()" style="border-radius: 20px;">
+        <i class="fas fa-plus me-1"></i>New
+    </button>
+</div>
 {% endblock %}
 
 {% block extra_css %}
@@ -49,6 +54,7 @@
     padding: 16px;
     border-bottom: 1px solid #e5e5e5;
     background: white;
+    display: none;
 }
 
 .new-chat-btn {
@@ -176,7 +182,7 @@
     max-height: 600px;
     padding: 28px 70px 28px 28px;
     border: 2px solid #e0e0e0;
-    border-radius: 20px;
+    border-radius: 30px;
     font-size: 18px;
     font-family: inherit;
     color: #2d2d2d;
@@ -510,7 +516,7 @@
     position: relative;
     background: #fafafa;
     border: 2px solid #e0e0e0;
-    border-radius: 20px;
+    border-radius: 30px;
     transition: all 0.3s;
     width: 600px !important;
 }
