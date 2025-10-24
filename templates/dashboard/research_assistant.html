@@ -818,7 +818,7 @@
                         <span class="assistant-name">AI</span>
                     </div>
                     <div class="assistant-bubble">
-                        {{ message.content }}
+                        {{ message.content | safe }}
                     </div>
 
                     {% if message.citations and message.citations|length > 0 %}
@@ -841,7 +841,10 @@
                     {% endif %}
 
                     {% if current_user.pricing_plan.value in ['target_pro', 'hni'] %}
-                    {% if ('BUY' in message.content.upper() or 'SELL' in message.content.upper() or 'TRADE' in message.content.upper() or 'INVEST' in message.content.upper()) %}
+                    {% set upper_content = message.content.upper() %}
+                    {% if ('BUY' in upper_content or 'SELL' in upper_content or 'TRADE' in upper_content or 
+                           'INVEST' in upper_content or 'STOCK' in upper_content or 'RECOMMENDATION' in upper_content or
+                           'SHARES' in upper_content or 'EQUITY' in upper_content or 'COMPANY' in upper_content) %}
                     <div class="trade-card">
                         {% if 'BUY' in message.content.upper() or 'INVEST' in message.content.upper() %}
                         <div class="trade-badge buy">
@@ -1247,10 +1250,18 @@ function prepareTradeFromResearch(messageId) {
     window.location.href = `{{ url_for('dashboard_trade_now') }}?symbol=${symbol}&action=${action}&from=research`;
 }
 
-// Auto-scroll on load
+// Format existing messages on page load
 window.addEventListener('load', function() {
     const messagesDiv = document.getElementById('chatMessages');
     if (messagesDiv) {
+        // Format all assistant bubbles with markdown
+        const assistantBubbles = messagesDiv.querySelectorAll('.assistant-bubble');
+        assistantBubbles.forEach(bubble => {
+            const content = bubble.textContent || bubble.innerText;
+            bubble.innerHTML = formatMarkdown(content);
+        });
+        
+        // Auto-scroll to bottom
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 });
