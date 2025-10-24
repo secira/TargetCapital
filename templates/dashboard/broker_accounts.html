@@ -145,18 +145,20 @@
     </div>
 </div>
 
-<!-- Add/Edit Broker Modal -->
-<div class="modal fade" id="addBrokerModal" tabindex="-1" aria-labelledby="addBrokerModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="addBrokerModalLabel">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    <span id="modalTitle">Add Broker Account</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
+<!-- Add/Edit Broker Form Section (Inline) -->
+<div class="card shadow-sm mt-4" id="addBrokerSection" style="display: none;">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-plus-circle me-2"></i>
+                <span id="formTitle">Add Broker Account</span>
+            </h5>
+            <button type="button" class="btn btn-sm btn-light" onclick="hideAddBrokerForm()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
         <form id="addBrokerForm">
             <div class="row">
                 <div class="col-md-12 mb-3">
@@ -271,7 +273,7 @@
             </div>
             
             <div class="d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" onclick="hideAddBrokerForm()">
                     <i class="fas fa-times me-2"></i>Cancel
                 </button>
                 <button type="button" class="btn btn-primary" onclick="submitBrokerForm()">
@@ -279,44 +281,70 @@
                 </button>
             </div>
         </form>
-            </div>
-        </div>
     </div>
 </div>
 
 <script>
-// Show Add Broker Modal with prefilled broker name
+// Show Add Broker Form (inline, not modal)
 function showAddBrokerForm(brokerType, brokerName) {
-    document.getElementById('modalTitle').textContent = `Add ${brokerName} Account`;
+    // Set form title and button text
+    document.getElementById('formTitle').textContent = `Add ${brokerName} Account`;
     document.getElementById('submitButtonText').textContent = 'Add Broker';
+    
+    // Reset and set broker type
+    document.getElementById('addBrokerForm').reset();
     document.getElementById('brokerType').value = brokerType;
+    document.getElementById('brokerType').removeAttribute('data-account-id');
     
     // Trigger change event to show appropriate credentials form
     document.getElementById('brokerType').dispatchEvent(new Event('change'));
     
-    // Reset form fields
-    document.getElementById('addBrokerForm').reset();
-    document.getElementById('brokerType').value = brokerType;
-    document.getElementById('brokerType').dispatchEvent(new Event('change'));
+    // Show the form section
+    document.getElementById('addBrokerSection').style.display = 'block';
     
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('addBrokerModal'));
-    modal.show();
+    // Scroll to the form smoothly
+    setTimeout(() => {
+        document.getElementById('addBrokerSection').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100);
+}
+
+// Hide Add Broker Form
+function hideAddBrokerForm() {
+    document.getElementById('addBrokerSection').style.display = 'none';
+    document.getElementById('addBrokerForm').reset();
+    
+    // Hide all credential forms
+    document.getElementById('dhanCredentials').style.display = 'none';
+    document.getElementById('zerodhaCredentials').style.display = 'none';
+    document.getElementById('angelCredentials').style.display = 'none';
 }
 
 // Edit existing broker
 function editBroker(brokerType, brokerName, accountId) {
-    document.getElementById('modalTitle').textContent = `Edit ${brokerName} Credentials`;
+    // Set form title and button text
+    document.getElementById('formTitle').textContent = `Edit ${brokerName} Credentials`;
     document.getElementById('submitButtonText').textContent = 'Update Credentials';
+    
+    // Set broker type and account ID
     document.getElementById('brokerType').value = brokerType;
     document.getElementById('brokerType').setAttribute('data-account-id', accountId);
     
     // Trigger change event to show appropriate credentials form
     document.getElementById('brokerType').dispatchEvent(new Event('change'));
     
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('addBrokerModal'));
-    modal.show();
+    // Show the form section
+    document.getElementById('addBrokerSection').style.display = 'block';
+    
+    // Scroll to the form smoothly
+    setTimeout(() => {
+        document.getElementById('addBrokerSection').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100);
 }
 
 // Submit broker form (Add or Edit)
