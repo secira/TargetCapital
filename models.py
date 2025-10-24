@@ -207,7 +207,7 @@ class User(UserMixin, db.Model):
             PricingPlan.FREE: 0,
             PricingPlan.TARGET_PLUS: 1499,
             PricingPlan.TARGET_PRO: 2999,
-            PricingPlan.HNI: 9999
+            PricingPlan.HNI: 4999
         }
         return prices.get(self.pricing_plan, 0)
     

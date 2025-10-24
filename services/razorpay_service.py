@@ -179,7 +179,7 @@ class RazorpayService:
             },
             'HNI': {
                 'name': 'HNI Account',
-                'price': 9999,
+                'price': 4999,
                 'duration_days': 30,
                 'features': ['All features', 'Trade execution with 1 broker', 'Priority support', 'Custom strategies', 'Dedicated account manager'],
                 'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': -1}  # -1 means unlimited
