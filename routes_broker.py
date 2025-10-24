@@ -15,6 +15,106 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Broker Catalog - All supported brokers
+BROKER_CATALOG = [
+    {
+        'type': BrokerType.DHAN,
+        'name': 'Dhan',
+        'logo': 'https://dhan.co/logo.png',
+        'status': 'active',
+        'description': 'Low brokerage with advanced trading tools',
+        'fields': ['client_id', 'access_token']
+    },
+    {
+        'type': BrokerType.ZERODHA,
+        'name': 'Zerodha',
+        'logo': 'https://zerodha.com/static/images/logo.svg',
+        'status': 'active',
+        'description': 'India\'s largest broker by active clients',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.ANGEL_BROKING,
+        'name': 'Angel One',
+        'logo': 'https://angelone.in/logo.png',
+        'status': 'active',
+        'description': 'Full-service broker with research',
+        'fields': ['client_id', 'access_token', 'totp_secret']
+    },
+    {
+        'type': BrokerType.GROWW,
+        'name': 'Groww',
+        'logo': 'https://groww.in/logo.png',
+        'status': 'active',
+        'description': 'Simple and intuitive trading platform',
+        'fields': ['client_id', 'access_token']
+    },
+    {
+        'type': BrokerType.UPSTOX,
+        'name': 'Upstox',
+        'logo': 'https://upstox.com/logo.png',
+        'status': 'active',
+        'description': 'Technology-driven discount broker',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.FYERS,
+        'name': 'Fyers',
+        'logo': 'https://fyers.in/logo.png',
+        'status': 'coming_soon',
+        'description': 'Advanced charting and trading tools',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.ICICIDIRECT,
+        'name': 'ICICI Direct',
+        'logo': 'https://icicidirect.com/logo.png',
+        'status': 'coming_soon',
+        'description': 'Full-service broker with research',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.HDFC_SECURITIES,
+        'name': 'HDFC Securities',
+        'logo': 'https://hdfcsec.com/logo.png',
+        'status': 'coming_soon',
+        'description': 'Trusted full-service broker',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.KOTAK_SECURITIES,
+        'name': 'Kotak Securities',
+        'logo': 'https://kotaksecurities.com/logo.png',
+        'status': 'coming_soon',
+        'description': 'Comprehensive trading platform',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.FIVE_PAISA,
+        'name': '5paisa',
+        'logo': 'https://5paisa.com/logo.png',
+        'status': 'coming_soon',
+        'description': 'Affordable brokerage plans',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.CHOICE_INDIA,
+        'name': 'Choice India',
+        'logo': 'https://choiceindia.com/logo.png',
+        'status': 'coming_soon',
+        'description': 'Full-service broking house',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
+        'type': BrokerType.GOODWILL,
+        'name': 'Goodwill',
+        'logo': 'https://goodwill.in/logo.png',
+        'status': 'coming_soon',
+        'description': 'South India based broker',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    }
+]
+
 # Main broker routes - integrated into existing dashboard pages
 
 @app.route('/dashboard/broker-accounts')
@@ -22,10 +122,28 @@ logger = logging.getLogger(__name__)
 def dashboard_broker_accounts():
     """Broker accounts management page - Available to all users"""
     
-    broker_accounts = BrokerAccount.query.filter_by(user_id=current_user.id).all()
+    # Get user's existing broker accounts
+    user_brokers = BrokerAccount.query.filter_by(user_id=current_user.id).all()
+    
+    # Create a mapping of broker_type to account for quick lookup
+    broker_accounts_map = {acc.broker_type: acc for acc in user_brokers}
+    
+    # Enrich broker catalog with user's account data
+    enriched_catalog = []
+    for broker in BROKER_CATALOG:
+        broker_data = broker.copy()
+        broker_type_value = broker['type'].value
+        
+        # Add user's account if exists
+        if broker_type_value in broker_accounts_map:
+            broker_data['account'] = broker_accounts_map[broker_type_value]
+        else:
+            broker_data['account'] = None
+            
+        enriched_catalog.append(broker_data)
     
     return render_template('dashboard/broker_accounts.html',
-                         broker_accounts=broker_accounts,
+                         broker_catalog=enriched_catalog,
                          broker_types=BrokerType)
 
 @app.route('/api/broker/add-account', methods=['POST'])
