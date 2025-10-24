@@ -6,115 +6,250 @@
 
 {% block dashboard_toolbar %}
 <div class="header-actions">
-    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-        <i class="fas fa-plus me-1"></i>
-        Add Broker
+    <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+        <i class="fas fa-sync-alt me-1"></i>
+        Refresh
     </button>
 </div>
 {% endblock %}
 
 {% block dashboard_content %}
 
-<!-- Broker Accounts Grid -->
-<div class="row">
-    {% if broker_accounts %}
-        {% for account in broker_accounts %}
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card broker-account-card" data-account-id="{{ account.id }}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h6 class="card-title mb-1">{{ account.broker_name }}</h6>
-                            <small class="text-muted">{{ account.broker_type.value }}</small>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" onclick="syncAccount({{ account.id }})">
-                                    <i class="fas fa-sync me-2"></i>Sync Data
-                                </a></li>
-                                <li><a class="dropdown-item" href="#" onclick="testConnection({{ account.id }})">
-                                    <i class="fas fa-wifi me-2"></i>Test Connection
-                                </a></li>
-                                {% if not account.is_primary %}
-                                <li><a class="dropdown-item" href="#" onclick="setPrimary({{ account.id }})">
-                                    <i class="fas fa-star me-2"></i>Set as Primary
-                                </a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#" onclick="removeAccount({{ account.id }})">
-                                    <i class="fas fa-trash me-2"></i>Remove Account
-                                </a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <!-- Connection Status -->
-                    <div class="mb-3">
-                        {% if account.connection_status == 'connected' %}
-                            <span class="badge bg-success">
-                                <i class="fas fa-check-circle me-1"></i>Connected
-                            </span>
-                        {% elif account.connection_status == 'error' %}
-                            <span class="badge bg-danger">
-                                <i class="fas fa-exclamation-circle me-1"></i>Error
-                            </span>
-                        {% else %}
-                            <span class="badge bg-warning">
-                                <i class="fas fa-clock me-1"></i>{{ account.connection_status.title() }}
-                            </span>
-                        {% endif %}
-                        
-                        {% if account.is_primary %}
-                            <span class="badge bg-primary ms-2">
-                                <i class="fas fa-star me-1"></i>Primary
-                            </span>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Account Info -->
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-end">
-                                <div class="text-muted small">Balance</div>
-                                <div class="fw-bold">₹{{ "{:,.0f}".format(account.account_balance) if account.account_balance else 'N/A' }}</div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-muted small">Last Sync</div>
-                            <div class="fw-bold small">
-                                {% if account.last_sync %}
-                                    {{ account.last_sync.strftime('%d %b, %I:%M %p') }}
-                                {% else %}
-                                    Never
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if account.connection_error %}
-                    <div class="alert alert-danger alert-sm mt-3 mb-0">
-                        <small>{{ account.connection_error }}</small>
-                    </div>
-                    {% endif %}
+<!-- Add New Broker Account Section -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Broker Account</h5>
+    </div>
+    <div class="card-body">
+        <form id="addBrokerForm">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="brokerType" class="form-label">Select Broker <span class="text-danger">*</span></label>
+                    <select class="form-control" id="brokerType" name="broker_type" required>
+                        <option value="">Choose a broker...</option>
+                        <optgroup label="✅ Available Now">
+                            <option value="dhan">Dhan (Free APIs)</option>
+                            <option value="zerodha">Zerodha Kite Connect (₹500/month)</option>
+                            <option value="angel_broking">Angel One SmartAPI (Free)</option>
+                            <option value="groww">Groww (REST API)</option>
+                            <option value="upstox">Upstox (Official SDK)</option>
+                        </optgroup>
+                        <optgroup label="🔜 Coming Soon">
+                            <option value="" disabled>FYERS - Coming Soon</option>
+                            <option value="" disabled>ICICI Direct - Coming Soon</option>
+                            <option value="" disabled>HDFC Securities - Coming Soon</option>
+                            <option value="" disabled>Kotak Securities - Coming Soon</option>
+                            <option value="" disabled>5Paisa - Coming Soon</option>
+                            <option value="" disabled>Choice India - Coming Soon</option>
+                            <option value="" disabled>Goodwill - Coming Soon</option>
+                        </optgroup>
+                    </select>
+                    <small class="form-text text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>Currently supporting 5 major Indian brokers. More brokers will be added soon!
+                    </small>
                 </div>
             </div>
-        </div>
-        {% endfor %}
-    {% else %}
-        <div class="col-12">
-            <div class="text-center py-5">
-                <i class="fas fa-link fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No Broker Accounts Connected</h5>
-                <p class="text-muted">Connect your trading accounts to access live portfolio data and execute trades.</p>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-                    <i class="fas fa-plus me-2"></i>Add Your First Broker
+            
+            <!-- Dhan Credentials -->
+            <div id="dhanCredentials" style="display: none;">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Get Your Dhan API Credentials</h6>
+                    <ol class="mb-0">
+                        <li>Login to <a href="https://web.dhan.co" target="_blank">web.dhan.co</a></li>
+                        <li>Go to Profile → "DhanHQ Trading APIs"</li>
+                        <li>Request access if first time, then generate your access token</li>
+                        <li>Copy your Client ID and Access Token below</li>
+                    </ol>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="dhanClientId" class="form-label">Client ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="dhanClientId" name="client_id" placeholder="Your Dhan Client ID">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="dhanAccessToken" class="form-label">Access Token <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="dhanAccessToken" name="access_token" placeholder="Your Dhan Access Token">
+                    </div>
+                </div>
+                <small class="form-text text-muted d-block mb-3">Your credentials are encrypted and stored securely</small>
+            </div>
+            
+            <!-- Zerodha Credentials -->
+            <div id="zerodhaCredentials" style="display: none;">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Get Your Zerodha Kite Connect API Credentials</h6>
+                    <ol class="mb-0">
+                        <li>Go to <a href="https://developers.kite.trade" target="_blank">developers.kite.trade</a></li>
+                        <li>Login with your Zerodha credentials and create an app</li>
+                        <li>Get your API Key and API Secret</li>
+                        <li>Generate access token using the login flow</li>
+                        <li><strong>Note:</strong> Kite Connect costs ₹500/month</li>
+                    </ol>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="zerodhaApiKey" class="form-label">API Key <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="zerodhaApiKey" name="client_id" placeholder="Your Zerodha API Key">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="zerodhaAccessToken" class="form-label">Access Token <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="zerodhaAccessToken" name="access_token" placeholder="Your Zerodha Access Token">
+                    </div>
+                </div>
+                <small class="form-text text-muted d-block mb-3">Generate this through Zerodha login flow</small>
+            </div>
+            
+            <!-- Angel One Credentials -->
+            <div id="angelCredentials" style="display: none;">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Get Your Angel One SmartAPI Credentials</h6>
+                    <ol class="mb-0">
+                        <li>Go to <a href="https://smartapi.angelone.in" target="_blank">smartapi.angelone.in</a></li>
+                        <li>Register with your Angel One client details</li>
+                        <li>Generate API Key and enable TOTP</li>
+                        <li>Use your client code and trading PIN below</li>
+                    </ol>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="angelApiKey" class="form-label">API Key <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="angelApiKey" name="client_id" placeholder="Your Angel One API Key">
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="angelClientCode" class="form-label">Client Code <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="angelClientCode" name="access_token" placeholder="Your Angel One Client Code">
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <label for="angelPin" class="form-label">Trading PIN <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="angelPin" name="api_secret" placeholder="Your Angel One Trading PIN">
+                    </div>
+                </div>
+                <small class="form-text text-muted d-block mb-3">Your trading PIN (not login password)</small>
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+                <button type="reset" class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-times me-2"></i>Clear Form
+                </button>
+                <button type="button" class="btn btn-primary" onclick="addBrokerAccount()">
+                    <i class="fas fa-link me-2"></i>Connect Account
                 </button>
             </div>
+        </form>
+    </div>
+</div>
+
+<!-- Connected Broker Accounts -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Connected Broker Accounts</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if broker_accounts %}
+                {% for account in broker_accounts %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card broker-account-card" data-account-id="{{ account.id }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="card-title mb-1">{{ account.broker_name }}</h6>
+                                    <small class="text-muted">{{ account.broker_type.value }}</small>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="syncAccount({{ account.id }}); return false;">
+                                            <i class="fas fa-sync me-2"></i>Sync Data
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="testConnection({{ account.id }}); return false;">
+                                            <i class="fas fa-wifi me-2"></i>Test Connection
+                                        </a></li>
+                                        {% if not account.is_primary %}
+                                        <li><a class="dropdown-item" href="#" onclick="setPrimary({{ account.id }}); return false;">
+                                            <i class="fas fa-star me-2"></i>Set as Primary
+                                        </a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="removeAccount({{ account.id }}); return false;">
+                                            <i class="fas fa-trash me-2"></i>Remove Account
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <!-- Connection Status -->
+                            <div class="mb-3">
+                                {% if account.connection_status == 'connected' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Connected
+                                    </span>
+                                {% elif account.connection_status == 'error' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-exclamation-circle me-1"></i>Error
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>{{ account.connection_status.title() }}
+                                    </span>
+                                {% endif %}
+                                
+                                {% if account.is_primary %}
+                                    <span class="badge bg-primary ms-2">
+                                        <i class="fas fa-star me-1"></i>Primary
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Account Info -->
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <div class="text-muted small">Balance</div>
+                                        <div class="fw-bold">₹{{ "{:,.0f}".format(account.account_balance) if account.account_balance else 'N/A' }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">Last Sync</div>
+                                    <div class="fw-bold small">
+                                        {% if account.last_sync %}
+                                            {{ account.last_sync.strftime('%d %b, %I:%M %p') }}
+                                        {% else %}
+                                            Never
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if account.connection_error %}
+                            <div class="alert alert-danger alert-sm mt-3 mb-0">
+                                <small>{{ account.connection_error }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-link fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No Broker Accounts Connected</h5>
+                        <p class="text-muted">Use the form above to connect your first broker account and access live portfolio data.</p>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
+    </div>
 </div>
 
 <!-- Supported Brokers Info -->
@@ -277,131 +412,6 @@
     </div>
 </div>
 
-<!-- Add Broker Account Modal -->
-<div class="modal fade" id="addBrokerModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Add Broker Account</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addBrokerForm">
-                    <div class="mb-3">
-                        <label for="brokerType" class="form-label">Select Broker</label>
-                        <select class="form-control" id="brokerType" name="broker_type" required>
-                            <option value="">Choose a broker...</option>
-                            <optgroup label="✅ Available Now">
-                                <option value="dhan">Dhan (Free APIs)</option>
-                                <option value="zerodha">Zerodha Kite Connect (₹500/month)</option>
-                                <option value="angel_broking">Angel One SmartAPI (Free)</option>
-                                <option value="groww">Groww (REST API)</option>
-                                <option value="upstox">Upstox (Official SDK)</option>
-                            </optgroup>
-                            <optgroup label="🔜 Coming Soon">
-                                <option value="" disabled>FYERS - Coming Soon</option>
-                                <option value="" disabled>ICICI Direct - Coming Soon</option>
-                                <option value="" disabled>HDFC Securities - Coming Soon</option>
-                                <option value="" disabled>Kotak Securities - Coming Soon</option>
-                                <option value="" disabled>5Paisa - Coming Soon</option>
-                                <option value="" disabled>Choice India - Coming Soon</option>
-                                <option value="" disabled>Goodwill - Coming Soon</option>
-                            </optgroup>
-                        </select>
-                        <small class="form-text text-muted mt-2 d-block">
-                            <i class="fas fa-info-circle me-1"></i>Currently supporting 5 major Indian brokers. More brokers will be added soon!
-                        </small>
-                    </div>
-                    
-                    <!-- Dhan Credentials -->
-                    <div id="dhanCredentials" style="display: none;">
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Dhan API Credentials</h6>
-                            <ol class="mb-0">
-                                <li>Login to <a href="https://web.dhan.co" target="_blank">web.dhan.co</a></li>
-                                <li>Go to Profile → "DhanHQ Trading APIs"</li>
-                                <li>Request access if first time, then generate your access token</li>
-                                <li>Copy your Client ID and Access Token below</li>
-                            </ol>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="dhanClientId" class="form-label">Client ID</label>
-                            <input type="text" class="form-control" id="dhanClientId" name="client_id" placeholder="Your Dhan Client ID">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="dhanAccessToken" class="form-label">Access Token</label>
-                            <input type="password" class="form-control" id="dhanAccessToken" name="access_token" placeholder="Your Dhan Access Token">
-                            <div class="form-text">Your credentials are encrypted and stored securely</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Zerodha Credentials -->
-                    <div id="zerodhaCredentials" style="display: none;">
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Zerodha Kite Connect API Credentials</h6>
-                            <ol class="mb-0">
-                                <li>Go to <a href="https://developers.kite.trade" target="_blank">developers.kite.trade</a></li>
-                                <li>Login with your Zerodha credentials and create an app</li>
-                                <li>Get your API Key and API Secret</li>
-                                <li>Generate access token using the login flow</li>
-                                <li><strong>Note:</strong> Kite Connect costs ₹500/month</li>
-                            </ol>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="zerodhaApiKey" class="form-label">API Key</label>
-                            <input type="text" class="form-control" id="zerodhaApiKey" name="client_id" placeholder="Your Zerodha API Key">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="zerodhaAccessToken" class="form-label">Access Token</label>
-                            <input type="password" class="form-control" id="zerodhaAccessToken" name="access_token" placeholder="Your Zerodha Access Token">
-                            <div class="form-text">Generate this through Zerodha login flow</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Angel One Credentials -->
-                    <div id="angelCredentials" style="display: none;">
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-info-circle me-2"></i>Get Your Angel One SmartAPI Credentials</h6>
-                            <ol class="mb-0">
-                                <li>Go to <a href="https://smartapi.angelone.in" target="_blank">smartapi.angelone.in</a></li>
-                                <li>Register with your Angel One client details</li>
-                                <li>Generate API Key and enable TOTP</li>
-                                <li>Use your client code and trading PIN below</li>
-                            </ol>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="angelApiKey" class="form-label">API Key</label>
-                            <input type="text" class="form-control" id="angelApiKey" name="client_id" placeholder="Your Angel One API Key">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="angelClientCode" class="form-label">Client Code</label>
-                            <input type="text" class="form-control" id="angelClientCode" name="access_token" placeholder="Your Angel One Client Code">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="angelPin" class="form-label">Trading PIN</label>
-                            <input type="password" class="form-control" id="angelPin" name="api_secret" placeholder="Your Angel One Trading PIN">
-                            <div class="form-text">Your trading PIN (not login password)</div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="addBrokerAccount(event)">
-                    <i class="fas fa-link me-2"></i>Connect Account
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 // Show/hide credentials based on broker selection
 document.getElementById('brokerType').addEventListener('change', function() {
@@ -422,8 +432,16 @@ document.getElementById('brokerType').addEventListener('change', function() {
     }
 });
 
+// Reset form function
+function resetForm() {
+    document.getElementById('addBrokerForm').reset();
+    document.getElementById('dhanCredentials').style.display = 'none';
+    document.getElementById('zerodhaCredentials').style.display = 'none';
+    document.getElementById('angelCredentials').style.display = 'none';
+}
+
 // Add broker account
-function addBrokerAccount(event) {
+function addBrokerAccount() {
     const form = document.getElementById('addBrokerForm');
     const formData = new FormData(form);
     
@@ -441,6 +459,7 @@ function addBrokerAccount(event) {
     }
     
     const button = event.target;
+    const originalHTML = button.innerHTML;
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Connecting...';
     
@@ -466,7 +485,7 @@ function addBrokerAccount(event) {
     })
     .finally(() => {
         button.disabled = false;
-        button.innerHTML = '<i class="fas fa-link me-2"></i>Connect Account';
+        button.innerHTML = originalHTML;
     });
 }
 
