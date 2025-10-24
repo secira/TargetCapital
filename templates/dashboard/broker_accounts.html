@@ -716,17 +716,32 @@ function removeAccount(accountId) {
     font-size: 0.875rem;
 }
 
+/* CRITICAL: Hide Learning Progress widget completely */
+.learning-progress-widget,
+.progress-widget-container,
+.achievement-notification,
+.level-up-notification {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* Ensure modal appears above everything */
 #addBrokerModal {
-    z-index: 1060 !important;
+    z-index: 9999 !important;
 }
 
 .modal-backdrop {
-    z-index: 1050 !important;
+    z-index: 9998 !important;
 }
 
 /* Ensure modal is clickable and not blocked */
 .modal-dialog {
+    pointer-events: auto !important;
+}
+
+.modal-content {
     pointer-events: auto !important;
 }
 </style>
