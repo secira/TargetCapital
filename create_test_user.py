@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create test user account with TraderPlus access for broker testing
+Create test user account with Target Pro access for broker testing
 """
 
 from app import app, db
@@ -13,32 +13,32 @@ def create_test_user():
         test_user = User.query.filter_by(username='traderplususer').first()
         
         if not test_user:
-            # Create TraderPlus test user
+            # Create Target Pro test user
             test_user = User(
                 username='traderplususer',
                 email='traderplus@test.com',
                 password_hash=generate_password_hash('trader123'),
-                pricing_plan=PricingPlan.TRADER_PLUS,
+                pricing_plan=PricingPlan.TARGET_PRO,
                 is_active=True
             )
             
             db.session.add(test_user)
             db.session.commit()
             
-            print("✅ TraderPlus test user created:")
+            print("✅ Target Pro test user created:")
             print("   Username: traderplususer")
             print("   Password: trader123")
-            print("   Plan: TraderPlus (has access to broker features)")
+            print("   Plan: Target Pro (has access to broker features)")
         else:
-            # Update existing user to TraderPlus
-            test_user.pricing_plan = PricingPlan.TRADER_PLUS
+            # Update existing user to Target Pro
+            test_user.pricing_plan = PricingPlan.TARGET_PRO
             test_user.is_active = True
             db.session.commit()
             
-            print("✅ Updated existing test user to TraderPlus plan")
+            print("✅ Updated existing test user to Target Pro plan")
             print("   Username: traderplususer")
             print("   Password: trader123")
-            print("   Plan: TraderPlus (has access to broker features)")
+            print("   Plan: Target Pro (has access to broker features)")
 
 if __name__ == '__main__':
     create_test_user()

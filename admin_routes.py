@@ -272,9 +272,9 @@ def account_handling(page=1):
     """Premium user account handling with P&L tracking"""
     per_page = 20
     
-    # Get premium users (Trader Plus and Premium plans)
+    # Get premium users (Target Pro and HNI plans)
     premium_users = User.query.filter(
-        User.pricing_plan.in_(['trader_plus', 'premium'])
+        User.pricing_plan.in_(['target_pro', 'hni'])
     ).paginate(page=page, per_page=per_page, error_out=False)
     
     # Calculate daily P&L for each user

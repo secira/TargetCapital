@@ -18,9 +18,9 @@
             </button>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">All Users</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=premium">Premium Users</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=trader_plus">Trader Plus Users</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=trader">Trader Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=hni">HNI Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=target_pro">Target Pro Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=target_plus">Target Plus Users</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('admin.users') }}?plan=free">Free Users</a></li>
             </ul>
         </div>
@@ -44,7 +44,7 @@
         <div class="admin-stat-card success">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-0">{{ users.items | selectattr('pricing_plan', 'in', ['premium', 'trader_plus', 'trader']) | list | length }}</h3>
+                    <h3 class="mb-0">{{ users.items | selectattr('pricing_plan', 'in', ['hni', 'target_pro', 'target_plus']) | list | length }}</h3>
                     <p class="mb-0">Paid Users</p>
                 </div>
                 <i class="fas fa-crown fa-2x"></i>
@@ -116,12 +116,12 @@
                                 </div>
                             </td>
                             <td>
-                                {% if user.pricing_plan == 'premium' %}
-                                    <span class="badge bg-danger">Premium</span>
-                                {% elif user.pricing_plan == 'trader_plus' %}
-                                    <span class="badge bg-warning">Trader Plus</span>
-                                {% elif user.pricing_plan == 'trader' %}
-                                    <span class="badge bg-info">Trader</span>
+                                {% if user.pricing_plan == 'hni' %}
+                                    <span class="badge bg-danger">HNI</span>
+                                {% elif user.pricing_plan == 'target_pro' %}
+                                    <span class="badge bg-warning">Target Pro</span>
+                                {% elif user.pricing_plan == 'target_plus' %}
+                                    <span class="badge bg-info">Target Plus</span>
                                 {% else %}
                                     <span class="badge bg-secondary">Free</span>
                                 {% endif %}

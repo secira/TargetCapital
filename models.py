@@ -2007,7 +2007,7 @@ class UserPayment(db.Model):
     # Payment details
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     currency = db.Column(db.String(3), default='INR')
-    plan = db.Column(db.String(20), nullable=False)  # 'TRADER', 'TRADER_PLUS', 'HNI'
+    plan = db.Column(db.String(20), nullable=False)  # 'TARGET_PLUS', 'TARGET_PRO', 'HNI'
     payment_method = db.Column(db.String(50), nullable=True)
     
     # Razorpay details

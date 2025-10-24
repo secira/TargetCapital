@@ -15,10 +15,10 @@
                 <span class="plan-badge {{ current_user.pricing_plan.value }}">
                     {% if current_user.pricing_plan.value == 'free' %}
                     Free
-                    {% elif current_user.pricing_plan.value == 'trader' %}
-                    Trader
-                    {% elif current_user.pricing_plan.value == 'trader_plus' %}
-                    Trader Plus
+                    {% elif current_user.pricing_plan.value == 'target_plus' %}
+                    Target Plus
+                    {% elif current_user.pricing_plan.value == 'target_pro' %}
+                    Target Pro
                     {% else %}
                     HNI Account
                     {% endif %}
@@ -601,12 +601,12 @@
     color: white;
 }
 
-.plan-badge.trader {
+.plan-badge.target_plus {
     background: #4299e1;
     color: white;
 }
 
-.plan-badge.trader_plus {
+.plan-badge.target_pro {
     background: #9f7aea;
     color: white;
 }

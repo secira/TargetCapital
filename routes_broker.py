@@ -370,8 +370,8 @@ def dashboard_broker_trading():
     """Broker trading interface"""
     # Check subscription access
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TRADER_PLUS, PricingPlan.HNI]:
-        flash('Broker trading requires Trader Plus or Premium subscription.', 'warning')
+    if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        flash('Broker trading requires Target Pro or HNI subscription.', 'warning')
         return redirect(url_for('pricing'))
     
     broker_accounts = BrokerAccount.query.filter_by(

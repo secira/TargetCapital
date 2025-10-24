@@ -75,8 +75,8 @@ def execute_trading_signal(signal_id):
     """Execute trading signal through connected broker"""
     
     # Check if user has trading access
-    if current_user.pricing_plan not in ['trader_plus', 'premium']:
-        flash('Trading execution requires Trader Plus or Premium subscription', 'error')
+    if current_user.pricing_plan not in ['target_pro', 'hni']:
+        flash('Trading execution requires Target Pro or HNI subscription', 'error')
         return redirect(url_for('dashboard_trading_signals'))
     
     # Get the signal

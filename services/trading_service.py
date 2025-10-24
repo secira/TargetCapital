@@ -368,10 +368,10 @@ class TradingService:
                 return {'success': False, 'error': 'User not found'}
                 
             # CRITICAL SECURITY CHECK: Enforce pricing plan restrictions
-            if user.pricing_plan == PricingPlan.TRADER:
+            if user.pricing_plan == PricingPlan.TARGET_PLUS:
                 return {
                     'success': False, 
-                    'error': 'Trader plan allows portfolio analysis only. Upgrade to Trader Plus for trade execution.'
+                    'error': 'Target Plus plan allows portfolio analysis only. Upgrade to Target Pro for trade execution.'
                 }
             
             if user.pricing_plan == PricingPlan.HNI:
@@ -380,10 +380,10 @@ class TradingService:
                     'error': 'HNI accounts are managed by our account executives. Your account manager will execute trades on your behalf. Contact your account executive for trade requests.'
                 }
             
-            if user.pricing_plan != PricingPlan.TRADER_PLUS:
+            if user.pricing_plan != PricingPlan.TARGET_PRO:
                 return {
                     'success': False, 
-                    'error': 'Direct trade execution is only available for Trader Plus subscription.'
+                    'error': 'Direct trade execution is only available for Target Pro subscription.'
                 }
             
             recommendation = TradeRecommendation.query.filter_by(

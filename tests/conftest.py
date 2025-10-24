@@ -56,7 +56,7 @@ def test_user(db_session):
         email='test@example.com',
         first_name='Test',
         last_name='User',
-        pricing_plan=PricingPlan.TRADER,
+        pricing_plan=PricingPlan.TARGET_PLUS,
         subscription_status=SubscriptionStatus.ACTIVE
     )
     user.set_password('testpass123')

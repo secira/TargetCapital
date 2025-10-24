@@ -214,7 +214,7 @@ def admin_payments():
 def admin_account_handling():
     """Account handling for premium users"""
     premium_users = User.query.filter(
-        User.pricing_plan.in_(['trader_plus', 'premium'])
+        User.pricing_plan.in_(['target_pro', 'hni'])
     ).all()
     
     # Get trading activity for premium users
