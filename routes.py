@@ -4330,7 +4330,7 @@ def api_portfolio():
 @app.route('/api/trading-signals', methods=['GET'])
 @csrf.exempt
 def api_trading_signals():
-    """Get trading signals data - main endpoint called by frontend"""
+    """Get trading signals data with real-time NSE prices - main endpoint called by frontend"""
     # Handle unauthenticated requests gracefully (for OAuth flow)
     if not current_user.is_authenticated:
         return jsonify({
@@ -4342,6 +4342,7 @@ def api_trading_signals():
     try:
         from models import TradingSignal, PricingPlan
         from sqlalchemy import desc
+        from services.nse_service import NSEService
         
         # Check if user has paid subscription
         if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
@@ -4356,8 +4357,25 @@ def api_trading_signals():
             TradingSignal.status == 'ACTIVE'
         ).order_by(desc(TradingSignal.created_at)).limit(20).all()
         
+        # Initialize NSE service for real-time prices
+        nse_service = NSEService()
+        
         signals_data = []
         for signal in signals:
+            # Fetch real-time price from NSE for stock signals
+            current_price = None
+            price_change_percent = None
+            if signal.signal_type == 'stock' and signal.symbol:
+                try:
+                    stock_quote = nse_service.get_stock_quote(signal.symbol)
+                    if stock_quote:
+                        current_price = stock_quote.get('current_price')
+                        # Calculate change from entry price
+                        if current_price and signal.entry_price:
+                            price_change_percent = ((current_price - float(signal.entry_price)) / float(signal.entry_price)) * 100
+                except Exception as e:
+                    logging.warning(f"Failed to fetch current price for {signal.symbol}: {str(e)}")
+            
             signals_data.append({
                 'id': signal.id,
                 'signal_type': signal.signal_type,
@@ -4365,6 +4383,8 @@ def api_trading_signals():
                 'company_name': signal.company_name,
                 'action': signal.action,
                 'entry_price': float(signal.entry_price) if signal.entry_price else None,
+                'current_price': current_price,  # Real-time NSE price
+                'price_change_percent': round(price_change_percent, 2) if price_change_percent else None,
                 'target_price': float(signal.target_price) if signal.target_price else None,
                 'stop_loss': float(signal.stop_loss) if signal.stop_loss else None,
                 'quantity': signal.quantity,

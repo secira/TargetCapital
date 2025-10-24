@@ -128,6 +128,7 @@ h5, h6 {
                         <col style="width: 220px;">  <!-- Symbol -->
                         <col style="width: 90px;">   <!-- Type -->
                         <col style="width: 90px;">   <!-- Action -->
+                        <col style="width: 140px;">  <!-- Current Price -->
                         <col style="width: 140px;">  <!-- Entry Price -->
                         <col style="width: 140px;">  <!-- Target -->
                         <col style="width: 140px;">  <!-- Stop Loss -->
@@ -142,6 +143,7 @@ h5, h6 {
                             <th class="border-0 ps-3">Symbol</th>
                             <th class="border-0">Type</th>
                             <th class="border-0">Action</th>
+                            <th class="border-0">Current Price <i class="fas fa-circle text-success" style="font-size: 6px;"></i></th>
                             <th class="border-0">Entry Price</th>
                             <th class="border-0">Target</th>
                             <th class="border-0">Stop Loss</th>
@@ -193,6 +195,9 @@ h5, h6 {
                                 <span class="badge bg-{{ 'success' if signal.action == 'BUY' else 'danger' if signal.action == 'SELL' else 'warning' }} fw-bold">
                                     {{ signal.action }}
                                 </span>
+                            </td>
+                            <td class="fw-bold current-price" data-symbol="{{ signal.symbol }}">
+                                <span class="text-muted">Loading...</span>
                             </td>
                             <td class="fw-bold">
                                 {% if signal.entry_price %}
@@ -593,17 +598,57 @@ let autoRefreshInterval;
 document.addEventListener('DOMContentLoaded', function() {
     startLiveUpdates();
     updateLiveIndicator();
+    loadCurrentPrices(); // Load real-time prices on page load
 });
+
+async function loadCurrentPrices() {
+    try {
+        const response = await fetch('/api/trading-signals');
+        const data = await response.json();
+        
+        if (data.success && data.signals) {
+            data.signals.forEach(signal => {
+                const priceCell = document.querySelector(`.current-price[data-symbol="${signal.symbol}"]`);
+                if (priceCell && signal.current_price) {
+                    // Calculate price change color
+                    let priceClass = 'text-primary';
+                    let changeIcon = '';
+                    if (signal.price_change_percent) {
+                        if (signal.price_change_percent > 0) {
+                            priceClass = 'text-success';
+                            changeIcon = '<i class="fas fa-arrow-up ms-1"></i>';
+                        } else if (signal.price_change_percent < 0) {
+                            priceClass = 'text-danger';
+                            changeIcon = '<i class="fas fa-arrow-down ms-1"></i>';
+                        }
+                    }
+                    
+                    priceCell.innerHTML = `
+                        <span class="${priceClass}">₹${signal.current_price.toFixed(2)}</span>
+                        ${changeIcon}
+                        ${signal.price_change_percent ? '<br><small class="' + priceClass + '">' + (signal.price_change_percent > 0 ? '+' : '') + signal.price_change_percent.toFixed(2) + '%</small>' : ''}
+                    `;
+                } else if (priceCell) {
+                    priceCell.innerHTML = '<span class="text-muted">-</span>';
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error loading current prices:', error);
+    }
+}
 
 function refreshSignals() {
     const liveBtn = document.querySelector('button[onclick="refreshSignals()"]');
     const originalText = liveBtn.innerHTML;
     liveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
     
-    // Simulate refresh (replace with AJAX call for real-time updates)
-    setTimeout(() => {
-        location.reload();
-    }, 500);
+    // Load current prices via AJAX instead of full page reload
+    loadCurrentPrices().then(() => {
+        liveBtn.innerHTML = originalText;
+    }).catch(() => {
+        location.reload(); // Fallback to full reload on error
+    });
 }
 
 function filterSignals(type) {
