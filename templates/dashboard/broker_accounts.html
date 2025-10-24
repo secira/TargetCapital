@@ -276,7 +276,7 @@
                 <button type="button" class="btn btn-secondary" onclick="hideAddBrokerForm()">
                     <i class="fas fa-times me-2"></i>Cancel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="submitBrokerForm()">
+                <button type="button" class="btn btn-primary" onclick="submitBrokerForm(event)">
                     <i class="fas fa-save me-2"></i><span id="submitButtonText">Add Broker</span>
                 </button>
             </div>
@@ -348,7 +348,7 @@ function editBroker(brokerType, brokerName, accountId) {
 }
 
 // Submit broker form (Add or Edit)
-function submitBrokerForm() {
+function submitBrokerForm(event) {
     const form = document.getElementById('addBrokerForm');
     const formData = new FormData(form);
     
