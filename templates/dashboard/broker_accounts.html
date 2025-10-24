@@ -146,7 +146,7 @@
 </div>
 
 <!-- Add/Edit Broker Modal -->
-<div class="modal fade" id="addBrokerModal" tabindex="-1" aria-labelledby="addBrokerModalLabel" aria-hidden="true">
+<div class="modal fade" id="addBrokerModal" tabindex="-1" aria-labelledby="addBrokerModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -714,6 +714,20 @@ function removeAccount(accountId) {
 .alert-sm {
     padding: 0.5rem;
     font-size: 0.875rem;
+}
+
+/* Ensure modal appears above everything */
+#addBrokerModal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
+}
+
+/* Ensure modal is clickable and not blocked */
+.modal-dialog {
+    pointer-events: auto !important;
 }
 </style>
 
