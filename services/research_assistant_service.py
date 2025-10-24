@@ -263,13 +263,14 @@ Provide comprehensive research with:
             }
             
             payload = {
-                'model': 'sonar',  # Current Perplexity model
+                'model': 'sonar-pro',  # Perplexity Pro model for accurate real-time data
                 'messages': [
                     {'role': 'system', 'content': self.system_prompt},
                     {'role': 'user', 'content': full_prompt}
                 ],
                 'temperature': 0.2,
-                'max_tokens': 1500
+                'max_tokens': 2000,  # Increased for comprehensive responses
+                'search_recency_filter': 'day'  # Focus on most recent data
             }
             
             # Retry logic with increased timeout
