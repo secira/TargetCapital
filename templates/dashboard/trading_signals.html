@@ -4,6 +4,30 @@
 
 {% block extra_css %}
 <style>
+/* Slicker, Lighter Font Styling */
+.card-body, 
+.table, 
+.trading-signals-table,
+.alert,
+.btn,
+h5, h6 {
+    font-weight: 300 !important; /* Light weight */
+    letter-spacing: 0.3px;
+}
+
+.trading-signals-table th {
+    font-weight: 400 !important; /* Regular weight for headers */
+}
+
+.trading-signals-table td {
+    font-weight: 300 !important; /* Light weight for content */
+}
+
+/* Keep badges and buttons slightly bolder for emphasis */
+.badge, .btn-success, .btn-primary {
+    font-weight: 500 !important;
+}
+
 /* Trading Signals Table Improvements - Fixed Layout */
 .trading-signals-table {
     table-layout: fixed !important;
