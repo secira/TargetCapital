@@ -15,12 +15,148 @@
 
 {% block dashboard_content %}
 
-<!-- Add New Broker Account Section -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Broker Account</h5>
+<!-- All Brokers List -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-building me-2"></i>All Supported Brokers</h5>
+            <small class="text-muted">
+                <span class="badge bg-success">5 Active</span>
+                <span class="badge bg-secondary ms-2">7 Coming Soon</span>
+            </small>
+        </div>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 broker-table">
+                <thead class="table-light">
+                    <tr>
+                        <th width="40%">Broker</th>
+                        <th width="15%" class="text-center">Status</th>
+                        <th width="15%" class="text-center">Connection</th>
+                        <th width="30%" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for broker in broker_catalog %}
+                    <tr class="broker-row {% if broker.account and broker.account.is_primary %}table-primary{% endif %}">
+                        <!-- Broker Name & Logo -->
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="broker-icon me-3">
+                                    <i class="fas fa-building text-primary"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">
+                                        {{ broker.name }}
+                                        {% if broker.account and broker.account.is_primary %}
+                                        <span class="badge bg-primary ms-2">P</span>
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">{{ broker.description }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Broker Status (Active/Coming Soon) -->
+                        <td class="text-center">
+                            {% if broker.status == 'active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Coming Soon</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Connection Status -->
+                        <td class="text-center">
+                            {% if broker.account %}
+                                {% if broker.account.connection_status == 'connected' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Connected
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-circle me-1"></i>Disconnected
+                                </span>
+                                {% endif %}
+                            {% else %}
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-minus-circle me-1"></i>Not Added
+                            </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Action Buttons -->
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm" role="group">
+                                {% if broker.status == 'active' %}
+                                    {% if broker.account %}
+                                        <!-- Edit & Details buttons for added brokers -->
+                                        <button class="btn btn-outline-secondary" 
+                                                onclick="editBroker('{{ broker.type.value }}', '{{ broker.name }}', {{ broker.account.id }})"
+                                                title="Edit Credentials">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        
+                                        <!-- Connect/Disconnect toggle -->
+                                        {% if broker.account.connection_status == 'connected' %}
+                                        <button class="btn btn-outline-warning" 
+                                                onclick="disconnectBroker({{ broker.account.id }})"
+                                                title="Disconnect Broker">
+                                            <i class="fas fa-unlink"></i> Disconnect
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-outline-success" 
+                                                onclick="connectBroker({{ broker.account.id }})"
+                                                title="Connect Broker">
+                                            <i class="fas fa-link"></i> Connect
+                                        </button>
+                                        {% endif %}
+                                        
+                                        <!-- Set Primary (only for connected non-primary) -->
+                                        {% if broker.account.connection_status == 'connected' and not broker.account.is_primary %}
+                                        <button class="btn btn-outline-primary" 
+                                                onclick="setPrimaryBroker({{ broker.account.id }})"
+                                                title="Set as Primary">
+                                            <i class="fas fa-star"></i> Primary
+                                        </button>
+                                        {% endif %}
+                                    {% else %}
+                                        <!-- Add button for brokers not yet added -->
+                                        <button class="btn btn-outline-primary" 
+                                                onclick="showAddBrokerForm('{{ broker.type.value }}', '{{ broker.name }}')"
+                                                title="Add Broker">
+                                            <i class="fas fa-plus"></i> Add
+                                        </button>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- Coming Soon brokers -->
+                                    <button class="btn btn-outline-secondary" disabled>
+                                        <i class="fas fa-clock"></i> Coming Soon
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Broker Modal -->
+<div class="modal fade" id="addBrokerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    <span id="modalTitle">Add Broker Account</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
         <form id="addBrokerForm">
             <div class="row">
                 <div class="col-md-12 mb-3">
@@ -135,302 +271,205 @@
             </div>
             
             <div class="d-flex justify-content-end gap-2">
-                <button type="reset" class="btn btn-secondary" onclick="resetForm()">
-                    <i class="fas fa-times me-2"></i>Clear Form
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
                 </button>
-                <button type="button" class="btn btn-primary" onclick="addBrokerAccount()">
-                    <i class="fas fa-link me-2"></i>Connect Account
+                <button type="button" class="btn btn-primary" onclick="submitBrokerForm()">
+                    <i class="fas fa-save me-2"></i><span id="submitButtonText">Add Broker</span>
                 </button>
             </div>
         </form>
-    </div>
-</div>
-
-<!-- Connected Broker Accounts -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Connected Broker Accounts</h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            {% if broker_accounts %}
-                {% for account in broker_accounts %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card broker-account-card" data-account-id="{{ account.id }}">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="card-title mb-1">{{ account.broker_name }}</h6>
-                                    <small class="text-muted">{{ account.broker_type.value }}</small>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                                        <i class="fas fa-cog"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#" onclick="syncAccount({{ account.id }}); return false;">
-                                            <i class="fas fa-sync me-2"></i>Sync Data
-                                        </a></li>
-                                        <li><a class="dropdown-item" href="#" onclick="testConnection({{ account.id }}); return false;">
-                                            <i class="fas fa-wifi me-2"></i>Test Connection
-                                        </a></li>
-                                        {% if not account.is_primary %}
-                                        <li><a class="dropdown-item" href="#" onclick="setPrimary({{ account.id }}); return false;">
-                                            <i class="fas fa-star me-2"></i>Set as Primary
-                                        </a></li>
-                                        {% endif %}
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="removeAccount({{ account.id }}); return false;">
-                                            <i class="fas fa-trash me-2"></i>Remove Account
-                                        </a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <!-- Connection Status -->
-                            <div class="mb-3">
-                                {% if account.connection_status == 'connected' %}
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check-circle me-1"></i>Connected
-                                    </span>
-                                {% elif account.connection_status == 'error' %}
-                                    <span class="badge bg-danger">
-                                        <i class="fas fa-exclamation-circle me-1"></i>Error
-                                    </span>
-                                {% else %}
-                                    <span class="badge bg-warning">
-                                        <i class="fas fa-clock me-1"></i>{{ account.connection_status.title() }}
-                                    </span>
-                                {% endif %}
-                                
-                                {% if account.is_primary %}
-                                    <span class="badge bg-primary ms-2">
-                                        <i class="fas fa-star me-1"></i>Primary
-                                    </span>
-                                {% endif %}
-                            </div>
-                            
-                            <!-- Account Info -->
-                            <div class="row text-center">
-                                <div class="col-6">
-                                    <div class="border-end">
-                                        <div class="text-muted small">Balance</div>
-                                        <div class="fw-bold">₹{{ "{:,.0f}".format(account.account_balance) if account.account_balance else 'N/A' }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="text-muted small">Last Sync</div>
-                                    <div class="fw-bold small">
-                                        {% if account.last_sync %}
-                                            {{ account.last_sync.strftime('%d %b, %I:%M %p') }}
-                                        {% else %}
-                                            Never
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            {% if account.connection_error %}
-                            <div class="alert alert-danger alert-sm mt-3 mb-0">
-                                <small>{{ account.connection_error }}</small>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <div class="card-footer bg-white">
-                            <div class="d-flex gap-2">
-                                {% if account.connection_status == 'connected' %}
-                                    <button class="btn btn-sm btn-outline-warning flex-fill" onclick="disconnectAccount({{ account.id }}); return false;">
-                                        <i class="fas fa-unlink me-1"></i>Disconnect
-                                    </button>
-                                {% else %}
-                                    <button class="btn btn-sm btn-outline-success flex-fill" onclick="connectAccount({{ account.id }}); return false;">
-                                        <i class="fas fa-link me-1"></i>Connect
-                                    </button>
-                                {% endif %}
-                                {% if account.connection_status == 'connected' and not account.is_primary %}
-                                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="setPrimary({{ account.id }}); return false;">
-                                        <i class="fas fa-star me-1"></i>Set Primary
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="col-12">
-                    <div class="text-center py-5">
-                        <i class="fas fa-link fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No Broker Accounts Connected</h5>
-                        <p class="text-muted">Use the form above to connect your first broker account and access live portfolio data.</p>
-                    </div>
-                </div>
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Supported Brokers Info -->
-<div class="card mt-4">
-    <div class="card-body">
-        <h6 class="card-title mb-3">
-            <i class="fas fa-link me-2"></i>Broker Integrations
-        </h6>
-        
-        <!-- Available Now -->
-        <h6 class="text-success mb-3">
-            <i class="fas fa-check-circle me-2"></i>Available Now
-        </h6>
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Dhan</div>
-                        <small class="text-muted">Free trading APIs</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Zerodha</div>
-                        <small class="text-muted">Kite Connect API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Angel One</div>
-                        <small class="text-muted">SmartAPI</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Groww</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Upstox</div>
-                        <small class="text-muted">Official SDK</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Coming Soon -->
-        <h6 class="text-muted mb-3">
-            <i class="fas fa-clock me-2"></i>Coming Soon
-        </h6>
-        <div class="row">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">FYERS</div>
-                        <small class="text-muted">Official SDK</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">ICICI Direct</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">HDFC Securities</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Kotak Securities</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">5Paisa</div>
-                        <small class="text-muted">Free API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Choice India</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="d-flex align-items-center opacity-50">
-                    <div class="me-3">
-                        <i class="fas fa-clock text-muted"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold">Goodwill</div>
-                        <small class="text-muted">REST API</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="alert alert-info mt-3 mb-0">
-            <i class="fas fa-info-circle me-2"></i>
-            We're adding more brokers regularly. Currently supporting 5 major Indian brokers with 7 more coming soon!
-        </div>
-    </div>
-</div>
+{% endblock %}
 
 <script>
+// Show Add Broker Modal with prefilled broker name
+function showAddBrokerForm(brokerType, brokerName) {
+    document.getElementById('modalTitle').textContent = `Add ${brokerName} Account`;
+    document.getElementById('submitButtonText').textContent = 'Add Broker';
+    document.getElementById('brokerType').value = brokerType;
+    
+    // Trigger change event to show appropriate credentials form
+    document.getElementById('brokerType').dispatchEvent(new Event('change'));
+    
+    // Reset form fields
+    document.getElementById('addBrokerForm').reset();
+    document.getElementById('brokerType').value = brokerType;
+    document.getElementById('brokerType').dispatchEvent(new Event('change'));
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addBrokerModal'));
+    modal.show();
+}
+
+// Edit existing broker
+function editBroker(brokerType, brokerName, accountId) {
+    document.getElementById('modalTitle').textContent = `Edit ${brokerName} Credentials`;
+    document.getElementById('submitButtonText').textContent = 'Update Credentials';
+    document.getElementById('brokerType').value = brokerType;
+    document.getElementById('brokerType').setAttribute('data-account-id', accountId);
+    
+    // Trigger change event to show appropriate credentials form
+    document.getElementById('brokerType').dispatchEvent(new Event('change'));
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('addBrokerModal'));
+    modal.show();
+}
+
+// Submit broker form (Add or Edit)
+function submitBrokerForm() {
+    const form = document.getElementById('addBrokerForm');
+    const formData = new FormData(form);
+    
+    const data = {
+        broker_type: formData.get('broker_type'),
+        client_id: formData.get('client_id'),
+        access_token: formData.get('access_token'),
+        api_secret: formData.get('api_secret') || null,
+        totp_secret: formData.get('totp_secret') || null
+    };
+    
+    // Validate
+    if (!data.broker_type || !data.client_id || !data.access_token) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+    
+    fetch('/api/broker/add-account', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to save broker. Please try again.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Connect broker (Step 2: Activate)
+function connectBroker(accountId) {
+    if (!confirm('Connect this broker? This will activate it for trading.')) return;
+    
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+    
+    fetch(`/api/broker/${accountId}/connect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to connect broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Disconnect broker
+function disconnectBroker(accountId) {
+    if (!confirm('Disconnect this broker? You can reconnect later without re-entering credentials.')) return;
+    
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Disconnecting...';
+    
+    fetch(`/api/broker/${accountId}/disconnect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to disconnect broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Set Primary Broker
+function setPrimaryBroker(accountId) {
+    if (!confirm('Set this as your primary broker for trading?')) return;
+    
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting...';
+    
+    fetch(`/api/broker/set-primary/${accountId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to set primary broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
 // Show/hide credentials based on broker selection
 document.getElementById('brokerType').addEventListener('change', function() {
     const brokerType = this.value;
