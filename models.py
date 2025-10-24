@@ -233,6 +233,136 @@ class User(UserMixin, db.Model):
         return self.referral_code
 
 
+class PortfolioPreferences(db.Model):
+    """Store user portfolio preferences for personalized optimization and RAG"""
+    __tablename__ = 'portfolio_preferences'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
+    
+    # Personal Details
+    age = db.Column(db.Integer, nullable=True)
+    employment_status = db.Column(db.String(50), nullable=True)
+    annual_income = db.Column(db.String(50), nullable=True)
+    dependents = db.Column(db.Integer, nullable=True)
+    marital_status = db.Column(db.String(20), nullable=True)
+    
+    # Financial Goals (JSON stored as text)
+    financial_goals = db.Column(db.Text, nullable=True)
+    
+    # Investment Horizon
+    investment_horizon = db.Column(db.String(50), nullable=True)
+    investment_horizon_years = db.Column(db.Integer, nullable=True)
+    
+    # Contribution Details
+    contribution_type = db.Column(db.String(20), nullable=True)
+    monthly_contribution = db.Column(db.Float, nullable=True)
+    lump_sum_amount = db.Column(db.Float, nullable=True)
+    
+    # Risk Profile
+    risk_tolerance = db.Column(db.String(20), nullable=True)
+    risk_capacity = db.Column(db.String(20), nullable=True)
+    max_acceptable_loss = db.Column(db.Float, nullable=True)
+    
+    # Return Requirements
+    expected_return = db.Column(db.Float, nullable=True)
+    minimum_return_required = db.Column(db.Float, nullable=True)
+    
+    # Liquidity Needs
+    liquidity_requirement = db.Column(db.String(50), nullable=True)
+    withdrawal_frequency = db.Column(db.String(50), nullable=True)
+    emergency_fund_months = db.Column(db.Integer, nullable=True)
+    
+    # Asset Class Preferences (JSON stored as text)
+    preferred_asset_classes = db.Column(db.Text, nullable=True)
+    asset_allocation_preferences = db.Column(db.Text, nullable=True)
+    
+    # Geographic & Sector Preferences
+    geographic_preference = db.Column(db.String(50), nullable=True)
+    sector_preferences = db.Column(db.Text, nullable=True)
+    sector_exclusions = db.Column(db.Text, nullable=True)
+    
+    # ESG Preferences
+    esg_preference = db.Column(db.Boolean, default=False)
+    esg_priorities = db.Column(db.Text, nullable=True)
+    
+    # Rebalancing & Monitoring
+    rebalancing_frequency = db.Column(db.String(20), nullable=True)
+    performance_review_frequency = db.Column(db.String(20), nullable=True)
+    notification_preferences = db.Column(db.Text, nullable=True)
+    
+    # Optimization Preferences
+    optimization_strategy = db.Column(db.String(50), nullable=True)
+    tax_optimization = db.Column(db.Boolean, default=False)
+    dividend_preference = db.Column(db.String(20), nullable=True)
+    
+    # Additional Notes
+    special_instructions = db.Column(db.Text, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed = db.Column(db.Boolean, default=False)
+    
+    # Relationship to user
+    user = db.relationship('User', backref=db.backref('portfolio_preferences', uselist=False))
+    
+    def to_dict(self):
+        """Convert preferences to dictionary for RAG context"""
+        import json
+        return {
+            'age': self.age,
+            'employment_status': self.employment_status,
+            'annual_income': self.annual_income,
+            'dependents': self.dependents,
+            'marital_status': self.marital_status,
+            'financial_goals': json.loads(self.financial_goals) if self.financial_goals else [],
+            'investment_horizon': self.investment_horizon,
+            'investment_horizon_years': self.investment_horizon_years,
+            'contribution_type': self.contribution_type,
+            'monthly_contribution': self.monthly_contribution,
+            'lump_sum_amount': self.lump_sum_amount,
+            'risk_tolerance': self.risk_tolerance,
+            'risk_capacity': self.risk_capacity,
+            'max_acceptable_loss': self.max_acceptable_loss,
+            'expected_return': self.expected_return,
+            'minimum_return_required': self.minimum_return_required,
+            'liquidity_requirement': self.liquidity_requirement,
+            'withdrawal_frequency': self.withdrawal_frequency,
+            'emergency_fund_months': self.emergency_fund_months,
+            'preferred_asset_classes': json.loads(self.preferred_asset_classes) if self.preferred_asset_classes else [],
+            'asset_allocation_preferences': json.loads(self.asset_allocation_preferences) if self.asset_allocation_preferences else {},
+            'geographic_preference': self.geographic_preference,
+            'sector_preferences': json.loads(self.sector_preferences) if self.sector_preferences else [],
+            'sector_exclusions': json.loads(self.sector_exclusions) if self.sector_exclusions else [],
+            'esg_preference': self.esg_preference,
+            'esg_priorities': json.loads(self.esg_priorities) if self.esg_priorities else [],
+            'rebalancing_frequency': self.rebalancing_frequency,
+            'performance_review_frequency': self.performance_review_frequency,
+            'optimization_strategy': self.optimization_strategy,
+            'tax_optimization': self.tax_optimization,
+            'dividend_preference': self.dividend_preference,
+            'special_instructions': self.special_instructions
+        }
+    
+    def get_summary(self):
+        """Generate a human-readable summary for RAG context"""
+        summary = f"Investor Profile:\n"
+        if self.age:
+            summary += f"- Age: {self.age} years\n"
+        if self.employment_status:
+            summary += f"- Employment: {self.employment_status}\n"
+        if self.annual_income:
+            summary += f"- Annual Income: {self.annual_income}\n"
+        if self.risk_tolerance:
+            summary += f"- Risk Tolerance: {self.risk_tolerance}\n"
+        if self.investment_horizon:
+            summary += f"- Investment Horizon: {self.investment_horizon}\n"
+        if self.expected_return:
+            summary += f"- Expected Annual Return: {self.expected_return}%\n"
+        return summary
+
+
 class Payment(db.Model):
     """Track all payment transactions"""
     id = db.Column(db.Integer, primary_key=True)
