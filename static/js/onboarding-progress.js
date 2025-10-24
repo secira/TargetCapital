@@ -324,6 +324,9 @@ class OnboardingProgressTracker {
 document.addEventListener('DOMContentLoaded', () => {
     window.progressTracker = new OnboardingProgressTracker();
     
+    // DISABLED: Learning Progress widget removed per user request
+    // The widget was blocking the screen and confusing users
+    /*
     // Add progress widget to dashboard if present
     const dashboard = document.querySelector('.dashboard-main');
     if (dashboard && window.location.pathname.includes('/dashboard')) {
@@ -337,4 +340,5 @@ document.addEventListener('DOMContentLoaded', () => {
             dashboardHeader.insertAdjacentElement('afterend', progressWidget);
         }
     }
+    */
 });
