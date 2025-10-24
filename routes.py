@@ -3193,6 +3193,126 @@ def portfolio_risk_profile():
                          current_user=current_user,
                          risk_profile=risk_profile)
 
+@app.route('/portfolio/preferences', methods=['GET', 'POST'])
+@login_required
+def portfolio_preferences():
+    """Portfolio preferences form for personalized optimization"""
+    from models import PortfolioPreferences
+    import json
+    
+    if request.method == 'POST':
+        try:
+            # Get or create preferences
+            prefs = PortfolioPreferences.query.filter_by(user_id=current_user.id).first()
+            if not prefs:
+                prefs = PortfolioPreferences(user_id=current_user.id)
+                db.session.add(prefs)
+            
+            # Personal Details
+            prefs.age = int(request.form.get('age')) if request.form.get('age') else None
+            prefs.employment_status = request.form.get('employment_status')
+            prefs.annual_income = request.form.get('annual_income')
+            prefs.dependents = int(request.form.get('dependents')) if request.form.get('dependents') else None
+            prefs.marital_status = request.form.get('marital_status')
+            
+            # Financial Goals (multi-select)
+            goals = request.form.getlist('financial_goals')
+            prefs.financial_goals = json.dumps(goals) if goals else None
+            
+            # Investment Horizon
+            prefs.investment_horizon = request.form.get('investment_horizon')
+            prefs.investment_horizon_years = int(request.form.get('investment_horizon_years')) if request.form.get('investment_horizon_years') else None
+            
+            # Contribution Details
+            prefs.contribution_type = request.form.get('contribution_type')
+            prefs.monthly_contribution = float(request.form.get('monthly_contribution')) if request.form.get('monthly_contribution') else None
+            prefs.lump_sum_amount = float(request.form.get('lump_sum_amount')) if request.form.get('lump_sum_amount') else None
+            
+            # Risk Profile
+            prefs.risk_tolerance = request.form.get('risk_tolerance')
+            prefs.risk_capacity = request.form.get('risk_capacity')
+            prefs.max_acceptable_loss = float(request.form.get('max_acceptable_loss')) if request.form.get('max_acceptable_loss') else None
+            
+            # Return Requirements
+            prefs.expected_return = float(request.form.get('expected_return')) if request.form.get('expected_return') else None
+            prefs.minimum_return_required = float(request.form.get('minimum_return_required')) if request.form.get('minimum_return_required') else None
+            
+            # Liquidity Needs
+            prefs.liquidity_requirement = request.form.get('liquidity_requirement')
+            prefs.withdrawal_frequency = request.form.get('withdrawal_frequency')
+            prefs.emergency_fund_months = int(request.form.get('emergency_fund_months')) if request.form.get('emergency_fund_months') else None
+            
+            # Asset Class Preferences
+            asset_classes = request.form.getlist('preferred_asset_classes')
+            prefs.preferred_asset_classes = json.dumps(asset_classes) if asset_classes else None
+            
+            # Asset Allocation
+            allocation = {}
+            for asset_class in ['equities', 'bonds', 'fo', 'real_estate', 'crypto', 'fd', 'insurance', 'cash']:
+                value = request.form.get(f'allocation_{asset_class}')
+                if value:
+                    allocation[asset_class] = float(value)
+            prefs.asset_allocation_preferences = json.dumps(allocation) if allocation else None
+            
+            # Geographic & Sector Preferences
+            prefs.geographic_preference = request.form.get('geographic_preference')
+            sectors = request.form.getlist('sector_preferences')
+            prefs.sector_preferences = json.dumps(sectors) if sectors else None
+            sector_exclusions = request.form.getlist('sector_exclusions')
+            prefs.sector_exclusions = json.dumps(sector_exclusions) if sector_exclusions else None
+            
+            # ESG Preferences
+            prefs.esg_preference = request.form.get('esg_preference') == 'on'
+            esg_priorities = request.form.getlist('esg_priorities')
+            prefs.esg_priorities = json.dumps(esg_priorities) if esg_priorities else None
+            
+            # Rebalancing & Monitoring
+            prefs.rebalancing_frequency = request.form.get('rebalancing_frequency')
+            prefs.performance_review_frequency = request.form.get('performance_review_frequency')
+            
+            # Optimization Preferences
+            prefs.optimization_strategy = request.form.get('optimization_strategy')
+            prefs.tax_optimization = request.form.get('tax_optimization') == 'on'
+            prefs.dividend_preference = request.form.get('dividend_preference')
+            
+            # Special Instructions
+            prefs.special_instructions = request.form.get('special_instructions')
+            
+            # Mark as completed
+            prefs.completed = True
+            prefs.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            flash('Portfolio preferences saved successfully! These will be used for personalized recommendations.', 'success')
+            return redirect(url_for('dashboard_my_portfolio'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error saving preferences: {str(e)}', 'error')
+    
+    # Get existing preferences if any
+    prefs = PortfolioPreferences.query.filter_by(user_id=current_user.id).first()
+    
+    # Parse JSON fields for template
+    prefs_data = {}
+    if prefs:
+        try:
+            prefs_data = {
+                'financial_goals': json.loads(prefs.financial_goals) if prefs.financial_goals else [],
+                'preferred_asset_classes': json.loads(prefs.preferred_asset_classes) if prefs.preferred_asset_classes else [],
+                'asset_allocation': json.loads(prefs.asset_allocation_preferences) if prefs.asset_allocation_preferences else {},
+                'sector_preferences': json.loads(prefs.sector_preferences) if prefs.sector_preferences else [],
+                'sector_exclusions': json.loads(prefs.sector_exclusions) if prefs.sector_exclusions else [],
+                'esg_priorities': json.loads(prefs.esg_priorities) if prefs.esg_priorities else []
+            }
+        except:
+            pass
+    
+    return render_template('dashboard/portfolio_preferences.html', 
+                         current_user=current_user,
+                         prefs=prefs,
+                         prefs_data=prefs_data)
+
 # Duplicate route removed - using existing dashboard_trade_now above
 
 # Add trading-related API routes

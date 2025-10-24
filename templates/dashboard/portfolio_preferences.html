@@ -1,0 +1,669 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Portfolio Preferences - Target Capital{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .preferences-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+    
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e5e7eb;
+        z-index: -1;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        padding: 0 10px;
+    }
+    
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 8px;
+        transition: all 0.3s;
+    }
+    
+    .step.active .step-circle {
+        background: #00091a;
+        border-color: #00091a;
+        color: white;
+    }
+    
+    .step.completed .step-circle {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+    
+    .step-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b7280;
+        text-align: center;
+    }
+    
+    .step.active .step-label {
+        color: #00091a;
+    }
+    
+    .form-section {
+        display: none;
+    }
+    
+    .form-section.active {
+        display: block;
+    }
+    
+    .section-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        height: 48px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 15px;
+        padding: 0 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #00091a;
+        box-shadow: 0 0 0 3px rgba(0, 9, 26, 0.1);
+    }
+    
+    textarea.form-control {
+        height: auto;
+        padding: 0.75rem 1rem;
+    }
+    
+    .selection-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 1rem;
+    }
+    
+    .selection-card:hover {
+        border-color: #00091a;
+        box-shadow: 0 4px 12px rgba(0, 9, 26, 0.1);
+    }
+    
+    .selection-card input[type="checkbox"]:checked ~ label {
+        color: #00091a;
+    }
+    
+    .selection-card.selected {
+        border-color: #00091a;
+        background: #f0f4ff;
+    }
+    
+    .btn-nav {
+        min-width: 120px;
+        height: 48px;
+        font-size: 16px;
+        font-weight: 500;
+        border-radius: 8px;
+    }
+    
+    .btn-primary {
+        background: #00091a;
+        border-color: #00091a;
+    }
+    
+    .btn-primary:hover {
+        background: #000;
+    }
+    
+    .btn-secondary {
+        background: white;
+        border: 1.5px solid #00091a;
+        color: #00091a;
+    }
+    
+    .btn-secondary:hover {
+        background: #f8f9fb;
+    }
+    
+    .form-check-input:checked {
+        background-color: #00091a;
+        border-color: #00091a;
+    }
+    
+    .helper-text {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+    
+    .allocation-slider {
+        margin-bottom: 1.5rem;
+    }
+    
+    .allocation-slider label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .allocation-value {
+        font-weight: 600;
+        color: #00091a;
+    }
+    
+    .form-range::-webkit-slider-thumb {
+        background: #00091a;
+    }
+    
+    .form-range::-moz-range-thumb {
+        background: #00091a;
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_title %}Portfolio Preferences{% endblock %}
+{% block dashboard_subtitle %}Help us understand your investment goals and preferences{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="preferences-container">
+    
+    <!-- Progress Indicator -->
+    <div class="step-indicator">
+        <div class="step active" data-step="1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Personal Info</div>
+        </div>
+        <div class="step" data-step="2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Goals & Timeline</div>
+        </div>
+        <div class="step" data-step="3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Risk Assessment</div>
+        </div>
+        <div class="step" data-step="4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Preferences</div>
+        </div>
+        <div class="step" data-step="5">
+            <div class="step-circle">5</div>
+            <div class="step-label">Review</div>
+        </div>
+    </div>
+    
+    <form method="POST" id="preferencesForm">
+        
+        <!-- Step 1: Personal Information -->
+        <div class="form-section active" data-section="1">
+            <div class="section-card">
+                <h3 class="section-title">Personal Information</h3>
+                <p class="section-subtitle">Tell us about yourself to create a personalized portfolio strategy</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Age</label>
+                        <input type="number" class="form-control" name="age" value="{{ prefs.age if prefs else '' }}" min="18" max="100">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Marital Status</label>
+                        <select class="form-select" name="marital_status">
+                            <option value="">Select...</option>
+                            <option value="single" {{ 'selected' if prefs and prefs.marital_status == 'single' else '' }}>Single</option>
+                            <option value="married" {{ 'selected' if prefs and prefs.marital_status == 'married' else '' }}>Married</option>
+                            <option value="divorced" {{ 'selected' if prefs and prefs.marital_status == 'divorced' else '' }}>Divorced</option>
+                            <option value="widowed" {{ 'selected' if prefs and prefs.marital_status == 'widowed' else '' }}>Widowed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Employment Status</label>
+                        <select class="form-select" name="employment_status">
+                            <option value="">Select...</option>
+                            <option value="employed" {{ 'selected' if prefs and prefs.employment_status == 'employed' else '' }}>Employed</option>
+                            <option value="self_employed" {{ 'selected' if prefs and prefs.employment_status == 'self_employed' else '' }}>Self-Employed</option>
+                            <option value="business_owner" {{ 'selected' if prefs and prefs.employment_status == 'business_owner' else '' }}>Business Owner</option>
+                            <option value="retired" {{ 'selected' if prefs and prefs.employment_status == 'retired' else '' }}>Retired</option>
+                            <option value="student" {{ 'selected' if prefs and prefs.employment_status == 'student' else '' }}>Student</option>
+                            <option value="unemployed" {{ 'selected' if prefs and prefs.employment_status == 'unemployed' else '' }}>Unemployed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Annual Income Range</label>
+                        <select class="form-select" name="annual_income">
+                            <option value="">Select...</option>
+                            <option value="below_3l" {{ 'selected' if prefs and prefs.annual_income == 'below_3l' else '' }}>Below ₹3 Lakhs</option>
+                            <option value="3l_5l" {{ 'selected' if prefs and prefs.annual_income == '3l_5l' else '' }}>₹3-5 Lakhs</option>
+                            <option value="5l_10l" {{ 'selected' if prefs and prefs.annual_income == '5l_10l' else '' }}>₹5-10 Lakhs</option>
+                            <option value="10l_15l" {{ 'selected' if prefs and prefs.annual_income == '10l_15l' else '' }}>₹10-15 Lakhs</option>
+                            <option value="15l_25l" {{ 'selected' if prefs and prefs.annual_income == '15l_25l' else '' }}>₹15-25 Lakhs</option>
+                            <option value="25l_50l" {{ 'selected' if prefs and prefs.annual_income == '25l_50l' else '' }}>₹25-50 Lakhs</option>
+                            <option value="50l_1cr" {{ 'selected' if prefs and prefs.annual_income == '50l_1cr' else '' }}>₹50 Lakhs - ₹1 Crore</option>
+                            <option value="above_1cr" {{ 'selected' if prefs and prefs.annual_income == 'above_1cr' else '' }}>Above ₹1 Crore</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Number of Dependents</label>
+                        <input type="number" class="form-control" name="dependents" value="{{ prefs.dependents if prefs else '' }}" min="0" max="20">
+                        <div class="helper-text">Include children, parents, or others financially dependent on you</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Emergency Fund (Months)</label>
+                        <input type="number" class="form-control" name="emergency_fund_months" value="{{ prefs.emergency_fund_months if prefs else '' }}" min="0" max="24">
+                        <div class="helper-text">Recommended: 3-6 months of expenses</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 2: Financial Goals & Timeline -->
+        <div class="form-section" data-section="2">
+            <div class="section-card">
+                <h3 class="section-title">Financial Goals & Investment Timeline</h3>
+                <p class="section-subtitle">What do you want to achieve with your investments?</p>
+                
+                <div class="mb-4">
+                    <label class="form-label">Primary Financial Goals (Select all that apply)</label>
+                    <div class="row">
+                        {% set goals = ['retirement_planning', 'wealth_building', 'income_generation', 'capital_preservation', 'education_funding', 'home_purchase', 'debt_repayment'] %}
+                        {% set goal_labels = {'retirement_planning': 'Retirement Planning', 'wealth_building': 'Wealth Building', 'income_generation': 'Income Generation', 'capital_preservation': 'Capital Preservation', 'education_funding': 'Education Funding', 'home_purchase': 'Home Purchase', 'debt_repayment': 'Debt Repayment'} %}
+                        {% for goal in goals %}
+                        <div class="col-md-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="financial_goals" value="{{ goal }}" id="goal_{{ goal }}" {{ 'checked' if prefs_data and goal in prefs_data.financial_goals else '' }}>
+                                <label class="form-check-label" for="goal_{{ goal }}">
+                                    {{ goal_labels[goal] }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Investment Horizon</label>
+                        <select class="form-select" name="investment_horizon">
+                            <option value="">Select...</option>
+                            <option value="short_term" {{ 'selected' if prefs and prefs.investment_horizon == 'short_term' else '' }}>Short Term (1-3 years)</option>
+                            <option value="medium_term" {{ 'selected' if prefs and prefs.investment_horizon == 'medium_term' else '' }}>Medium Term (3-7 years)</option>
+                            <option value="long_term" {{ 'selected' if prefs and prefs.investment_horizon == 'long_term' else '' }}>Long Term (7-15 years)</option>
+                            <option value="very_long_term" {{ 'selected' if prefs and prefs.investment_horizon == 'very_long_term' else '' }}>Very Long Term (15+ years)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Investment Horizon (Years)</label>
+                        <input type="number" class="form-control" name="investment_horizon_years" value="{{ prefs.investment_horizon_years if prefs else '' }}" min="1" max="50">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Contribution Type</label>
+                        <select class="form-select" name="contribution_type">
+                            <option value="">Select...</option>
+                            <option value="lump_sum" {{ 'selected' if prefs and prefs.contribution_type == 'lump_sum' else '' }}>Lump Sum</option>
+                            <option value="monthly_sip" {{ 'selected' if prefs and prefs.contribution_type == 'monthly_sip' else '' }}>Monthly SIP</option>
+                            <option value="both" {{ 'selected' if prefs and prefs.contribution_type == 'both' else '' }}>Both</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Monthly Contribution (₹)</label>
+                        <input type="number" class="form-control" name="monthly_contribution" value="{{ prefs.monthly_contribution if prefs else '' }}" min="0" step="1000">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Lump Sum Amount (₹)</label>
+                        <input type="number" class="form-control" name="lump_sum_amount" value="{{ prefs.lump_sum_amount if prefs else '' }}" min="0" step="10000">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Risk Assessment -->
+        <div class="form-section" data-section="3">
+            <div class="section-card">
+                <h3 class="section-title">Risk Assessment</h3>
+                <p class="section-subtitle">Understanding your risk tolerance helps us recommend suitable investments</p>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Risk Tolerance</label>
+                        <select class="form-select" name="risk_tolerance">
+                            <option value="">Select...</option>
+                            <option value="conservative" {{ 'selected' if prefs and prefs.risk_tolerance == 'conservative' else '' }}>Conservative (Low Risk)</option>
+                            <option value="moderately_conservative" {{ 'selected' if prefs and prefs.risk_tolerance == 'moderately_conservative' else '' }}>Moderately Conservative</option>
+                            <option value="moderate" {{ 'selected' if prefs and prefs.risk_tolerance == 'moderate' else '' }}>Moderate (Balanced)</option>
+                            <option value="moderately_aggressive" {{ 'selected' if prefs and prefs.risk_tolerance == 'moderately_aggressive' else '' }}>Moderately Aggressive</option>
+                            <option value="aggressive" {{ 'selected' if prefs and prefs.risk_tolerance == 'aggressive' else '' }}>Aggressive (High Risk)</option>
+                        </select>
+                        <div class="helper-text">How comfortable are you with market volatility?</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Risk Capacity</label>
+                        <select class="form-select" name="risk_capacity">
+                            <option value="">Select...</option>
+                            <option value="low" {{ 'selected' if prefs and prefs.risk_capacity == 'low' else '' }}>Low</option>
+                            <option value="medium" {{ 'selected' if prefs and prefs.risk_capacity == 'medium' else '' }}>Medium</option>
+                            <option value="high" {{ 'selected' if prefs and prefs.risk_capacity == 'high' else '' }}>High</option>
+                        </select>
+                        <div class="helper-text">Based on your financial situation</div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Maximum Acceptable Loss (%)</label>
+                        <input type="number" class="form-control" name="max_acceptable_loss" value="{{ prefs.max_acceptable_loss if prefs else '' }}" min="0" max="100" step="5">
+                        <div class="helper-text">Maximum portfolio decline you can tolerate</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Expected Annual Return (%)</label>
+                        <input type="number" class="form-control" name="expected_return" value="{{ prefs.expected_return if prefs else '' }}" min="0" max="50" step="1">
+                        <div class="helper-text">Realistic return expectation</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Minimum Return Required (%)</label>
+                    <input type="number" class="form-control" name="minimum_return_required" value="{{ prefs.minimum_return_required if prefs else '' }}" min="0" max="30" step="0.5">
+                    <div class="helper-text">Minimum return needed to meet your financial goals</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 4: Investment Preferences -->
+        <div class="form-section" data-section="4">
+            <div class="section-card">
+                <h3 class="section-title">Investment Preferences</h3>
+                <p class="section-subtitle">Tell us your asset allocation and sector preferences</p>
+                
+                <div class="mb-4">
+                    <label class="form-label">Preferred Asset Classes (Select all that apply)</label>
+                    <div class="row">
+                        {% set assets = ['equities', 'bonds', 'mutual_funds', 'etf', 'fo', 'real_estate', 'gold', 'crypto', 'fd', 'nps'] %}
+                        {% set asset_labels = {'equities': 'Equities', 'bonds': 'Bonds', 'mutual_funds': 'Mutual Funds', 'etf': 'ETFs', 'fo': 'Futures & Options', 'real_estate': 'Real Estate', 'gold': 'Gold', 'crypto': 'Cryptocurrency', 'fd': 'Fixed Deposits', 'nps': 'NPS'} %}
+                        {% for asset in assets %}
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="preferred_asset_classes" value="{{ asset }}" id="asset_{{ asset }}" {{ 'checked' if prefs_data and asset in prefs_data.preferred_asset_classes else '' }}>
+                                <label class="form-check-label" for="asset_{{ asset }}">
+                                    {{ asset_labels[asset] }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label">Preferred Allocation (%) - Optional</label>
+                    <div class="helper-text mb-3">Specify how you'd like to allocate your portfolio across asset classes</div>
+                    
+                    {% set allocation_assets = [('equities', 'Equities'), ('bonds', 'Bonds'), ('fo', 'F&O'), ('real_estate', 'Real Estate'), ('crypto', 'Crypto'), ('fd', 'FD'), ('insurance', 'Insurance'), ('cash', 'Cash')] %}
+                    {% for asset, label in allocation_assets %}
+                    <div class="allocation-slider">
+                        <label>
+                            <span>{{ label }}</span>
+                            <span class="allocation-value">
+                                <span id="value_{{ asset }}">{{ prefs_data.asset_allocation[asset] if prefs_data and asset in prefs_data.asset_allocation else 0 }}</span>%
+                            </span>
+                        </label>
+                        <input type="range" class="form-range" name="allocation_{{ asset }}" id="allocation_{{ asset }}" min="0" max="100" value="{{ prefs_data.asset_allocation[asset] if prefs_data and asset in prefs_data.asset_allocation else 0 }}" oninput="updateAllocation('{{ asset }}')">
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Geographic Preference</label>
+                        <select class="form-select" name="geographic_preference">
+                            <option value="">Select...</option>
+                            <option value="domestic" {{ 'selected' if prefs and prefs.geographic_preference == 'domestic' else '' }}>Domestic Only (India)</option>
+                            <option value="international" {{ 'selected' if prefs and prefs.geographic_preference == 'international' else '' }}>International Only</option>
+                            <option value="both" {{ 'selected' if prefs and prefs.geographic_preference == 'both' else '' }}>Both</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Rebalancing Frequency</label>
+                        <select class="form-select" name="rebalancing_frequency">
+                            <option value="">Select...</option>
+                            <option value="monthly" {{ 'selected' if prefs and prefs.rebalancing_frequency == 'monthly' else '' }}>Monthly</option>
+                            <option value="quarterly" {{ 'selected' if prefs and prefs.rebalancing_frequency == 'quarterly' else '' }}>Quarterly</option>
+                            <option value="semi_annual" {{ 'selected' if prefs and prefs.rebalancing_frequency == 'semi_annual' else '' }}>Semi-Annual</option>
+                            <option value="annual" {{ 'selected' if prefs and prefs.rebalancing_frequency == 'annual' else '' }}>Annual</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Performance Review Frequency</label>
+                        <select class="form-select" name="performance_review_frequency">
+                            <option value="">Select...</option>
+                            <option value="weekly" {{ 'selected' if prefs and prefs.performance_review_frequency == 'weekly' else '' }}>Weekly</option>
+                            <option value="monthly" {{ 'selected' if prefs and prefs.performance_review_frequency == 'monthly' else '' }}>Monthly</option>
+                            <option value="quarterly" {{ 'selected' if prefs and prefs.performance_review_frequency == 'quarterly' else '' }}>Quarterly</option>
+                            <option value="annual" {{ 'selected' if prefs and prefs.performance_review_frequency == 'annual' else '' }}>Annual</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Optimization Strategy</label>
+                        <select class="form-select" name="optimization_strategy">
+                            <option value="">Select...</option>
+                            <option value="risk_minimization" {{ 'selected' if prefs and prefs.optimization_strategy == 'risk_minimization' else '' }}>Risk Minimization</option>
+                            <option value="return_maximization" {{ 'selected' if prefs and prefs.optimization_strategy == 'return_maximization' else '' }}>Return Maximization</option>
+                            <option value="sharpe_optimization" {{ 'selected' if prefs and prefs.optimization_strategy == 'sharpe_optimization' else '' }}>Sharpe Ratio Optimization</option>
+                            <option value="equal_weight" {{ 'selected' if prefs and prefs.optimization_strategy == 'equal_weight' else '' }}>Equal Weight</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="tax_optimization" id="tax_optimization" {{ 'checked' if prefs and prefs.tax_optimization else '' }}>
+                            <label class="form-check-label" for="tax_optimization">
+                                Enable Tax Optimization
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Dividend Preference</label>
+                        <select class="form-select" name="dividend_preference">
+                            <option value="">Select...</option>
+                            <option value="growth" {{ 'selected' if prefs and prefs.dividend_preference == 'growth' else '' }}>Growth (Reinvest)</option>
+                            <option value="dividend" {{ 'selected' if prefs and prefs.dividend_preference == 'dividend' else '' }}>Dividend Payout</option>
+                            <option value="no_preference" {{ 'selected' if prefs and prefs.dividend_preference == 'no_preference' else '' }}>No Preference</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Liquidity Requirement</label>
+                    <select class="form-select" name="liquidity_requirement">
+                        <option value="">Select...</option>
+                        <option value="high" {{ 'selected' if prefs and prefs.liquidity_requirement == 'high' else '' }}>High (Need quick access)</option>
+                        <option value="medium" {{ 'selected' if prefs and prefs.liquidity_requirement == 'medium' else '' }}>Medium (Some flexibility)</option>
+                        <option value="low" {{ 'selected' if prefs and prefs.liquidity_requirement == 'low' else '' }}>Low (Long-term lockup OK)</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Withdrawal Frequency</label>
+                    <select class="form-select" name="withdrawal_frequency">
+                        <option value="">Select...</option>
+                        <option value="none" {{ 'selected' if prefs and prefs.withdrawal_frequency == 'none' else '' }}>None</option>
+                        <option value="monthly" {{ 'selected' if prefs and prefs.withdrawal_frequency == 'monthly' else '' }}>Monthly</option>
+                        <option value="quarterly" {{ 'selected' if prefs and prefs.withdrawal_frequency == 'quarterly' else '' }}>Quarterly</option>
+                        <option value="annual" {{ 'selected' if prefs and prefs.withdrawal_frequency == 'annual' else '' }}>Annual</option>
+                        <option value="as_needed" {{ 'selected' if prefs and prefs.withdrawal_frequency == 'as_needed' else '' }}>As Needed</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Special Instructions or Notes</label>
+                    <textarea class="form-control" name="special_instructions" rows="4" placeholder="Any specific preferences, restrictions, or goals...">{{ prefs.special_instructions if prefs else '' }}</textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 5: Review & Submit -->
+        <div class="form-section" data-section="5">
+            <div class="section-card">
+                <h3 class="section-title">Review Your Preferences</h3>
+                <p class="section-subtitle">Please review all information before submitting</p>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Your preferences will be used to personalize portfolio recommendations, research insights, and optimization strategies. You can update these preferences anytime from your portfolio page.
+                </div>
+                
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                    <h4 class="mt-3">Ready to Save Your Preferences</h4>
+                    <p class="text-muted">Click "Save Preferences" below to finalize your investor profile</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-secondary btn-nav" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+                <i class="fas fa-arrow-left me-2"></i>Previous
+            </button>
+            <button type="button" class="btn btn-primary btn-nav ms-auto" id="nextBtn" onclick="changeStep(1)">
+                Next<i class="fas fa-arrow-right ms-2"></i>
+            </button>
+            <button type="submit" class="btn btn-primary btn-nav ms-auto" id="submitBtn" style="display: none;">
+                <i class="fas fa-save me-2"></i>Save Preferences
+            </button>
+        </div>
+        
+    </form>
+    
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentStep = 1;
+const totalSteps = 5;
+
+function updateAllocation(asset) {
+    const slider = document.getElementById(`allocation_${asset}`);
+    const valueDisplay = document.getElementById(`value_${asset}`);
+    valueDisplay.textContent = slider.value;
+}
+
+function changeStep(direction) {
+    const currentSection = document.querySelector(`.form-section[data-section="${currentStep}"]`);
+    currentSection.classList.remove('active');
+    
+    const currentStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+    if (direction > 0) {
+        currentStepEl.classList.remove('active');
+        currentStepEl.classList.add('completed');
+    }
+    
+    currentStep += direction;
+    
+    const nextSection = document.querySelector(`.form-section[data-section="${currentStep}"]`);
+    nextSection.classList.add('active');
+    
+    const nextStepEl = document.querySelector(`.step[data-step="${currentStep}"]`);
+    nextStepEl.classList.add('active');
+    
+    updateNavigation();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateNavigation() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (currentStep === 1) {
+        prevBtn.style.display = 'none';
+    } else {
+        prevBtn.style.display = 'block';
+    }
+    
+    if (currentStep === totalSteps) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+    } else {
+        nextBtn.style.display = 'block';
+        submitBtn.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
+});
+</script>
+{% endblock %}
