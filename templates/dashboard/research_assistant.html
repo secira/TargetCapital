@@ -860,7 +860,7 @@
                             <i class="fas fa-lightbulb me-1"></i>
                             Ready to execute? Take this research to action with your connected broker.
                         </p>
-                        <button class="trade-btn" onclick="prepareTradeFromResearch('{{ message.content | safe | replace("'", "\\'") }}', {{ message.id }})">
+                        <button class="trade-btn" onclick="prepareTradeFromResearch({{ message.id }})">
                             <i class="fas fa-bolt"></i> Prepare Trade
                         </button>
                     </div>
@@ -1176,7 +1176,25 @@ function formatMarkdown(text) {
     return html;
 }
 
-function prepareTradeFromResearch(messageContent, messageId) {
+function prepareTradeFromResearch(messageId) {
+    // Get the message content from the DOM
+    const messageElement = event.target.closest('.message-wrapper');
+    if (!messageElement) {
+        console.error('Could not find message element');
+        alert('Error: Could not extract stock information. Please try again.');
+        return;
+    }
+    
+    // Get raw text content from the assistant bubble
+    const bubbleElement = messageElement.querySelector('.assistant-bubble');
+    if (!bubbleElement) {
+        console.error('Could not find assistant bubble');
+        alert('Error: Could not extract stock information. Please try again.');
+        return;
+    }
+    
+    const messageContent = bubbleElement.textContent || bubbleElement.innerText || '';
+    
     // Extract stock symbol - look for common Indian stock symbols (3-15 uppercase letters)
     // Common patterns: RELIANCE, TCS, HDFCBANK, INFY, etc.
     const stockPatterns = [
@@ -1216,7 +1234,7 @@ function prepareTradeFromResearch(messageContent, messageId) {
     
     if (!symbol) {
         // If no symbol found, show a modal to let user enter symbol
-        const userSymbol = prompt('Please enter the stock symbol you want to trade:');
+        const userSymbol = prompt('Please enter the stock symbol you want to trade (e.g., RELIANCE, TCS, INFY):');
         if (userSymbol && userSymbol.trim()) {
             symbol = userSymbol.trim().toUpperCase();
         } else {
