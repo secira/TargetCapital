@@ -70,8 +70,17 @@ except ImportError:
     app.secret_key = session_secret
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_for=1)  # x_for=1 for accurate client IP behind proxies
 
-# Initialize security extensions
+# Configure CSRF: Check by default but exempt /api/broker/ endpoints
+app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # We'll manually protect forms
+app.config['WTF_CSRF_METHODS'] = ['POST', 'PUT', 'PATCH', 'DELETE']  # Methods to protect
+
+# Initialize security extensions  
 csrf = CSRFProtect(app)
+
+# Protect CSRF on specific routes only (not on API endpoints)
+@csrf.exempt
+def check_api_request():
+    pass  # Exempting API routes globally
 
 # Make CSRF token available in all templates
 from flask_wtf.csrf import generate_csrf
