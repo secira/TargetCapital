@@ -15,20 +15,110 @@
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="dashboard-heading"><i class="fas fa-building me-2"></i>Broker Management</h1>
                 <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-                            <i class="fas fa-plus me-1"></i>Add Broker
-                        </button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.reload()">
-                            <i class="fas fa-sync-alt me-1"></i>Refresh
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
                 </div>
             </div>
 
             <div class="container-fluid py-2">
                 <p class="text-muted mb-4">Configure your broker API connections for automated trading</p>
 
+                <!-- Add New Broker Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Broker Connection</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('add_broker') }}" id="addBrokerForm">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Important:</strong> Your API credentials are encrypted and stored securely. We never store your login passwords.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Broker <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="broker_name" required>
+                                        <option value="">Select Broker</option>
+                                        <optgroup label="✅ Available Now">
+                                            <option value="Dhan">Dhan</option>
+                                            <option value="Zerodha">Zerodha</option>
+                                            <option value="Angel One">Angel One</option>
+                                            <option value="Groww">Groww</option>
+                                            <option value="Upstox">Upstox</option>
+                                        </optgroup>
+                                        <optgroup label="🔜 Coming Soon">
+                                            <option value="" disabled>FYERS - Coming Soon</option>
+                                            <option value="" disabled>ICICI Direct - Coming Soon</option>
+                                            <option value="" disabled>HDFC Securities - Coming Soon</option>
+                                            <option value="" disabled>Kotak Securities - Coming Soon</option>
+                                            <option value="" disabled>5Paisa - Coming Soon</option>
+                                            <option value="" disabled>Choice India - Coming Soon</option>
+                                            <option value="" disabled>Goodwill - Coming Soon</option>
+                                        </optgroup>
+                                    </select>
+                                    <small class="form-text text-muted mt-1 d-block">
+                                        <i class="fas fa-info-circle me-1"></i>More brokers will be added soon. Currently supporting 5 major Indian brokers.
+                                    </small>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">API Key <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="api_key" required placeholder="Enter your API Key">
+                                    <small class="form-text text-muted">Found in your broker's API settings</small>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">API Secret <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="api_secret" required placeholder="Enter your API Secret">
+                                    <small class="form-text text-muted">Keep this secret and never share it</small>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Request Token (Optional)</label>
+                                    <input type="text" class="form-control" name="request_token" placeholder="Enter Request Token">
+                                    <small class="form-text text-muted">Required for some brokers</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Redirect URL Template</label>
+                                <input type="text" class="form-control" name="redirect_url" readonly 
+                                       value="https://{{ request.host }}/broker-callback" placeholder="Auto-generated redirect URL">
+                                <small class="form-text text-muted">Use this URL in your broker's API settings</small>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    By entering my API credentials, I agree to the Company's <a href="{{ url_for('terms_of_service') }}" target="_blank">Terms & Conditions</a> 
+                                    and <a href="{{ url_for('privacy_policy') }}" target="_blank">Privacy Policy</a>. I understand that without my Demat details, 
+                                    API credentials, and Access Token, the Company cannot access my account or place trades for me. I give my permission for 
+                                    the Company to securely access my Demat account with my API access token and carry out algorithmic trading on my behalf.
+                                </label>
+                            </div>
+                            
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="reset" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i>Clear Form
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Broker
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Connected Brokers Section -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-link me-2"></i>Connected Brokers</h5>
+                    </div>
+                    <div class="card-body">
 {% if brokers %}
 <div class="row">
     {% for broker in brokers %}
@@ -106,98 +196,14 @@
 </div>
 {% else %}
 <div class="text-center py-5">
-    <i class="fas fa-building text-muted mb-3" style="font-size: 4rem;"></i>
-    <h4>No Brokers Connected</h4>
-    <p class="text-muted mb-4">Connect your broker accounts to enable automated trading and portfolio sync</p>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrokerModal">
-        <i class="fas fa-plus me-2"></i>Add Your First Broker
-    </button>
+    <i class="fas fa-building text-muted mb-3" style="font-size: 3rem;"></i>
+    <h5>No Brokers Connected Yet</h5>
+    <p class="text-muted mb-0">Use the form above to connect your first broker account</p>
 </div>
 {% endif %}
-
-<!-- Add Broker Modal -->
-<div class="modal fade" id="addBrokerModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form method="POST" action="{{ url_for('add_broker') }}">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Add New Broker</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Important:</strong> Your API credentials are encrypted and stored securely. We never store your login passwords.
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Broker <span class="text-danger">*</span></label>
-                        <select class="form-select" name="broker_name" required>
-                            <option value="">Select Broker</option>
-                            <optgroup label="✅ Available Now">
-                                <option value="Dhan">Dhan</option>
-                                <option value="Zerodha">Zerodha</option>
-                                <option value="Angel One">Angel One</option>
-                                <option value="Groww">Groww</option>
-                                <option value="Upstox">Upstox</option>
-                            </optgroup>
-                            <optgroup label="🔜 Coming Soon">
-                                <option value="" disabled>FYERS - Coming Soon</option>
-                                <option value="" disabled>ICICI Direct - Coming Soon</option>
-                                <option value="" disabled>HDFC Securities - Coming Soon</option>
-                                <option value="" disabled>Kotak Securities - Coming Soon</option>
-                                <option value="" disabled>5Paisa - Coming Soon</option>
-                                <option value="" disabled>Choice India - Coming Soon</option>
-                                <option value="" disabled>Goodwill - Coming Soon</option>
-                            </optgroup>
-                        </select>
-                        <small class="form-text text-muted mt-2 d-block">
-                            <i class="fas fa-info-circle me-1"></i>More brokers will be added soon. Currently supporting 5 major Indian brokers.
-                        </small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">API Key <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="api_key" required placeholder="Enter your API Key">
-                        <small class="form-text text-muted">Found in your broker's API settings</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">API Secret <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" name="api_secret" required placeholder="Enter your API Secret">
-                        <small class="form-text text-muted">Keep this secret and never share it</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Request Token</label>
-                        <input type="text" class="form-control" name="request_token" placeholder="Enter Request Token (if available)">
-                        <small class="form-text text-muted">Required for some brokers to establish connection</small>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Redirect URL Template</label>
-                        <input type="text" class="form-control" name="redirect_url" readonly 
-                               value="https://{{ request.host }}/broker-callback" placeholder="Auto-generated redirect URL">
-                        <small class="form-text text-muted">Use this URL in your broker's API settings</small>
-                    </div>
-                    
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                        <label class="form-check-label" for="agreeTerms">
-                            By entering my API credentials, I agree to the Company's <a href="{{ url_for('terms_of_service') }}" target="_blank">Terms & Conditions</a> 
-                            and <a href="{{ url_for('privacy_policy') }}" target="_blank">Privacy Policy</a>. I understand that without my Demat details, 
-                            API credentials, and Access Token, the Company cannot access my account or place trades for me. I give my permission for 
-                            the Company to securely access my Demat account with my API access token and carry out algorithmic trading on my behalf.
-                        </label>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Add Broker
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -253,11 +259,10 @@ function editBroker(brokerId) {
             if (data.success) {
                 document.getElementById('editBrokerId').value = data.broker.id;
                 document.getElementById('editBrokerName').value = data.broker.broker_name;
-                document.getElementById('editApiKey').value = ''; // Never pre-fill with masked key
+                document.getElementById('editApiKey').value = '';
                 document.getElementById('editApiSecret').value = '';
                 document.getElementById('editRequestToken').value = '';
                 
-                // Show current credentials status
                 if (data.broker.has_credentials) {
                     document.getElementById('editApiKey').placeholder = `Current: ${data.broker.api_key_masked}`;
                 }
@@ -344,8 +349,4 @@ function disconnectBroker(brokerId) {
     });
 }
 </script>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
