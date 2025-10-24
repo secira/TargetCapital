@@ -173,7 +173,7 @@ class AgenticAICoordinator:
                 "https://api.openai.com/v1/chat/completions",
                 headers=headers,
                 json=payload,
-                timeout=30
+                timeout=60  # Increased for OpenAI API
             )
             
             if response.status_code == 200:
@@ -223,12 +223,26 @@ class AgenticAICoordinator:
                 "stream": False
             }
             
-            response = requests.post(
-                "https://api.perplexity.ai/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
+            # Retry logic with increased timeout for Perplexity
+            max_retries = 2
+            retry_count = 0
+            
+            while retry_count <= max_retries:
+                try:
+                    response = requests.post(
+                        "https://api.perplexity.ai/chat/completions",
+                        headers=headers,
+                        json=payload,
+                        timeout=120  # Increased from 30 to 120 seconds
+                    )
+                    break  # Success, exit retry loop
+                except requests.exceptions.Timeout:
+                    retry_count += 1
+                    logger.warning(f"Perplexity API timeout in AI Agent (attempt {retry_count}/{max_retries + 1})")
+                    if retry_count > max_retries:
+                        logger.error("Perplexity API timeout - max retries exceeded")
+                        return self._fallback_research(symbol)
+                    continue
             
             if response.status_code == 200:
                 result = response.json()

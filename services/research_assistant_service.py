@@ -272,12 +272,30 @@ Provide comprehensive research with:
                 'max_tokens': 1500
             }
             
-            response = requests.post(
-                self.perplexity_base_url,
-                headers=headers,
-                json=payload,
-                timeout=30
-            )
+            # Retry logic with increased timeout
+            max_retries = 2
+            retry_count = 0
+            last_error = None
+            
+            while retry_count <= max_retries:
+                try:
+                    response = requests.post(
+                        self.perplexity_base_url,
+                        headers=headers,
+                        json=payload,
+                        timeout=120  # Increased from 30 to 120 seconds
+                    )
+                    break  # Success, exit retry loop
+                except requests.exceptions.Timeout:
+                    retry_count += 1
+                    last_error = "API request timed out"
+                    logger.warning(f"Perplexity API timeout (attempt {retry_count}/{max_retries + 1})")
+                    if retry_count > max_retries:
+                        raise
+                    continue
+            
+            if last_error and retry_count > max_retries:
+                return (f"Research temporarily unavailable - API timeout. Please try again.", [])
             
             # Log error details if request fails
             if response.status_code != 200:
