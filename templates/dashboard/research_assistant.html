@@ -801,24 +801,31 @@
                     </div>
                     {% endif %}
 
-                    {% if 'BUY' in message.content.upper() or 'SELL' in message.content.upper() %}
+                    {% if current_user.pricing_plan.value in ['TARGET_PRO', 'HNI'] %}
+                    {% if ('BUY' in message.content.upper() or 'SELL' in message.content.upper() or 'TRADE' in message.content.upper() or 'INVEST' in message.content.upper()) %}
                     <div class="trade-card">
-                        {% if 'BUY' in message.content.upper() %}
+                        {% if 'BUY' in message.content.upper() or 'INVEST' in message.content.upper() %}
                         <div class="trade-badge buy">
-                            <i class="fas fa-arrow-up"></i> BUY
+                            <i class="fas fa-arrow-up"></i> BUY Signal
                         </div>
                         {% elif 'SELL' in message.content.upper() %}
                         <div class="trade-badge sell">
-                            <i class="fas fa-arrow-down"></i> SELL
+                            <i class="fas fa-arrow-down"></i> SELL Signal
+                        </div>
+                        {% else %}
+                        <div class="trade-badge buy">
+                            <i class="fas fa-chart-line"></i> Trade Opportunity
                         </div>
                         {% endif %}
                         <p class="trade-description">
-                            Execute this trade from your connected broker.
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Ready to execute? Take this research to action with your connected broker.
                         </p>
-                        <button class="trade-btn" onclick="executeTrade('{{ message.content }}', {{ message.id }})">
-                            <i class="fas fa-bolt"></i> Execute Trade
+                        <button class="trade-btn" onclick="prepareTradeFromResearch('{{ message.content | safe | replace("'", "\\'") }}', {{ message.id }})">
+                            <i class="fas fa-bolt"></i> Prepare Trade
                         </button>
                     </div>
+                    {% endif %}
                     {% endif %}
                 </div>
                 {% endif %}
@@ -1089,19 +1096,56 @@ function formatMarkdown(text) {
     return html;
 }
 
-function executeTrade(messageContent, messageId) {
-    const symbolMatch = messageContent.match(/\b([A-Z]{2,10})\b/);
-    const symbol = symbolMatch ? symbolMatch[1] : '';
-    const action = messageContent.toUpperCase().includes('BUY') ? 'BUY' : 'SELL';
-
+function prepareTradeFromResearch(messageContent, messageId) {
+    // Extract stock symbol - look for common Indian stock symbols (3-15 uppercase letters)
+    // Common patterns: RELIANCE, TCS, HDFCBANK, INFY, etc.
+    const stockPatterns = [
+        /\b([A-Z]{3,15})\s*\(/,  // Symbol followed by parenthesis (e.g., "RELIANCE (Reliance Industries)")
+        /Symbol:\s*([A-Z]{3,15})/i,  // "Symbol: RELIANCE"
+        /Stock:\s*([A-Z]{3,15})/i,  // "Stock: RELIANCE"
+        /\b([A-Z]{3,15})\s+-\s+/,  // Symbol followed by dash (e.g., "RELIANCE - Company Name")
+        /\b(RELIANCE|TCS|HDFCBANK|INFY|ITC|HINDUNILVR|SBIN|BHARTIARTL|ICICIBANK|KOTAKBANK|LT|ASIANPAINT|MARUTI|WIPRO|AXISBANK|BAJFINANCE|TITAN|ADANIGREEN|ADANIPORTS|NESTLEIND|ULTRACEMCO|SUNPHARMA|ONGC|NTPC|POWERGRID|COALINDIA|DRREDDY|DIVISLAB|CIPLA|EICHERMOT|HEROMOTOCO|BAJAJ-AUTO|M&M|TATAMOTORS|TATASTEEL|JSWSTEEL|HINDALCO|VEDL|GRASIM|SHREECEM|TECHM|HCLTECH|MINDTREE|INDUSINDBK|BANDHANBNK|IDFC|PNB|BANKBARODA|CANBK|IDFCFIRSTB)\b/
+    ];
+    
+    let symbol = '';
+    for (const pattern of stockPatterns) {
+        const match = messageContent.match(pattern);
+        if (match && match[1]) {
+            symbol = match[1];
+            break;
+        }
+    }
+    
+    // Determine action (BUY, SELL, or default to BUY for invest/trade mentions)
+    const upperContent = messageContent.toUpperCase();
+    let action = 'BUY'; // Default
+    if (upperContent.includes('SELL') || upperContent.includes('EXIT') || upperContent.includes('SHORT')) {
+        action = 'SELL';
+    } else if (upperContent.includes('BUY') || upperContent.includes('INVEST') || upperContent.includes('LONG') || upperContent.includes('ACCUMULATE')) {
+        action = 'BUY';
+    }
+    
+    // Save research context
     sessionStorage.setItem('researchContext', JSON.stringify({
         messageId: messageId,
         symbol: symbol,
         action: action,
-        recommendation: messageContent.substring(0, 200),
+        recommendation: messageContent.substring(0, 300),
         timestamp: new Date().toISOString()
     }));
-
+    
+    if (!symbol) {
+        // If no symbol found, show a modal to let user enter symbol
+        const userSymbol = prompt('Please enter the stock symbol you want to trade:');
+        if (userSymbol && userSymbol.trim()) {
+            symbol = userSymbol.trim().toUpperCase();
+        } else {
+            alert('Stock symbol is required to execute a trade.');
+            return;
+        }
+    }
+    
+    // Redirect to trade page with pre-filled parameters
     window.location.href = `{{ url_for('dashboard_trade_now') }}?symbol=${symbol}&action=${action}&from=research`;
 }
 
