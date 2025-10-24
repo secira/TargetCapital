@@ -100,6 +100,11 @@
                                         
                                         <!-- Connect/Disconnect toggle -->
                                         {% if broker.account.connection_status == 'connected' %}
+                                        <button class="btn btn-outline-success" 
+                                                onclick="syncBroker({{ broker.account.id }})"
+                                                title="Sync Portfolio Data">
+                                            <i class="fas fa-sync"></i> Sync
+                                        </button>
                                         <button class="btn btn-outline-warning" 
                                                 onclick="disconnectBroker({{ broker.account.id }})"
                                                 title="Disconnect Broker">
@@ -460,6 +465,48 @@ function disconnectBroker(accountId) {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to disconnect broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Sync broker portfolio data
+function syncBroker(accountId) {
+    if (!confirm('Sync portfolio data from this broker? This will fetch your latest holdings, positions, and orders.')) return;
+    
+    const button = event.target.closest('button');
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+    
+    fetch(`/api/broker/sync-account/${accountId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            sync_types: ['holdings', 'positions', 'orders']
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const results = data.sync_results;
+            const message = `Successfully synced:\n` +
+                `• ${results.holdings || 0} holdings\n` +
+                `• ${results.positions || 0} positions\n` +
+                `• ${results.orders || 0} orders`;
+            alert(message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to sync broker data. Please try again.');
         button.disabled = false;
         button.innerHTML = originalHTML;
     });
