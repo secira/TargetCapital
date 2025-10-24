@@ -236,6 +236,24 @@
                             </div>
                             {% endif %}
                         </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex gap-2">
+                                {% if account.connection_status == 'connected' %}
+                                    <button class="btn btn-sm btn-outline-warning flex-fill" onclick="disconnectAccount({{ account.id }}); return false;">
+                                        <i class="fas fa-unlink me-1"></i>Disconnect
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-success flex-fill" onclick="connectAccount({{ account.id }}); return false;">
+                                        <i class="fas fa-link me-1"></i>Connect
+                                    </button>
+                                {% endif %}
+                                {% if account.connection_status == 'connected' and not account.is_primary %}
+                                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="setPrimary({{ account.id }}); return false;">
+                                        <i class="fas fa-star me-1"></i>Set Primary
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -552,6 +570,74 @@ function setPrimary(accountId) {
     .catch(error => {
         console.error('Error:', error);
         alert('Failed to set primary broker.');
+    });
+}
+
+// Connect account (Step 2: Activate broker)
+function connectAccount(accountId) {
+    if (!confirm('Connect this broker? This will activate the broker for trading.')) return;
+    
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Connecting...';
+    
+    fetch(`/api/broker/${accountId}/connect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to connect broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Disconnect account (Deactivate broker)
+function disconnectAccount(accountId) {
+    if (!confirm('Disconnect this broker? This will deactivate the broker.')) return;
+    
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Disconnecting...';
+    
+    fetch(`/api/broker/${accountId}/disconnect`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to disconnect broker.');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
     });
 }
 

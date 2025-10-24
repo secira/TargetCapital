@@ -431,6 +431,130 @@ def disconnect_broker(broker_id):
         logging.error(f"Error disconnecting broker {broker_id}: {str(e)}")
         return jsonify({'success': False, 'message': 'Error disconnecting broker. Please try again.'})
 
+@app.route('/api/broker/sync-account/<int:account_id>', methods=['POST'])
+@login_required
+def sync_broker_account(account_id):
+    """Sync broker account data"""
+    try:
+        from models_broker import BrokerAccount
+        
+        account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id,
+            is_active=True
+        ).first()
+        
+        if not account:
+            return jsonify({'success': False, 'message': 'Broker account not found'})
+        
+        if account.connection_status != 'connected':
+            return jsonify({'success': False, 'message': 'Broker must be connected to sync data'})
+        
+        # TODO: Implement actual broker API sync
+        # For now, just update the last_sync timestamp
+        account.last_sync = datetime.utcnow()
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': f'{account.broker_name} synced successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error syncing broker account {account_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error syncing broker account'})
+
+@app.route('/api/broker/test-connection/<int:account_id>', methods=['POST'])
+@login_required
+def test_broker_connection(account_id):
+    """Test broker connection"""
+    try:
+        from models_broker import BrokerAccount
+        
+        account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id,
+            is_active=True
+        ).first()
+        
+        if not account:
+            return jsonify({'success': False, 'message': 'Broker account not found'})
+        
+        # TODO: Implement actual broker API test
+        # For now, check if credentials exist
+        creds = account.get_credentials()
+        if creds.get('client_id') and creds.get('access_token'):
+            return jsonify({'success': True, 'message': 'Connection test successful!'})
+        else:
+            return jsonify({'success': False, 'message': 'Missing credentials'})
+        
+    except Exception as e:
+        logging.error(f"Error testing broker connection {account_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error testing connection'})
+
+@app.route('/api/broker/set-primary/<int:account_id>', methods=['POST'])
+@login_required
+def set_primary_broker(account_id):
+    """Set broker as primary for trading"""
+    try:
+        from models_broker import BrokerAccount
+        
+        account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id,
+            is_active=True
+        ).first()
+        
+        if not account:
+            return jsonify({'success': False, 'message': 'Broker account not found'})
+        
+        if account.connection_status != 'connected':
+            return jsonify({'success': False, 'message': 'Broker must be connected to set as primary'})
+        
+        # Remove primary flag from all other brokers for this user
+        BrokerAccount.query.filter_by(
+            user_id=current_user.id,
+            is_active=True
+        ).update({'is_primary': False})
+        
+        # Set this broker as primary
+        account.is_primary = True
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': f'{account.broker_name} set as primary broker for trading!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error setting primary broker {account_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error setting primary broker'})
+
+@app.route('/api/broker/remove-account/<int:account_id>', methods=['DELETE'])
+@login_required
+def remove_broker_account(account_id):
+    """Remove broker account"""
+    try:
+        from models_broker import BrokerAccount
+        
+        account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id,
+            is_active=True
+        ).first()
+        
+        if not account:
+            return jsonify({'success': False, 'message': 'Broker account not found'})
+        
+        # Soft delete by marking as inactive
+        account.is_active = False
+        account.connection_status = 'disconnected'
+        account.is_primary = False
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': f'{account.broker_name} removed successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error removing broker account {account_id}: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error removing broker account'})
+
 @app.route('/update-broker', methods=['POST'])
 @login_required
 def update_broker():

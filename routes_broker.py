@@ -86,16 +86,33 @@ def api_add_broker_account():
                     'message': 'Target Pro plan allows up to 3 broker connections. You have reached the limit.'
                 }), 400
         
-        # Add broker account
-        broker_account = BrokerService.add_broker_account(
+        # Step 1: Save broker credentials (DO NOT CONNECT YET)
+        # Create broker account in 'disconnected' state
+        broker_account = BrokerAccount(
             user_id=current_user.id,
-            broker_type=broker_type,
-            credentials=credentials
+            broker_type=broker_type.value,
+            broker_name=broker_type.value.title(),
+            connection_status='disconnected',  # Saved but not connected
+            is_primary=False,
+            is_active=True
         )
+        
+        # Securely store encrypted credentials
+        broker_account.set_credentials(
+            client_id=credentials['client_id'],
+            access_token=credentials['access_token'],
+            api_secret=credentials.get('api_secret'),
+            totp_secret=credentials.get('totp_secret')
+        )
+        
+        db.session.add(broker_account)
+        db.session.commit()
+        
+        logger.info(f"User {current_user.id} added broker {broker_type.value} (Step 1: Credentials saved)")
         
         return jsonify({
             'success': True,
-            'message': f'{broker_type.value.title()} account connected successfully. You can sync data manually using the sync button.',
+            'message': f'{broker_type.value.title()} credentials saved successfully! Now click "Connect" to activate the broker.',
             'account_id': broker_account.id
         })
             
