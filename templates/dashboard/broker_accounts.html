@@ -490,13 +490,17 @@ function syncBroker(accountId) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
+        if (data.success && data.sync_results) {
             const results = data.sync_results;
             const message = `Successfully synced:\n` +
                 `• ${results.holdings || 0} holdings\n` +
                 `• ${results.positions || 0} positions\n` +
                 `• ${results.orders || 0} orders`;
             alert(message);
+            location.reload();
+        } else if (data.success) {
+            // Success but no sync_results (shouldn't happen but handle it)
+            alert('Portfolio synced successfully!');
             location.reload();
         } else {
             alert('Error: ' + data.message);

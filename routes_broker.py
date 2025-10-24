@@ -327,12 +327,23 @@ def api_sync_broker_account(account_id):
         if not broker_account:
             return jsonify({'success': False, 'message': 'Broker account not found'}), 404
         
+        # Check if broker is connected
+        if broker_account.connection_status != 'connected':
+            return jsonify({
+                'success': False, 
+                'message': 'Please connect the broker first before syncing'
+            }), 400
+        
         # Get sync types from request
         data = request.get_json() or {}
         sync_types = data.get('sync_types', ['holdings', 'positions', 'orders'])
         
+        logger.info(f"Starting sync for broker {broker_account.broker_name} (ID: {account_id})")
+        
         # Perform sync
         sync_results = BrokerService.sync_broker_data(broker_account, sync_types)
+        
+        logger.info(f"Sync completed for broker {broker_account.broker_name}: {sync_results}")
         
         return jsonify({
             'success': True,
@@ -341,10 +352,11 @@ def api_sync_broker_account(account_id):
         })
         
     except BrokerAPIError as e:
+        logger.error(f"BrokerAPIError during sync: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 400
     except Exception as e:
-        logger.error(f"Error syncing broker account: {e}")
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+        logger.error(f"Error syncing broker account: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'message': f'Sync failed: {str(e)}'}), 500
 
 @app.route('/api/broker/remove-account/<int:account_id>', methods=['DELETE'])
 @login_required
