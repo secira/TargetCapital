@@ -801,7 +801,7 @@
                     </div>
                     {% endif %}
 
-                    {% if current_user.pricing_plan.value in ['TARGET_PRO', 'HNI'] %}
+                    {% if current_user.pricing_plan.value in ['target_pro', 'hni'] %}
                     {% if ('BUY' in message.content.upper() or 'SELL' in message.content.upper() or 'TRADE' in message.content.upper() or 'INVEST' in message.content.upper()) %}
                     <div class="trade-card">
                         {% if 'BUY' in message.content.upper() or 'INVEST' in message.content.upper() %}
