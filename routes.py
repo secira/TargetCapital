@@ -3761,13 +3761,23 @@ def api_research_upload():
 def api_research_clear_history():
     """Clear all conversation history for the current user"""
     try:
-        from models import ResearchConversation, ResearchMessage
+        from models import ResearchConversation, ResearchMessage, SourceCitation
         
-        # Delete all messages for user's conversations
+        # Get all user conversations
         user_conversations = ResearchConversation.query.filter_by(user_id=current_user.id).all()
         conversation_ids = [conv.id for conv in user_conversations]
         
         if conversation_ids:
+            # Get all message IDs for these conversations
+            message_ids = [msg.id for msg in ResearchMessage.query.filter(
+                ResearchMessage.conversation_id.in_(conversation_ids)
+            ).all()]
+            
+            # Delete source citations first (foreign key constraint)
+            if message_ids:
+                SourceCitation.query.filter(SourceCitation.message_id.in_(message_ids)).delete(synchronize_session=False)
+            
+            # Delete all messages
             ResearchMessage.query.filter(ResearchMessage.conversation_id.in_(conversation_ids)).delete(synchronize_session=False)
         
         # Delete all conversations
