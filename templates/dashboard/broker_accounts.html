@@ -146,15 +146,15 @@
 </div>
 
 <!-- Add/Edit Broker Modal -->
-<div class="modal fade" id="addBrokerModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="addBrokerModal" tabindex="-1" aria-labelledby="addBrokerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="addBrokerModalLabel">
                     <i class="fas fa-plus-circle me-2"></i>
                     <span id="modalTitle">Add Broker Account</span>
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
         <form id="addBrokerForm">
