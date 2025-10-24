@@ -46,22 +46,33 @@ class ResearchAssistantService:
 Your core capabilities:
 1. **Stock Research**: Analyze Indian stocks (NSE/BSE) with real-time data and historical context
 2. **Portfolio Context**: Provide personalized advice based on user's current holdings and risk profile
-3. **Market Intelligence**: Track sector trends, news, earnings, and regulatory changes
-4. **Educational**: Explain complex concepts in simple language for Indian investors
-5. **Compliance**: Always include proper disclaimers and cite sources
+3. **Personalized Recommendations**: Use user's portfolio preferences (age, goals, risk tolerance, investment horizon, asset preferences) to tailor all suggestions
+4. **Market Intelligence**: Track sector trends, news, earnings, and regulatory changes
+5. **Educational**: Explain complex concepts in simple language for Indian investors
+6. **Compliance**: Always include proper disclaimers and cite sources
 
 Research Process:
-- Access user's portfolio context for personalized analysis
+- Access user's portfolio context AND preferences for highly personalized analysis
+- Consider user's financial goals, investment horizon, and risk tolerance in all recommendations
+- Align stock suggestions with user's preferred asset classes and sector preferences
 - Search knowledge base for relevant historical data and research
 - Use real-time web data for current market conditions
 - Provide evidence-based recommendations with cited sources
 - Suggest actionable next steps with pre-filled trade options
 
+Personalization Guidelines:
+- Match recommendations to user's risk tolerance (conservative/moderate/aggressive)
+- Consider user's investment horizon when suggesting stocks (short/medium/long term)
+- Prioritize sectors and asset classes from user's preferences
+- Account for user's liquidity requirements and expected returns
+- Align with user's financial goals (retirement, wealth building, income generation, etc.)
+
 Response Format:
 - **Analysis**: Data-driven insights with numbers and percentages
+- **Personalization Note**: Briefly mention how recommendation aligns with user's goals/preferences
 - **Sources**: Always cite specific sources for claims
-- **Risk Assessment**: Clear risk levels (Low/Medium/High)
-- **Next Steps**: Actionable recommendations
+- **Risk Assessment**: Clear risk levels (Low/Medium/High) relative to user's risk tolerance
+- **Next Steps**: Actionable recommendations aligned with user's preferences
 - **Disclaimer**: "This information is for educational purposes only. Investors and traders should consult a qualified financial advisor before making any investment decisions."
 
 Indian Market Focus:
@@ -108,7 +119,8 @@ Remember: This is educational research - not guaranteed investment advice. Users
             'user_profile': {
                 'plan': 'FREE',
                 'risk_tolerance': 'MODERATE'
-            }
+            },
+            'preferences': {}
         }
         
         try:
@@ -116,6 +128,24 @@ Remember: This is educational research - not guaranteed investment advice. Users
             user = User.query.get(user_id)
             if user:
                 context['user_profile']['plan'] = user.pricing_plan.value if user.pricing_plan else 'FREE'
+            
+            # Get portfolio preferences for personalized recommendations
+            from models import PortfolioPreferences
+            prefs = PortfolioPreferences.query.filter_by(user_id=user_id).first()
+            if prefs and prefs.completed:
+                context['preferences'] = {
+                    'age': prefs.age,
+                    'risk_tolerance': prefs.risk_tolerance,
+                    'investment_horizon': prefs.investment_horizon,
+                    'financial_goals': prefs.to_dict().get('financial_goals', []),
+                    'expected_return': prefs.expected_return,
+                    'preferred_asset_classes': prefs.to_dict().get('preferred_asset_classes', []),
+                    'sector_preferences': prefs.to_dict().get('sector_preferences', []),
+                    'liquidity_requirement': prefs.liquidity_requirement,
+                    'summary': prefs.get_summary()
+                }
+                # Update risk tolerance from preferences
+                context['user_profile']['risk_tolerance'] = prefs.risk_tolerance or 'MODERATE'
             
             # Get portfolio holdings
             portfolio_items = Portfolio.query.filter_by(user_id=user_id).all()

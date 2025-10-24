@@ -241,7 +241,24 @@ class ComprehensivePortfolioService:
         
         try:
             from openai import OpenAI
+            from models import PortfolioPreferences
             client = OpenAI(api_key=self.openai_api_key)
+            
+            # Get user preferences for personalized recommendations
+            prefs = PortfolioPreferences.query.filter_by(user_id=self.user_id).first()
+            preferences_text = ""
+            if prefs and prefs.completed:
+                preferences_text = f"""
+
+Investor Profile & Preferences:
+- Age: {prefs.age if prefs.age else 'Not specified'}
+- Risk Tolerance: {prefs.risk_tolerance or 'Moderate'}
+- Investment Horizon: {prefs.investment_horizon or 'Medium term'}
+- Financial Goals: {', '.join(prefs.to_dict().get('financial_goals', [])) if prefs.to_dict().get('financial_goals') else 'Not specified'}
+- Expected Return: {f'{prefs.expected_return}% p.a.' if prefs.expected_return else 'Not specified'}
+- Preferred Asset Classes: {', '.join(prefs.to_dict().get('preferred_asset_classes', [])) if prefs.to_dict().get('preferred_asset_classes') else 'Not specified'}
+- Liquidity Requirement: {prefs.liquidity_requirement or 'Medium'}
+"""
             
             # Prepare portfolio data for AI
             portfolio_text = f"""
@@ -256,16 +273,16 @@ Asset Allocation:
             for ac in portfolio_summary['asset_classes']:
                 portfolio_text += f"- {ac['name']}: ₹{ac['current_value']:,.0f} ({ac['current_value']/portfolio_summary['total_current_value']*100:.1f}%) | P&L: {ac['pnl_percentage']:.1f}% | Risk: {ac['risk_level']}\n"
             
-            prompt = f"""As a financial advisor, analyze this Indian investor's portfolio and provide:
-1. Overall portfolio health assessment
-2. Key strengths and weaknesses
-3. Diversification analysis
-4. Risk assessment
-5. 3-4 specific actionable recommendations
+            prompt = f"""As a financial advisor, analyze this Indian investor's portfolio and provide PERSONALIZED recommendations:
+1. Overall portfolio health assessment (aligned with investor's goals and risk tolerance)
+2. Key strengths and weaknesses (relative to investor's preferences)
+3. Diversification analysis (compared to preferred asset classes)
+4. Risk assessment (relative to investor's risk tolerance)
+5. 3-4 specific actionable recommendations (tailored to investment horizon and goals)
 
-{portfolio_text}
+{portfolio_text}{preferences_text}
 
-Provide concise, actionable insights in 150-200 words."""
+Provide concise, actionable insights in 150-200 words that align with the investor's profile and preferences."""
             
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
