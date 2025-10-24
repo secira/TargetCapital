@@ -370,9 +370,31 @@ Format stock data in a table with: Stock Name | Symbol | Current Price (₹) | M
         """Build context string from user data"""
         parts = ["User Context:"]
         
+        # Portfolio preferences (NEW - for personalization)
+        if context.get('preferences') and context['preferences']:
+            prefs = context['preferences']
+            parts.append("\n--- Investor Profile & Preferences ---")
+            if prefs.get('age'):
+                parts.append(f"Age: {prefs['age']} years")
+            if prefs.get('risk_tolerance'):
+                parts.append(f"Risk Tolerance: {prefs['risk_tolerance']}")
+            if prefs.get('investment_horizon'):
+                parts.append(f"Investment Horizon: {prefs['investment_horizon']}")
+            if prefs.get('financial_goals'):
+                parts.append(f"Financial Goals: {', '.join(prefs['financial_goals'])}")
+            if prefs.get('expected_return'):
+                parts.append(f"Expected Return: {prefs['expected_return']}% p.a.")
+            if prefs.get('preferred_asset_classes'):
+                parts.append(f"Preferred Assets: {', '.join(prefs['preferred_asset_classes'])}")
+            if prefs.get('sector_preferences'):
+                parts.append(f"Sector Preferences: {', '.join(prefs['sector_preferences'])}")
+            if prefs.get('liquidity_requirement'):
+                parts.append(f"Liquidity Needs: {prefs['liquidity_requirement']}")
+            parts.append("--- End Preferences ---\n")
+        
         # Portfolio context
         if context['portfolio']['holdings']:
-            parts.append(f"\nPortfolio Value: ₹{context['portfolio']['total_value']:,.2f}")
+            parts.append(f"Portfolio Value: ₹{context['portfolio']['total_value']:,.2f}")
             parts.append(f"Holdings: {len(context['portfolio']['holdings'])} stocks")
             if context['portfolio']['sectors']:
                 top_sector = max(context['portfolio']['sectors'].items(), key=lambda x: x[1])
@@ -384,6 +406,7 @@ Format stock data in a table with: Stock Name | Symbol | Current Price (₹) | M
         
         # User profile
         parts.append(f"\nUser Plan: {context['user_profile']['plan']}")
+        parts.append(f"Risk Tolerance: {context['user_profile']['risk_tolerance']}")
         
         return '\n'.join(parts)
     
