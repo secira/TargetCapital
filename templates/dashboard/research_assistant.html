@@ -365,6 +365,45 @@
     font-size: 16px;
 }
 
+/* Tables */
+.assistant-bubble table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 13px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.assistant-bubble thead {
+    background: #f8f9fa;
+}
+
+.assistant-bubble th {
+    padding: 12px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: #2d2d2d;
+    border-bottom: 2px solid #dee2e6;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.assistant-bubble td {
+    padding: 10px;
+    border-bottom: 1px solid #e9ecef;
+    color: #495057;
+}
+
+.assistant-bubble tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.assistant-bubble tbody tr:last-child td {
+    border-bottom: none;
+}
+
 /* Citations */
 .message-citations {
     margin-top: 16px;
@@ -1065,6 +1104,45 @@ function formatMarkdown(text) {
     // Convert markdown to HTML
     let html = text;
     
+    // Tables (detect pipe-separated tables)
+    const tableRegex = /(\|[^\n]+\|\n)+/g;
+    html = html.replace(tableRegex, function(tableMatch) {
+        const rows = tableMatch.trim().split('\n').filter(row => row.trim());
+        if (rows.length < 2) return tableMatch;
+        
+        let tableHtml = '<table>';
+        
+        // Parse header row
+        const headerCells = rows[0].split('|').map(cell => cell.trim()).filter(cell => cell);
+        if (headerCells.length > 0) {
+            tableHtml += '<thead><tr>';
+            headerCells.forEach(cell => {
+                tableHtml += `<th>${escapeHtml(cell)}</th>`;
+            });
+            tableHtml += '</tr></thead>';
+        }
+        
+        // Parse data rows (skip separator row if present)
+        tableHtml += '<tbody>';
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            // Skip separator rows (like |---|---|)
+            if (row.match(/^\|[\s\-:]+\|$/)) continue;
+            
+            const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell);
+            if (cells.length > 0) {
+                tableHtml += '<tr>';
+                cells.forEach(cell => {
+                    tableHtml += `<td>${escapeHtml(cell)}</td>`;
+                });
+                tableHtml += '</tr>';
+            }
+        }
+        tableHtml += '</tbody></table>';
+        
+        return tableHtml;
+    });
+    
     // Headers
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -1092,6 +1170,8 @@ function formatMarkdown(text) {
     html = html.replace(/(<\/ul>)<\/p>/g, '$1');
     html = html.replace(/<p>(<h[1-3]>)/g, '$1');
     html = html.replace(/(<\/h[1-3]>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<table>)/g, '$1');
+    html = html.replace(/(<\/table>)<\/p>/g, '$1');
     
     return html;
 }
