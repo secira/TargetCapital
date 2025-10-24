@@ -1,295 +1,312 @@
 {% extends "account/account_base.html" %}
 
 {% block account_content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2><i class="fas fa-credit-card me-2"></i>Billing</h2>
-        <p class="text-muted mb-0">Manage your subscription and payment methods</p>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-8">
-        <!-- Current Plan -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Current Subscription</h5>
+<!-- Hero Section -->
+<section class="bg-white" style="padding: 40px 0 30px 0;">
+    <div class="container-fluid">
+        <div class="row text-center">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-dark mb-3">
+                    Manage Your Subscription
+                </h1>
+                <p class="lead text-muted mb-4" style="font-size: 1.1rem;">
+                    View your current plan, upgrade or downgrade, and manage payment history
+                </p>
             </div>
-            <div class="card-body">
+        </div>
+    </div>
+</section>
+
+<!-- Current Plan Status -->
+<section class="bg-light" style="padding: 30px 0;">
+    <div class="container-fluid">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+            <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h4 class="text-primary mb-1">{{ current_user.get_plan_display_name() }}</h4>
-                        {% if current_user.pricing_plan == PricingPlan.FREE %}
-                        <p class="text-muted mb-0">Free plan with access to AI Advisor only</p>
-                        {% elif current_user.pricing_plan == PricingPlan.HNI %}
-                        <p class="text-muted mb-0">HNI Account - Contact account manager for details</p>
-                        {% else %}
-                        <p class="text-muted mb-0">₹{{ current_user.get_plan_price() }}/month</p>
-                        {% endif %}
-                        
-                        {% if current_user.pricing_plan != PricingPlan.FREE %}
-                        <div class="mt-2">
-                            {% if current_user.is_subscription_active() %}
-                            <span class="badge bg-success me-2">Active</span>
-                            {% if current_user.subscription_end_date %}
-                            <small class="text-muted">Renews on {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}</small>
-                            {% endif %}
-                            {% else %}
-                            <span class="badge bg-warning">Inactive</span>
-                            {% endif %}
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-crown fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">{{ current_user.get_plan_display_name() }}</h4>
+                                {% if current_user.pricing_plan == PricingPlan.FREE %}
+                                <p class="text-muted mb-0">Free plan with access to AI Advisor only</p>
+                                {% elif current_user.pricing_plan == PricingPlan.HNI %}
+                                <p class="text-muted mb-0">₹4,999/month - HNI Account with dedicated support</p>
+                                {% else %}
+                                <p class="text-muted mb-0">₹{{ current_user.get_plan_price() }}/month</p>
+                                {% endif %}
+                                
+                                {% if current_user.pricing_plan != PricingPlan.FREE %}
+                                <div class="mt-2">
+                                    {% if current_user.is_subscription_active() %}
+                                    <span class="badge bg-success me-2">Active</span>
+                                    {% if current_user.subscription_end_date %}
+                                    <small class="text-muted">Renews on {{ current_user.subscription_end_date.strftime('%B %d, %Y') }}</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="badge bg-warning">Inactive</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% endif %}
                     </div>
                     <div class="col-md-4 text-end">
                         {% if current_user.pricing_plan == PricingPlan.FREE %}
-                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                        <a href="{{ url_for('pricing') }}" class="btn btn-primary btn-lg rounded-pill px-4">
                             Upgrade Plan
+                        </a>
+                        {% elif current_user.pricing_plan == PricingPlan.HNI %}
+                        <a href="{{ url_for('contact') }}" class="btn btn-outline-primary rounded-pill px-4">
+                            Contact Manager
                         </a>
                         {% else %}
                         <div class="btn-group">
-                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#upgradeModal">
+                            <a href="{{ url_for('pricing') }}" class="btn btn-outline-primary rounded-pill px-4">
                                 Change Plan
-                            </button>
-                            <button class="btn btn-outline-danger" onclick="cancelSubscription()">
-                                Cancel
-                            </button>
+                            </a>
                         </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Available Plans -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Available Plans</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-4">
-                    <!-- Free Plan -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.FREE %}border-primary{% endif %}">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Free User</h5>
-                                <h3 class="text-muted">₹0</h3>
-                                <p class="text-muted small">per month</p>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-2"></i>AI Advisor only</li>
-                                    <li><i class="fas fa-times text-danger me-2"></i>Limited features</li>
-                                </ul>
-                                {% if current_user.pricing_plan != PricingPlan.FREE %}
-                                <button class="btn btn-outline-secondary btn-sm" onclick="downgradeToPlan('free')">
-                                    Downgrade
-                                </button>
-                                {% else %}
-                                <span class="badge bg-primary">Current Plan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Target Plus Plan -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}border-primary{% endif %}">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Target Plus</h5>
-                                <h3 class="text-primary">₹1,499</h3>
-                                <p class="text-muted small">per month</p>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-2"></i>1 broker connection</li>
-                                    <li><i class="fas fa-times text-danger me-2"></i>No trade execution</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Portfolio analysis</li>
-                                </ul>
-                                {% if current_user.pricing_plan != PricingPlan.TARGET_PLUS %}
-                                <button class="btn btn-primary btn-sm" onclick="upgradeToPlan('target_plus', 1499)">
-                                    {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
-                                </button>
-                                {% else %}
-                                <span class="badge bg-primary">Current Plan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Target Pro Plan -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.TARGET_PRO %}border-primary{% endif %} position-relative">
-                            <div class="ribbon">
-                                <span>Popular</span>
-                            </div>
-                            <div class="card-body text-center">
-                                <h5 class="card-title">Target Pro</h5>
-                                <h3 class="text-success">₹2,999</h3>
-                                <p class="text-muted small">per month</p>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-2"></i>Up to 3 brokers</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Trade execution</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Full automation</li>
-                                </ul>
-                                {% if current_user.pricing_plan != PricingPlan.TARGET_PRO %}
-                                <button class="btn btn-success btn-sm" onclick="upgradeToPlan('target_pro', 2999)">
-                                    {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
-                                </button>
-                                {% else %}
-                                <span class="badge bg-success">Current Plan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- HNI Account Plan -->
-                    <div class="col-md-6 col-lg-3">
-                        <div class="card h-100 {% if current_user.pricing_plan == PricingPlan.HNI %}border-warning{% endif %}">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">HNI Account</h5>
-                                <h3 class="text-warning">₹9,999</h3>
-                                <p class="text-muted small">per month</p>
-                                <ul class="list-unstyled text-start small">
-                                    <li><i class="fas fa-check text-success me-2"></i>Unlimited brokers</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>All features</li>
-                                </ul>
-                                {% if current_user.pricing_plan != PricingPlan.HNI %}
-                                <button class="btn btn-warning btn-sm" onclick="upgradeToPlan('hni', 9999)">
-                                    {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade{% else %}Switch{% endif %}
-                                </button>
-                                {% else %}
-                                <span class="badge bg-warning">Current Plan</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payment History -->
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Payment History</h5>
-            </div>
-            <div class="card-body">
-                {% if payments %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Plan</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Payment ID</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for payment in payments %}
-                            <tr>
-                                <td>{{ payment.created_at.strftime('%b %d, %Y') }}</td>
-                                <td>{{ payment.plan_type.value.replace('_', ' ').title() }}</td>
-                                <td>₹{{ "%.2f"|format(payment.amount) }}</td>
-                                <td>
-                                    <span class="badge bg-{% if payment.status == 'captured' %}success{% else %}danger{% endif %}">
-                                        {{ payment.status.title() }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <code class="small">{{ payment.razorpay_payment_id }}</code>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No payment history</h5>
-                    <p class="text-muted">Your payment transactions will appear here</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
     </div>
-    
-    <div class="col-lg-4">
-        <!-- Billing Summary -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0">Billing Summary</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Total Paid</span>
-                    <span class="fw-bold">₹{{ "%.2f"|format(current_user.total_payments) }}</span>
-                </div>
-                {% if current_user.subscription_end_date %}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Next Billing</span>
-                    <span class="fw-bold">{{ current_user.subscription_end_date.strftime('%b %d') }}</span>
-                </div>
-                {% endif %}
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted">Status</span>
-                    <span class="badge bg-{% if current_user.is_subscription_active() %}success{% else %}warning{% endif %}">
-                        {% if current_user.is_subscription_active() %}Active{% else %}Inactive{% endif %}
-                    </span>
-                </div>
+</section>
+
+<!-- Available Plans -->
+<section class="bg-white" style="padding: 60px 0;">
+    <div class="container-fluid">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="fw-bold text-dark mb-3">Available Plans</h2>
+                <p class="text-muted">Choose the plan that fits your trading style and goals</p>
             </div>
         </div>
         
-        <!-- Support -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">Need Help?</h6>
+        <div class="row g-4">
+            <!-- Target Plus Plan -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100 {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}border-primary border-2{% endif %}" style="border-radius: 16px;">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-dark mb-2">Target Plus</h4>
+                            <p class="text-muted mb-4">Great for portfolio analysis</p>
+                            
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">1499</h2>
+                                <small class="text-muted">/month</small>
+                            </div>
+                        </div>
+                        
+                        <div class="features-list mb-4">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI stock analysis</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Daily Trading Signals</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>NSE India real-time data</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Portfolio tracking</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Single Broker Connection</li>
+                                <li class="mb-2"><i class="fas fa-times text-muted me-2"></i>No Trade Execution</li>
+                            </ul>
+                        </div>
+                        
+                        {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}
+                            <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                        {% else %}
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_plus', 1499)">
+                                {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade Now{% else %}Switch Plan{% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <p class="small text-muted mb-3">Have questions about billing or need to update your payment method?</p>
-                <div class="d-grid">
-                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-headset me-2"></i>Contact Support
-                    </a>
+            
+            <!-- Target Pro Plan (Popular) -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg h-100 position-relative {% if current_user.pricing_plan == PricingPlan.TARGET_PRO %}border-primary border-2{% endif %}" style="border-radius: 16px;">
+                    <!-- Popular Badge -->
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-primary px-3 py-2 rounded-pill">Most Popular</span>
+                    </div>
+                    
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-dark mb-2">Target Pro</h4>
+                            <p class="text-muted mb-4">Great for traders who want to execute orders</p>
+                            
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">2999</h2>
+                                <small class="text-muted">/month</small>
+                            </div>
+                        </div>
+                        
+                        <div class="features-list mb-4">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>AI stock analysis</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Daily Trading Signals</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>NSE India real-time data</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Portfolio optimization</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Connect up to 3 brokers</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Trade with 1 broker only</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Trade Execution</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Priority email support</li>
+                            </ul>
+                        </div>
+                        
+                        {% if current_user.pricing_plan == PricingPlan.TARGET_PRO %}
+                            <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                        {% else %}
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_pro', 2999)">
+                                {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade Now{% else %}Switch Plan{% endif %}
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- HNI Account -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100 {% if current_user.pricing_plan == PricingPlan.HNI %}border-warning border-2{% endif %}" style="border-radius: 16px;">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <h4 class="fw-bold text-dark mb-2">HNI Account</h4>
+                            <p class="text-muted mb-4">For HNI with busy schedule</p>
+                            
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">4999</h2>
+                                <small class="text-muted">/month</small>
+                            </div>
+                        </div>
+                        
+                        <div class="features-list mb-4">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All Benefits of Target Pro</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Trade with 1 broker only</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dedicated account manager</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Premium dedicated support</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Unlimited brokers</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i>All features</li>
+                            </ul>
+                        </div>
+                        
+                        {% if current_user.pricing_plan == PricingPlan.HNI %}
+                            <span class="btn btn-warning w-100 py-3 rounded-pill fw-semibold disabled text-dark">Current Plan</span>
+                        {% else %}
+                            <a href="{{ url_for('contact') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">
+                                Contact Sales
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<!-- Upgrade Modal -->
-<div class="modal fade" id="upgradeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Upgrade Your Plan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Payment History & Billing Summary -->
+<section class="bg-light" style="padding: 60px 0;">
+    <div class="container-fluid">
+        <div class="row g-4">
+            <!-- Payment History -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 py-4">
+                        <h4 class="mb-0 fw-bold"><i class="fas fa-receipt me-2 text-primary"></i>Payment History</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3">Date</th>
+                                        <th class="py-3">Plan</th>
+                                        <th class="py-3">Amount</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3">Payment ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                    <tr>
+                                        <td class="py-3">{{ payment.created_at.strftime('%b %d, %Y') }}</td>
+                                        <td class="py-3 fw-semibold">{{ payment.plan_type.value.replace('_', ' ').title() }}</td>
+                                        <td class="py-3 text-primary fw-bold">₹{{ "%.2f"|format(payment.amount) }}</td>
+                                        <td class="py-3">
+                                            <span class="badge bg-{% if payment.status == 'captured' %}success{% else %}danger{% endif %} rounded-pill">
+                                                {{ payment.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3">
+                                            <code class="small text-muted">{{ payment.razorpay_payment_id }}</code>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No payment history</h5>
+                            <p class="text-muted">Your payment transactions will appear here</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <div id="upgrade-content">
-                    <!-- Content will be populated by JavaScript -->
+            
+            <!-- Billing Summary Sidebar -->
+            <div class="col-lg-4">
+                <!-- Billing Summary -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 py-4">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-chart-line me-2 text-success"></i>Billing Summary</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Current Plan</span>
+                            <span class="fw-bold text-primary">{{ current_user.get_plan_display_name() }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Total Paid</span>
+                            <span class="fw-bold text-success">₹{{ "%.2f"|format(current_user.total_payments) }}</span>
+                        </div>
+                        {% if current_user.subscription_end_date %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                            <span class="text-muted">Next Billing</span>
+                            <span class="fw-bold">{{ current_user.subscription_end_date.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Status</span>
+                            <span class="badge bg-{% if current_user.is_subscription_active() %}success{% else %}warning{% endif %} rounded-pill px-3 py-2">
+                                {% if current_user.is_subscription_active() %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Support Card -->
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 py-4">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-headset me-2 text-info"></i>Need Help?</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted mb-3">Have questions about billing or need to update your payment method?</p>
+                        <div class="d-grid">
+                            <a href="{{ url_for('contact') }}" class="btn btn-outline-primary rounded-pill py-2">
+                                <i class="fas fa-envelope me-2"></i>Contact Support
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<style>
-.ribbon {
-    position: absolute;
-    top: 10px;
-    right: -10px;
-    background: #28a745;
-    color: white;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 3px;
-    transform: rotate(15deg);
-    z-index: 1;
-}
-
-.ribbon span {
-    font-weight: bold;
-}
-</style>
+</section>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
@@ -300,7 +317,7 @@ function upgradeToPlan(planType, amount) {
         "key": "{{ razorpay_key_id }}", // Your Razorpay key
         "amount": amount * 100, // Amount in paise
         "currency": "INR",
-        "name": "tCapital",
+        "name": "Target Capital",
         "description": "Subscription - " + planType.replace('_', ' ').toUpperCase(),
         "image": "/static/images/logo.png",
         "order_id": "", // This should be generated from backend
@@ -378,51 +395,8 @@ function handlePaymentSuccess(response, planType) {
     });
 }
 
-function downgradeToPlan(planType) {
-    if (confirm('Are you sure you want to downgrade your plan?')) {
-        fetch('/api/change-plan', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                plan_type: planType
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Plan changed successfully!');
-                location.reload();
-            } else {
-                alert('Error changing plan: ' + data.message);
-            }
-        });
-    }
-}
-
 function contactForHNI() {
     window.location.href = '{{ url_for("contact") }}?subject=HNI Account Inquiry';
-}
-
-function cancelSubscription() {
-    if (confirm('Are you sure you want to cancel your subscription? You will lose access to premium features.')) {
-        fetch('/api/cancel-subscription', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Subscription cancelled successfully.');
-                location.reload();
-            } else {
-                alert('Error cancelling subscription: ' + data.message);
-            }
-        });
-    }
 }
 </script>
 {% endblock %}
