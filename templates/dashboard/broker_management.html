@@ -134,17 +134,26 @@
                         <label class="form-label">Broker <span class="text-danger">*</span></label>
                         <select class="form-select" name="broker_name" required>
                             <option value="">Select Broker</option>
-                            <option value="Zerodha">Zerodha</option>
-                            <option value="Dhan">Dhan</option>
-                            <option value="Angel One">Angel One</option>
-                            <option value="Alice Blue">Alice Blue</option>
-                            <option value="Choice India">Choice India</option>
-                            <option value="5Paisa">5Paisa</option>
-                            <option value="FYERS">FYERS</option>
-                            <option value="Upstox">Upstox</option>
-                            <option value="Kotak">Kotak</option>
-                            <option value="GoodWill">GoodWill</option>
+                            <optgroup label="✅ Available Now">
+                                <option value="Dhan">Dhan</option>
+                                <option value="Zerodha">Zerodha</option>
+                                <option value="Angel One">Angel One</option>
+                                <option value="Groww">Groww</option>
+                                <option value="Upstox">Upstox</option>
+                            </optgroup>
+                            <optgroup label="🔜 Coming Soon">
+                                <option value="" disabled>FYERS - Coming Soon</option>
+                                <option value="" disabled>ICICI Direct - Coming Soon</option>
+                                <option value="" disabled>HDFC Securities - Coming Soon</option>
+                                <option value="" disabled>Kotak Securities - Coming Soon</option>
+                                <option value="" disabled>5Paisa - Coming Soon</option>
+                                <option value="" disabled>Choice India - Coming Soon</option>
+                                <option value="" disabled>Goodwill - Coming Soon</option>
+                            </optgroup>
                         </select>
+                        <small class="form-text text-muted mt-2 d-block">
+                            <i class="fas fa-info-circle me-1"></i>More brokers will be added soon. Currently supporting 5 major Indian brokers.
+                        </small>
                     </div>
                     
                     <div class="mb-3">
