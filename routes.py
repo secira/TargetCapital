@@ -5408,41 +5408,40 @@ def api_perplexity_generate_picks():
             # Initialize NSE service for real-time prices
             from services.nse_service import nse_service
             
+            # Get real prices using multi-source service
+            from services.stock_price_service import stock_price_service
+            
             for pick_data in picks_data:
                 symbol = pick_data.get('symbol', 'UNKNOWN')
+                company_name = pick_data.get('company_name', 'Unknown Company')
                 
-                # Get delayed price data from NSE (5-minute delay)
-                live_quote = nse_service.get_stock_quote(symbol, delayed_minutes=5)
-                current_price = 2500.0  # fallback
-                target_price = 2800.0   # fallback
-                sector = 'Technology'   # fallback
+                # Get real price (Perplexity > yfinance > NSE > Fallback)
+                perplexity_price = pick_data.get('current_price')
+                price_data = stock_price_service.get_real_price(symbol, perplexity_price)
                 
-                if live_quote:
-                    current_price = live_quote.get('current_price', 2500.0)
-                    # Calculate target price as 12% above current price
-                    target_price = current_price * 1.12
-                    
-                    # Get sector info if available
-                    company_name = live_quote.get('company_name', pick_data.get('company_name', 'Unknown Company'))
-                    
-                    # Simple sector classification based on symbol
-                    if symbol in ['TCS', 'INFY', 'WIPRO', 'HCLTECH', 'TECHM']:
-                        sector = 'Information Technology'
-                    elif symbol in ['RELIANCE', 'ONGC', 'IOC', 'BPCL']:
-                        sector = 'Energy'
-                    elif symbol in ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK']:
-                        sector = 'Banking'
-                    elif symbol in ['ITC', 'HINDUNILVR', 'NESTLEIND', 'BRITANNIA']:
-                        sector = 'Consumer Goods'
-                    else:
-                        sector = 'Diversified'
+                current_price = price_data['price']
+                price_source = price_data['source']
+                
+                # Use company name from price service if available
+                if price_data.get('company_name'):
+                    company_name = price_data['company_name']
+                
+                # Get or calculate target price
+                target_price = pick_data.get('target_price')
+                if not target_price or target_price == 0:
+                    target_price = current_price * 1.12  # 12% upside default
+                
+                # Determine sector
+                if symbol in ['TCS', 'INFY', 'WIPRO', 'HCLTECH', 'TECHM']:
+                    sector = 'Information Technology'
+                elif symbol in ['RELIANCE', 'ONGC', 'IOC', 'BPCL']:
+                    sector = 'Energy'
+                elif symbol in ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK', 'AXISBANK']:
+                    sector = 'Banking'
+                elif symbol in ['ITC', 'HINDUNILVR', 'NESTLEIND', 'BRITANNIA']:
+                    sector = 'Consumer Goods'
                 else:
-                    # NSE API unavailable, use fallback company name from pick_data
-                    company_name = pick_data.get('company_name', 'Unknown Company')
-                
-                # Ensure we have the correct company name from NSE quote if available
-                if live_quote and live_quote.get('company_name'):
-                    company_name = live_quote.get('company_name')
+                    sector = 'Diversified'
                 
                 pick = AIStockPick(
                     symbol=symbol,
@@ -5451,8 +5450,8 @@ def api_perplexity_generate_picks():
                     target_price=round(target_price, 2),
                     recommendation='BUY',
                     confidence_score=85,
-                    sector=sector,   
-                    ai_reasoning=f"Perplexity AI Analysis: {pick_data.get('rationale', 'AI-generated recommendation based on comprehensive market research.')} | Price Data: ₹{current_price:.2f} (5-min delayed NSE data)",
+                    sector=sector,
+                    ai_reasoning=f"Perplexity AI: {pick_data.get('rationale', 'AI-selected based on fundamentals.')} | Price: ₹{current_price:.2f} ({price_source})",
                     pick_date=today
                 )
                 db.session.add(pick)
@@ -5510,41 +5509,40 @@ def api_ai_perplexity_picks():
             # Initialize NSE service for real-time prices
             from services.nse_service import nse_service
             
+            # Get real prices using multi-source service
+            from services.stock_price_service import stock_price_service
+            
             for pick_data in picks_data:
                 symbol = pick_data.get('symbol', 'UNKNOWN')
+                company_name = pick_data.get('company_name', 'Unknown Company')
                 
-                # Get delayed price data from NSE (5-minute delay)
-                live_quote = nse_service.get_stock_quote(symbol, delayed_minutes=5)
-                current_price = 2500.0  # fallback
-                target_price = 2800.0   # fallback
-                sector = 'Technology'   # fallback
+                # Get real price (Perplexity > yfinance > NSE > Fallback)
+                perplexity_price = pick_data.get('current_price')
+                price_data = stock_price_service.get_real_price(symbol, perplexity_price)
                 
-                if live_quote:
-                    current_price = live_quote.get('current_price', 2500.0)
-                    # Calculate target price as 12% above current price
-                    target_price = current_price * 1.12
-                    
-                    # Get sector info if available
-                    company_name = live_quote.get('company_name', pick_data.get('company_name', 'Unknown Company'))
-                    
-                    # Simple sector classification based on symbol
-                    if symbol in ['TCS', 'INFY', 'WIPRO', 'HCLTECH', 'TECHM']:
-                        sector = 'Information Technology'
-                    elif symbol in ['RELIANCE', 'ONGC', 'IOC', 'BPCL']:
-                        sector = 'Energy'
-                    elif symbol in ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK']:
-                        sector = 'Banking'
-                    elif symbol in ['ITC', 'HINDUNILVR', 'NESTLEIND', 'BRITANNIA']:
-                        sector = 'Consumer Goods'
-                    else:
-                        sector = 'Diversified'
+                current_price = price_data['price']
+                price_source = price_data['source']
+                
+                # Use company name from price service if available
+                if price_data.get('company_name'):
+                    company_name = price_data['company_name']
+                
+                # Get or calculate target price
+                target_price = pick_data.get('target_price')
+                if not target_price or target_price == 0:
+                    target_price = current_price * 1.12  # 12% upside default
+                
+                # Determine sector
+                if symbol in ['TCS', 'INFY', 'WIPRO', 'HCLTECH', 'TECHM']:
+                    sector = 'Information Technology'
+                elif symbol in ['RELIANCE', 'ONGC', 'IOC', 'BPCL']:
+                    sector = 'Energy'
+                elif symbol in ['HDFCBANK', 'ICICIBANK', 'SBIN', 'KOTAKBANK', 'AXISBANK']:
+                    sector = 'Banking'
+                elif symbol in ['ITC', 'HINDUNILVR', 'NESTLEIND', 'BRITANNIA']:
+                    sector = 'Consumer Goods'
                 else:
-                    # NSE API unavailable, use fallback company name from pick_data
-                    company_name = pick_data.get('company_name', 'Unknown Company')
-                
-                # Ensure we have the correct company name from NSE quote if available
-                if live_quote and live_quote.get('company_name'):
-                    company_name = live_quote.get('company_name')
+                    sector = 'Diversified'
                 
                 pick = AIStockPick(
                     symbol=symbol,
@@ -5553,8 +5551,8 @@ def api_ai_perplexity_picks():
                     target_price=round(target_price, 2),
                     recommendation='BUY',
                     confidence_score=85,
-                    sector=sector,   
-                    ai_reasoning=f"Perplexity AI Analysis: {pick_data.get('rationale', 'AI-generated recommendation based on comprehensive market research.')} | Price Data: ₹{current_price:.2f} (5-min delayed NSE data)",
+                    sector=sector,
+                    ai_reasoning=f"Perplexity AI: {pick_data.get('rationale', 'AI-selected based on fundamentals.')} | Price: ₹{current_price:.2f} ({price_source})",
                     pick_date=today
                 )
                 db.session.add(pick)

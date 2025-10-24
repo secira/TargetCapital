@@ -199,25 +199,61 @@ class PerplexityService:
     
     def _build_picks_prompt(self, criteria: Dict[str, Any] = None) -> str:
         """
-        Build prompt for AI stock picks generation
+        Build prompt for AI stock picks generation with real-time NSE prices
         """
         criteria = criteria or self._get_default_criteria()
         
         prompt = f"""
-        Generate 5 Indian stock picks for {criteria.get('time_horizon', '6-12 months')} investment:
-        
-        Requirements: {criteria.get('market_cap', 'Large-Mid Cap')}, {criteria.get('risk_level', 'Moderate risk')}
-        
-        For each stock provide:
-        1. Symbol & Company name (NSE/BSE)
-        2. Current price and recent performance
-        3. Why buy now (2-3 key reasons)
-        4. Main catalyst/opportunity
-        5. Key risk to watch
-        
-        Focus on stocks with strong fundamentals, positive recent news, or good value.
-        Keep analysis concise but current.
-        """
+You are an expert Indian stock market analyst. Generate 5 top stock picks for the Indian stock market (NSE) with the following criteria:
+
+**Investment Parameters:**
+- Time Horizon: {criteria.get('time_horizon', '6-12 months')}
+- Market Cap Focus: {criteria.get('market_cap', 'Large and Mid Cap')}
+- Risk Level: {criteria.get('risk_level', 'Moderate')}
+- Preferred Sectors: {criteria.get('sectors', 'Technology, Banking, Healthcare, Consumer Goods, Energy')}
+- Investment Style: {criteria.get('style', 'Growth and Value')}
+
+**Stock Selection Criteria:**
+1. Strong fundamentals (P/E < 30, ROE > 15%, Debt/Equity < 1)
+2. Positive earnings growth (QoQ and YoY)
+3. Recent positive news/catalysts in last 30 days
+4. Technical strength (above 50-day and 200-day moving averages)
+5. Institutional buying or strong FII/DII interest
+6. Trading on NSE with good liquidity (daily volume > 1 lakh shares)
+
+**CRITICAL: For each stock, you MUST provide:**
+1. **NSE Symbol** (e.g., RELIANCE, TCS, HDFCBANK)
+2. **Full Company Name** (e.g., Reliance Industries Limited)
+3. **Current Market Price in ₹** - Search NSE India website or financial sites to get TODAY's actual closing price
+4. **52-Week High/Low** - Real data from NSE
+5. **Market Cap** - Current market capitalization
+6. **P/E Ratio** - Current price-to-earnings ratio
+7. **Investment Rationale** (3-4 key reasons with recent data/news from last 30 days)
+8. **Target Price** (12-month price target with ₹ amount)
+9. **Key Catalysts** (upcoming events, product launches, policy changes)
+10. **Main Risks** (1-2 key risks to watch)
+
+**Output Format (JSON-like structure):**
+```
+Stock 1: [SYMBOL] - [Full Company Name]
+Current Price: ₹[EXACT_PRICE] (as of [DATE])
+52-Week Range: ₹[LOW] - ₹[HIGH]
+Market Cap: ₹[VALUE] Cr
+P/E Ratio: [VALUE]
+Investment Rationale: [Detailed reasons with recent news/data]
+Target Price: ₹[AMOUNT] (12-month)
+Key Catalysts: [List of catalysts]
+Main Risks: [Key risks]
+```
+
+**IMPORTANT:** 
+- Use real-time data from NSE India, Moneycontrol, Economic Times, or Bloomberg
+- Prices MUST be current (today's or latest available closing price)
+- Include actual recent news/events (last 30 days)
+- Focus on liquid, well-established NSE stocks only
+- Diversify across sectors
+
+Generate 5 stocks now with ALL required details and REAL current prices."""
         
         return prompt
     
@@ -247,45 +283,78 @@ class PerplexityService:
     
     def _parse_ai_picks_response(self, content: str) -> List[Dict[str, Any]]:
         """
-        Parse the AI picks response into structured data
+        Parse the AI picks response into structured data with prices
         """
-        # This is a simplified parser - in practice, you might want more sophisticated parsing
+        import re
         picks = []
         
-        # Try to extract stock information from the response
-        # This is a basic implementation - could be enhanced with more sophisticated parsing
-        lines = content.split('\n')
-        current_pick = {}
+        # Split content by stock entries (Stock 1:, Stock 2:, etc.)
+        stock_sections = re.split(r'Stock \d+:', content)
         
-        for line in lines:
-            line = line.strip()
-            if any(keyword in line.lower() for keyword in ['1.', '2.', '3.', '4.', '5.']) and any(keyword in line.lower() for keyword in ['ltd', 'limited', 'bank', 'industries']):
-                if current_pick:
-                    picks.append(current_pick)
-                current_pick = {
-                    'symbol': self._extract_symbol(line),
-                    'company_name': self._extract_company_name(line),
-                    'rationale': '',
-                    'target_price': '',
-                    'risk_factors': '',
-                    'catalysts': ''
-                }
-            elif current_pick and line:
-                # Accumulate information for current pick
-                if 'rationale' in line.lower() or 'reason' in line.lower():
-                    current_pick['rationale'] += line + ' '
-                elif 'target' in line.lower() and 'price' in line.lower():
-                    current_pick['target_price'] += line + ' '
-                elif 'risk' in line.lower():
-                    current_pick['risk_factors'] += line + ' '
-                elif 'catalyst' in line.lower():
-                    current_pick['catalysts'] += line + ' '
+        for section in stock_sections[1:]:  # Skip first empty section
+            try:
+                pick = {}
+                
+                # Extract symbol and company name from first line
+                first_line_match = re.search(r'([A-Z]{3,15})\s*[-–]\s*(.+?)(?:\n|Current)', section, re.IGNORECASE)
+                if first_line_match:
+                    pick['symbol'] = first_line_match.group(1).strip()
+                    pick['company_name'] = first_line_match.group(2).strip()
+                else:
+                    # Fallback extraction
+                    pick['symbol'] = self._extract_symbol(section)
+                    pick['company_name'] = self._extract_company_name(section)
+                
+                # Extract current price - look for ₹ followed by numbers
+                price_match = re.search(r'Current Price:?\s*₹?\s*([\d,]+\.?\d*)', section, re.IGNORECASE)
+                if price_match:
+                    price_str = price_match.group(1).replace(',', '')
+                    pick['current_price'] = float(price_str)
+                else:
+                    pick['current_price'] = None
+                
+                # Extract target price
+                target_match = re.search(r'Target Price:?\s*₹?\s*([\d,]+\.?\d*)', section, re.IGNORECASE)
+                if target_match:
+                    target_str = target_match.group(1).replace(',', '')
+                    pick['target_price'] = float(target_str)
+                else:
+                    pick['target_price'] = None
+                
+                # Extract P/E ratio
+                pe_match = re.search(r'P/E Ratio:?\s*([\d.]+)', section, re.IGNORECASE)
+                pick['pe_ratio'] = float(pe_match.group(1)) if pe_match else None
+                
+                # Extract market cap
+                mcap_match = re.search(r'Market Cap:?\s*₹?\s*([\d,]+\.?\d*)\s*(?:Cr|Crore)', section, re.IGNORECASE)
+                if mcap_match:
+                    pick['market_cap'] = mcap_match.group(1).replace(',', '')
+                else:
+                    pick['market_cap'] = None
+                
+                # Extract rationale
+                rationale_match = re.search(r'Investment Rationale:?\s*(.+?)(?=Target Price|Key Catalysts|Main Risks|Stock \d+:|$)', section, re.DOTALL | re.IGNORECASE)
+                pick['rationale'] = rationale_match.group(1).strip() if rationale_match else 'AI-selected based on strong fundamentals and growth potential.'
+                
+                # Extract catalysts
+                catalyst_match = re.search(r'Key Catalysts:?\s*(.+?)(?=Main Risks|Stock \d+:|$)', section, re.DOTALL | re.IGNORECASE)
+                pick['catalysts'] = catalyst_match.group(1).strip() if catalyst_match else 'Market growth, sector strength'
+                
+                # Extract risks
+                risk_match = re.search(r'Main Risks:?\s*(.+?)(?=Stock \d+:|$)', section, re.DOTALL | re.IGNORECASE)
+                pick['risk_factors'] = risk_match.group(1).strip() if risk_match else 'Market volatility, sector risks'
+                
+                # Only add pick if we have minimum required data
+                if pick.get('symbol') and pick.get('company_name'):
+                    picks.append(pick)
+                    
+            except Exception as e:
+                self.logger.warning(f"Error parsing stock section: {str(e)}")
+                continue
         
-        if current_pick:
-            picks.append(current_pick)
-        
-        # If parsing fails, create fallback structure
+        # If parsing fails completely, use fallback
         if not picks:
+            self.logger.warning("Failed to parse Perplexity response, using fallback picks")
             picks = self._get_structured_fallback_picks()
         
         return picks[:5]  # Return maximum 5 picks
