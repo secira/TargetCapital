@@ -4,7 +4,7 @@ Broker Routes - Handle broker connections, portfolio sync, and trading
 
 from flask import request, jsonify, render_template, flash, redirect, url_for
 from flask_login import login_required, current_user
-from app import app, db
+from app import app, db, csrf
 from models_broker import (
     BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder,
     BrokerType, ConnectionStatus, OrderStatus, TransactionType,
@@ -149,6 +149,7 @@ def dashboard_broker_accounts():
 
 @app.route('/api/broker/add-account', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_add_broker_account():
     """Add new broker account"""
     try:
@@ -245,6 +246,7 @@ def api_add_broker_account():
 
 @app.route('/api/broker/<int:account_id>/connect', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_connect_broker(account_id):
     """Connect a broker (Step 2: Activate broker for trading)"""
     try:
@@ -279,6 +281,7 @@ def api_connect_broker(account_id):
 
 @app.route('/api/broker/<int:account_id>/disconnect', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_disconnect_broker(account_id):
     """Disconnect a broker (deactivate but keep credentials)"""
     try:
@@ -316,6 +319,7 @@ def api_disconnect_broker(account_id):
 
 @app.route('/api/broker/sync-account/<int:account_id>', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_sync_broker_account(account_id):
     """Sync broker account data"""
     try:
@@ -348,6 +352,7 @@ def api_sync_broker_account(account_id):
 
 @app.route('/api/broker/remove-account/<int:account_id>', methods=['DELETE'])
 @login_required
+@csrf.exempt
 def api_remove_broker_account(account_id):
     """Remove broker account"""
     try:
@@ -377,6 +382,7 @@ def api_remove_broker_account(account_id):
 
 @app.route('/api/broker/set-primary/<int:account_id>', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_set_primary_broker(account_id):
     """Set primary broker account"""
     try:
@@ -443,6 +449,7 @@ def dashboard_live_portfolio():
 
 @app.route('/api/broker/place-order', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_place_broker_order():
     """Place order through broker"""
     try:
@@ -597,6 +604,7 @@ def dashboard_broker_trading():
 
 @app.route('/api/broker/test-connection/<int:account_id>', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_test_broker_connection(account_id):
     """Test broker connection"""
     try:
@@ -630,6 +638,7 @@ def api_test_broker_connection(account_id):
 
 @app.route('/api/broker/sync-all', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_sync_all_brokers():
     """Sync all user's broker accounts"""
     try:
@@ -662,6 +671,7 @@ def api_sync_all_brokers():
 
 @app.route('/api/broker/cancel-order/<order_id>', methods=['POST'])
 @login_required
+@csrf.exempt
 def api_cancel_broker_order(order_id):
     """Cancel order by broker order ID"""
     try:
