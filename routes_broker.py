@@ -11,6 +11,7 @@ from models_broker import (
     ProductType, OrderType
 )
 from services.broker_service import BrokerService, BrokerAPIError
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -246,6 +247,77 @@ def api_add_broker_account():
     except Exception as e:
         logger.error(f"Error adding broker account: {e}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/broker/<int:account_id>/connect', methods=['POST'])
+@login_required
+def api_connect_broker(account_id):
+    """Connect a broker (Step 2: Activate broker for trading)"""
+    try:
+        broker_account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not broker_account:
+            return jsonify({'success': False, 'message': 'Broker account not found'}), 404
+        
+        if broker_account.connection_status == 'connected':
+            return jsonify({'success': False, 'message': 'Broker is already connected'}), 400
+        
+        # Update connection status to connected
+        broker_account.connection_status = 'connected'
+        broker_account.last_connected = datetime.utcnow()
+        
+        db.session.commit()
+        
+        logger.info(f"User {current_user.id} connected broker {broker_account.broker_name} (ID: {account_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': f'{broker_account.broker_name} connected successfully! You can now use it for trading.'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error connecting broker account: {e}")
+        return jsonify({'success': False, 'message': 'Failed to connect broker'}), 500
+
+@app.route('/api/broker/<int:account_id>/disconnect', methods=['POST'])
+@login_required
+def api_disconnect_broker(account_id):
+    """Disconnect a broker (deactivate but keep credentials)"""
+    try:
+        broker_account = BrokerAccount.query.filter_by(
+            id=account_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not broker_account:
+            return jsonify({'success': False, 'message': 'Broker account not found'}), 404
+        
+        if broker_account.connection_status == 'disconnected':
+            return jsonify({'success': False, 'message': 'Broker is already disconnected'}), 400
+        
+        # If this was the primary broker, unset it
+        if broker_account.is_primary:
+            broker_account.is_primary = False
+        
+        # Update connection status to disconnected (credentials preserved)
+        broker_account.connection_status = 'disconnected'
+        
+        db.session.commit()
+        
+        logger.info(f"User {current_user.id} disconnected broker {broker_account.broker_name} (ID: {account_id})")
+        
+        return jsonify({
+            'success': True,
+            'message': f'{broker_account.broker_name} disconnected successfully. Credentials are saved for quick reconnection.'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error disconnecting broker account: {e}")
+        return jsonify({'success': False, 'message': 'Failed to disconnect broker'}), 500
 
 @app.route('/api/broker/sync-account/<int:account_id>', methods=['POST'])
 @login_required
