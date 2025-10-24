@@ -244,18 +244,25 @@ Remember: This is educational research - not guaranteed investment advice. Users
             return ("Perplexity API not available. Please configure PERPLEXITY_API_KEY.", [])
         
         try:
-            # Build context-aware prompt
+            # Build context-aware prompt with specific instructions for Indian market data
             context_str = self._build_context_string(context)
+            
+            # Enhanced prompt for accurate Indian stock market data
             full_prompt = f"""{context_str}
 
 User Research Query: {query}
 
+IMPORTANT: Use real-time NSE/BSE stock price data for Indian stocks. Verify current prices from official exchanges.
+
 Provide comprehensive research with:
-1. Current market data and analysis
-2. Key factors and trends
-3. Risk assessment
-4. Specific recommendations
-5. Cited sources"""
+1. **Accurate Current Prices** - Use today's NSE/BSE data (verify from nseindia.com or bseindia.com)
+2. **Market Analysis** - Recent trends, volume, and technical indicators
+3. **Fundamental Analysis** - P/E ratio, market cap, sector performance
+4. **Risk Assessment** - Clear risk levels (Low/Medium/High)
+5. **Recommendations** - Specific actionable insights
+6. **Cited Sources** - Link to official exchanges and financial data sources
+
+Format stock data in a table with: Stock Name | Symbol | Current Price (₹) | Market Cap | P/E Ratio | Risk Level"""
             
             headers = {
                 'Authorization': f'Bearer {self.perplexity_api_key}',
@@ -263,14 +270,16 @@ Provide comprehensive research with:
             }
             
             payload = {
-                'model': 'sonar-pro',  # Perplexity Pro model for accurate real-time data
+                'model': 'sonar-pro',  # Perplexity Pro with Finance integration
                 'messages': [
                     {'role': 'system', 'content': self.system_prompt},
                     {'role': 'user', 'content': full_prompt}
                 ],
-                'temperature': 0.2,
-                'max_tokens': 2000,  # Increased for comprehensive responses
-                'search_recency_filter': 'day'  # Focus on most recent data
+                'temperature': 0.1,  # Lower temperature for more factual accuracy
+                'max_tokens': 3000,  # Increased for detailed financial data
+                'search_recency_filter': 'day',  # Focus on most recent data (today)
+                'return_citations': True,  # Return source citations
+                'search_domain_filter': ['nseindia.com', 'bseindia.com', 'moneycontrol.com', 'economictimes.indiatimes.com', 'investing.com']  # Focus on reliable Indian financial sources
             }
             
             # Retry logic with increased timeout
