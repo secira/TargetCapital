@@ -5437,7 +5437,12 @@ def api_perplexity_generate_picks():
                     else:
                         sector = 'Diversified'
                 else:
+                    # NSE API unavailable, use fallback company name from pick_data
                     company_name = pick_data.get('company_name', 'Unknown Company')
+                
+                # Ensure we have the correct company name from NSE quote if available
+                if live_quote and live_quote.get('company_name'):
+                    company_name = live_quote.get('company_name')
                 
                 pick = AIStockPick(
                     symbol=symbol,
@@ -5534,7 +5539,12 @@ def api_ai_perplexity_picks():
                     else:
                         sector = 'Diversified'
                 else:
+                    # NSE API unavailable, use fallback company name from pick_data
                     company_name = pick_data.get('company_name', 'Unknown Company')
+                
+                # Ensure we have the correct company name from NSE quote if available
+                if live_quote and live_quote.get('company_name'):
+                    company_name = live_quote.get('company_name')
                 
                 pick = AIStockPick(
                     symbol=symbol,
