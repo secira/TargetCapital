@@ -59,9 +59,9 @@ class BrokerAccount(db.Model):
     broker_type = db.Column(db.String(50), nullable=False)  # Store as string, not enum
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
     
-    # Encrypted credentials (temporary: keep existing structure until migration)
-    api_key = db.Column(db.Text, nullable=True)  # Encrypted (stores client_id for compatibility)
-    access_token = db.Column(db.Text, nullable=True)  # Encrypted access token
+    # Encrypted credentials - using Text type to handle large encrypted values
+    api_key = db.Column(db.Text, nullable=True)  # Encrypted client_id
+    access_token = db.Column(db.Text, nullable=True)  # Encrypted access token (can be very long when encrypted)
     api_secret = db.Column(db.Text, nullable=True)  # Encrypted API secret
     
     # Connection details (match existing table structure)
