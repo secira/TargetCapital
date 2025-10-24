@@ -235,18 +235,13 @@ def api_add_broker_account():
             'account_id': broker_account.id
         })
             
-    except Exception as e:
-            logger.error(f"Unexpected error in add_broker_account: {str(e)}")
-            return jsonify({
-                'success': False, 
-                'message': f'Unexpected error: {str(e)}'
-            }), 500
-            
     except BrokerAPIError as e:
+        logger.error(f"Broker API error in add_broker_account: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 400
     except Exception as e:
         logger.error(f"Error adding broker account: {e}")
-        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Failed to add broker. Please try again.'}), 500
 
 @app.route('/api/broker/<int:account_id>/connect', methods=['POST'])
 @login_required
