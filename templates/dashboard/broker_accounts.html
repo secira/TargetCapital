@@ -394,7 +394,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="addBrokerAccount()">
+                <button type="button" class="btn btn-primary" onclick="addBrokerAccount(event)">
                     <i class="fas fa-link me-2"></i>Connect Account
                 </button>
             </div>
@@ -423,7 +423,7 @@ document.getElementById('brokerType').addEventListener('change', function() {
 });
 
 // Add broker account
-function addBrokerAccount() {
+function addBrokerAccount(event) {
     const form = document.getElementById('addBrokerForm');
     const formData = new FormData(form);
     
