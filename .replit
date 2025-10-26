@@ -50,12 +50,12 @@ localPort = 34025
 externalPort = 5173
 
 [[ports]]
-localPort = 35941
-externalPort = 3001
+localPort = 35843
+externalPort = 8080
 
 [[ports]]
-localPort = 37147
-externalPort = 8080
+localPort = 35941
+externalPort = 3001
 
 [[ports]]
 localPort = 37323
