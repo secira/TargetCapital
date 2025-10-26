@@ -246,7 +246,7 @@
                 <div class="modal-body" style="padding: 2rem; font-family: 'Inter', sans-serif; font-size: 15px; color: #374151;" id="customAlertMessage">
                 </div>
                 <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1rem 1.5rem;">
-                    <button type="button" class="btn btn-primary" id="customAlertOk" onclick="closeAlertModal()" aria-label="OK" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="OK" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
                 </div>
             </div>
         </div>
@@ -265,8 +265,8 @@
                 <div class="modal-body" style="padding: 2rem; font-family: 'Inter', sans-serif; font-size: 15px; color: #374151;" id="customConfirmMessage">
                 </div>
                 <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1rem 1.5rem;">
-                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal(false)" aria-label="Cancel" style="padding: 0.5rem 1.5rem; border-radius: 6px; font-weight: 500;">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="customConfirmOk" onclick="closeConfirmModal(true)" aria-label="OK" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Cancel" style="padding: 0.5rem 1.5rem; border-radius: 6px; font-weight: 500;">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="customConfirmOk" aria-label="OK" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
                 </div>
             </div>
         </div>
@@ -312,95 +312,37 @@
     
     <!-- Custom Alert/Confirm System -->
     <script>
-        let currentAlertModalInstance = null;
-        let currentConfirmModalInstance = null;
-        let confirmResolveCallback = null;
-
-        // Function to close alert modal
-        function closeAlertModal() {
-            if (currentAlertModalInstance) {
-                currentAlertModalInstance.hide();
-            }
-        }
-
-        // Function to close confirm modal
-        function closeConfirmModal(result) {
-            if (currentConfirmModalInstance) {
-                currentConfirmModalInstance.hide();
-                if (confirmResolveCallback) {
-                    confirmResolveCallback(result);
-                    confirmResolveCallback = null;
-                }
-            }
-        }
-
         // Override default alert with custom modal
         window.alert = function(message) {
-            // Clean up previous instance
-            if (currentAlertModalInstance) {
-                try {
-                    currentAlertModalInstance.dispose();
-                } catch (e) {}
-            }
-            
-            // Set message and show modal
             document.getElementById('customAlertMessage').innerHTML = message;
-            const modalElement = document.getElementById('customAlertModal');
-            currentAlertModalInstance = new bootstrap.Modal(modalElement, {
-                backdrop: true,
-                keyboard: true
-            });
-            
-            // Clean up on hide
-            modalElement.addEventListener('hidden.bs.modal', function() {
-                if (currentAlertModalInstance) {
-                    try {
-                        currentAlertModalInstance.dispose();
-                    } catch (e) {}
-                    currentAlertModalInstance = null;
-                }
-            }, { once: true });
-            
-            currentAlertModalInstance.show();
+            var myModal = new bootstrap.Modal(document.getElementById('customAlertModal'));
+            myModal.show();
         };
 
         // Override default confirm with custom modal  
         window.confirm = function(message) {
-            return new Promise((resolve) => {
-                // Clean up previous instance
-                if (currentConfirmModalInstance) {
-                    try {
-                        currentConfirmModalInstance.dispose();
-                    } catch (e) {}
-                }
-                
-                // Store resolve callback
-                confirmResolveCallback = resolve;
-                
-                // Set message
+            return new Promise(function(resolve) {
                 document.getElementById('customConfirmMessage').innerHTML = message;
-                const modalElement = document.getElementById('customConfirmModal');
-                currentConfirmModalInstance = new bootstrap.Modal(modalElement, {
-                    backdrop: true,
-                    keyboard: true
+                var confirmModalEl = document.getElementById('customConfirmModal');
+                var myModal = new bootstrap.Modal(confirmModalEl);
+                
+                // Handle OK button
+                var okBtn = document.getElementById('customConfirmOk');
+                var handleOk = function() {
+                    myModal.hide();
+                    okBtn.removeEventListener('click', handleOk);
+                    resolve(true);
+                };
+                okBtn.addEventListener('click', handleOk);
+                
+                // Handle cancel/close
+                confirmModalEl.addEventListener('hidden.bs.modal', function handler() {
+                    confirmModalEl.removeEventListener('hidden.bs.modal', handler);
+                    okBtn.removeEventListener('click', handleOk);
+                    resolve(false);
                 });
                 
-                // Clean up on hide
-                modalElement.addEventListener('hidden.bs.modal', function() {
-                    if (currentConfirmModalInstance) {
-                        try {
-                            currentConfirmModalInstance.dispose();
-                        } catch (e) {}
-                        currentConfirmModalInstance = null;
-                    }
-                    // If modal closed without button click, resolve false
-                    if (confirmResolveCallback) {
-                        confirmResolveCallback(false);
-                        confirmResolveCallback = null;
-                    }
-                }, { once: true });
-                
-                currentConfirmModalInstance.show();
+                myModal.show();
             });
         };
     </script>
