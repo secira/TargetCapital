@@ -312,37 +312,50 @@
     
     <!-- Custom Alert/Confirm System -->
     <script>
-        // Override default alert with custom modal
+        // Initialize modals once on page load
+        var alertModalInstance;
+        var confirmModalInstance;
+        var confirmResolver;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize alert modal
+            var alertModalEl = document.getElementById('customAlertModal');
+            alertModalInstance = new bootstrap.Modal(alertModalEl);
+            
+            // Initialize confirm modal
+            var confirmModalEl = document.getElementById('customConfirmModal');
+            confirmModalInstance = new bootstrap.Modal(confirmModalEl);
+            
+            // Set up confirm OK button handler
+            document.getElementById('customConfirmOk').addEventListener('click', function() {
+                if (confirmResolver) {
+                    confirmResolver(true);
+                    confirmResolver = null;
+                }
+                confirmModalInstance.hide();
+            });
+            
+            // Handle confirm modal close
+            confirmModalEl.addEventListener('hidden.bs.modal', function() {
+                if (confirmResolver) {
+                    confirmResolver(false);
+                    confirmResolver = null;
+                }
+            });
+        });
+        
+        // Override default alert
         window.alert = function(message) {
             document.getElementById('customAlertMessage').innerHTML = message;
-            var myModal = new bootstrap.Modal(document.getElementById('customAlertModal'));
-            myModal.show();
+            alertModalInstance.show();
         };
 
-        // Override default confirm with custom modal  
+        // Override default confirm
         window.confirm = function(message) {
             return new Promise(function(resolve) {
                 document.getElementById('customConfirmMessage').innerHTML = message;
-                var confirmModalEl = document.getElementById('customConfirmModal');
-                var myModal = new bootstrap.Modal(confirmModalEl);
-                
-                // Handle OK button
-                var okBtn = document.getElementById('customConfirmOk');
-                var handleOk = function() {
-                    myModal.hide();
-                    okBtn.removeEventListener('click', handleOk);
-                    resolve(true);
-                };
-                okBtn.addEventListener('click', handleOk);
-                
-                // Handle cancel/close
-                confirmModalEl.addEventListener('hidden.bs.modal', function handler() {
-                    confirmModalEl.removeEventListener('hidden.bs.modal', handler);
-                    okBtn.removeEventListener('click', handleOk);
-                    resolve(false);
-                });
-                
-                myModal.show();
+                confirmResolver = resolve;
+                confirmModalInstance.show();
             });
         };
     </script>
