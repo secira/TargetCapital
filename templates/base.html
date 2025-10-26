@@ -233,6 +233,45 @@
         </div>
     </footer>
 
+    <!-- Custom Alert Modal -->
+    <div class="modal fade" id="customAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; border: none;">
+                <div class="modal-header" style="background: #00091a; color: white; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <h5 class="modal-title" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                        <i class="fas fa-info-circle me-2"></i>Target Capital Says
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem; font-family: 'Inter', sans-serif; font-size: 15px; color: #374151;" id="customAlertMessage">
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div class="modal fade" id="customConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 12px; border: none;">
+                <div class="modal-header" style="background: #00091a; color: white; border-radius: 12px 12px 0 0; padding: 1.5rem;">
+                    <h5 class="modal-title" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                        <i class="fas fa-question-circle me-2"></i>Target Capital Says
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem; font-family: 'Inter', sans-serif; font-size: 15px; color: #374151;" id="customConfirmMessage">
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 0.5rem 1.5rem; border-radius: 6px; font-weight: 500;">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="customConfirmOk" style="background: #00091a; border: none; padding: 0.5rem 2rem; border-radius: 6px; font-weight: 500;">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- TradingView Integration -->
@@ -269,6 +308,43 @@
                     });
             });
         }
+    </script>
+    
+    <!-- Custom Alert/Confirm System -->
+    <script>
+        // Override default alert with custom modal
+        window.alert = function(message) {
+            document.getElementById('customAlertMessage').innerHTML = message;
+            const modal = new bootstrap.Modal(document.getElementById('customAlertModal'));
+            modal.show();
+        };
+
+        // Override default confirm with custom modal
+        window.confirm = function(message) {
+            return new Promise((resolve) => {
+                document.getElementById('customConfirmMessage').innerHTML = message;
+                const modal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+                const confirmBtn = document.getElementById('customConfirmOk');
+                
+                // Remove any existing event listeners
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                // Add new event listener
+                newConfirmBtn.addEventListener('click', () => {
+                    modal.hide();
+                    resolve(true);
+                });
+                
+                // Handle cancel/close
+                const modalElement = document.getElementById('customConfirmModal');
+                modalElement.addEventListener('hidden.bs.modal', () => {
+                    resolve(false);
+                }, { once: true });
+                
+                modal.show();
+            });
+        };
     </script>
     
     {% block extra_js %}{% endblock %}

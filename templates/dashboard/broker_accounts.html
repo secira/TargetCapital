@@ -403,8 +403,8 @@ function submitBrokerForm(event) {
 }
 
 // Connect broker (Step 2: Activate)
-function connectBroker(accountId) {
-    if (!confirm('Connect this broker? This will activate it for trading.')) return;
+async function connectBroker(accountId) {
+    if (!await confirm('Connect this broker? This will activate it for trading.')) return;
     
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
@@ -437,8 +437,8 @@ function connectBroker(accountId) {
 }
 
 // Disconnect broker
-function disconnectBroker(accountId) {
-    if (!confirm('Disconnect this broker? You can reconnect later without re-entering credentials.')) return;
+async function disconnectBroker(accountId) {
+    if (!await confirm('Disconnect this broker? You can reconnect later without re-entering credentials.')) return;
     
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
@@ -471,8 +471,8 @@ function disconnectBroker(accountId) {
 }
 
 // Sync broker portfolio data
-function syncBroker(accountId) {
-    if (!confirm('Sync portfolio data from this broker? This will fetch your latest holdings, positions, and orders.')) return;
+async function syncBroker(accountId) {
+    if (!await confirm('Sync portfolio data from this broker? This will fetch your latest holdings, positions, and orders.')) return;
     
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
@@ -517,8 +517,8 @@ function syncBroker(accountId) {
 }
 
 // Set Primary Broker
-function setPrimaryBroker(accountId) {
-    if (!confirm('Set this as your primary broker for trading?')) return;
+async function setPrimaryBroker(accountId) {
+    if (!await confirm('Set this as your primary broker for trading?')) return;
     
     const button = event.target.closest('button');
     const originalHTML = button.innerHTML;
@@ -624,8 +624,8 @@ function addBrokerAccount() {
 }
 
 // Sync account data
-function syncAccount(accountId) {
-    if (!confirm('Sync latest data from broker?')) return;
+async function syncAccount(accountId) {
+    if (!await confirm('Sync latest data from broker?')) return;
     
     fetch(`/api/broker/sync-account/${accountId}`, {
         method: 'POST',
@@ -668,8 +668,8 @@ function testConnection(accountId) {
 }
 
 // Set as primary broker
-function setPrimary(accountId) {
-    if (!confirm('Set this as your primary broker for trading?')) return;
+async function setPrimary(accountId) {
+    if (!await confirm('Set this as your primary broker for trading?')) return;
     
     fetch(`/api/broker/set-primary/${accountId}`, {
         method: 'POST'
@@ -690,8 +690,8 @@ function setPrimary(accountId) {
 }
 
 // Connect account (Step 2: Activate broker)
-function connectAccount(accountId) {
-    if (!confirm('Connect this broker? This will activate the broker for trading.')) return;
+async function connectAccount(accountId) {
+    if (!await confirm('Connect this broker? This will activate the broker for trading.')) return;
     
     const button = event.target;
     const originalHTML = button.innerHTML;
@@ -724,8 +724,8 @@ function connectAccount(accountId) {
 }
 
 // Disconnect account (Deactivate broker)
-function disconnectAccount(accountId) {
-    if (!confirm('Disconnect this broker? This will deactivate the broker.')) return;
+async function disconnectAccount(accountId) {
+    if (!await confirm('Disconnect this broker? This will deactivate the broker.')) return;
     
     const button = event.target;
     const originalHTML = button.innerHTML;
@@ -758,8 +758,8 @@ function disconnectAccount(accountId) {
 }
 
 // Remove account
-function removeAccount(accountId) {
-    if (!confirm('Are you sure you want to remove this broker account? This will delete all associated data.')) return;
+async function removeAccount(accountId) {
+    if (!await confirm('Are you sure you want to remove this broker account? This will delete all associated data.')) return;
     
     fetch(`/api/broker/remove-account/${accountId}`, {
         method: 'DELETE'

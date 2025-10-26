@@ -1268,7 +1268,7 @@ window.addEventListener('load', function() {
 
 // Clear all history function (for header button)
 async function clearAllHistory() {
-    if (!confirm('Are you sure you want to clear ALL conversation history? This action cannot be undone and will delete all your past conversations.')) {
+    if (!await confirm('Are you sure you want to clear ALL conversation history? This action cannot be undone and will delete all your past conversations.')) {
         return;
     }
     
