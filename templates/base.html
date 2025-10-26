@@ -312,37 +312,87 @@
     
     <!-- Custom Alert/Confirm System -->
     <script>
+        let currentAlertModal = null;
+        let currentConfirmModal = null;
+
         // Override default alert with custom modal
         window.alert = function(message) {
+            // Clean up any existing modal
+            if (currentAlertModal) {
+                currentAlertModal.dispose();
+                currentAlertModal = null;
+            }
+            
+            // Remove any existing backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+            
             document.getElementById('customAlertMessage').innerHTML = message;
-            const modal = new bootstrap.Modal(document.getElementById('customAlertModal'));
-            modal.show();
+            const modalElement = document.getElementById('customAlertModal');
+            currentAlertModal = new bootstrap.Modal(modalElement, {
+                backdrop: true,
+                keyboard: true
+            });
+            
+            // Clean up after modal is hidden
+            modalElement.addEventListener('hidden.bs.modal', () => {
+                if (currentAlertModal) {
+                    currentAlertModal.dispose();
+                    currentAlertModal = null;
+                }
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, { once: true });
+            
+            currentAlertModal.show();
         };
 
         // Override default confirm with custom modal
         window.confirm = function(message) {
             return new Promise((resolve) => {
+                // Clean up any existing modal
+                if (currentConfirmModal) {
+                    currentConfirmModal.dispose();
+                    currentConfirmModal = null;
+                }
+                
+                // Remove any existing backdrops
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                
                 document.getElementById('customConfirmMessage').innerHTML = message;
-                const modal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+                const modalElement = document.getElementById('customConfirmModal');
+                currentConfirmModal = new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true
+                });
+                
                 const confirmBtn = document.getElementById('customConfirmOk');
                 
                 // Remove any existing event listeners
                 const newConfirmBtn = confirmBtn.cloneNode(true);
                 confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
                 
-                // Add new event listener
+                // Add new event listener for OK
                 newConfirmBtn.addEventListener('click', () => {
-                    modal.hide();
+                    currentConfirmModal.hide();
                     resolve(true);
                 });
                 
-                // Handle cancel/close
-                const modalElement = document.getElementById('customConfirmModal');
+                // Handle cancel/close - resolve false
                 modalElement.addEventListener('hidden.bs.modal', () => {
+                    if (currentConfirmModal) {
+                        currentConfirmModal.dispose();
+                        currentConfirmModal = null;
+                    }
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
                     resolve(false);
                 }, { once: true });
                 
-                modal.show();
+                currentConfirmModal.show();
             });
         };
     </script>
