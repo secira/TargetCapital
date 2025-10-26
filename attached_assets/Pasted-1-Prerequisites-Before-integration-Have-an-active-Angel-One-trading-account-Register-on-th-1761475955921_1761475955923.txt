@@ -1,0 +1,117 @@
+1. Prerequisites
+Before integration:
+•	Have an active Angel One trading account.
+•	Register on the SmartAPI developer portal at https://smartapi.angelbroking.com/signup.[4]
+•	Install the Google Authenticator app for TOTP (Time-based One-Time Password) authentication.[6]
+•	Basic understanding of REST APIs or Python/JavaScript programming.
+ 
+2. Creating an API App
+1.	Log into the SmartAPI Portal with your Angel One credentials.
+2.	Enable TOTP in your Angel One account (required for 2FA login).
+o	Go to My Profile → Enable TOTP and scan the QR code with Google Authenticator.[6]
+3.	Navigate to My Profile → My API → Create an App.
+4.	Choose the API type (Trading, Historical Data, or Market Feed). For algo trading, select Trading API.
+5.	Provide:
+o	App Name (e.g., AlgoBotApp)
+o	App Description
+o	Redirect URL (used for authentication callback)
+6.	Save the configuration — you will get:
+o	API Key
+o	Secret Key
+o	Client Code (your Angel One ID)
+ 
+3. Authentication Setup
+Angel One uses TOTP-based 2FA for secure login.
+You must authenticate and obtain a session token daily.
+Authentication Request (Python Example)
+from smartapi import SmartConnect
+import pyotp
+
+api_key = "your_api_key"
+client_id = "your_client_id"
+pin = "your_mpin"
+totp = pyotp.TOTP("your_secret_totp").now()
+
+obj = SmartConnect(api_key=api_key)
+data = obj.generateSession(client_id, pin, totp)
+auth_token = data['data']['jwtToken']
+refresh_token = data['data']['refreshToken']
+feed_token = obj.getfeedToken()
+
+•	The JWT token is required for all API calls.
+•	The feed token is used for WebSocket live data streaming.[7][5]
+ 
+4. Placing an Order via API
+Once you have a valid token, you can place or modify orders.
+orderparams = {
+    "variety":"NORMAL",
+    "tradingsymbol":"SBIN-EQ",
+    "symboltoken":"3045",
+    "transactiontype":"BUY",
+    "exchange":"NSE",
+    "ordertype":"LIMIT",
+    "producttype":"INTRADAY",
+    "duration":"DAY",
+    "price":"780.00",
+    "squareoff":"0",
+    "stoploss":"0",
+    "quantity":"1"
+}
+
+orderId = obj.placeOrder(orderparams)
+print("Order ID:", orderId)
+
+Supported actions: BUY, SELL, CANCEL, MODIFY, CONVERT positions, and EXIT trades.[1][7]
+ 
+5. Fetching Portfolio & Holdings
+To fetch current holdings or positions:
+positions = obj.position()
+print(positions)
+
+holdings = obj.holding()
+print(holdings)
+
+These endpoints return live portfolio details (symbol, P&L, product type, quantity, etc.).[1]
+ 
+6. Live Market Data (WebSocket)
+For real-time data streaming:
+from smartapi.smartWebSocketV2 import SmartWebSocketV2
+
+FEED_TOKEN = feed_token
+CLIENT_CODE = client_id
+
+sws = SmartWebSocketV2(FEED_TOKEN, CLIENT_CODE)
+
+def on_data(wsapp, message):
+    print("Live Data:", message)
+
+def on_error(wsapp, error):
+    print("Error:", error)
+
+symbols = [{"exchangeType":1, "tokens":["3045"]}]
+sws.on_data = on_data
+sws.on_error = on_error
+sws.connect()
+sws.subscribe(correlation_id="test123", mode=1, tokenList=symbols)
+
+This provides live tick-by-tick price updates for stocks, futures, and options.[5]
+ 
+7. Automatic Access Token Renewal
+SmartAPI requires a new JWT token every day (valid till 3:30 AM next trading day).
+Automation frameworks can perform login and token generation using headless browsers or server scripts.[8]
+ 
+8. Integrating with Other Platforms
+You can connect SmartAPI with:
+•	TradingView (for webhook-based signals)
+•	Python bots (backtesting or execution)
+•	Node.js or Go trading engines
+•	Third-party algo platforms like Stratzy, Tradlgo, or BuildAlgos.[9][10][6]
+Example: Use a webhook in TradingView to send JSON alerts to your app, which triggers placeOrder() in real-time.
+ 
+9. Key Security Considerations
+•	Never expose your API key or JWT token.
+•	Use secure HTTPS endpoints.
+•	Implement rate limiting to comply with SmartAPI restrictions.
+•	Use encryption for TOTP secret storage.
+•	Maintain error handling and reconnection logic in your scripts.[5][8]
+ 
