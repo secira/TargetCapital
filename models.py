@@ -123,6 +123,72 @@ class Testimonial(db.Model):
     rating = db.Column(db.Integer, nullable=False, default=5)
     image_url = db.Column(db.String(500), nullable=True)
 
+# LangGraph State Persistence Models
+
+class ConversationHistory(db.Model):
+    """Store conversation history for Research Assistant"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.String(100), nullable=False)  # Unique session identifier
+    query = db.Column(db.Text, nullable=False)
+    response = db.Column(db.Text, nullable=False)
+    citations = db.Column(db.JSON, nullable=True)  # Store citations as JSON
+    trade_suggestions = db.Column(db.JSON, nullable=True)  # Store trade suggestions
+    metadata = db.Column(db.JSON, nullable=True)  # Store iteration count, timestamps, etc.
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='conversations')
+
+
+class AgentCheckpoint(db.Model):
+    """Store LangGraph agent checkpoints for resumable workflows"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    agent_type = db.Column(db.String(50), nullable=False)  # research, portfolio, signal
+    checkpoint_id = db.Column(db.String(100), unique=True, nullable=False)
+    state_data = db.Column(db.JSON, nullable=False)  # Complete agent state
+    stage = db.Column(db.String(50), nullable=True)  # Current stage in workflow
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed = db.Column(db.Boolean, default=False)
+    
+    user = db.relationship('User', backref='agent_checkpoints')
+
+
+class PortfolioOptimizationReport(db.Model):
+    """Store portfolio optimization reports from multi-agent analysis"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    report_data = db.Column(db.JSON, nullable=False)  # Complete multi-agent output
+    risk_analysis = db.Column(db.JSON, nullable=True)
+    sector_analysis = db.Column(db.JSON, nullable=True)
+    allocation_recommendations = db.Column(db.JSON, nullable=True)
+    opportunities = db.Column(db.JSON, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    user = db.relationship('User', backref='optimization_reports')
+
+
+class TradingSignal(db.Model):
+    """Store generated trading signals from LangGraph pipeline"""
+    id = db.Column(db.Integer, primary_key=True)
+    signal_date = db.Column(db.Date, nullable=False)
+    symbol = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # BUY/SELL
+    entry_price = db.Column(db.Float, nullable=True)
+    target_price = db.Column(db.Float, nullable=True)
+    stop_loss = db.Column(db.Float, nullable=True)
+    timeframe = db.Column(db.String(20), nullable=True)  # Intraday/Swing/Positional
+    rationale = db.Column(db.Text, nullable=True)
+    risk_reward_ratio = db.Column(db.Float, nullable=True)
+    signal_data = db.Column(db.JSON, nullable=False)  # Complete signal object
+    pipeline_metadata = db.Column(db.JSON, nullable=True)  # Pipeline execution details
+    status = db.Column(db.String(20), default='active')  # active, executed, expired, cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<TradingSignal {self.symbol} {self.action} @ {self.entry_price}>'
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=True)  # Made nullable for mobile-only signup

@@ -4045,27 +4045,170 @@ def api_research_clear_history():
 @login_required
 @csrf.exempt
 def api_research_query():
-    """Handle research queries with RAG"""
+    """Handle research queries with LangGraph-powered RAG"""
     try:
-        from services.research_assistant_service import ResearchAssistantService
+        from services.langgraph_research_assistant import LangGraphResearchAssistant
+        from services.comprehensive_portfolio_service import ComprehensivePortfolioService
+        from models import ConversationHistory
+        import uuid
         
         data = request.get_json()
         query = data.get('query', '').strip()
         conversation_id = data.get('conversation_id')
+        use_langgraph = data.get('use_langgraph', True)  # Enable LangGraph by default
         
         if not query:
             return jsonify({'success': False, 'error': 'Query is required'}), 400
         
-        research_service = ResearchAssistantService()
-        result = research_service.perform_research(current_user.id, query, conversation_id)
-        
-        return jsonify(result)
+        if use_langgraph:
+            # Use new LangGraph-powered assistant
+            langgraph_assistant = LangGraphResearchAssistant()
+            
+            # Get user context (portfolio, preferences)
+            portfolio_service = ComprehensivePortfolioService()
+            try:
+                portfolio_data = portfolio_service.get_portfolio_summary(current_user.id)
+            except:
+                portfolio_data = {}
+            
+            user_context = {
+                'user_id': current_user.id,
+                'portfolio': portfolio_data
+            }
+            
+            # Perform LangGraph research
+            result = langgraph_assistant.research(query, user_context)
+            
+            # Store in conversation history
+            if not conversation_id:
+                conversation_id = str(uuid.uuid4())
+            
+            conversation = ConversationHistory(
+                user_id=current_user.id,
+                session_id=conversation_id,
+                query=query,
+                response=result.get('answer', ''),
+                citations=result.get('citations', []),
+                trade_suggestions=result.get('trade_suggestions', []),
+                metadata=result.get('metadata', {})
+            )
+            db.session.add(conversation)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'answer': result.get('answer', ''),
+                'citations': result.get('citations', []),
+                'trade_suggestions': result.get('trade_suggestions', []),
+                'conversation_id': conversation_id,
+                'metadata': result.get('metadata', {}),
+                'powered_by': 'LangGraph'
+            })
+        else:
+            # Fallback to original service
+            from services.research_assistant_service import ResearchAssistantService
+            research_service = ResearchAssistantService()
+            result = research_service.perform_research(current_user.id, query, conversation_id)
+            return jsonify(result)
         
     except Exception as e:
         logger.error(f"Research query error: {str(e)}")
         return jsonify({
             'success': False,
             'error': 'An error occurred. Please try again.'
+        }), 500
+
+@app.route('/api/portfolio/optimize-langgraph', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_portfolio_optimize_langgraph():
+    """Multi-agent portfolio optimization using LangGraph"""
+    try:
+        from services.langgraph_portfolio_optimizer import LangGraphPortfolioOptimizer
+        from models import PortfolioOptimizationReport
+        
+        optimizer = LangGraphPortfolioOptimizer()
+        result = optimizer.optimize_portfolio(current_user.id)
+        
+        # Store optimization report
+        report = PortfolioOptimizationReport(
+            user_id=current_user.id,
+            report_data=result,
+            risk_analysis=result.get('risk_analysis', {}),
+            sector_analysis=result.get('sector_analysis', {}),
+            allocation_recommendations=result.get('allocation_recommendations', {}),
+            opportunities=result.get('opportunities', [])
+        )
+        db.session.add(report)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'report': result.get('report', ''),
+            'risk_analysis': result.get('risk_analysis', {}),
+            'sector_analysis': result.get('sector_analysis', {}),
+            'allocation_recommendations': result.get('allocation_recommendations', {}),
+            'opportunities': result.get('opportunities', []),
+            'metadata': result.get('metadata', {}),
+            'report_id': report.id,
+            'powered_by': 'LangGraph Multi-Agent System'
+        })
+        
+    except Exception as e:
+        logger.error(f"Portfolio optimization error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Optimization failed: {str(e)}'
+        }), 500
+
+@app.route('/api/signals/generate-langgraph', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_signals_generate_langgraph():
+    """Generate trading signals using LangGraph pipeline"""
+    try:
+        from services.langgraph_signal_pipeline import LangGraphSignalPipeline
+        from models import TradingSignal
+        from datetime import date
+        
+        pipeline = LangGraphSignalPipeline()
+        result = pipeline.generate_daily_signals()
+        
+        # Store signals in database
+        signals_created = []
+        for signal_data in result.get('signals', []):
+            signal = TradingSignal(
+                signal_date=date.today(),
+                symbol=signal_data.get('symbol', 'UNKNOWN'),
+                action=signal_data.get('action', 'BUY'),
+                entry_price=signal_data.get('entry_price'),
+                target_price=signal_data.get('target_price'),
+                stop_loss=signal_data.get('stop_loss'),
+                timeframe=signal_data.get('timeframe'),
+                rationale=signal_data.get('rationale'),
+                risk_reward_ratio=signal_data.get('risk_reward_ratio'),
+                signal_data=signal_data,
+                pipeline_metadata=result.get('pipeline_metadata', {})
+            )
+            db.session.add(signal)
+            signals_created.append(signal)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'signals': result.get('signals', []),
+            'signals_count': len(signals_created),
+            'pipeline_metadata': result.get('pipeline_metadata', {}),
+            'market_scan': result.get('market_scan', {}),
+            'powered_by': 'LangGraph Signal Pipeline'
+        })
+        
+    except Exception as e:
+        logger.error(f"Signal generation error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Signal generation failed: {str(e)}'
         }), 500
 
 @app.route('/api/ai/analyze-stock', methods=['POST'])
