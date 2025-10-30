@@ -91,6 +91,9 @@ h5, h6 {
             <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('index_future')">Futures</button>
             <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('strategy')">Strategies</button>
         </div>
+        <button class="btn btn-sm btn-primary" onclick="generateLangGraphSignals()" id="generateBtn">
+            <i class="fas fa-robot me-1"></i>Generate AI Signals
+        </button>
     </div>
     <div class="text-end">
         <div id="live-indicator" class="badge bg-success">
@@ -649,6 +652,41 @@ function refreshSignals() {
     }).catch(() => {
         location.reload(); // Fallback to full reload on error
     });
+}
+
+async function generateLangGraphSignals() {
+    const generateBtn = document.getElementById('generateBtn');
+    const originalText = generateBtn.innerHTML;
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating AI Signals...';
+    
+    try {
+        const response = await fetch('/api/signals/generate-langgraph', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                market: 'NSE',
+                signal_count: 5
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ LangGraph AI successfully generated ' + result.signals_count + ' new trading signals!');
+            location.reload(); // Reload to show new signals
+        } else {
+            alert('❌ Error: ' + (result.error || 'Failed to generate signals'));
+        }
+    } catch (error) {
+        console.error('Error generating signals:', error);
+        alert('❌ Error generating signals: ' + error.message);
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = originalText;
+    }
 }
 
 function filterSignals(type) {
