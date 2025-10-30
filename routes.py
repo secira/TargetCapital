@@ -4090,7 +4090,7 @@ def api_research_query():
                 response=result.get('answer', ''),
                 citations=result.get('citations', []),
                 trade_suggestions=result.get('trade_suggestions', []),
-                metadata=result.get('metadata', {})
+                conversation_metadata=result.get('metadata', {})
             )
             db.session.add(conversation)
             db.session.commit()

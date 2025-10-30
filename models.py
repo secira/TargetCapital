@@ -134,7 +134,7 @@ class ConversationHistory(db.Model):
     response = db.Column(db.Text, nullable=False)
     citations = db.Column(db.JSON, nullable=True)  # Store citations as JSON
     trade_suggestions = db.Column(db.JSON, nullable=True)  # Store trade suggestions
-    metadata = db.Column(db.JSON, nullable=True)  # Store iteration count, timestamps, etc.
+    conversation_metadata = db.Column(db.JSON, nullable=True)  # Store iteration count, timestamps, etc.
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User', backref='conversations')
