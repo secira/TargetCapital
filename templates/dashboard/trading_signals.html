@@ -107,6 +107,26 @@ h5, h6 {
 
 {% block dashboard_content %}
 
+    <!-- LangGraph Signal Pipeline Visualization (Admin Only) -->
+    {% if current_user.is_admin %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>LangGraph Smart Signal Pipeline</h5>
+                </div>
+                <div class="card-body">
+                    <div id="signalPipelineWorkflow"></div>
+                    <div id="pipelineResults" class="mt-4" style="display: none;">
+                        <h6 class="border-bottom pb-2 mb-3"><i class="fas fa-chart-line me-2"></i>Generated Signals</h6>
+                        <div id="pipelineSignals"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Information Notice for FREE users -->
     {% if current_user.pricing_plan == PricingPlan.FREE %}
     <div class="alert alert-info border-0 rounded-3 shadow-sm mb-4">
@@ -656,13 +676,36 @@ function refreshSignals() {
     });
 }
 
+// Initialize LangGraph Signal Pipeline
+let signalPipeline;
+document.addEventListener('DOMContentLoaded', function() {
+    // Load the LangGraph visual script
+    const script = document.createElement('script');
+    script.src = '/static/js/langgraph-visual.js';
+    script.onload = function() {
+        if (document.getElementById('signalPipelineWorkflow')) {
+            signalPipeline = new SignalPipelineWorkflow('signalPipelineWorkflow');
+        }
+    };
+    document.head.appendChild(script);
+});
+
 async function generateLangGraphSignals() {
     const generateBtn = document.getElementById('generateBtn');
     const originalText = generateBtn.innerHTML;
     generateBtn.disabled = true;
-    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating AI Signals...';
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Running Signal Pipeline...';
+    
+    // Reset pipeline
+    if (signalPipeline) {
+        signalPipeline.reset();
+    }
     
     try {
+        // Start visual pipeline animation
+        const pipelinePromise = signalPipeline ? signalPipeline.runPipeline() : Promise.resolve();
+        
+        // Call LangGraph API
         const response = await fetch('/api/signals/generate-langgraph', {
             method: 'POST',
             headers: {
@@ -676,9 +719,31 @@ async function generateLangGraphSignals() {
         
         const result = await response.json();
         
+        // Wait for pipeline animation to complete
+        await pipelinePromise;
+        
         if (result.success) {
-            alert('✅ LangGraph AI successfully generated ' + result.signals_count + ' new trading signals!');
-            location.reload(); // Reload to show new signals
+            // Update pipeline metrics
+            if (signalPipeline && result.pipeline_metadata) {
+                signalPipeline.updateMetrics({
+                    scanned: result.pipeline_metadata.total_scanned || 0,
+                    generated: result.pipeline_metadata.generated || 0,
+                    validated: result.pipeline_metadata.validated || 0,
+                    ready: result.pipeline_metadata.execution_ready || 0
+                });
+            }
+            
+            // Show results
+            if (result.signals && result.signals.length > 0) {
+                document.getElementById('pipelineResults').style.display = 'block';
+                document.getElementById('pipelineSignals').innerHTML = formatSignals(result.signals);
+                document.getElementById('pipelineResults').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            
+            alert('✅ LangGraph AI successfully generated ' + (result.signals_count || result.signals.length) + ' new trading signals!');
+            
+            // Reload after a delay to show new signals in table
+            setTimeout(() => location.reload(), 2000);
         } else {
             alert('❌ Error: ' + (result.error || 'Failed to generate signals'));
         }
@@ -689,6 +754,41 @@ async function generateLangGraphSignals() {
         generateBtn.disabled = false;
         generateBtn.innerHTML = originalText;
     }
+}
+
+function formatSignals(signals) {
+    if (!signals || signals.length === 0) {
+        return '<p class="text-muted">No signals generated</p>';
+    }
+    
+    return `
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>Entry</th>
+                        <th>Target</th>
+                        <th>Stop Loss</th>
+                        <th>R:R</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${signals.map(s => `
+                        <tr>
+                            <td><strong>${s.symbol || s.Symbol || 'N/A'}</strong></td>
+                            <td><span class="badge ${s.action === 'BUY' ? 'bg-success' : 'bg-danger'}">${s.action || s.Action || 'N/A'}</span></td>
+                            <td>₹${s.entry_price || s['Entry Price'] || 0}</td>
+                            <td>₹${s.target_price || s['Target Price'] || 0}</td>
+                            <td>₹${s.stop_loss || s['Stop Loss'] || 0}</td>
+                            <td>${s.risk_reward_ratio || s['Risk/Reward Ratio'] || 'N/A'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
 }
 
 function filterSignals(type) {
