@@ -4266,6 +4266,118 @@ def api_signals_generate_langgraph():
             'error': f'Signal generation failed: {str(e)}'
         }), 500
 
+@app.route('/api/trade/validate-execution', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_trade_validate_execution():
+    """Validate trade execution using LangGraph 6-stage pipeline"""
+    try:
+        from services.langgraph_trade_executor import LangGraphTradeExecutor
+        
+        data = request.get_json()
+        signal_id = data.get('signal_id')
+        
+        # Get signal data (either from database or from request)
+        if signal_id:
+            from models import TradingSignal
+            signal = TradingSignal.query.get(signal_id)
+            if not signal:
+                return jsonify({'success': False, 'error': 'Signal not found'}), 404
+            
+            signal_data = {
+                'symbol': signal.symbol,
+                'action': signal.action,
+                'entry_price': signal.entry_price,
+                'target_price': signal.target_price,
+                'stop_loss': signal.stop_loss,
+                'timeframe': signal.timeframe,
+                'quantity': data.get('quantity', 100)
+            }
+        else:
+            # Manual signal data from request
+            signal_data = {
+                'symbol': data.get('symbol', '').upper(),
+                'action': data.get('action', 'BUY'),
+                'entry_price': float(data.get('entry_price', 0)),
+                'target_price': float(data.get('target_price', 0)),
+                'stop_loss': float(data.get('stop_loss', 0)),
+                'timeframe': data.get('timeframe', 'Intraday'),
+                'quantity': int(data.get('quantity', 100))
+            }
+        
+        # Run validation pipeline
+        executor = LangGraphTradeExecutor()
+        result = executor.validate_trade(current_user.id, signal_data, signal_id)
+        
+        return jsonify({
+            'success': result['success'],
+            'execution_plan': result['execution_plan'],
+            'validation_errors': result['validation_errors'],
+            'stage_status': result['stage_status'],
+            'pipeline_metadata': result['pipeline_metadata'],
+            'powered_by': 'LangGraph Trade Execution Pipeline'
+        })
+        
+    except Exception as e:
+        logger.error(f"Trade validation error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Trade validation failed: {str(e)}',
+            'validation_errors': [str(e)]
+        }), 500
+
+@app.route('/api/trade/execute-confirmed', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_trade_execute_confirmed():
+    """Execute trade after user confirmation"""
+    try:
+        from services.broker_service import BrokerService
+        from models_broker import BrokerAccount, BrokerOrder
+        
+        data = request.get_json()
+        execution_plan = data.get('execution_plan', {})
+        
+        if not execution_plan or not execution_plan.get('ready_for_execution'):
+            return jsonify({'success': False, 'error': 'Invalid execution plan'}), 400
+        
+        # Get broker account
+        broker_id = execution_plan.get('broker_id')
+        broker_account = BrokerAccount.query.get(broker_id)
+        
+        if not broker_account or broker_account.user_id != current_user.id:
+            return jsonify({'success': False, 'error': 'Invalid broker account'}), 403
+        
+        # Prepare order data for broker
+        order_data = {
+            'symbol': execution_plan.get('symbol'),
+            'trading_symbol': execution_plan.get('symbol'),
+            'quantity': execution_plan.get('quantity'),
+            'price': execution_plan.get('entry_price'),
+            'transaction_type': execution_plan.get('action'),
+            'order_type': execution_plan.get('order_type', 'LIMIT'),
+            'product_type': execution_plan.get('product_type', 'MIS'),
+            'exchange': 'NSE'
+        }
+        
+        # Execute order through broker
+        order_result = BrokerService.place_order_via_broker(broker_account, order_data)
+        
+        return jsonify({
+            'success': True,
+            'order_id': order_result.id,
+            'broker_order_id': order_result.broker_order_id,
+            'status': order_result.order_status,
+            'message': 'Order placed successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"Trade execution error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Trade execution failed: {str(e)}'
+        }), 500
+
 @app.route('/api/ai/analyze-stock', methods=['POST'])
 @login_required
 def api_ai_analyze_stock():

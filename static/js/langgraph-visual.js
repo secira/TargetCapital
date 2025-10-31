@@ -902,6 +902,259 @@ function createStageConfigModal() {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
+class TradeExecutionWorkflow {
+    constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.stages = [
+            {
+                id: 'subscription',
+                name: 'Subscription Validator',
+                icon: 'user-shield',
+                status: 'pending',
+                description: 'Verifies user has TARGET PRO or HNI subscription tier for trade execution',
+                role: 'Access Control',
+                model: 'System Validation',
+                config: {
+                    required_tiers: ['TARGET_PRO (₹2,999/month)', 'HNI (₹4,999/month)'],
+                    validation: 'Checks active subscription status and tier privileges',
+                    fallback: 'Upgrade prompt for lower tier users'
+                }
+            },
+            {
+                id: 'broker',
+                name: 'Broker Selector',
+                icon: 'server',
+                status: 'pending',
+                description: 'Identifies primary broker account and verifies active connection status',
+                role: 'Broker Integration',
+                model: 'System Process',
+                config: {
+                    selection_criteria: 'Primary broker flag, connection status, API health',
+                    supported_brokers: ['Zerodha', 'Dhan', 'Angel One', 'Groww', 'Upstox'],
+                    validation: 'OAuth token validity, API connectivity test'
+                }
+            },
+            {
+                id: 'funds',
+                name: 'Funds Validator',
+                icon: 'wallet',
+                status: 'pending',
+                description: 'Checks available margin and validates sufficient funds for order execution',
+                role: 'Financial Validation',
+                model: 'System Calculation',
+                config: {
+                    margin_check: 'Available margin vs. required order value + charges',
+                    buffer: '1% buffer for brokerage and transaction charges',
+                    real_time: 'Live margin data from broker API'
+                }
+            },
+            {
+                id: 'signal',
+                name: 'Signal Validator',
+                icon: 'check-circle',
+                status: 'pending',
+                description: 'Validates signal quality with minimum 1:2 risk-reward ratio requirement',
+                role: 'Quality Control',
+                model: 'Risk Analysis Engine',
+                config: {
+                    min_risk_reward: '1:2 ratio (minimum)',
+                    price_validation: 'Entry, target, and stop-loss price levels',
+                    quality_gates: 'Positive risk & reward, valid price relationships'
+                }
+            },
+            {
+                id: 'risk',
+                name: 'Risk Calculator',
+                icon: 'calculator',
+                status: 'pending',
+                description: 'Calculates optimal position sizing with maximum 5% risk per trade',
+                role: 'Risk Management',
+                model: 'Position Sizing Algorithm',
+                config: {
+                    max_risk: '5% of total capital per trade',
+                    calculation: 'Risk amount = (Entry - StopLoss) × Quantity',
+                    adjustment: 'Auto-reduces position size if risk exceeds 5%'
+                }
+            },
+            {
+                id: 'planner',
+                name: 'Execution Planner',
+                icon: 'clipboard-check',
+                status: 'pending',
+                description: 'Generates comprehensive execution plan for user final confirmation',
+                role: 'Trade Orchestrator',
+                model: 'Execution Engine',
+                config: {
+                    plan_includes: 'Symbol, quantity, prices, broker, order type, risk metrics',
+                    user_confirmation: 'Required before actual order placement',
+                    output_format: 'Detailed execution summary with all parameters'
+                }
+            }
+        ];
+        
+        this.currentStage = 0;
+        this.render();
+    }
+    
+    render() {
+        if (!this.container) return;
+        
+        const html = `
+            <div class="trade-execution-pipeline">
+                <div class="pipeline-header text-center mb-4">
+                    <h5 class="mb-2">
+                        <i class="fas fa-rocket me-2 text-primary"></i>
+                        LangGraph Trade Execution Pipeline
+                    </h5>
+                    <p class="text-muted small mb-0">6-Stage Validation Before Order Placement</p>
+                </div>
+                
+                <div class="pipeline-flow">
+                    ${this.stages.map((stage, index) => `
+                        <div class="pipeline-stage-card stage-${stage.status}" data-stage="${stage.id}">
+                            <div class="stage-number">${index + 1}</div>
+                            <div class="stage-icon">
+                                <i class="fas fa-${stage.icon}"></i>
+                            </div>
+                            <div class="stage-content">
+                                <div class="stage-title">${stage.name}</div>
+                                <div class="stage-role">${stage.role}</div>
+                                <div class="stage-status-badge">
+                                    <span class="badge bg-secondary">Pending</span>
+                                </div>
+                            </div>
+                            ${index < this.stages.length - 1 ? '<div class="stage-connector"><i class="fas fa-arrow-down"></i></div>' : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="pipeline-footer mt-4 text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        All validations must pass before trade execution
+                    </small>
+                </div>
+            </div>
+        `;
+        
+        this.container.innerHTML = html;
+        this.attachEventListeners();
+    }
+    
+    attachEventListeners() {
+        const stageCards = this.container.querySelectorAll('.pipeline-stage-card');
+        stageCards.forEach((card, index) => {
+            card.addEventListener('click', () => {
+                this.showStageDetails(this.stages[index]);
+            });
+        });
+    }
+    
+    updateStage(stageId, status) {
+        const stage = this.stages.find(s => s.id === stageId);
+        if (stage) {
+            stage.status = status;
+            const card = this.container.querySelector(`[data-stage="${stageId}"]`);
+            if (card) {
+                card.className = `pipeline-stage-card stage-${status}`;
+                const badge = card.querySelector('.stage-status-badge span');
+                if (badge) {
+                    const statusConfig = {
+                        'pending': { text: 'Pending', class: 'bg-secondary' },
+                        'in-progress': { text: 'Validating...', class: 'bg-warning' },
+                        'completed': { text: 'Passed ✓', class: 'bg-success' },
+                        'failed': { text: 'Failed ✗', class: 'bg-danger' },
+                        'error': { text: 'Error', class: 'bg-danger' }
+                    };
+                    const config = statusConfig[status] || statusConfig['pending'];
+                    badge.textContent = config.text;
+                    badge.className = `badge ${config.class}`;
+                }
+            }
+        }
+    }
+    
+    runPipeline(stageStatuses) {
+        Object.entries(stageStatuses).forEach(([stageId, status]) => {
+            const mappedStageId = this.mapStageId(stageId);
+            this.updateStage(mappedStageId, status);
+        });
+    }
+    
+    mapStageId(apiStageId) {
+        const mapping = {
+            'subscription_validator': 'subscription',
+            'broker_selector': 'broker',
+            'funds_validator': 'funds',
+            'signal_validator': 'signal',
+            'risk_calculator': 'risk',
+            'execution_planner': 'planner'
+        };
+        return mapping[apiStageId] || apiStageId;
+    }
+    
+    reset() {
+        this.stages.forEach(stage => {
+            stage.status = 'pending';
+        });
+        this.currentStage = 0;
+        this.render();
+    }
+    
+    showStageDetails(stage) {
+        const modal = document.getElementById('tradeExecutionModal') || this.createModal();
+        
+        document.getElementById('tradeStageTitle').textContent = stage.name;
+        document.getElementById('tradeStageDescription').textContent = stage.description;
+        document.getElementById('tradeStageModel').textContent = stage.model;
+        
+        const configHTML = Object.entries(stage.config).map(([key, value]) => `
+            <div class="config-item mb-2">
+                <strong>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> ${value}
+            </div>
+        `).join('');
+        document.getElementById('tradeStageConfig').innerHTML = configHTML;
+        
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+    }
+    
+    createModal() {
+        const modalHTML = `
+            <div class="modal fade" id="tradeExecutionModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="tradeStageTitle"></h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary"><i class="fas fa-info-circle me-1"></i> Description</h6>
+                                <p id="tradeStageDescription" class="mb-0"></p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary"><i class="fas fa-microchip me-1"></i> Validation Engine</h6>
+                                <p id="tradeStageModel" class="mb-0"></p>
+                            </div>
+                            <div class="mb-0">
+                                <h6 class="text-primary"><i class="fas fa-sliders-h me-1"></i> Configuration</h6>
+                                <div id="tradeStageConfig"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        return document.getElementById('tradeExecutionModal');
+    }
+}
+
 // Export for global use
 window.PortfolioAgentWorkflow = PortfolioAgentWorkflow;
 window.SignalPipelineWorkflow = SignalPipelineWorkflow;
+window.TradeExecutionWorkflow = TradeExecutionWorkflow;
