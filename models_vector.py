@@ -149,6 +149,60 @@ class ImportedDocumentLog(db.Model):
         return f'<ImportLog {self.id}: {self.filename} - {self.status}>'
 
 
+class PortfolioAssetEmbedding(db.Model):
+    """
+    Store vector embeddings for user's portfolio assets for semantic search and AI analysis
+    Automatically populated when assets are added/synced from brokers or manual entry
+    """
+    __tablename__ = 'portfolio_asset_embeddings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Asset identification
+    asset_type = db.Column(db.String(50), nullable=False, index=True)  # equities, mutual_funds, fixed_deposits, etc.
+    asset_symbol = db.Column(db.String(50), nullable=True, index=True)  # Stock symbol, fund name, etc.
+    asset_name = db.Column(db.String(200), nullable=False)  # Full name
+    asset_category = db.Column(db.String(50), nullable=True, index=True)  # equity, debt, commodities
+    
+    # Reference to original record
+    source_table = db.Column(db.String(100), nullable=False)  # broker_holdings, manual_equity_holdings, etc.
+    source_record_id = db.Column(db.Integer, nullable=False, index=True)  # ID in source table
+    broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # If from broker
+    
+    # Asset description for embedding (rich text combining all relevant info)
+    asset_description = db.Column(Text, nullable=False)  # "RELIANCE equity stock, 50 shares at avg price ₹2500..."
+    
+    # Key financial data (for filtering)
+    quantity = db.Column(db.Float, nullable=True)
+    current_value = db.Column(db.Float, nullable=True)
+    purchase_value = db.Column(db.Float, nullable=True)
+    current_price = db.Column(db.Float, nullable=True)
+    
+    # Vector embedding (1536 dimensions for OpenAI ada-002)
+    embedding = db.Column(db.JSON, nullable=True)  # [0.123, -0.456, ...] 1536 floats
+    
+    # Metadata (flexible storage for asset-specific details)
+    asset_metadata = db.Column(db.JSON, nullable=True)  # sector, industry, risk_level, maturity_date, etc.
+    
+    # Tags for quick semantic grouping
+    tags = db.Column(ARRAY(db.String), nullable=True, index=True)  # ['technology', 'large-cap', 'high-risk']
+    
+    # Status
+    is_active = db.Column(db.Boolean, default=True, index=True)  # False if asset sold/removed
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_synced = db.Column(db.DateTime, default=datetime.utcnow)  # Last time data was updated
+    
+    # Relationships
+    user = db.relationship('User', backref='asset_embeddings')
+    
+    def __repr__(self):
+        return f'<PortfolioAssetEmbedding {self.id}: {self.asset_name} ({self.asset_type})>'
+
+
 class VectorSearchCache(db.Model):
     """
     Cache vector search results for common queries
