@@ -734,6 +734,17 @@ document.addEventListener('DOMContentLoaded', function() {
     startLiveUpdates();
     updateLiveIndicator();
     loadCurrentPrices(); // Load real-time prices on page load
+    
+    // Pre-load LangGraph visual script for trade execution
+    const script = document.createElement('script');
+    script.src = '/static/js/langgraph-visual.js';
+    script.onload = function() {
+        console.log('✅ LangGraph visual script loaded');
+    };
+    script.onerror = function() {
+        console.error('❌ Failed to load LangGraph visual script');
+    };
+    document.head.appendChild(script);
 });
 
 async function loadCurrentPrices() {
@@ -1114,19 +1125,22 @@ async function confirmTrade() {
 }
 
 async function loadTradeExecutionWorkflow() {
-    // Load the LangGraph visual script if not already loaded
+    // Wait for script to be loaded if not already
+    let attempts = 0;
+    while (!window.TradeExecutionWorkflow && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
     if (!window.TradeExecutionWorkflow) {
-        await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = '/static/js/langgraph-visual.js';
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
+        console.error('❌ TradeExecutionWorkflow class not found');
+        throw new Error('Failed to load trade execution workflow');
     }
     
     // Initialize workflow
+    console.log('✅ Initializing TradeExecutionWorkflow');
     tradeExecutionWorkflow = new window.TradeExecutionWorkflow('tradeExecutionWorkflow');
+    console.log('✅ TradeExecutionWorkflow initialized:', tradeExecutionWorkflow);
 }
 
 function showSignalDetails(signalId) {

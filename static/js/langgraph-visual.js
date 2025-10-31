@@ -1102,7 +1102,7 @@ class TradeExecutionWorkflow {
     }
     
     showStageDetails(stage) {
-        const modal = document.getElementById('tradeExecutionModal') || this.createModal();
+        const modal = document.getElementById('tradeStageDetailsModal') || this.createModal();
         
         document.getElementById('tradeStageTitle').textContent = stage.name;
         document.getElementById('tradeStageDescription').textContent = stage.description;
@@ -1121,7 +1121,7 @@ class TradeExecutionWorkflow {
     
     createModal() {
         const modalHTML = `
-            <div class="modal fade" id="tradeExecutionModal" tabindex="-1">
+            <div class="modal fade" id="tradeStageDetailsModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-white">
@@ -1150,7 +1150,7 @@ class TradeExecutionWorkflow {
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-        return document.getElementById('tradeExecutionModal');
+        return document.getElementById('tradeStageDetailsModal');
     }
 }
 
