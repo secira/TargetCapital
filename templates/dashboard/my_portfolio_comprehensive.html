@@ -331,6 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     script.src = '/static/js/langgraph-visual.js';
     script.onload = function() {
         portfolioWorkflow = new PortfolioAgentWorkflow('portfolioAgentWorkflow');
+        window.portfolioWorkflow = portfolioWorkflow; // Make available globally for click handlers
     };
     document.head.appendChild(script);
 });

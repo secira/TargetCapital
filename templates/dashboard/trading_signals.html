@@ -685,6 +685,7 @@ document.addEventListener('DOMContentLoaded', function() {
     script.onload = function() {
         if (document.getElementById('signalPipelineWorkflow')) {
             signalPipeline = new SignalPipelineWorkflow('signalPipelineWorkflow');
+            window.signalWorkflow = signalPipeline; // Make available globally for click handlers
         }
     };
     document.head.appendChild(script);
