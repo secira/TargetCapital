@@ -290,9 +290,9 @@ h5, h6 {
                                 <div class="btn-group">
                                     {% if current_user.pricing_plan != PricingPlan.FREE %}
                                     <button class="btn btn-success btn-sm" 
-                                            onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 1 }}, '{{ signal.signal_type }}')"
+                                            onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 100 }}, '{{ signal.signal_type }}', {{ signal.id }})"
                                             title="Execute Trade">
-                                        <i class="fas fa-play"></i>
+                                        <i class="fas fa-rocket"></i>
                                     </button>
                                     {% else %}
                                     <button class="btn btn-secondary btn-sm" 
@@ -611,6 +611,116 @@ h5, h6 {
 </div>
 -->
 
+<!-- Trade Execution Pipeline Modal -->
+<div class="modal fade" id="tradeExecutionModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-rocket me-2"></i>Trade Execution Pipeline
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Signal Details -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="fas fa-info-circle me-3 fa-2x"></i>
+                            <div>
+                                <h6 class="mb-1" id="tradeExecutionSignal">Loading...</h6>
+                                <small id="tradeExecutionDetails">Validating trade parameters through 6-stage pipeline...</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6-Stage Visual Workflow -->
+                <div id="tradeExecutionWorkflow"></div>
+
+                <!-- Validation Errors (if any) -->
+                <div id="tradeExecutionErrors" class="mt-4" style="display: none;">
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Validation Failed
+                        </h6>
+                        <div id="tradeExecutionErrorList"></div>
+                    </div>
+                </div>
+
+                <!-- Execution Plan (on success) -->
+                <div id="tradeExecutionPlan" class="mt-4" style="display: none;">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Execution Plan Ready</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <th width="40%">Symbol:</th>
+                                            <td id="planSymbol" class="fw-bold">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Action:</th>
+                                            <td id="planAction" class="fw-bold">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Quantity:</th>
+                                            <td id="planQuantity" class="fw-bold">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Entry Price:</th>
+                                            <td id="planEntry" class="fw-bold">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Broker:</th>
+                                            <td id="planBroker" class="fw-bold">-</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <th width="40%">Target:</th>
+                                            <td id="planTarget" class="fw-bold text-success">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Stop Loss:</th>
+                                            <td id="planStopLoss" class="fw-bold text-danger">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Order Value:</th>
+                                            <td id="planOrderValue" class="fw-bold">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Risk Amount:</th>
+                                            <td id="planRiskAmount" class="fw-bold text-danger">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Risk:Reward:</th>
+                                            <td id="planRiskReward" class="fw-bold text-success">-</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="confirmTradeBtn" style="display: none;" onclick="confirmTrade()">
+                    <i class="fas fa-check me-2"></i>Confirm & Execute Trade
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -819,28 +929,204 @@ function showUpgradeAlert() {
     window.location.href = '/pricing';
 }
 
-function tradeSignal(symbol, action, entryPrice, quantity, signalType) {
+// Global variables for trade execution
+let tradeExecutionWorkflow;
+let currentExecutionPlan = null;
+
+async function tradeSignal(symbol, action, entryPrice, quantity, signalType, signalId = null) {
     // Check subscription access
     {% if current_user.pricing_plan == PricingPlan.FREE %}
         showUpgradeAlert();
         return;
     {% endif %}
     
-    // Show loading state
-    event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    event.target.disabled = true;
+    // Initialize workflow if not already done
+    if (!tradeExecutionWorkflow) {
+        await loadTradeExecutionWorkflow();
+    }
     
-    // Navigate to Trade Now page with signal parameters
-    const params = new URLSearchParams({
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('tradeExecutionModal'));
+    modal.show();
+    
+    // Update signal details in modal
+    document.getElementById('tradeExecutionSignal').textContent = `${symbol} - ${action} @ ₹${entryPrice}`;
+    document.getElementById('tradeExecutionDetails').textContent = 'Validating trade through 6-stage pipeline...';
+    
+    // Reset modal states
+    document.getElementById('tradeExecutionErrors').style.display = 'none';
+    document.getElementById('tradeExecutionPlan').style.display = 'none';
+    document.getElementById('confirmTradeBtn').style.display = 'none';
+    
+    // Reset workflow visual
+    tradeExecutionWorkflow.reset();
+    
+    // Get signal data (either from table or from button click)
+    const signalRow = document.querySelector(`[data-signal-id="${signalId}"]`);
+    let targetPrice = 0;
+    let stopLoss = 0;
+    
+    if (signalRow) {
+        // Extract from table
+        const targetCell = signalRow.querySelector('td:nth-child(6)');
+        const stopCell = signalRow.querySelector('td:nth-child(7)');
+        targetPrice = targetCell ? parseFloat(targetCell.textContent.replace('₹', '').replace(',', '')) : 0;
+        stopLoss = stopCell ? parseFloat(stopCell.textContent.replace('₹', '').replace(',', '')) : 0;
+    }
+    
+    // Prepare validation request
+    const validationData = {
         symbol: symbol,
         action: action,
-        price: entryPrice,
-        quantity: quantity,
-        type: signalType,
-        source: 'trading_signals'
-    });
+        entry_price: parseFloat(entryPrice),
+        target_price: targetPrice,
+        stop_loss: stopLoss,
+        quantity: parseInt(quantity) || 100,
+        timeframe: signalType === 'stock' ? 'Swing' : 'Intraday'
+    };
     
-    window.location.href = `/dashboard/trade-now?${params.toString()}`;
+    if (signalId) {
+        validationData.signal_id = signalId;
+    }
+    
+    try {
+        // Call validation API
+        const response = await fetch('/api/trade/validate-execution', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(validationData)
+        });
+        
+        const result = await response.json();
+        
+        // Update visual workflow with stage statuses
+        if (result.stage_status) {
+            tradeExecutionWorkflow.runPipeline(result.stage_status);
+        }
+        
+        // Show results
+        if (result.success && result.execution_plan) {
+            // All stages passed - show execution plan
+            currentExecutionPlan = result.execution_plan;
+            displayExecutionPlan(result.execution_plan);
+            document.getElementById('confirmTradeBtn').style.display = 'block';
+            document.getElementById('tradeExecutionDetails').textContent = '✓ All validations passed! Review and confirm trade.';
+        } else {
+            // Validation failed - show errors
+            displayValidationErrors(result.validation_errors || ['Unknown error occurred']);
+            document.getElementById('tradeExecutionDetails').textContent = '✗ Validation failed. Please review errors below.';
+        }
+        
+    } catch (error) {
+        console.error('Trade validation error:', error);
+        displayValidationErrors([`System error: ${error.message}`]);
+        document.getElementById('tradeExecutionDetails').textContent = '✗ System error occurred.';
+    }
+}
+
+function displayExecutionPlan(plan) {
+    // Populate execution plan details
+    document.getElementById('planSymbol').textContent = plan.symbol || '-';
+    document.getElementById('planAction').textContent = plan.action || '-';
+    document.getElementById('planAction').className = 'fw-bold badge bg-' + (plan.action === 'BUY' ? 'success' : 'danger');
+    document.getElementById('planQuantity').textContent = plan.quantity || '-';
+    document.getElementById('planEntry').textContent = plan.entry_price ? `₹${plan.entry_price.toFixed(2)}` : '-';
+    document.getElementById('planTarget').textContent = plan.target ? `₹${plan.target.toFixed(2)}` : '-';
+    document.getElementById('planStopLoss').textContent = plan.stop_loss ? `₹${plan.stop_loss.toFixed(2)}` : '-';
+    document.getElementById('planBroker').textContent = plan.broker_name || '-';
+    document.getElementById('planOrderValue').textContent = plan.order_value ? `₹${plan.order_value.toFixed(2)}` : '-';
+    document.getElementById('planRiskAmount').textContent = plan.risk_amount ? `₹${plan.risk_amount.toFixed(2)}` : '-';
+    document.getElementById('planRiskReward').textContent = plan.risk_reward_ratio ? `1:${plan.risk_reward_ratio.toFixed(2)}` : '-';
+    
+    // Show plan card
+    document.getElementById('tradeExecutionPlan').style.display = 'block';
+}
+
+function displayValidationErrors(errors) {
+    const errorList = document.getElementById('tradeExecutionErrorList');
+    errorList.innerHTML = errors.map(err => `
+        <div class="mb-2">
+            <i class="fas fa-times-circle me-2"></i>${err}
+        </div>
+    `).join('');
+    
+    document.getElementById('tradeExecutionErrors').style.display = 'block';
+}
+
+async function confirmTrade() {
+    if (!currentExecutionPlan) {
+        alert('No execution plan available');
+        return;
+    }
+    
+    const confirmBtn = document.getElementById('confirmTradeBtn');
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Executing...';
+    confirmBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/trade/execute-confirmed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                execution_plan: currentExecutionPlan
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Success - close modal and show success message
+            bootstrap.Modal.getInstance(document.getElementById('tradeExecutionModal')).hide();
+            
+            // Show success notification
+            const successAlert = `
+                <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 9999;" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Order Placed Successfully!</strong> Order ID: ${result.order_id}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', successAlert);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert-success');
+                if (alert) alert.remove();
+            }, 5000);
+            
+            // Refresh signals table
+            refreshSignals();
+        } else {
+            throw new Error(result.error || 'Trade execution failed');
+        }
+        
+    } catch (error) {
+        console.error('Trade execution error:', error);
+        alert(`Trade execution failed: ${error.message}`);
+        
+        confirmBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirm & Execute Trade';
+        confirmBtn.disabled = false;
+    }
+}
+
+async function loadTradeExecutionWorkflow() {
+    // Load the LangGraph visual script if not already loaded
+    if (!window.TradeExecutionWorkflow) {
+        await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '/static/js/langgraph-visual.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    
+    // Initialize workflow
+    tradeExecutionWorkflow = new window.TradeExecutionWorkflow('tradeExecutionWorkflow');
 }
 
 function showSignalDetails(signalId) {
