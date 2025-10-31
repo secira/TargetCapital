@@ -56,19 +56,37 @@ Target Capital implements **LangGraph as the primary AI architecture** for auton
    - **UI Integration**: Smart Signals page with visual 5-stage pipeline display (`langgraph-visual.js`)
    - **Visual Pipeline**: Real-time stage status, metrics tracking (scanned/generated/validated/ready)
 
-#### 4. **Visual Agent Workflow System** (`static/js/langgraph-visual.js`)
+#### 4. **Trade Execution Pipeline** (`services/langgraph_trade_executor.py`) **[NEW]**
+   - **6-Stage Validation Pipeline**: Subscription → Broker → Funds → Signal → Risk → Execution Planner
+   - **Subscription Validator**: Ensures user has TARGET PRO (₹2,999) or HNI (₹4,999) subscription
+   - **Broker Selector**: Identifies primary broker account, verifies active connection
+   - **Funds Validator**: Checks available margin with 1% buffer for charges
+   - **Signal Validator**: Enforces minimum 1:2 risk-reward ratio quality gate
+   - **Risk Calculator**: Calculates position sizing with maximum 5% risk per trade
+   - **Execution Planner**: Generates comprehensive execution plan for user confirmation
+   - **User Confirmation Required**: Final approval before actual order placement
+   - **APIs**: 
+     * `/api/trade/validate-execution` (POST) - runs 6-stage validation pipeline
+     * `/api/trade/execute-confirmed` (POST) - executes trade after user confirms
+   - **UI Integration**: Visual 6-stage workflow with real-time validation status
+   - **Seamless Execution**: Direct broker integration with proper risk management
+
+#### 5. **Visual Agent Workflow System** (`static/js/langgraph-visual.js`)
    - **PortfolioAgentWorkflow**: Visual representation of 4-agent parallel execution
    - **SignalPipelineWorkflow**: Visual representation of 5-stage sequential pipeline
+   - **TradeExecutionWorkflow**: Visual representation of 6-stage validation pipeline
    - Color-coded status indicators (blue=pending, orange=in-progress, green=completed, red=error)
    - Real-time progress animations with spinning icons
    - Metrics dashboard for pipeline performance tracking
    - Temperature badge display for agent configuration transparency
+   - Interactive stage cards with detailed configuration modals
 
-#### 5. **State Persistence Layer** (PostgreSQL models):
+#### 6. **State Persistence Layer** (PostgreSQL models):
    - `ConversationHistory` - Research assistant conversation storage with user context
    - `AgentCheckpoint` - LangGraph agent state checkpoints for resumable workflows
    - `PortfolioOptimizationReport` - Multi-agent portfolio analysis reports with timestamps
    - `TradingSignal` - Generated trading signals with execution metadata and pipeline info
+   - `PortfolioAssetEmbedding` - Vector embeddings for semantic portfolio search
 
 #### **LangGraph Advantages Over Legacy System:**
 - ✅ **Structured Multi-Step Reasoning**: Explicit state management vs. implicit coordination
