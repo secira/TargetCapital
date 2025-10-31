@@ -20,49 +20,68 @@ Do not make changes to the folder `pt-app/static/`
 - **Frontend Architecture**: Jinja2 templating, Bootstrap 5.3.0 for CSS, Font Awesome 6.4.0 for icons, Google Fonts (Inter), and vanilla JavaScript. Employs a mobile-first responsive design with Bootstrap's grid system.
 - **UI/UX Decisions**: Clean white backgrounds, subtle shadows, rounded elements, modern typography (Poppins/Inter), inspired by getquin.com and arvat.ai. Perplexity-style interface with a clean, minimalist design for the Research Assistant.
 
-### LangGraph AI Architecture (NEW)
-Target Capital now implements advanced AI agents using LangGraph for autonomous, multi-step reasoning:
+### LangGraph AI Architecture (PRIMARY SYSTEM)
+Target Capital implements **LangGraph as the primary AI architecture** for autonomous, multi-step reasoning and intelligent decision-making. This replaced the legacy agentic AI system for superior scalability, observability, and market acceptance.
 
-1. **LangGraph Research Assistant** (`services/langgraph_research_assistant.py`)
-   - Multi-step state graph: Query Understanding → Context Retrieval → Market Analysis → Response Generation → Trade Suggestion
-   - Integrates pgvector semantic search with Perplexity real-time market data
+#### 1. **LangGraph Research Assistant** (`services/langgraph_research_assistant.py`)
+   - **Multi-Step State Graph**: Query Understanding → Context Retrieval → Market Analysis → Response Generation → Trade Suggestion
+   - Integrates pgvector semantic search with Perplexity Sonar Pro real-time market data
    - Stores conversation history in PostgreSQL for context-aware interactions
    - Returns comprehensive answers with citations and actionable trade recommendations
-   - API: `/api/research/query` (POST) - use_langgraph parameter enables LangGraph mode
+   - **API**: `/api/research/query` (POST) - use_langgraph parameter enables LangGraph mode
+   - **UI Integration**: Research Assistant page with real-time conversation display
 
-2. **Multi-Agent Portfolio Optimizer** (`services/langgraph_portfolio_optimizer.py`)
-   - Coordinates 4 specialized AI agents:
-     * Risk Analyzer Agent - Portfolio risk, volatility, diversification analysis
-     * Sector Analyzer Agent - Sector allocation and concentration evaluation
-     * Asset Allocator Agent - Optimal asset allocation recommendations
-     * Opportunity Finder Agent - Investment opportunities based on preferences
-   - Coordinator Agent synthesizes all outputs into comprehensive portfolio optimization report
-   - Different temperature settings per agent (conservative for risk, creative for opportunities)
+#### 2. **Multi-Agent Portfolio Optimizer** (`services/langgraph_portfolio_optimizer.py`)
+   - **4 Specialized Parallel Agents**:
+     * **Risk Analyzer Agent** (Temp 0.1) - Conservative portfolio risk, volatility, diversification analysis
+     * **Sector Analyzer Agent** (Temp 0.4) - Balanced sector allocation and concentration evaluation
+     * **Asset Allocator Agent** (Temp 0.4) - Balanced optimal asset allocation recommendations
+     * **Opportunity Finder Agent** (Temp 0.7) - Creative investment opportunities based on preferences
+   - **Coordinator Agent** synthesizes all outputs into comprehensive portfolio optimization report
+   - Different temperature settings per agent for diverse perspectives
    - Stores optimization reports in PostgreSQL for historical tracking
-   - API: `/api/portfolio/optimize-langgraph` (POST) - generates multi-agent analysis
+   - **API**: `/api/portfolio/optimize-langgraph` (POST) - generates multi-agent analysis
+   - **UI Integration**: Portfolio page with visual 4-agent workflow display (`langgraph-visual.js`)
+   - **Visual Workflow**: Real-time agent status (pending → in-progress → completed) with color-coded cards
 
-3. **Smart Trading Signal Pipeline** (`services/langgraph_signal_pipeline.py`)
-   - State machine pipeline: Market Scanner → Signal Generator → Validator → Broker Checker → Execution Planner
+#### 3. **Smart Trading Signal Pipeline** (`services/langgraph_signal_pipeline.py`)
+   - **5-Stage Conditional Pipeline**: Market Scanner → Signal Generator → Validator → Broker Checker → Execution Planner
    - Scans Indian markets (NSE/BSE) using Perplexity for real-time opportunities
    - Generates signals with entry/target/stop-loss prices, risk-reward ratios
-   - Validates signals against risk parameters (1:2 R:R minimum, max 5% stop loss)
+   - **Quality Gates**: Validates signals against risk parameters (1:2 R:R minimum, max 5% stop loss)
    - Checks broker compatibility and creates execution strategies
+   - Conditional logic: only valid signals proceed through pipeline
    - Stores validated signals in PostgreSQL with pipeline metadata
-   - API: `/api/signals/generate-langgraph` (POST) - generates daily trading signals
+   - **API**: `/api/signals/generate-langgraph` (POST) - generates daily trading signals (Admin-only)
+   - **UI Integration**: Smart Signals page with visual 5-stage pipeline display (`langgraph-visual.js`)
+   - **Visual Pipeline**: Real-time stage status, metrics tracking (scanned/generated/validated/ready)
 
-4. **State Persistence Layer** (PostgreSQL models):
-   - `ConversationHistory` - Research assistant conversation storage
+#### 4. **Visual Agent Workflow System** (`static/js/langgraph-visual.js`)
+   - **PortfolioAgentWorkflow**: Visual representation of 4-agent parallel execution
+   - **SignalPipelineWorkflow**: Visual representation of 5-stage sequential pipeline
+   - Color-coded status indicators (blue=pending, orange=in-progress, green=completed, red=error)
+   - Real-time progress animations with spinning icons
+   - Metrics dashboard for pipeline performance tracking
+   - Temperature badge display for agent configuration transparency
+
+#### 5. **State Persistence Layer** (PostgreSQL models):
+   - `ConversationHistory` - Research assistant conversation storage with user context
    - `AgentCheckpoint` - LangGraph agent state checkpoints for resumable workflows
-   - `PortfolioOptimizationReport` - Multi-agent portfolio analysis reports
-   - `TradingSignal` - Generated trading signals with execution metadata
+   - `PortfolioOptimizationReport` - Multi-agent portfolio analysis reports with timestamps
+   - `TradingSignal` - Generated trading signals with execution metadata and pipeline info
 
-**LangGraph Benefits:**
-- Structured multi-step reasoning with explicit state management
-- Resumable workflows via checkpoint system
-- Clear separation of concerns (each agent/step has specific role)
-- Enhanced observability and debugging
-- Parallel agent execution for portfolio optimization
-- Conditional workflows (e.g., only suggest trades when appropriate)
+#### **LangGraph Advantages Over Legacy System:**
+- ✅ **Structured Multi-Step Reasoning**: Explicit state management vs. implicit coordination
+- ✅ **Resumable Workflows**: Checkpoint system allows recovery from failures
+- ✅ **Clear Separation of Concerns**: Each agent/step has specific, documented role
+- ✅ **Enhanced Observability**: Visual workflows show real-time agent execution
+- ✅ **Parallel Agent Execution**: Portfolio optimization runs 4 agents simultaneously
+- ✅ **Conditional Workflows**: Quality gates ensure only valid signals proceed
+- ✅ **Market Acceptance**: LangGraph is industry-standard, enhancing credibility
+- ✅ **Visual Differentiation**: User-facing workflow displays set product apart
+
+#### **Architecture Decision**: 
+Replaced custom agentic AI coordinator with LangGraph/LangChain for production-grade multi-agent orchestration. Visual agent workflows provide critical user experience differentiation and transparency into AI decision-making processes.
 
 - **Key Features & Design Patterns**:
     - **Agentic AI Tools**: Autonomous AI system with OpenAI, Perplexity, and LangGraph for analysis, research, optimization, and adaptive decision-making.
