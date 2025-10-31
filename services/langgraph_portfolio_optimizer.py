@@ -99,7 +99,7 @@ class LangGraphPortfolioOptimizer:
         return workflow.compile()
     
     def fetch_portfolio_data(self, state: PortfolioState) -> Dict:
-        """Fetch comprehensive portfolio data"""
+        """Fetch comprehensive portfolio data with vector embeddings"""
         logger.info("Fetching portfolio data")
         
         user_id = state["user_id"]
@@ -109,9 +109,18 @@ class LangGraphPortfolioOptimizer:
             portfolio_service = ComprehensivePortfolioService(user_id)
             portfolio_summary = portfolio_service.get_complete_portfolio_summary()
             
+            # Ensure portfolio embeddings are up to date
+            try:
+                from services.portfolio_embedding_service import PortfolioEmbeddingService
+                embedding_service = PortfolioEmbeddingService()
+                embedding_service.sync_all_user_assets(user_id)
+                logger.info("Portfolio embeddings synced for analysis")
+            except Exception as e:
+                logger.warning(f"Could not sync embeddings: {e}")
+            
             return {
                 "portfolio_data": portfolio_summary,
-                "messages": [AIMessage(content="Portfolio data fetched successfully")],
+                "messages": [AIMessage(content="Portfolio data fetched successfully with semantic search enabled")],
                 "agent_outputs": {}
             }
         except Exception as e:

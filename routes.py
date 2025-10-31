@@ -4161,6 +4161,61 @@ def api_portfolio_optimize_langgraph():
             'error': f'Optimization failed: {str(e)}'
         }), 500
 
+@app.route('/api/portfolio/sync-embeddings', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_portfolio_sync_embeddings():
+    """Sync all portfolio assets to vector database for semantic search"""
+    try:
+        from services.portfolio_embedding_service import PortfolioEmbeddingService
+        
+        embedding_service = PortfolioEmbeddingService()
+        result = embedding_service.sync_all_user_assets(current_user.id)
+        
+        return jsonify({
+            'success': True,
+            'embeddings_created': result.get('embeddings_created', 0),
+            'assets_processed': result.get('assets_processed', {}),
+            'message': 'Portfolio embeddings synced successfully'
+        })
+        
+    except Exception as e:
+        logger.error(f"Embedding sync error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Embedding sync failed: {str(e)}'
+        }), 500
+
+@app.route('/api/portfolio/search-assets', methods=['POST'])
+@login_required
+def api_portfolio_search_assets():
+    """Search user's portfolio assets using natural language"""
+    try:
+        from services.portfolio_embedding_service import PortfolioEmbeddingService
+        
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        
+        if not query:
+            return jsonify({'success': False, 'error': 'Query is required'}), 400
+        
+        embedding_service = PortfolioEmbeddingService()
+        results = embedding_service.search_user_assets(current_user.id, query, limit=10)
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'query': query,
+            'count': len(results)
+        })
+        
+    except Exception as e:
+        logger.error(f"Asset search error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Search failed: {str(e)}'
+        }), 500
+
 @app.route('/api/signals/generate-langgraph', methods=['POST'])
 @login_required
 @csrf.exempt

@@ -130,8 +130,29 @@ Respond in JSON format with: intent, entities, requires_realtime, suggest_trades
                 context_parts.append(f"\n**{result.get('title', 'Untitled')}** (Similarity: {result.get('similarity', 0):.2f})")
                 context_parts.append(f"{result.get('summary', '')}\n")
         
+        # Search user's portfolio using vector embeddings
+        if user_context.get('user_id'):
+            try:
+                from services.portfolio_embedding_service import PortfolioEmbeddingService
+                embedding_service = PortfolioEmbeddingService()
+                portfolio_assets = embedding_service.search_user_assets(
+                    user_context['user_id'], 
+                    query, 
+                    limit=5
+                )
+                
+                if portfolio_assets:
+                    context_parts.append("\n### Your Relevant Portfolio Holdings:")
+                    for asset in portfolio_assets:
+                        context_parts.append(f"\n- **{asset.get('symbol')}** ({asset.get('asset_type')})")
+                        context_parts.append(f"  Quantity: {asset.get('quantity', 0)}, Value: ₹{asset.get('value', 0):,.2f}")
+                        if asset.get('metadata'):
+                            context_parts.append(f"  {asset.get('metadata', {}).get('sector', '')}")
+            except Exception as e:
+                logger.warning(f"Could not search portfolio embeddings: {e}")
+        
         if user_context.get('portfolio'):
-            context_parts.append("\n### User Portfolio:")
+            context_parts.append("\n### Portfolio Summary:")
             context_parts.append(f"Total Value: ₹{user_context['portfolio'].get('total_value', 0):,.2f}")
             context_parts.append(f"Holdings: {len(user_context['portfolio'].get('holdings', []))} stocks")
         
@@ -139,7 +160,7 @@ Respond in JSON format with: intent, entities, requires_realtime, suggest_trades
         
         return {
             "retrieved_context": retrieved_context,
-            "messages": [AIMessage(content="Context retrieved successfully")],
+            "messages": [AIMessage(content="Context retrieved with portfolio semantic search")],
             "iteration_count": state.get("iteration_count", 0) + 1
         }
     

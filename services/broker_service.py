@@ -1457,6 +1457,16 @@ class GoodwillBrokerClient(BaseBrokerClient):
             db.session.add(sync_log)
             db.session.commit()
             
+            # Automatically generate embeddings for synced holdings
+            if 'holdings' in data_types:
+                try:
+                    from services.portfolio_embedding_service import PortfolioEmbeddingService
+                    embedding_service = PortfolioEmbeddingService()
+                    embedding_service.generate_embeddings_for_broker_holdings(broker_account.user_id)
+                    logger.info(f"Generated vector embeddings for synced holdings")
+                except Exception as e:
+                    logger.warning(f"Failed to generate embeddings after sync: {e}")
+            
             logger.info(f"Successfully synced {total_records} records for {broker_account.broker_name}")
             return results
             
