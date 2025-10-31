@@ -1,8 +1,8 @@
 {% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Research Assistant - Target Capital{% endblock %}
-{% block dashboard_title %}Research Assistant{% endblock %}
-{% block dashboard_subtitle %}AI-powered market research{% endblock %}
+{% block title %}Market Research AI - Target Capital{% endblock %}
+{% block dashboard_title %}Market Research AI{% endblock %}
+{% block dashboard_subtitle %}Learn about markets, stocks & investing with AI-powered insights{% endblock %}
 
 {% block dashboard_toolbar %}
 {% endblock %}
@@ -725,6 +725,37 @@
     display: none;
 }
 
+/* Suggestion Chips */
+.suggestion-chip {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: white;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 14px;
+    color: #2d2d2d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-weight: 400;
+}
+
+.suggestion-chip:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.suggestion-chip:active {
+    transform: translateY(0);
+}
+
+.suggestion-chip i {
+    flex-shrink: 0;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .research-sidebar {
@@ -806,9 +837,21 @@
     <!-- Main Area -->
     <main class="research-main">
         {% if not messages %}
-        <!-- Welcome State - Just Search Box -->
+        <!-- Welcome State - Search Box with Suggested Questions -->
         <div class="welcome-container">
             <div class="welcome-content">
+                <div class="welcome-header" style="text-align: center; margin-bottom: 32px;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">
+                        <i class="fas fa-lightbulb" style="color: #667eea;"></i>
+                    </div>
+                    <h2 style="font-size: 32px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">
+                        What would you like to learn today?
+                    </h2>
+                    <p style="font-size: 16px; color: #666; margin: 0;">
+                        Ask anything about markets, stocks, sectors, or investment strategies
+                    </p>
+                </div>
+
                 <form id="welcomeForm" onsubmit="submitResearch(event)">
                     <div class="search-box-large">
                         <div class="action-buttons">
@@ -819,7 +862,7 @@
                         <textarea
                             id="searchInputLarge"
                             class="search-input-large"
-                            placeholder="Ask a question about stocks, markets, trading strategies, or portfolio management..."
+                            placeholder="Ask me anything about stocks, markets, or investing..."
                             rows="6"
                             cols="80"
                             required
@@ -831,6 +874,39 @@
                     </div>
                     <input type="file" id="fileUploadInput" accept="image/*,.pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)" multiple style="display: none;">
                 </form>
+
+                <!-- Suggested Questions -->
+                <div class="suggested-questions" style="margin-top: 32px;">
+                    <p style="font-size: 13px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; text-align: center;">
+                        Popular Questions
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; max-width: 800px; margin: 0 auto;">
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-bolt" style="margin-right: 8px; color: #667eea;"></i>
+                            What are the top EV stocks in India?
+                        </button>
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-chart-line" style="margin-right: 8px; color: #667eea;"></i>
+                            Explain PE ratio in simple terms
+                        </button>
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-balance-scale" style="margin-right: 8px; color: #667eea;"></i>
+                            Compare Reliance vs TCS fundamentals
+                        </button>
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-shield-alt" style="margin-right: 8px; color: #667eea;"></i>
+                            How to build a defensive portfolio?
+                        </button>
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-industry" style="margin-right: 8px; color: #667eea;"></i>
+                            What sectors are growing in 2025?
+                        </button>
+                        <button type="button" class="suggestion-chip" onclick="fillSuggestion(this.textContent)">
+                            <i class="fas fa-globe-asia" style="margin-right: 8px; color: #667eea;"></i>
+                            Is NIFTY 50 overvalued right now?
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         {% else %}
@@ -874,35 +950,6 @@
                     </div>
                     {% endif %}
 
-                    {% if current_user.pricing_plan.value in ['target_pro', 'hni'] %}
-                    {% set upper_content = message.content.upper() %}
-                    {% if ('BUY' in upper_content or 'SELL' in upper_content or 'TRADE' in upper_content or 
-                           'INVEST' in upper_content or 'STOCK' in upper_content or 'RECOMMENDATION' in upper_content or
-                           'SHARES' in upper_content or 'EQUITY' in upper_content or 'COMPANY' in upper_content) %}
-                    <div class="trade-card">
-                        {% if 'BUY' in message.content.upper() or 'INVEST' in message.content.upper() %}
-                        <div class="trade-badge buy">
-                            <i class="fas fa-arrow-up"></i> BUY Signal
-                        </div>
-                        {% elif 'SELL' in message.content.upper() %}
-                        <div class="trade-badge sell">
-                            <i class="fas fa-arrow-down"></i> SELL Signal
-                        </div>
-                        {% else %}
-                        <div class="trade-badge buy">
-                            <i class="fas fa-chart-line"></i> Trade Opportunity
-                        </div>
-                        {% endif %}
-                        <p class="trade-description">
-                            <i class="fas fa-lightbulb me-1"></i>
-                            Ready to execute? Take this research to action with your connected broker.
-                        </p>
-                        <button class="trade-btn" onclick="prepareTradeFromResearch({{ message.id }})">
-                            <i class="fas fa-bolt"></i> Prepare Trade
-                        </button>
-                    </div>
-                    {% endif %}
-                    {% endif %}
                 </div>
                 {% endif %}
             {% endfor %}
@@ -960,6 +1007,19 @@ function startNewChat() {
 // Load conversation
 function loadConversation(convId) {
     window.location.href = `{{ url_for('dashboard_ai_advisor') }}?conversation_id=${convId}`;
+}
+
+// Fill suggestion into search box
+function fillSuggestion(text) {
+    const searchInput = document.getElementById('searchInputLarge');
+    if (searchInput) {
+        // Remove the icon from the text
+        const cleanText = text.replace(/^\s*[^\w\s]+\s*/, '').trim();
+        searchInput.value = cleanText;
+        searchInput.focus();
+        searchInput.style.height = 'auto';
+        searchInput.style.height = Math.min(searchInput.scrollHeight, 600) + 'px';
+    }
 }
 
 // Submit research
