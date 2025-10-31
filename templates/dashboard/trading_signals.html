@@ -127,17 +127,27 @@ h5, h6 {
     </div>
     {% endif %}
 
-    <!-- Information Notice for FREE users -->
-    {% if current_user.pricing_plan == PricingPlan.FREE %}
-    <div class="alert alert-info border-0 rounded-3 shadow-sm mb-4">
+    <!-- Information Notice for subscription tiers -->
+    {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}
+    <div class="alert alert-warning border-0 rounded-3 shadow-sm mb-4">
         <div class="d-flex align-items-center">
-            <i class="fas fa-info-circle fa-2x text-info me-3"></i>
+            <i class="fas fa-info-circle fa-2x text-warning me-3"></i>
             <div>
-                <h5 class="alert-heading mb-1">View-Only Access</h5>
-                <p class="mb-2">You can view trading signals but cannot execute trades. Upgrade to Trader plan to start trading.</p>
-                <a href="{{ url_for('pricing') }}" class="btn btn-info btn-sm">
-                    <i class="fas fa-upgrade me-1"></i>Upgrade to Trade
+                <h5 class="alert-heading mb-1">View-Only Trading Signals</h5>
+                <p class="mb-2">You can view AI-powered signals, but trading requires TARGET PRO (₹2,999) or HNI (₹4,999) subscription to execute trades with your primary broker.</p>
+                <a href="{{ url_for('pricing') }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-rocket me-1"></i>Upgrade to Trade
                 </a>
+            </div>
+        </div>
+    </div>
+    {% elif current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
+    <div class="alert alert-success border-0 rounded-3 shadow-sm mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-rocket fa-2x text-success me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1"><i class="fas fa-check-circle me-1"></i>Trade Execution Enabled</h5>
+                <p class="mb-2">Click the <strong><i class="fas fa-rocket"></i> rocket button</strong> on any signal to launch the 6-stage validation pipeline and execute trades through your primary broker.</p>
             </div>
         </div>
     </div>
@@ -288,7 +298,7 @@ h5, h6 {
                             </td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    {% if current_user.pricing_plan != PricingPlan.FREE %}
+                                    {% if current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
                                     <button class="btn btn-success btn-sm" 
                                             onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 100 }}, '{{ signal.signal_type }}', {{ signal.id }})"
                                             title="Execute Trade">
@@ -296,8 +306,8 @@ h5, h6 {
                                     </button>
                                     {% else %}
                                     <button class="btn btn-secondary btn-sm" 
-                                            onclick="showUpgradeAlert()"
-                                            title="Upgrade to Trade">
+                                            onclick="showUpgradeToProAlert()"
+                                            title="Upgrade to TARGET PRO to Trade">
                                         <i class="fas fa-lock"></i>
                                     </button>
                                     {% endif %}
@@ -936,7 +946,12 @@ function filterSignals(type) {
 }
 
 function showUpgradeAlert() {
-    alert('targetcapital.in says: Upgrade to Trader plan to execute trades. You can view signals but cannot trade with a FREE account.');
+    alert('targetcapital.in says: Upgrade to view Smart Signals. FREE users have access to Research Assistant only.');
+    window.location.href = '/pricing';
+}
+
+function showUpgradeToProAlert() {
+    alert('targetcapital.in says: Upgrade to TARGET PRO (₹2,999) or HNI (₹4,999) to execute trades with your primary broker. TARGET PLUS users can view signals but cannot trade.');
     window.location.href = '/pricing';
 }
 
@@ -945,9 +960,9 @@ let tradeExecutionWorkflow;
 let currentExecutionPlan = null;
 
 async function tradeSignal(symbol, action, entryPrice, quantity, signalType, signalId = null) {
-    // Check subscription access
-    {% if current_user.pricing_plan == PricingPlan.FREE %}
-        showUpgradeAlert();
+    // Check subscription access - only TARGET_PRO and HNI can trade
+    {% if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
+        showUpgradeToProAlert();
         return;
     {% endif %}
     

@@ -111,7 +111,11 @@ Replaced custom agentic AI coordinator with LangGraph/LangChain for production-g
     - **Portfolio Asset Vector Embeddings** (`services/portfolio_embedding_service.py`): Automatic vector embedding generation for all portfolio assets loaded through Portfolio Hub. All holdings (stocks from multiple brokers, F&O, mutual funds, fixed deposits, etc.) are automatically stored in pgvector database under user-specific embeddings for semantic search and enhanced AI analysis. Enables natural language queries like "my technology stocks" or "high-risk investments". Integrated with broker sync, manual entry, Excel/PDF import flows, and portfolio analysis systems.
     - **Unified Portfolio Analyzer System**: AI-powered analysis with multi-agent LangGraph optimization, multi-broker data syncing, risk profiling, health scoring, sector/asset allocation, and AI-driven recommendations. Now enhanced with vector semantic search over user's own portfolio holdings.
     - **Comprehensive Trading Signal System**: LangGraph-powered signal pipeline with validation, broker compatibility checks, and execution planning. Includes Admin Module and WhatsApp/Telegram Integration.
-    - **Subscription Model**: Tiered pricing (Target Plus ₹1,499, Target Pro ₹2,999, HNI ₹4,999) with varying broker connection and trading capabilities, managed via Razorpay.
+    - **Subscription Model**: Tiered pricing with feature-gated access, managed via Razorpay:
+      * **FREE** (₹0): Research Assistant only
+      * **TARGET PLUS** (₹1,499): Research Assistant + Smart Signals (view-only) + My Portfolio + Portfolio Hub
+      * **TARGET PRO** (₹2,999): All features + Trade Execution with 1 Primary Broker + LangGraph 6-stage validation pipeline
+      * **HNI** (₹4,999): All features + Trade Execution with 1 Primary Broker + Premium support
     - **Knowledge Base**: Replaced "Blog" with a "Knowledge Base" containing trading education articles.
 
 ### External Dependencies
