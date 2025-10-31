@@ -46,10 +46,12 @@ class LangGraphSignalPipeline:
     """
     
     def __init__(self):
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        
         self.llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.3,
-            api_key=os.environ.get("OPENAI_API_KEY")
+            api_key=api_key
         )
         
         self.perplexity_service = PerplexityService()
@@ -58,7 +60,7 @@ class LangGraphSignalPipeline:
         # Build the graph
         self.graph = self._build_graph()
     
-    def _build_graph(self) -> StateGraph:
+    def _build_graph(self):
         """Build the signal pipeline state machine"""
         workflow = StateGraph(SignalState)
         
@@ -119,17 +121,25 @@ Focus on: breakouts, high volume stocks, undervalued stocks, sector leaders, new
 Provide specific stock names with NSE symbols."""
         
         try:
-            perplexity_response = self.perplexity_service.search(query)
+            # Use Perplexity API to get market insights
+            perplexity_response = self.perplexity_service._call_perplexity_api(query, model="sonar")
+            
+            if perplexity_response and perplexity_response.get("choices"):
+                insights = perplexity_response["choices"][0]["message"]["content"]
+                citations = perplexity_response.get("citations", [])
+            else:
+                insights = "Market scan completed - analyzing opportunities"
+                citations = []
             
             market_scan = {
-                "insights": perplexity_response.get("answer", ""),
-                "citations": perplexity_response.get("citations", []),
+                "insights": insights,
+                "citations": citations,
                 "timestamp": datetime.utcnow().isoformat()
             }
         except Exception as e:
             logger.error(f"Market scan failed: {e}")
             market_scan = {
-                "insights": "Market scan unavailable",
+                "insights": "Market scan unavailable - using fallback analysis",
                 "error": str(e)
             }
         
@@ -167,12 +177,13 @@ Output as JSON array of 5-10 high-quality signals."""
         ])
         
         try:
-            signals = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            signals = json.loads(content)
             if not isinstance(signals, list):
                 signals = [signals]
         except:
             # Fallback parsing
-            signals = [{"raw_signal": response.content}]
+            signals = [{"raw_signal": str(response.content)}]
         
         return {
             "potential_signals": signals,
@@ -208,7 +219,8 @@ Reject signals that don't meet criteria. Output validated signals as JSON array.
         ])
         
         try:
-            validated = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            validated = json.loads(content)
             if not isinstance(validated, list):
                 validated = [validated]
         except:
@@ -273,12 +285,13 @@ Output as enhanced signal objects with execution_plan field."""
         ])
         
         try:
-            final_signals = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            final_signals = json.loads(content)
             if not isinstance(final_signals, list):
                 final_signals = [final_signals]
         except:
             # Fallback: use execution_ready signals as-is
-            final_signals = execution_ready
+            final_signals = execution_ready if execution_ready else []
         
         return {
             "final_signals": final_signals,
@@ -286,7 +299,7 @@ Output as enhanced signal objects with execution_plan field."""
             "pipeline_stage": "plan_execution"
         }
     
-    def generate_daily_signals(self, user_preferences: Dict = None) -> Dict:
+    def generate_daily_signals(self, user_preferences: Dict = {}) -> Dict:
         """
         Main entry point for daily signal generation
         

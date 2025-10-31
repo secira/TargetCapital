@@ -46,30 +46,30 @@ class LangGraphPortfolioOptimizer:
     
     def __init__(self):
         # Different LLM configurations for different agents
+        api_key = os.environ.get("OPENAI_API_KEY", "")
+        
         self.risk_llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.1,  # Conservative for risk analysis
-            api_key=os.environ.get("OPENAI_API_KEY")
+            api_key=api_key
         )
         
         self.creative_llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.7,  # Creative for opportunities
-            api_key=os.environ.get("OPENAI_API_KEY")
+            api_key=api_key
         )
         
         self.balanced_llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.4,  # Balanced for analysis
-            api_key=os.environ.get("OPENAI_API_KEY")
+            api_key=api_key
         )
-        
-        self.portfolio_service = ComprehensivePortfolioService()
         
         # Build the graph
         self.graph = self._build_graph()
     
-    def _build_graph(self) -> StateGraph:
+    def _build_graph(self):
         """Build the multi-agent coordination graph"""
         workflow = StateGraph(PortfolioState)
         
@@ -106,7 +106,8 @@ class LangGraphPortfolioOptimizer:
         
         try:
             # Get portfolio data from service
-            portfolio_summary = self.portfolio_service.get_portfolio_summary(user_id)
+            portfolio_service = ComprehensivePortfolioService(user_id)
+            portfolio_summary = portfolio_service.get_complete_portfolio_summary()
             
             return {
                 "portfolio_data": portfolio_summary,
@@ -146,9 +147,10 @@ Be precise and quantitative. Output as structured JSON."""
         ])
         
         try:
-            risk_analysis = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            risk_analysis = json.loads(content)
         except:
-            risk_analysis = {"raw_analysis": response.content}
+            risk_analysis = {"raw_analysis": str(response.content)}
         
         return {
             "risk_analysis": risk_analysis,
@@ -181,9 +183,10 @@ Provide specific percentages and actionable insights. Output as JSON."""
         ])
         
         try:
-            sector_analysis = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            sector_analysis = json.loads(content)
         except:
-            sector_analysis = {"raw_analysis": response.content}
+            sector_analysis = {"raw_analysis": str(response.content)}
         
         return {
             "sector_analysis": sector_analysis,
@@ -219,9 +222,10 @@ Sector Analysis: {json.dumps(sector_analysis, indent=2)}"""
         ])
         
         try:
-            allocation_recs = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            allocation_recs = json.loads(content)
         except:
-            allocation_recs = {"raw_recommendations": response.content}
+            allocation_recs = {"raw_recommendations": str(response.content)}
         
         return {
             "allocation_recommendations": allocation_recs,
@@ -262,11 +266,12 @@ Allocation Gaps: {json.dumps(allocation_recs, indent=2)}"""
         ])
         
         try:
-            opportunities = json.loads(response.content)
+            content = response.content if isinstance(response.content, str) else str(response.content)
+            opportunities = json.loads(content)
             if not isinstance(opportunities, list):
                 opportunities = [opportunities]
         except:
-            opportunities = [{"raw_opportunities": response.content}]
+            opportunities = [{"raw_opportunities": str(response.content)}]
         
         return {
             "opportunities": opportunities,
@@ -313,8 +318,9 @@ Investment Opportunities:
             HumanMessage(content=f"Create comprehensive report:\n{context}")
         ])
         
+        content = response.content if isinstance(response.content, str) else str(response.content)
         return {
-            "final_report": response.content,
+            "final_report": content,
             "messages": [AIMessage(content="Portfolio optimization report completed")]
         }
     
