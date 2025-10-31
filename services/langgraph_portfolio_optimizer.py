@@ -99,8 +99,8 @@ class LangGraphPortfolioOptimizer:
         return workflow.compile()
     
     def fetch_portfolio_data(self, state: PortfolioState) -> Dict:
-        """Fetch comprehensive portfolio data with vector embeddings"""
-        logger.info("Fetching portfolio data")
+        """Fetch comprehensive portfolio data with vector embeddings and user preferences"""
+        logger.info("Fetching portfolio data and preferences")
         
         user_id = state["user_id"]
         
@@ -108,6 +108,34 @@ class LangGraphPortfolioOptimizer:
             # Get portfolio data from service
             portfolio_service = ComprehensivePortfolioService(user_id)
             portfolio_summary = portfolio_service.get_complete_portfolio_summary()
+            
+            # Fetch user portfolio preferences
+            from models import User
+            from app import db
+            user = db.session.query(User).filter_by(id=user_id).first()
+            
+            user_preferences = {}
+            if user and user.portfolio_preferences:
+                prefs = user.portfolio_preferences
+                user_preferences = {
+                    "age": prefs.age,
+                    "risk_tolerance": prefs.risk_tolerance,
+                    "investment_horizon": prefs.investment_horizon,
+                    "financial_goals": prefs.financial_goals,
+                    "annual_income": prefs.annual_income,
+                    "expected_return": prefs.expected_return,
+                    "max_acceptable_loss": prefs.max_acceptable_loss,
+                    "minimum_return_required": prefs.minimum_return_required,
+                    "preferred_asset_classes": prefs.preferred_asset_classes,
+                    "asset_allocation": prefs.asset_allocation,
+                    "rebalancing_frequency": prefs.rebalancing_frequency,
+                    "liquidity_requirement": prefs.liquidity_requirement,
+                    "geographic_preference": prefs.geographic_preference,
+                    "special_instructions": prefs.special_instructions
+                }
+                logger.info(f"User preferences loaded: {user_preferences.get('risk_tolerance', 'Not set')}")
+            else:
+                logger.warning("No portfolio preferences found for user")
             
             # Ensure portfolio embeddings are up to date
             try:
@@ -120,13 +148,15 @@ class LangGraphPortfolioOptimizer:
             
             return {
                 "portfolio_data": portfolio_summary,
-                "messages": [AIMessage(content="Portfolio data fetched successfully with semantic search enabled")],
+                "user_preferences": user_preferences,
+                "messages": [AIMessage(content="Portfolio data and preferences fetched successfully")],
                 "agent_outputs": {}
             }
         except Exception as e:
             logger.error(f"Failed to fetch portfolio data: {e}")
             return {
                 "portfolio_data": {},
+                "user_preferences": {},
                 "messages": [AIMessage(content=f"Error fetching portfolio: {e}")],
                 "agent_outputs": {}
             }
@@ -136,6 +166,7 @@ class LangGraphPortfolioOptimizer:
         logger.info("Risk Analyzer Agent running")
         
         portfolio = state.get("portfolio_data", {})
+        user_preferences = state.get("user_preferences", {})
         
         system_prompt = """You are a Risk Analysis Specialist at Target Capital.
 Analyze the portfolio and provide:
@@ -145,14 +176,17 @@ Analyze the portfolio and provide:
 4. Concentration risks
 5. Risk-adjusted returns analysis
 6. Specific risk mitigation recommendations
+7. Alignment with user's risk tolerance and preferences
 
+IMPORTANT: Consider the user's portfolio preferences in your analysis.
 Be precise and quantitative. Output as structured JSON."""
         
         portfolio_summary = json.dumps(portfolio, indent=2)
+        preferences_summary = json.dumps(user_preferences, indent=2) if user_preferences else "No preferences set"
         
         response = self.risk_llm.invoke([
             SystemMessage(content=system_prompt),
-            HumanMessage(content=f"Analyze this portfolio for risk:\n{portfolio_summary}")
+            HumanMessage(content=f"Analyze this portfolio for risk:\n\nPortfolio:\n{portfolio_summary}\n\nUser Preferences:\n{preferences_summary}")
         ])
         
         try:
@@ -210,20 +244,30 @@ Provide specific percentages and actionable insights. Output as JSON."""
         portfolio = state.get("portfolio_data", {})
         risk_analysis = state.get("risk_analysis", {})
         sector_analysis = state.get("sector_analysis", {})
+        user_preferences = state.get("user_preferences", {})
         
         system_prompt = """You are an Asset Allocation Specialist at Target Capital.
 Based on the portfolio and previous analysis, recommend:
 1. Optimal asset class allocation (Equity, Debt, Gold, etc.)
-2. Rebalancing strategy
-3. Specific allocation percentages
-4. Timeline for implementation
+2. Rebalancing strategy aligned with user preferences
+3. Specific allocation percentages matching user's preferred assets
+4. Timeline for implementation based on investment horizon
 5. Expected impact on risk/return profile
 
-Consider the user's risk profile. Output as JSON."""
+IMPORTANT: Align recommendations with user's:
+- Risk tolerance
+- Investment horizon
+- Preferred asset classes
+- Expected return targets
+- Liquidity requirements
+
+Output as JSON."""
         
+        preferences_summary = json.dumps(user_preferences, indent=2) if user_preferences else "No preferences set"
         context = f"""Portfolio: {json.dumps(portfolio, indent=2)}
 Risk Analysis: {json.dumps(risk_analysis, indent=2)}
-Sector Analysis: {json.dumps(sector_analysis, indent=2)}"""
+Sector Analysis: {json.dumps(sector_analysis, indent=2)}
+User Preferences: {preferences_summary}"""
         
         response = self.balanced_llm.invoke([
             SystemMessage(content=system_prompt),
@@ -248,14 +292,15 @@ Sector Analysis: {json.dumps(sector_analysis, indent=2)}"""
         
         portfolio = state.get("portfolio_data", {})
         allocation_recs = state.get("allocation_recommendations", {})
+        user_preferences = state.get("user_preferences", {})
         
         system_prompt = """You are an Investment Opportunities Specialist at Target Capital.
-Identify 5-10 specific investment opportunities:
-1. Underrepresented quality stocks
-2. Emerging sector plays
-3. Value opportunities
-4. Diversification additions
-5. Dividend yielders for income
+Identify 5-10 specific investment opportunities that match user preferences:
+1. Underrepresented quality stocks (aligned with preferred asset classes)
+2. Emerging sector plays (matching geographic preference)
+3. Value opportunities (within risk tolerance)
+4. Diversification additions (matching investment horizon)
+5. Dividend yielders for income (if liquidity required)
 
 For each opportunity provide:
 - Stock name and symbol
@@ -263,11 +308,20 @@ For each opportunity provide:
 - Rationale (2-3 sentences)
 - Expected allocation (%)
 - Risk level
+- How it aligns with user goals
+
+IMPORTANT: Suggest only opportunities that match user's:
+- Risk tolerance
+- Preferred asset classes
+- Financial goals
+- Geographic preference
 
 Output as JSON array."""
         
+        preferences_summary = json.dumps(user_preferences, indent=2) if user_preferences else "No preferences set"
         context = f"""Current Portfolio: {json.dumps(portfolio, indent=2)}
-Allocation Gaps: {json.dumps(allocation_recs, indent=2)}"""
+Allocation Gaps: {json.dumps(allocation_recs, indent=2)}
+User Preferences: {preferences_summary}"""
         
         response = self.creative_llm.invoke([
             SystemMessage(content=system_prompt),
@@ -292,23 +346,37 @@ Allocation Gaps: {json.dumps(allocation_recs, indent=2)}"""
         """Coordinator: Synthesize all agent outputs into final report"""
         logger.info("Coordinator Agent synthesizing insights")
         
+        user_preferences = state.get("user_preferences", {})
+        
         system_prompt = """You are the Chief Portfolio Strategist at Target Capital.
 Synthesize the analysis from all specialized agents into a comprehensive portfolio optimization report.
 
 Create a well-structured markdown report with:
-1. Executive Summary
-2. Risk Assessment (from Risk Agent)
-3. Sector Analysis (from Sector Agent)
-4. Asset Allocation Strategy (from Allocation Agent)
-5. Investment Opportunities (from Opportunity Agent)
-6. Action Plan with prioritized steps
-7. Expected Outcomes
+1. Executive Summary (highlight alignment with user's goals and preferences)
+2. User Investment Profile (age, risk tolerance, horizon, goals)
+3. Risk Assessment (from Risk Agent with preference alignment)
+4. Sector Analysis (from Sector Agent)
+5. Asset Allocation Strategy (from Allocation Agent aligned with preferences)
+6. Investment Opportunities (from Opportunity Agent matching user criteria)
+7. Action Plan with prioritized steps (considering user's timeline)
+8. Expected Outcomes (realistic based on user's expected returns)
 
-Make it clear, actionable, and professional."""
+IMPORTANT: Emphasize how recommendations align with user's:
+- Risk tolerance
+- Investment horizon
+- Financial goals
+- Preferred asset classes
+- Expected return targets
+
+Make it clear, actionable, and personalized to the user."""
         
         agent_outputs = state.get("agent_outputs", {})
+        preferences_summary = json.dumps(user_preferences, indent=2) if user_preferences else "No preferences set"
         
-        context = f"""Agent Outputs:
+        context = f"""User Preferences:
+{preferences_summary}
+
+Agent Outputs:
         
 Risk Analysis:
 {json.dumps(agent_outputs.get('risk_agent', {}), indent=2)}
