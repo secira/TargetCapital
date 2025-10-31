@@ -496,8 +496,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
 /* Sidebar */
 .dashboard-sidebar {
     width: 280px;
-    background: linear-gradient(180deg, #00091a 0%, #001122 100%);
-    color: white;
+    background: #f8f9fa;
+    color: #2d3748;
     position: fixed;
     top: 0;
     left: 0;
@@ -506,7 +506,8 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
     z-index: 1040;
     transition: transform 0.3s ease;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+    border-right: 1px solid #e2e8f0;
 }
 
 .dashboard-sidebar::-webkit-scrollbar {
@@ -518,7 +519,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
 }
 
 .dashboard-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
 }
 
