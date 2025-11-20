@@ -137,7 +137,7 @@
                             <p class="text-muted mb-4">Great for traders who want to execute orders</p>
                             
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
-                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">2999</h2>
+                                <h2 class="display-4 fw-bold text-primary mb-0 me-2">2499</h2>
                                 <small class="text-muted">/month</small>
                             </div>
                         </div>
@@ -158,7 +158,7 @@
                         {% if current_user.pricing_plan == PricingPlan.TARGET_PRO %}
                             <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
                         {% else %}
-                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_pro', 2999)">
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_pro', 2499)">
                                 {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade Now{% else %}Switch Plan{% endif %}
                             </button>
                         {% endif %}

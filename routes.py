@@ -5342,7 +5342,7 @@ def handle_payment_success():
             amount = 1499
         elif plan_type == 'target_pro':
             current_user.pricing_plan = PricingPlan.TARGET_PRO
-            amount = 2999
+            amount = 2499
         else:
             return jsonify({'success': False, 'message': 'Invalid plan type'})
         

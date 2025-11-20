@@ -172,7 +172,7 @@ class RazorpayService:
             },
             'TARGET_PRO': {
                 'name': 'Target Pro Plan',
-                'price': 2999,
+                'price': 2499,
                 'duration_days': 30,
                 'features': ['All Target Plus features', 'Connect up to 3 brokers', 'Trade execution with 1 broker', 'Advanced AI insights', 'Portfolio optimization'],
                 'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}

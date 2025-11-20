@@ -200,7 +200,7 @@ class DashboardLayout {
 function showUpgradeAlert(requiredPlan = 'Target Plus') {
     const messages = {
         'Target Plus': 'Upgrade to Target Plus plan (₹1,499/month) to access this feature.',
-        'Target Pro': 'Upgrade to Target Pro plan (₹2,999/month) to access this feature.'
+        'Target Pro': 'Upgrade to Target Pro plan (₹2,499/month) to access this feature.'
     };
     
     document.getElementById('upgradeMessage').textContent = messages[requiredPlan] || messages['Target Plus'];
