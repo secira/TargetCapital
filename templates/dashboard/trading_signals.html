@@ -946,12 +946,12 @@ function filterSignals(type) {
 }
 
 function showUpgradeAlert() {
-    alert('targetcapital.in says: Upgrade to view Smart Signals. FREE users have access to Research Assistant only.');
+    alert('targetcapital.ai says: Upgrade to view Smart Signals. FREE users have access to Research Assistant only.');
     window.location.href = '/pricing';
 }
 
 function showUpgradeToProAlert() {
-    alert('targetcapital.in says: Upgrade to TARGET PRO (₹2,499) or HNI (₹4,999) to execute trades with your primary broker. TARGET PLUS users can view signals but cannot trade.');
+    alert('targetcapital.ai says: Upgrade to TARGET PRO (₹2,499) or HNI (₹4,999) to execute trades with your primary broker. TARGET PLUS users can view signals but cannot trade.');
     window.location.href = '/pricing';
 }
 
@@ -1209,7 +1209,7 @@ function startLiveUpdates() {
         // Auto-refresh signals every 2 minutes during market hours
         autoRefreshInterval = setInterval(function() {
             if (document.hasFocus() && isMarketHours()) {
-                console.log('targetcapital.in says: Auto-refreshing trading signals...');
+                console.log('targetcapital.ai says: Auto-refreshing trading signals...');
                 refreshSignals();
             }
         }, 120000); // 2 minutes

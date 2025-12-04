@@ -574,7 +574,7 @@
 
     // Global error handler
     window.addEventListener('error', function(e) {
-        console.error('targetcapital.in says: JavaScript error:', e.error);
+        console.error('targetcapital.ai says: JavaScript error:', e.error);
     });
 
     // Add CSS for animations

@@ -30,7 +30,7 @@
 5. Check your email and verify the sender
 
 ### 4. Update Environment Variables
-targetcapital.in says: Add to your environment secrets:
+targetcapital.ai says: Add to your environment secrets:
 ```
 SENDGRID_API_KEY=your_sendgrid_api_key_here
 ```

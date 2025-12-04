@@ -134,10 +134,10 @@ class TradingViewWidget {
      * Create simple embedded chart widget without notifications
      */
     createEmbeddedWidget(containerId, symbol, height = 400) {
-        console.log('targetcapital.in says: Creating embedded widget for:', containerId, 'symbol:', symbol);
+        console.log('targetcapital.ai says: Creating embedded widget for:', containerId, 'symbol:', symbol);
         const container = document.getElementById(containerId);
         if (!container) {
-            console.error('targetcapital.in says: Container not found:', containerId);
+            console.error('targetcapital.ai says: Container not found:', containerId);
             return;
         }
 
@@ -334,10 +334,10 @@ if (!window.tradingViewWidget) {
 
 // Global functions for chart interactions
 window.loadTradingViewChart = function(symbol, containerId) {
-    console.log('targetcapital.in says: loadTradingViewChart called with:', symbol, containerId);
+    console.log('targetcapital.ai says: loadTradingViewChart called with:', symbol, containerId);
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error('targetcapital.in says: Container not found for loadTradingViewChart:', containerId);
+        console.error('targetcapital.ai says: Container not found for loadTradingViewChart:', containerId);
         return;
     }
     
@@ -471,7 +471,7 @@ window.loadTradingViewChart = function(symbol, containerId) {
 };
 
 window.showPriceData = function(symbol) {
-    console.log('targetcapital.in says: Fetching price data for:', symbol);
+    console.log('targetcapital.ai says: Fetching price data for:', symbol);
     
     // Show loading toast
     const toast = document.createElement('div');
@@ -531,7 +531,7 @@ window.showPriceData = function(symbol) {
             }, 5000);
         })
         .catch(error => {
-            console.error('targetcapital.in says: Price fetch error:', error);
+            console.error('targetcapital.ai says: Price fetch error:', error);
             toast.innerHTML = `
                 <div class="d-flex align-items-start">
                     <i class="fas fa-exclamation-triangle text-warning me-3 mt-1"></i>
@@ -553,16 +553,16 @@ window.showPriceData = function(symbol) {
 
 // Add refresh chart function
 window.refreshChart = function(symbol, containerId) {
-    console.log('targetcapital.in says: Refreshing chart for:', symbol, containerId);
+    console.log('targetcapital.ai says: Refreshing chart for:', symbol, containerId);
     window.loadTradingViewChart(symbol, containerId);
 };
 
 // Add real chart loading function with actual TradingView widget
 window.loadRealChart = function(symbol, containerId) {
-    console.log('targetcapital.in says: Loading real TradingView chart for:', symbol, containerId);
+    console.log('targetcapital.ai says: Loading real TradingView chart for:', symbol, containerId);
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error('targetcapital.in says: Container not found for real chart:', containerId);
+        console.error('targetcapital.ai says: Container not found for real chart:', containerId);
         return;
     }
     
@@ -660,7 +660,7 @@ window.loadRealChart = function(symbol, containerId) {
                 });
             }
         } catch (error) {
-            console.error('targetcapital.in says: Error loading real chart:', error);
+            console.error('targetcapital.ai says: Error loading real chart:', error);
             // Fallback to success display
             window.loadTradingViewChart(symbol, containerId);
         }
@@ -720,7 +720,7 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
     
     // Handle modal events properly
     modal.addEventListener('shown.bs.modal', () => {
-        console.log('targetcapital.in says: Modal shown, loading chart for:', chartContainer, 'symbol:', symbol);
+        console.log('targetcapital.ai says: Modal shown, loading chart for:', chartContainer, 'symbol:', symbol);
         modal.removeAttribute('aria-hidden');
         modal.setAttribute('aria-modal', 'true');
         // Create widget instance and load the custom chart interface

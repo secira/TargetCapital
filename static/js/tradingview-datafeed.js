@@ -207,9 +207,9 @@ class tCapitalDatafeed {
     log(message, data = null) {
         if (this.debug) {
             if (data) {
-                console.log(`[targetcapital.in says] ${message}`, data);
+                console.log(`[targetcapital.ai says] ${message}`, data);
             } else {
-                console.log(`[targetcapital.in says] ${message}`);
+                console.log(`[targetcapital.ai says] ${message}`);
             }
         }
     }

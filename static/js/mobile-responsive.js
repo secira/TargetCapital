@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
                 if (loadTime > 3000) {
-                    console.log('targetcapital.in says: Page load time:', loadTime + 'ms - Consider optimizing for mobile');
+                    console.log('targetcapital.ai says: Page load time:', loadTime + 'ms - Consider optimizing for mobile');
                 }
             }, 0);
         });
