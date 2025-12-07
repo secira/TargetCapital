@@ -64,7 +64,7 @@ def create_testpro_user():
         print("   ✅ AI stock analysis")
         print("   ✅ Daily Trading Signals")
         print("   ✅ Portfolio optimization")
-        print("   ✅ Connect up to 3 brokers")
+        print("   ✅ Connect to a broker")
         print("   ✅ Trade execution (1 primary broker)")
         print("   ✅ Priority email support")
 
