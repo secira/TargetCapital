@@ -62,6 +62,10 @@ localPort = 37323
 externalPort = 6800
 
 [[ports]]
+localPort = 37625
+externalPort = 8099
+
+[[ports]]
 localPort = 37717
 externalPort = 5000
 
@@ -84,10 +88,6 @@ externalPort = 8000
 [[ports]]
 localPort = 41529
 externalPort = 8008
-
-[[ports]]
-localPort = 43721
-externalPort = 8099
 
 [agent]
 integrations = ["perplexity_v0:1.0.0", "flask_google_oauth:1.0.0", "twilio_send_message:1.0.0"]
