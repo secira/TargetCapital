@@ -4315,7 +4315,7 @@ def api_trade_validate_execution():
             'validation_errors': result['validation_errors'],
             'stage_status': result['stage_status'],
             'pipeline_metadata': result['pipeline_metadata'],
-            'powered_by': 'LangGraph Trade Execution Pipeline'
+            'powered_by': 'LangGraph Trade Support Pipeline'
         })
         
     except Exception as e:

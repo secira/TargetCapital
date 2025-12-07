@@ -66,7 +66,7 @@ Target Capital implements **LangGraph as the primary AI architecture** for auton
    - **UI Integration**: Smart Signals page with visual 5-stage pipeline display (`langgraph-visual.js`)
    - **Visual Pipeline**: Real-time stage status, metrics tracking (scanned/generated/validated/ready)
 
-#### 4. **Trade Execution Pipeline** (`services/langgraph_trade_executor.py`) **[NEW]**
+#### 4. **Trade Support Pipeline** (`services/langgraph_trade_executor.py`) **[NEW]**
    - **6-Stage Validation Pipeline**: Subscription → Broker → Funds → Signal → Risk → Execution Planner
    - **Subscription Validator**: Ensures user has TARGET PRO (₹2,499) or HNI (₹4,999) subscription
    - **Broker Selector**: Identifies primary broker account, verifies active connection
@@ -124,8 +124,8 @@ Replaced custom agentic AI coordinator with LangGraph/LangChain for production-g
     - **Subscription Model**: Tiered pricing with feature-gated access, managed via Razorpay:
       * **FREE** (₹0): Research Assistant only
       * **TARGET PLUS** (₹1,499): Research Assistant + Smart Signals (view-only) + My Portfolio + Portfolio Hub
-      * **TARGET PRO** (₹2,499): All features + Trade Execution with 1 Primary Broker + LangGraph 6-stage validation pipeline
-      * **HNI** (₹4,999): All features + Trade Execution with 1 Primary Broker + Premium support
+      * **TARGET PRO** (₹2,499): All features + Trade Support with 1 Primary Broker + LangGraph 6-stage validation pipeline
+      * **HNI** (₹4,999): All features + Trade Support with 1 Primary Broker + Premium support
     - **Knowledge Base**: Replaced "Blog" with a "Knowledge Base" containing trading education articles.
 
 ### External Dependencies

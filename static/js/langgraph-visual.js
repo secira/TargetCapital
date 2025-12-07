@@ -1004,7 +1004,7 @@ class TradeExecutionWorkflow {
                 <div class="pipeline-header text-center mb-4">
                     <h5 class="mb-2">
                         <i class="fas fa-rocket me-2 text-primary"></i>
-                        LangGraph Trade Execution Pipeline
+                        LangGraph Trade Support Pipeline
                     </h5>
                     <p class="text-muted small mb-0">6-Stage Validation Before Order Placement</p>
                 </div>
