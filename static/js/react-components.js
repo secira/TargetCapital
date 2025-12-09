@@ -42,6 +42,7 @@ window.Component = Component;
 }
 
 // WebSocket Hook for React-like data management
+if (!window.WebSocketManager) {
 class WebSocketManager {
     constructor() {
         this.connections = new Map();
@@ -141,9 +142,12 @@ class WebSocketManager {
         this.connections.clear();
     }
 }
+window.WebSocketManager = WebSocketManager;
+}
 
 // Global WebSocket manager instance
-const wsManager = new WebSocketManager();
+const wsManager = window.wsManager || new WebSocketManager();
+window.wsManager = wsManager;
 
 // Real-time Market Data Component
 class RealTimeMarketData extends Component {
