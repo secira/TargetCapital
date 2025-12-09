@@ -5,7 +5,7 @@ Generates embeddings using OpenAI and stores in PostgreSQL with pgvector
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app import app, db
 from models import VectorDocument
 from services.vector_service import VectorService
@@ -26,7 +26,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Conglomerate',
         'category': 'Large Cap',
         'source_url': 'https://www.ril.com',
-        'published_date': datetime.now() - timedelta(days=2)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=2)
     },
     {
         'document_type': 'news',
@@ -40,7 +40,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Conglomerate',
         'category': 'Market News',
         'source_url': 'https://economictimes.com',
-        'published_date': datetime.now() - timedelta(days=1)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=1)
     },
     
     # TCS
@@ -58,7 +58,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'IT Services',
         'category': 'Large Cap',
         'source_url': 'https://www.tcs.com',
-        'published_date': datetime.now() - timedelta(days=3)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=3)
     },
     {
         'document_type': 'earnings',
@@ -75,7 +75,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'IT Services',
         'category': 'Earnings Report',
         'source_url': 'https://www.tcs.com/investor-relations',
-        'published_date': datetime.now() - timedelta(days=15)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=15)
     },
     
     # HDFC Bank
@@ -94,7 +94,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Banking',
         'category': 'Large Cap',
         'source_url': 'https://www.hdfcbank.com',
-        'published_date': datetime.now() - timedelta(days=5)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=5)
     },
     {
         'document_type': 'news',
@@ -109,7 +109,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Banking',
         'category': 'Market News',
         'source_url': 'https://economictimes.com',
-        'published_date': datetime.now() - timedelta(hours=18)
+        'published_date': datetime.now(timezone.utc) - timedelta(hours=18)
     },
     
     # Infosys
@@ -127,7 +127,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'IT Services',
         'category': 'Large Cap',
         'source_url': 'https://www.infosys.com',
-        'published_date': datetime.now() - timedelta(days=4)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=4)
     },
     
     # ITC
@@ -146,7 +146,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'FMCG',
         'category': 'Large Cap',
         'source_url': 'https://www.itcportal.com',
-        'published_date': datetime.now() - timedelta(days=6)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=6)
     },
     
     # Sector Analysis - Banking
@@ -165,7 +165,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Banking',
         'category': 'Sector Analysis',
         'source_url': 'https://www.rbi.org.in',
-        'published_date': datetime.now() - timedelta(days=7)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=7)
     },
     
     # Sector Analysis - IT Services
@@ -184,7 +184,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'IT Services',
         'category': 'Sector Analysis',
         'source_url': 'https://nasscom.org',
-        'published_date': datetime.now() - timedelta(days=10)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=10)
     },
     
     # Market Overview
@@ -204,7 +204,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Market',
         'category': 'Market Overview',
         'source_url': 'https://www.nseindia.com',
-        'published_date': datetime.now() - timedelta(hours=6)
+        'published_date': datetime.now(timezone.utc) - timedelta(hours=6)
     },
     
     # Investment Strategy
@@ -224,7 +224,7 @@ SAMPLE_DOCUMENTS = [
         'sector': 'Market',
         'category': 'Investment Strategy',
         'source_url': 'https://www.sebi.gov.in',
-        'published_date': datetime.now() - timedelta(days=12)
+        'published_date': datetime.now(timezone.utc) - timedelta(days=12)
     },
 ]
 

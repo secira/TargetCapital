@@ -6,6 +6,7 @@ Provides real-time Indian stock market data using NSEPython library
 import logging
 import time
 import datetime as dt
+from datetime import timezone
 from typing import Dict, List, Optional, Any
 import pandas as pd
 
@@ -52,7 +53,7 @@ class NSEService:
             quote = nse_quote(symbol)
             if quote:
                 # Calculate delayed timestamp (simulate delayed data)
-                current_time = dt.datetime.now()
+                current_time = dt.datetime.now(timezone.utc)
                 delayed_timestamp = current_time - dt.timedelta(minutes=delayed_minutes)
                 
                 last_price = float(quote.get('lastPrice', 0))
@@ -130,7 +131,7 @@ class NSEService:
                     'change_percent': float(bank_nifty_data.get('pChange', 0))
                 }
                 
-            result['timestamp'] = dt.datetime.now()
+            result['timestamp'] = dt.datetime.now(timezone.utc)
             return result
             
         except Exception as e:
@@ -223,7 +224,7 @@ class NSEService:
             DataFrame with historical data or None
         """
         try:
-            end_date = dt.datetime.now()
+            end_date = dt.datetime.now(timezone.utc)
             start_date = end_date - dt.timedelta(days=days)
             
             # Note: NSEPython historical data might need different approach
@@ -292,7 +293,7 @@ class NSEService:
         """
         try:
             # Get current time in IST
-            now = dt.datetime.now()
+            now = dt.datetime.now(timezone.utc)
             
             # NSE trading hours: 9:15 AM to 3:30 PM IST on weekdays
             market_open_time = now.replace(hour=9, minute=15, second=0, microsecond=0)
@@ -435,7 +436,7 @@ class NSEService:
             'week_52_low': stock_data['week_52_low'],
             'market_cap': None,
             'pe_ratio': stock_data['pe_ratio'],
-            'timestamp': dt.datetime.now()
+            'timestamp': dt.datetime.now(timezone.utc)
         }
 
     def _get_fallback_market_data(self) -> Dict[str, Any]:
@@ -450,7 +451,7 @@ class NSEService:
                 'sensex': {'lastPrice': 80840.50, 'change': 284.30, 'pChange': 0.35},
                 'nifty_bank': {'lastPrice': 52840.75, 'change': -156.25, 'pChange': -0.29},
                 'nifty_it': {'lastPrice': 42150.30, 'change': 98.45, 'pChange': 0.23},
-                'timestamp': dt.datetime.now()
+                'timestamp': dt.datetime.now(timezone.utc)
             },
             'top_gainers': [
                 {'symbol': 'ADANIPORTS', 'company_name': 'Adani Ports & SEZ Ltd', 'current_price': 756.45, 'change_percent': 4.82, 'change_amount': 34.75},

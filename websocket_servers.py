@@ -9,7 +9,7 @@ import json
 import logging
 import signal
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Set, Dict, Any
 import threading
 import time
@@ -175,7 +175,7 @@ class MarketDataServer(WebSocketServer):
                 'market_status': 'open' if self.is_market_open() else 'closed'
             }
             
-            self.last_update = datetime.now().isoformat()
+            self.last_update = datetime.now(timezone.utc).isoformat()
             
             # Broadcast to all clients
             await self.broadcast({
@@ -189,7 +189,7 @@ class MarketDataServer(WebSocketServer):
     
     def is_market_open(self):
         """Check if market is currently open"""
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         hour = now.hour
         minute = now.minute
         day = now.weekday()

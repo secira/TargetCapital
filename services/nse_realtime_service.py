@@ -4,7 +4,7 @@ Fetches live market data from NSE API and other sources
 """
 
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import time
 from typing import Dict, List, Optional
@@ -42,13 +42,13 @@ class NSERealTimeService:
                             'value': float(index['last']),
                             'change': float(index['change']),
                             'change_percent': float(index['pChange']),
-                            'timestamp': datetime.now().isoformat()
+                            'timestamp': datetime.now(timezone.utc).isoformat()
                         }
                 
                 return {
                     'success': True,
                     'data': indices_data,
-                    'timestamp': datetime.now().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
                 
         except Exception as e:
@@ -60,7 +60,7 @@ class NSERealTimeService:
     def get_fallback_indices_data(self) -> Dict:
         """Fallback method with current market data"""
         # Using current approximate market values as of today
-        current_time = datetime.now()
+        current_time = datetime.now(timezone.utc)
         
         # These are approximate real values - in production, you'd fetch from a reliable API
         base_data = {
@@ -111,7 +111,7 @@ class NSERealTimeService:
                         'change': float(price_info['change']),
                         'change_percent': float(price_info['pChange']),
                         'volume': int(price_info.get('totalTradedVolume', 0)),
-                        'timestamp': datetime.now().isoformat()
+                        'timestamp': datetime.now(timezone.utc).isoformat()
                     }
                     
         except Exception as e:
@@ -151,14 +151,14 @@ class NSERealTimeService:
                 'change': round(change, 2),
                 'change_percent': round(change_percent, 2),
                 'volume': int(1000000 + (time.time() % 1000) * 1000),  # Simulated volume
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
         
         # Default fallback for unknown symbols
         return {
             'success': False,
             'error': f'No data available for {symbol}',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
 # Global service instance

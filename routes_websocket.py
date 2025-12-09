@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request, session
 from flask_login import login_required, current_user
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from services.nse_service import NSEService
 from services.ai_agent_service import AgenticAICoordinator
 from models import Portfolio, TradingSignal, User
@@ -133,7 +133,7 @@ def get_market_data():
             'data': {
                 'indices': indices_data.get('data', {}) if indices_data.get('success') else {},
                 'stocks': stocks_data,
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'market_status': 'open' if is_market_open() else 'closed'
             }
         })
@@ -235,11 +235,11 @@ def place_trading_order():
         
         # Add user ID to order
         order_data['user_id'] = current_user.id
-        order_data['timestamp'] = datetime.now().isoformat()
+        order_data['timestamp'] = datetime.now(timezone.utc).isoformat()
         
         # Process order through trading engine
         # This would integrate with your actual trading engine
-        order_id = f"order_{int(datetime.now().timestamp())}"
+        order_id = f"order_{int(datetime.now(timezone.utc).timestamp())}"
         
         # For now, simulate order placement
         result = {
@@ -327,7 +327,7 @@ def get_system_status():
             'database': 'connected',
             'redis': 'connected',
             'market_status': 'open' if is_market_open() else 'closed',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         return jsonify({
@@ -344,7 +344,7 @@ def get_system_status():
 
 def is_market_open():
     """Check if Indian market is currently open"""
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     hour = now.hour
     minute = now.minute
     day = now.weekday()

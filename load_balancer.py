@@ -12,7 +12,7 @@ import time
 import redis
 from typing import Dict, List, Optional
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 
 # Configure logging
@@ -150,7 +150,7 @@ class LoadBalancer:
         while True:
             try:
                 # Update Redis-based metrics
-                current_time = datetime.now()
+                current_time = datetime.now(timezone.utc)
                 
                 # Store metrics in Redis for persistence
                 metrics_data = {
@@ -434,7 +434,7 @@ class LoadBalancer:
         """Load balancer health endpoint"""
         health_data = {
             'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'services': self.metrics['service_health'],
             'total_requests': self.metrics['total_requests'],
             'success_rate': (

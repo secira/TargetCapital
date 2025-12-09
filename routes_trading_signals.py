@@ -6,7 +6,7 @@ from flask import render_template, request, jsonify, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app import app, db
 from models import TradingSignal
-from datetime import datetime
+from datetime import datetime, timezone
 
 @app.route('/dashboard/trading-signals')
 @login_required
@@ -23,7 +23,7 @@ def dashboard_trading_signals():
             TradingSignal.is_active == True,
             db.or_(
                 TradingSignal.expires_at.is_(None),
-                TradingSignal.expires_at > datetime.now()
+                TradingSignal.expires_at > datetime.now(timezone.utc)
             )
         ).order_by(TradingSignal.created_at.desc()).all()
     
@@ -42,7 +42,7 @@ def trading_signals_api():
         TradingSignal.is_active == True,
         db.or_(
             TradingSignal.expires_at.is_(None),
-            TradingSignal.expires_at > datetime.now()
+            TradingSignal.expires_at > datetime.now(timezone.utc)
         )
     ).order_by(TradingSignal.created_at.desc()).all()
     
@@ -83,7 +83,7 @@ def execute_trading_signal(signal_id):
     signal = TradingSignal.query.get_or_404(signal_id)
     
     # Check if signal is still active
-    if not signal.is_active or (signal.expires_at and signal.expires_at < datetime.now()):
+    if not signal.is_active or (signal.expires_at and signal.expires_at < datetime.now(timezone.utc)):
         flash('This trading signal has expired', 'error')
         return redirect(url_for('dashboard_trading_signals'))
     
@@ -154,7 +154,7 @@ def reconnect_broker(broker_id):
         
         if connection_result['success']:
             broker.connection_status = 'connected'
-            broker.last_connected = datetime.now()
+            broker.last_connected = datetime.now(timezone.utc)
             db.session.commit()
             
             flash(f'Successfully reconnected to {broker.broker_name}', 'success')

@@ -4,7 +4,7 @@ Handles long-running tasks like portfolio analysis, risk calculations, and data 
 """
 
 from celery import Celery
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 import json
 import redis
@@ -108,7 +108,7 @@ def analyze_portfolio(self, user_id: str, portfolio_data: Dict) -> Dict:
         # Perform comprehensive analysis
         analysis_result = {
             "user_id": user_id,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "portfolio_health": {},
             "risk_metrics": {},
             "ai_recommendations": {},
@@ -309,7 +309,7 @@ def sync_broker_data(self, user_id: str, broker_ids: List[str]) -> Dict:
         
         sync_results = {
             "user_id": user_id,
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "brokers_synced": 0,
             "total_brokers": len(broker_ids),
             "holdings": {},
@@ -355,7 +355,7 @@ def generate_trading_signals(self, symbols: List[str]) -> Dict:
         
         ai_coordinator = AgenticAICoordinator()
         signals = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "signals": {},
             "market_sentiment": "NEUTRAL",
             "generated_count": 0

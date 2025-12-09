@@ -5,7 +5,7 @@ Async processing of broker API calls and data synchronization
 import logging
 from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def sync_broker_holdings(self, broker_account_id):
                     # Update existing holding
                     holding.total_quantity = holding_data.get('quantity', 0)
                     holding.current_price = holding_data.get('current_price', 0)
-                    holding.last_updated = datetime.utcnow()
+                    holding.last_updated = datetime.now(timezone.utc)
                     holding.calculate_pnl()
                 else:
                     # Create new holding
@@ -60,7 +60,7 @@ def sync_broker_holdings(self, broker_account_id):
                 updated_count += 1
             
             # Update broker account sync status
-            broker_account.last_sync_time = datetime.utcnow()
+            broker_account.last_sync_time = datetime.now(timezone.utc)
             broker_account.connection_status = 'connected'
             
             db.session.commit()
@@ -94,7 +94,7 @@ def sync_broker_orders(self, broker_account_id):
             credentials = broker_account.get_credentials()
             
             # Get orders from last 7 days
-            end_date = datetime.now()
+            end_date = datetime.now(timezone.utc)
             start_date = end_date - timedelta(days=7)
             orders_data = service.get_orders(credentials, start_date, end_date)
             
@@ -110,7 +110,7 @@ def sync_broker_orders(self, broker_account_id):
                     order.order_status = order_data.get('status', order.order_status)
                     order.filled_quantity = order_data.get('filled_quantity', 0)
                     order.avg_execution_price = order_data.get('avg_price', 0)
-                    order.last_updated = datetime.utcnow()
+                    order.last_updated = datetime.now(timezone.utc)
                 else:
                     # Create new order record
                     order = BrokerOrder(

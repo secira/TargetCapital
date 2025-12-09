@@ -5,7 +5,7 @@ Loads sample data and demonstrates intelligent search capabilities
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add current directory to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -346,7 +346,7 @@ def load_test_data():
             processing_time_seconds=2.5,
             llm_tokens_used=1500,
             llm_cost=0.003,
-            completed_at=datetime.now()
+            completed_at=datetime.now(timezone.utc)
         )
         db.session.add(import_log)
         db.session.commit()

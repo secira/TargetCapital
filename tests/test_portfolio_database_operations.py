@@ -3,7 +3,7 @@ Test Portfolio database CRUD operations for different asset types
 """
 
 import pytest
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from models import Portfolio
 from app import db
 
@@ -258,7 +258,7 @@ class TestPortfolioQuerying:
         
         # Query options expiring within next 30 days
         from datetime import datetime, timedelta
-        expiry_threshold = datetime.now().date() + timedelta(days=30)
+        expiry_threshold = datetime.now(timezone.utc).date() + timedelta(days=30)
         
         expiring_soon = Portfolio.query.filter(
             Portfolio.user_id == test_user.id,

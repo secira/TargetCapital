@@ -5,7 +5,7 @@ Orchestrates multiple AI agents for comprehensive investment analysis and decisi
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional
 import json
 from openai import OpenAI
@@ -44,7 +44,7 @@ class AgenticAICoordinator:
             comprehensive_analysis = {
                 'symbol': symbol,
                 'analysis_type': analysis_type,
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'learning_insights': learning_result,
                 'reasoning_analysis': reasoning_result,
                 'action_recommendations': action_result,
@@ -63,7 +63,7 @@ class AgenticAICoordinator:
             return {
                 'error': f'Agentic AI analysis failed: {str(e)}',
                 'symbol': symbol,
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def optimize_portfolio_comprehensive(self, portfolio: Dict) -> Dict[str, Any]:
@@ -90,14 +90,14 @@ class AgenticAICoordinator:
                 'optimization_reasoning': optimization_reasoning,
                 'optimization': optimization_actions,
                 'adaptation_strategy': optimization_adaptation,
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
             self.logger.error(f"Portfolio optimization error: {str(e)}")
             return {
                 'error': f'Portfolio optimization failed: {str(e)}',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def _learn_phase(self, symbol: str) -> Dict[str, Any]:
@@ -180,7 +180,7 @@ class ResearchAgent:
                 'research_summary': research_data.get('summary', 'Research completed'),
                 'detailed_findings': research_data,
                 'confidence_level': research_data.get('data_confidence', 0.8),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -188,7 +188,7 @@ class ResearchAgent:
             return {
                 'research_completed': False,
                 'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def analyze_portfolio_state(self, portfolio: Dict) -> Dict[str, Any]:
@@ -281,7 +281,7 @@ class AnalysisAgent:
                 'investment_thesis': analysis_result.get('investment_thesis', 'Analysis completed'),
                 'summary': analysis_result.get('summary', 'Comprehensive analysis completed'),
                 'confidence_score': analysis_result.get('confidence_score', 0.7),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -289,7 +289,7 @@ class AnalysisAgent:
             return {
                 'analysis_completed': False,
                 'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def reason_portfolio_optimization(self, portfolio: Dict, learning_data: Dict) -> Dict[str, Any]:
@@ -384,7 +384,7 @@ class DecisionAgent:
                 'time_horizon': decision_result.get('time_horizon', '6-12 months'),
                 'contingency_plans': decision_result.get('contingency_plans', []),
                 'decision_rationale': decision_result.get('decision_rationale', 'Based on comprehensive analysis'),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -393,7 +393,7 @@ class DecisionAgent:
                 'primary_recommendation': 'HOLD',
                 'confidence_score': 0.5,
                 'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def generate_portfolio_actions(self, portfolio: Dict, reasoning_data: Dict) -> Dict[str, Any]:
@@ -485,14 +485,14 @@ class LearningAgent:
                 'learning_insights': adaptation_result.get('learning_insights', []),
                 'improvement_recommendations': adaptation_result.get('improvement_recommendations', []),
                 'adapted_strategy': adaptation_result.get('adapted_strategy', 'Strategy adapted'),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
             self.logger.error(f"Strategy adaptation error for {symbol}: {str(e)}")
             return {
                 'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def adapt_portfolio_strategy(self, portfolio: Dict, action_data: Dict) -> Dict[str, Any]:

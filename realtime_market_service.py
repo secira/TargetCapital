@@ -9,7 +9,7 @@ import json
 import logging
 import redis
 import aioredis
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Set, Optional
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -50,17 +50,22 @@ class RealTimeMarketService:
     
     async def monitor_market_hours(self):
         """Monitor Indian market hours (9:15 AM - 3:30 PM IST)"""
+        # IST is UTC+5:30
+        IST = timezone(timedelta(hours=5, minutes=30))
+        
         while True:
             try:
-                current_time = datetime.now()
+                # Get current time in IST
+                current_time_utc = datetime.now(timezone.utc)
+                current_time_ist = current_time_utc.astimezone(IST)
                 
-                # Check if current time is within market hours
-                market_start = current_time.replace(hour=9, minute=15, second=0, microsecond=0)
-                market_end = current_time.replace(hour=15, minute=30, second=0, microsecond=0)
+                # Check if current time is within market hours (IST)
+                market_start = current_time_ist.replace(hour=9, minute=15, second=0, microsecond=0)
+                market_end = current_time_ist.replace(hour=15, minute=30, second=0, microsecond=0)
                 
                 # Skip weekends
-                is_weekday = current_time.weekday() < 5
-                is_market_time = market_start <= current_time <= market_end
+                is_weekday = current_time_ist.weekday() < 5
+                is_market_time = market_start <= current_time_ist <= market_end
                 
                 self.is_market_open = is_weekday and is_market_time
                 
@@ -159,7 +164,7 @@ class RealTimeMarketService:
             )
             
             if data.get('success'):
-                data['timestamp'] = datetime.now().isoformat()
+                data['timestamp'] = datetime.now(timezone.utc).isoformat()
                 return data
             
             return None
@@ -184,7 +189,7 @@ class RealTimeMarketService:
             )
             
             if data.get('success'):
-                data['timestamp'] = datetime.now().isoformat()
+                data['timestamp'] = datetime.now(timezone.utc).isoformat()
                 return data
             
             return None
@@ -205,7 +210,7 @@ class RealTimeMarketService:
         try:
             async def handle_client(websocket):
                 """Handle WebSocket client connections"""
-                client_id = f"client_{datetime.now().timestamp()}"
+                client_id = f"client_{datetime.now(timezone.utc).timestamp()}"
                 self.subscribers[client_id] = websocket
                 
                 logger.info(f"Client {client_id} connected. Total clients: {len(self.subscribers)}")
@@ -312,7 +317,7 @@ class RealTimeMarketService:
         await self.broadcast_to_all({
             'type': 'market_status',
             'is_open': self.is_market_open,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
     
     async def broadcast_indices_data(self, data: Dict):

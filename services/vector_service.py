@@ -9,7 +9,7 @@ import numpy as np
 import hashlib
 import json
 from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sklearn.metrics.pairwise import cosine_similarity
 
 logger = logging.getLogger(__name__)
@@ -190,7 +190,7 @@ class VectorService:
                     embedding=embedding,  # Store as JSON
                     document_metadata=metadata or {},
                     tags=tags,
-                    document_date=datetime.now().date()
+                    document_date=datetime.now(timezone.utc).date()
                 )
                 
                 db.session.add(chunk)
@@ -395,7 +395,7 @@ class VectorService:
                 source_chunk_ids=source_chunk_ids or [],
                 embedding=embedding,
                 tags=tags,
-                relevant_date=datetime.now().date()
+                relevant_date=datetime.now(timezone.utc).date()
             )
             
             db.session.add(knowledge)

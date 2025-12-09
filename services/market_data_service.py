@@ -6,7 +6,7 @@ Provides live stock prices, market data, and technical indicators
 import os
 import requests
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 import yfinance as yf
 from services.nse_service import NSEService
@@ -81,7 +81,7 @@ class MarketDataService:
                     'source': 'Alpha Vantage',
                     'currency': 'USD',
                     'exchange': 'US',
-                    'last_updated': datetime.now().isoformat()
+                    'last_updated': datetime.now(timezone.utc).isoformat()
                 }
                 
         except Exception as e:
@@ -134,7 +134,7 @@ class MarketDataService:
                     'source': 'Yahoo Finance',
                     'currency': info.get('currency', 'USD'),
                     'exchange': exchange,
-                    'last_updated': datetime.now().isoformat()
+                    'last_updated': datetime.now(timezone.utc).isoformat()
                 }
                 
         except Exception as e:
@@ -163,7 +163,7 @@ class MarketDataService:
                     'source': 'NSE India',
                     'currency': 'INR',
                     'exchange': 'NSE',
-                    'last_updated': datetime.now().isoformat()
+                    'last_updated': datetime.now(timezone.utc).isoformat()
                 }
                 
         except Exception as e:
@@ -217,7 +217,7 @@ class MarketDataService:
                                 'change_percent': f"{index_data.get('percentChange', 0):.2f}",
                                 'source': 'NSE India',
                                 'exchange': 'NSE',
-                                'last_updated': datetime.now().isoformat()
+                                'last_updated': datetime.now(timezone.utc).isoformat()
                             })
                             break
                 

@@ -7,7 +7,7 @@ import asyncio
 import logging
 import redis
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,7 +78,7 @@ class TradingEngine:
             message = json.dumps({
                 "type": "market_data",
                 "data": data,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             })
             
             # Send to all connected clients
@@ -173,7 +173,7 @@ class TradingEngine:
                 "status": "executed",
                 "order_id": result.get('order_id'),
                 "execution_price": result.get('price'),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -222,7 +222,7 @@ class TradingEngine:
             "user_id": order_data['user_id'],
             "order": order_data,
             "result": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
         await self.broadcast_to_user(order_data['user_id'], message)
@@ -242,7 +242,7 @@ class TradingEngine:
         """Get user's daily trading volume from cache"""
         if not user_id:
             return 0.0
-        cache_key = f"daily_volume:{user_id}:{datetime.now().date()}"
+        cache_key = f"daily_volume:{user_id}:{datetime.now(timezone.utc).date()}"
         volume = redis_client.get(cache_key)
         return float(volume) if volume else 0.0
 
@@ -321,7 +321,7 @@ class AlgorithmExecutor:
         
     async def start_algorithm(self, algo_config: Dict) -> str:
         """Start algorithmic trading strategy"""
-        algo_id = f"algo_{datetime.now().timestamp()}"
+        algo_id = f"algo_{datetime.now(timezone.utc).timestamp()}"
         
         # Validate algorithm configuration
         if not self.validate_algorithm_config(algo_config):
@@ -332,7 +332,7 @@ class AlgorithmExecutor:
         self.active_algorithms[algo_id] = {
             "config": algo_config,
             "task": task,
-            "start_time": datetime.now(),
+            "start_time": datetime.now(timezone.utc),
             "status": "running"
         }
         

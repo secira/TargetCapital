@@ -23,7 +23,7 @@ import os
 import hmac
 import hashlib
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -1179,7 +1179,7 @@ def api_realtime_indices():
         return jsonify({
             'success': False,
             'error': str(e),
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }), 500
 
 @app.route('/api/realtime/stock/<symbol>')
@@ -1192,7 +1192,7 @@ def api_realtime_stock(symbol):
         return jsonify({
             'success': False,
             'error': str(e),
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }), 500
 
 
@@ -1562,7 +1562,7 @@ def update_trading_signal(signal_id):
         
         if request.form.get('exit_price'):
             signal.exit_price = float(request.form['exit_price'])
-            signal.exit_date = datetime.now().date()
+            signal.exit_date = datetime.now(timezone.utc).date()
             signal.signal_status = 'Closed'
             
             # Calculate P&L
@@ -3484,7 +3484,7 @@ def dashboard_nse_stocks():
                              indices=indian_indices,
                              top_gainers=top_gainers,
                              top_losers=top_losers,
-                             last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                             last_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))
     except Exception as e:
         logging.error(f"Error loading NSE stocks dashboard: {str(e)}")
         flash('Unable to load NSE market data. Please try again later.', 'error')
@@ -3495,7 +3495,7 @@ def dashboard_nse_stocks():
 def live_market():
     """Live market data dashboard"""
     return render_template('dashboard/live_market.html',
-                          last_updated=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                          last_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'))
 
 @app.route('/dashboard/add-nse-stock', methods=['POST'])
 @login_required
@@ -3640,7 +3640,7 @@ def generate_mock_market_data():
             create_stock('TSLA', 'Tesla Inc.', 248.50, 5.2)
         ],
         'trending_india': [],
-        'last_updated': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        'last_updated': datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     }
 
 # Admin Blog Management Routes
@@ -3847,7 +3847,7 @@ def api_market_indices():
         return jsonify({
             'success': True,
             'data': indices,
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         })
     except Exception as e:
         logging.error(f"API error for market indices: {str(e)}")
@@ -3867,7 +3867,7 @@ def api_trending_stocks():
             'success': True,
             'data': trending,
             'market': market,
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         })
     except Exception as e:
         logging.error(f"API error for trending stocks: {str(e)}")
@@ -5128,7 +5128,7 @@ def api_trigger_n8n_workflow():
             'success': result,
             'message': f'Workflow {workflow_type} triggered successfully' if result else f'Failed to trigger workflow {workflow_type}',
             'workflow_type': workflow_type,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -5283,7 +5283,7 @@ def create_razorpay_order():
             order_data = {
                 'amount': amount * 100,  # Amount in paise
                 'currency': 'INR',
-                'receipt': f'tcapital_{current_user.id}_{int(datetime.now().timestamp())}',
+                'receipt': f'tcapital_{current_user.id}_{int(datetime.now(timezone.utc).timestamp())}',
                 'notes': {
                     'user_id': str(current_user.id),
                     'plan_type': plan_type,
@@ -5303,7 +5303,7 @@ def create_razorpay_order():
             # Fallback for demo/testing without real keys
             order_data = {
                 'success': True,
-                'order_id': f'order_{int(datetime.now().timestamp())}',
+                'order_id': f'order_{int(datetime.now(timezone.utc).timestamp())}',
                 'amount': amount * 100,
                 'currency': 'INR',
                 'key': RAZORPAY_KEY_ID
@@ -5679,7 +5679,7 @@ def api_ai_refresh_stats():
         return jsonify({
             'success': True,
             'stats': stats,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -5706,7 +5706,7 @@ def api_ai_market_intelligence():
         return jsonify({
             'success': True,
             'data': intelligence_data,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -5740,7 +5740,7 @@ def api_ai_investment_analysis(symbol):
         return jsonify({
             'success': True,
             'analysis': analysis,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -5781,7 +5781,7 @@ def api_ai_agentic_analysis():
         return jsonify({
             'success': True,
             'analysis': result,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:
@@ -5947,7 +5947,7 @@ def api_perplexity_research():
             'success': result.get('success', True),
             'research_content': result.get('research_content') or result.get('analysis_summary') or result.get('insights'),
             'citations': result.get('citations', []),
-            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'timestamp': result.get('timestamp', datetime.now(timezone.utc).isoformat()),
             'source': result.get('source', 'perplexity_ai'),
             'note': result.get('note', '')
         })
@@ -6046,7 +6046,7 @@ def api_perplexity_generate_picks():
             'success': result.get('success', True),
             'picks_generated': len(result.get('picks', [])),
             'analysis_summary': result.get('analysis_summary', 'AI picks generated successfully'),
-            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'timestamp': result.get('timestamp', datetime.now(timezone.utc).isoformat()),
             'note': result.get('note', '')
         })
         
@@ -6148,7 +6148,7 @@ def api_ai_perplexity_picks():
                 'message': 'AI stock picks generated successfully',
                 'picks_count': len(picks_data),
                 'research_data': f'<div class="alert alert-success">Generated {len(picks_data)} new AI picks for today</div>',
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             })
         else:
             return jsonify({'success': False, 'error': result.get('error', 'Failed to generate AI picks')})
@@ -6173,7 +6173,7 @@ def api_perplexity_market_insights():
             'insights': result.get('insights', 'Market insights generated'),
             'focus_area': result.get('focus_area', focus_area),
             'citations': result.get('citations', []),
-            'timestamp': result.get('timestamp', datetime.now().isoformat()),
+            'timestamp': result.get('timestamp', datetime.now(timezone.utc).isoformat()),
             'note': result.get('note', '')
         })
         
@@ -6222,7 +6222,7 @@ def api_refresh_stock_prices():
             'message': f'Successfully updated {updated_count} AI picks with current market prices',
             'updated_picks': updated_count,
             'total_picks': len(ai_picks),
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         })
         
     except Exception as e:

@@ -7,7 +7,7 @@ import asyncio
 import websockets
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import threading
 import time
 
@@ -68,7 +68,7 @@ class SimpleWebSocketServer:
                     }
                 }
             },
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         message = json.dumps(market_data)
@@ -117,7 +117,7 @@ class SimpleWebSocketServer:
         initial_data = {
             'type': 'welcome',
             'message': 'Connected to tCapital WebSocket',
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         await websocket.send(json.dumps(initial_data))

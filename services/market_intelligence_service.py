@@ -6,7 +6,7 @@ Provides real-time market intelligence and analysis using external APIs
 import os
 import logging
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 import json
 
@@ -193,7 +193,7 @@ class MarketIntelligenceService:
                 'neutral_articles': neutral_count,
                 'total_analyzed': len(articles)
             },
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
     
     def _get_trending_stocks(self) -> List[Dict]:
@@ -266,7 +266,7 @@ class MarketIntelligenceService:
             'sectors': formatted_sectors,
             'best_performer': formatted_sectors[0] if formatted_sectors else None,
             'worst_performer': formatted_sectors[-1] if formatted_sectors else None,
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
     
     # Mock data methods for when API keys are not available
@@ -281,7 +281,7 @@ class MarketIntelligenceService:
                 'neutral_articles': 8,
                 'total_analyzed': 25
             },
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
     
     def _get_mock_sector_data(self) -> Dict[str, Any]:
@@ -295,7 +295,7 @@ class MarketIntelligenceService:
             ],
             'best_performer': {'name': 'Technology', 'change_percent': 2.1},
             'worst_performer': {'name': 'Industrial', 'change_percent': -1.2},
-            'last_updated': datetime.now().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
     
     def _get_mock_economic_data(self) -> Dict[str, Any]:

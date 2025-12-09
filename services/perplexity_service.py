@@ -6,7 +6,7 @@ Provides real-time research and AI-powered stock picks using Perplexity's online
 import os
 import logging
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 import json
 
@@ -41,7 +41,7 @@ class PerplexityService:
                     'research_type': research_type,
                     'research_content': research_content,
                     'citations': citations,
-                    'timestamp': datetime.now().isoformat(),
+                    'timestamp': datetime.now(timezone.utc).isoformat(),
                     'source': 'perplexity_ai',
                     'model_used': 'sonar-pro',
                     'success': True
@@ -78,7 +78,7 @@ class PerplexityService:
                     'analysis_summary': picks_content,
                     'citations': citations,
                     'criteria_used': criteria or self._get_default_criteria(),
-                    'timestamp': datetime.now().isoformat(),
+                    'timestamp': datetime.now(timezone.utc).isoformat(),
                     'source': 'perplexity_ai',
                     'model_used': 'sonar-pro',
                     'success': True
@@ -110,7 +110,7 @@ class PerplexityService:
                     'insights': insights_content,
                     'focus_area': focus_area,
                     'citations': citations,
-                    'timestamp': datetime.now().isoformat(),
+                    'timestamp': datetime.now(timezone.utc).isoformat(),
                     'source': 'perplexity_ai',
                     'success': True
                 }
@@ -422,7 +422,7 @@ Generate 5 stocks now with ALL required details and REAL current prices."""
             *Note: This is sample research data. For real-time analysis, please provide Perplexity API key.*
             """,
             'citations': ['Sample financial data', 'Market research reports'],
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'source': 'fallback_data',
             'success': False,
             'note': 'Perplexity API key required for real-time research'
@@ -443,7 +443,7 @@ Generate 5 stocks now with ALL required details and REAL current prices."""
             """,
             'citations': ['Market analysis', 'Financial reports', 'Technical analysis'],
             'criteria_used': self._get_default_criteria(),
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'source': 'fallback_data',
             'success': False,
             'note': 'Perplexity API key required for real-time picks'
@@ -526,7 +526,7 @@ Generate 5 stocks now with ALL required details and REAL current prices."""
             """,
             'focus_area': 'general',
             'citations': ['Market data', 'Research reports'],
-            'timestamp': datetime.now().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'source': 'fallback_data',
             'success': False,
             'note': 'Perplexity API key required for real-time insights'

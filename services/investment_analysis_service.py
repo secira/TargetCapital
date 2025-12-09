@@ -6,7 +6,7 @@ Provides comprehensive investment analysis using AI and market data
 import os
 import logging
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Any, Optional
 import json
 from openai import OpenAI
@@ -34,7 +34,7 @@ class InvestmentAnalysisService:
             
             return {
                 'symbol': symbol,
-                'analysis_timestamp': datetime.now().isoformat(),
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat(),
                 'fundamental_analysis': fundamental_data,
                 'technical_analysis': technical_data,
                 'sentiment_analysis': news_sentiment,
@@ -47,7 +47,7 @@ class InvestmentAnalysisService:
             return {
                 'symbol': symbol,
                 'error': 'Analysis failed',
-                'analysis_timestamp': datetime.now().isoformat()
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def generate_portfolio_insights(self, portfolio_data: Dict, user_preferences: Dict = None) -> Dict[str, Any]:
@@ -71,7 +71,7 @@ class InvestmentAnalysisService:
                 'portfolio_summary': {
                     'total_value': portfolio_data.get('total_value', 0),
                     'num_positions': len(portfolio_data.get('positions', [])),
-                    'analysis_date': datetime.now().isoformat()
+                    'analysis_date': datetime.now(timezone.utc).isoformat()
                 },
                 'composition_analysis': composition_analysis,
                 'risk_analysis': risk_analysis,
@@ -84,7 +84,7 @@ class InvestmentAnalysisService:
             self.logger.error(f"Portfolio analysis error: {str(e)}")
             return {
                 'error': 'Portfolio analysis failed',
-                'analysis_timestamp': datetime.now().isoformat()
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def get_market_opportunities(self, investment_amount: float = None, risk_tolerance: str = 'moderate') -> Dict[str, Any]:
@@ -108,14 +108,14 @@ class InvestmentAnalysisService:
                 'market_context': self._get_market_context(),
                 'investment_themes': self._identify_investment_themes(ranked_opportunities),
                 'risk_factors': self._identify_risk_factors(),
-                'analysis_timestamp': datetime.now().isoformat()
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
             self.logger.error(f"Market opportunities analysis error: {str(e)}")
             return {
                 'error': 'Market opportunities analysis failed',
-                'analysis_timestamp': datetime.now().isoformat()
+                'analysis_timestamp': datetime.now(timezone.utc).isoformat()
             }
     
     def _get_fundamental_data(self, symbol: str) -> Dict[str, Any]:
@@ -247,7 +247,7 @@ class InvestmentAnalysisService:
                 'time_horizon': ai_response.get('time_horizon', '3-6 months'),
                 'position_sizing': ai_response.get('position_sizing', 'Standard'),
                 'analysis_summary': ai_response.get('analysis_summary', 'AI analysis completed'),
-                'generated_at': datetime.now().isoformat()
+                'generated_at': datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -256,7 +256,7 @@ class InvestmentAnalysisService:
                 'recommendation': 'Hold',
                 'confidence': 50,
                 'analysis_summary': 'AI analysis failed',
-                'generated_at': datetime.now().isoformat()
+                'generated_at': datetime.now(timezone.utc).isoformat()
             }
     
     def _analyze_portfolio_composition(self, portfolio_data: Dict) -> Dict[str, Any]:

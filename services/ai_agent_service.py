@@ -10,7 +10,7 @@ import yfinance as yf
 import os
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple, Any
 import logging
 
@@ -57,7 +57,7 @@ class AgenticAICoordinator:
             self._trigger_n8n_workflow("stock_analysis", {
                 "symbol": symbol,
                 "recommendation": final_recommendation,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             })
             
             return final_recommendation
@@ -253,7 +253,7 @@ class AgenticAICoordinator:
                     "research_summary": research_content,
                     "citations": citations,
                     "research_source": "perplexity_live",
-                    "research_timestamp": datetime.now().isoformat(),
+                    "research_timestamp": datetime.now(timezone.utc).isoformat(),
                     "key_findings": self._extract_key_findings(research_content)
                 }
             else:
@@ -291,12 +291,12 @@ class AgenticAICoordinator:
             final_recommendation = self._consolidate_recommendations(recommendations)
             
             # Adaptation metrics for future learning
-            adaptation_key = f"{symbol}_{datetime.now().strftime('%Y%m')}"
+            adaptation_key = f"{symbol}_{datetime.now(timezone.utc).strftime('%Y%m')}"
             self.adaptation_metrics[adaptation_key] = {
                 "recommendation": final_recommendation,
                 "confidence": final_confidence,
                 "factors_considered": len(confidence_scores),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             return {
@@ -307,7 +307,7 @@ class AgenticAICoordinator:
                 "research_insights": current_research.get('key_findings', []),
                 "risk_assessment": risk_factors,
                 "adaptation_notes": f"Strategy adapted based on {len(confidence_scores)} analysis sources",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "agentic_ai_version": "1.0"
             }
             
@@ -318,7 +318,7 @@ class AgenticAICoordinator:
                 "final_recommendation": "HOLD",
                 "confidence": 0.5,
                 "error": "Strategy adaptation failed",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def _trigger_n8n_workflow(self, workflow_type: str, data: Dict[str, Any]) -> bool:
@@ -330,7 +330,7 @@ class AgenticAICoordinator:
                 "workflow_type": workflow_type,
                 "data": data,
                 "triggered_by": "agentic_ai",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             response = requests.post(webhook_url, json=payload, timeout=10)
@@ -422,7 +422,7 @@ class AgenticAICoordinator:
             "research_summary": f"Research data for {symbol} not available - external API required",
             "key_findings": ["Real-time research requires API access"],
             "research_source": "fallback",
-            "research_timestamp": datetime.now().isoformat()
+            "research_timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     def _extract_key_findings(self, research_content: str) -> List[str]:
@@ -503,7 +503,7 @@ class TradingAgent:
                 "reasoning": decision["reasoning"],
                 "current_price": float(data['Close'].iloc[-1]),
                 "signals": signals,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
         except Exception as e:
@@ -923,7 +923,7 @@ class AgenticAICoordinator:
         try:
             results = {
                 "symbol": symbol,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "agents_analysis": {}
             }
             
@@ -962,7 +962,7 @@ class AgenticAICoordinator:
             )
             
             return {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "optimization": portfolio_optimization,
                 "market_conditions": market_conditions
             }

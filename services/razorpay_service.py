@@ -11,7 +11,7 @@ except ImportError:
 import hmac
 import hashlib
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ class RazorpayService:
             order_data = {
                 'amount': amount_paise,
                 'currency': 'INR',
-                'receipt': f'tcapital_sub_{user_id}_{datetime.now().strftime("%Y%m%d%H%M%S")}',
+                'receipt': f'tcapital_sub_{user_id}_{datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")}',
                 'notes': {
                     'user_id': str(user_id),
                     'plan_type': plan_type,
@@ -128,7 +128,7 @@ class RazorpayService:
                 'speed': 'normal',
                 'notes': {
                     'reason': reason,
-                    'refund_date': datetime.now().isoformat()
+                    'refund_date': datetime.now(timezone.utc).isoformat()
                 }
             }
             

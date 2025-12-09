@@ -5,7 +5,7 @@ Sends trading signals to group chats
 import os
 import requests
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -140,7 +140,7 @@ Risk Level: {signal.risk_level or 'Medium'}
 ⚠️ Trade at your own risk. This is for educational purposes only.
 
 - tCapital Team
-Generated: {datetime.now().strftime('%d/%m/%Y %I:%M %p')}"""
+Generated: {datetime.now(timezone.utc).strftime('%d/%m/%Y %I:%M %p')}"""
 
         # Send to both platforms
         whatsapp_sent = send_whatsapp_message(message)

@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 # Configure logging
@@ -85,7 +85,7 @@ def admin_dashboard():
     """Admin dashboard with overview"""
     # Get summary statistics
     total_users = User.query.count()
-    active_signals = TradingSignal.query.filter(TradingSignal.expires_at > datetime.now()).count()
+    active_signals = TradingSignal.query.filter(TradingSignal.expires_at > datetime.now(timezone.utc)).count()
     total_payments = PaymentOrder.query.filter_by(status='completed').count()
     connected_brokers = BrokerAccount.query.filter_by(is_connected=True).count()
     
@@ -185,14 +185,14 @@ def admin_payments():
     view_type = request.args.get('view', 'daily')
     
     if view_type == 'daily':
-        start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = start_date + timedelta(days=1)
     elif view_type == 'weekly':
-        start_date = datetime.now() - timedelta(days=7)
-        end_date = datetime.now()
+        start_date = datetime.now(timezone.utc) - timedelta(days=7)
+        end_date = datetime.now(timezone.utc)
     elif view_type == 'monthly':
-        start_date = datetime.now() - timedelta(days=30)
-        end_date = datetime.now()
+        start_date = datetime.now(timezone.utc) - timedelta(days=30)
+        end_date = datetime.now(timezone.utc)
     
     payments = PaymentOrder.query.filter(
         PaymentOrder.created_at >= start_date,

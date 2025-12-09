@@ -5,7 +5,7 @@ Provides specialized investment analysis functions using Perplexity API
 
 import logging
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from services.perplexity_service import PerplexityService
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class AdvancedAIFunctions:
             return {
                 "analysis": response,
                 "function": "News Impact Analyzer",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "usage": usage,
                 "stocks_analyzed": portfolio_stocks or stock_symbols or "Market-wide analysis"
             }
@@ -44,7 +44,7 @@ class AdvancedAIFunctions:
             return {
                 "error": "Unable to analyze news impact at this time",
                 "function": "News Impact Analyzer",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def competitive_stock_comparison(self, primary_stock: str, sector: Optional[str] = None) -> Dict:
@@ -65,7 +65,7 @@ class AdvancedAIFunctions:
                 "function": "Competitive Stock Comparison", 
                 "primary_stock": primary_stock,
                 "sector": sector,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "usage": usage
             }
             
@@ -75,7 +75,7 @@ class AdvancedAIFunctions:
                 "error": "Unable to perform competitive analysis at this time",
                 "function": "Competitive Stock Comparison",
                 "primary_stock": primary_stock,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def sector_rotation_predictor(self, current_sectors: Optional[List[str]] = None) -> Dict:
@@ -97,7 +97,7 @@ class AdvancedAIFunctions:
                 "function": "Sector Rotation Predictor",
                 "analyzed_sectors": current_sectors,
                 "prediction_horizon": "3-6 months",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "usage": usage
             }
             
@@ -106,7 +106,7 @@ class AdvancedAIFunctions:
             return {
                 "error": "Unable to generate sector rotation predictions at this time",
                 "function": "Sector Rotation Predictor",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def market_crash_opportunity_scanner(self, risk_tolerance: str = "moderate") -> Dict:
@@ -123,7 +123,7 @@ class AdvancedAIFunctions:
                 "opportunities": response,
                 "function": "Market Crash Opportunity Scanner",
                 "risk_tolerance": risk_tolerance,
-                "scan_date": datetime.now().isoformat(),
+                "scan_date": datetime.now(timezone.utc).isoformat(),
                 "usage": usage
             }
             
@@ -132,7 +132,7 @@ class AdvancedAIFunctions:
             return {
                 "error": "Unable to scan for crash opportunities at this time",
                 "function": "Market Crash Opportunity Scanner",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def ipo_new_listing_analyzer(self, specific_ipo: Optional[str] = None) -> Dict:
@@ -153,7 +153,7 @@ class AdvancedAIFunctions:
                 "function": "IPO & New Listing Analyzer",
                 "specific_ipo": specific_ipo,
                 "analysis_scope": "2-3 months ahead",
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "usage": usage
             }
             
@@ -162,7 +162,7 @@ class AdvancedAIFunctions:
             return {
                 "error": "Unable to analyze IPOs at this time",
                 "function": "IPO & New Listing Analyzer",
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
     
     def get_available_functions(self) -> List[Dict]:

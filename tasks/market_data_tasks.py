@@ -4,7 +4,7 @@ Real-time market data updates and NSE data synchronization
 """
 import logging
 from celery import shared_task
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import redis
 import json
 
@@ -39,7 +39,7 @@ def update_market_indices():
                     'current_value': data.get('last_price', 0),
                     'change': data.get('change', 0),
                     'change_percent': data.get('pChange', 0),
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
             except Exception as e:
                 logger.warning(f"Failed to fetch data for {index}: {e}")
@@ -82,7 +82,7 @@ def update_stock_prices(symbols):
                     'high': stock_data.get('dayHigh', 0),
                     'low': stock_data.get('dayLow', 0),
                     'volume': stock_data.get('totalTradedVolume', 0),
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
                 
                 # Cache individual stock data
@@ -165,14 +165,23 @@ def generate_market_summary():
         
         indices_data = json.loads(market_data)
         
-        # Calculate market summary
+        # IST is UTC+5:30
+        IST = timezone(timedelta(hours=5, minutes=30))
+        current_ist = datetime.now(timezone.utc).astimezone(IST)
+        
+        # Calculate market summary (Indian market hours: 9:15 AM - 3:30 PM IST)
+        is_market_open = (current_ist.weekday() < 5 and 
+                          9 <= current_ist.hour < 16 and 
+                          not (current_ist.hour == 9 and current_ist.minute < 15) and
+                          not (current_ist.hour == 15 and current_ist.minute > 30))
+        
         summary = {
-            'market_status': 'OPEN' if datetime.now().hour < 16 else 'CLOSED',
+            'market_status': 'OPEN' if is_market_open else 'CLOSED',
             'major_indices': {},
             'market_sentiment': 'NEUTRAL',
             'top_gainers_count': 0,
             'top_losers_count': 0,
-            'timestamp': datetime.utcnow().isoformat()
+            'timestamp': datetime.now(timezone.utc).isoformat()
         }
         
         # Process major indices
