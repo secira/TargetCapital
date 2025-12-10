@@ -271,6 +271,13 @@ with app.app_context():
     import models_vector  # Import vector database models for RAG
     import routes_mobile  # Import mobile OTP routes
     db.create_all()
+    
+    # Initialize default 'live' tenant (Target Capital)
+    models.Tenant.get_or_create_default()
+
+# Initialize multi-tenant middleware
+from middleware.tenant_middleware import init_tenant_middleware
+init_tenant_middleware(app)
 
 # Import and register Google OAuth blueprint (from blueprint:flask_google_oauth)
 from google_auth import google_auth

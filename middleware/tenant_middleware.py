@@ -1,0 +1,246 @@
+"""
+Multi-Tenant Middleware for Target Capital
+
+This module provides tenant resolution and context management for the 
+multi-tenant architecture. It resolves the current tenant from various
+sources (subdomain, header, user) and stores it in Flask's request context.
+
+Base tenant: 'live' - Target Capital's primary deployment
+"""
+
+from functools import wraps
+from flask import g, request, current_app
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Default tenant ID for Target Capital
+DEFAULT_TENANT_ID = 'live'
+
+
+def get_tenant_from_subdomain(host):
+    """
+    Extract tenant ID from subdomain.
+    
+    Examples:
+        - client1.targetcapital.ai -> 'client1'
+        - app.targetcapital.ai -> 'live' (default)
+        - targetcapital.ai -> 'live' (default)
+        - localhost:5000 -> 'live' (default)
+    """
+    if not host:
+        return None
+    
+    # Remove port if present
+    host = host.split(':')[0]
+    
+    # Skip localhost and IP addresses
+    if host in ('localhost', '127.0.0.1') or host.startswith('192.168.'):
+        return None
+    
+    # Known production domains that don't indicate a tenant
+    main_domains = ['targetcapital.ai', 'in.targetcapital.ai', 'app.targetcapital.ai']
+    
+    # Check if this is a subdomain of the main domain
+    parts = host.split('.')
+    
+    # If we have a subdomain (e.g., client1.targetcapital.ai)
+    if len(parts) >= 3:
+        subdomain = parts[0]
+        
+        # Skip common subdomains that don't indicate tenant
+        if subdomain in ('www', 'app', 'api', 'in', 'usa', 'admin'):
+            return None
+        
+        # This looks like a tenant subdomain
+        return subdomain
+    
+    return None
+
+
+def get_tenant_from_header():
+    """
+    Get tenant ID from X-Tenant-ID request header.
+    Useful for API clients and testing.
+    """
+    return request.headers.get('X-Tenant-ID')
+
+
+def get_tenant_from_user():
+    """
+    Get tenant ID from the currently logged in user.
+    """
+    from flask_login import current_user
+    
+    if current_user and current_user.is_authenticated:
+        return getattr(current_user, 'tenant_id', None)
+    
+    return None
+
+
+def resolve_tenant_id():
+    """
+    Resolve the current tenant ID from various sources.
+    
+    Priority order:
+    1. X-Tenant-ID header (for API clients)
+    2. Current authenticated user's tenant_id
+    3. Subdomain (for white-label deployments)
+    4. Default to 'live'
+    """
+    # Priority 1: Header override (useful for testing and API clients)
+    tenant_id = get_tenant_from_header()
+    if tenant_id:
+        logger.debug(f"Tenant resolved from header: {tenant_id}")
+        return tenant_id
+    
+    # Priority 2: Current user's tenant
+    tenant_id = get_tenant_from_user()
+    if tenant_id:
+        logger.debug(f"Tenant resolved from user: {tenant_id}")
+        return tenant_id
+    
+    # Priority 3: Subdomain
+    tenant_id = get_tenant_from_subdomain(request.host)
+    if tenant_id:
+        logger.debug(f"Tenant resolved from subdomain: {tenant_id}")
+        return tenant_id
+    
+    # Default: 'live' tenant (Target Capital)
+    return DEFAULT_TENANT_ID
+
+
+def get_current_tenant_id():
+    """
+    Get the current tenant ID from Flask's request context.
+    Falls back to 'live' if not in request context.
+    """
+    from flask import has_request_context
+    
+    if has_request_context() and hasattr(g, 'tenant_id'):
+        return g.tenant_id
+    
+    return DEFAULT_TENANT_ID
+
+
+def get_current_tenant():
+    """
+    Get the current Tenant model instance.
+    """
+    from models import Tenant
+    
+    tenant_id = get_current_tenant_id()
+    return Tenant.query.get(tenant_id)
+
+
+def init_tenant_middleware(app):
+    """
+    Initialize tenant middleware for the Flask application.
+    This sets up the before_request handler to resolve tenant.
+    """
+    @app.before_request
+    def set_tenant_context():
+        """Set tenant context for each request."""
+        g.tenant_id = resolve_tenant_id()
+        logger.debug(f"Request tenant context: {g.tenant_id}")
+    
+    @app.after_request
+    def add_tenant_header(response):
+        """Add tenant ID to response headers for debugging."""
+        if hasattr(g, 'tenant_id'):
+            response.headers['X-Tenant-ID'] = g.tenant_id
+        return response
+
+
+def require_tenant(tenant_id):
+    """
+    Decorator to require a specific tenant for a route.
+    
+    Usage:
+        @app.route('/admin')
+        @require_tenant('live')
+        def admin_panel():
+            return 'Admin panel'
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            current = get_current_tenant_id()
+            if current != tenant_id:
+                from flask import abort
+                abort(403, f"Access denied for tenant: {current}")
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+def tenant_scope(model_class):
+    """
+    Decorator/helper to automatically filter queries by tenant.
+    
+    Usage:
+        # Get all users for current tenant
+        users = tenant_scope(User).all()
+    """
+    tenant_id = get_current_tenant_id()
+    return model_class.query.filter_by(tenant_id=tenant_id)
+
+
+class TenantQuery:
+    """
+    Helper class for tenant-scoped database queries.
+    
+    Usage:
+        from middleware.tenant_middleware import TenantQuery
+        
+        # Get all users for current tenant
+        users = TenantQuery(User).all()
+        
+        # Filter further
+        active_users = TenantQuery(User).filter_by(active=True).all()
+    """
+    
+    def __init__(self, model_class):
+        self.model_class = model_class
+        self.tenant_id = get_current_tenant_id()
+    
+    def query(self):
+        """Get base query filtered by tenant."""
+        return self.model_class.query.filter_by(tenant_id=self.tenant_id)
+    
+    def all(self):
+        """Get all records for current tenant."""
+        return self.query().all()
+    
+    def first(self):
+        """Get first record for current tenant."""
+        return self.query().first()
+    
+    def get(self, id):
+        """Get record by ID, ensuring it belongs to current tenant."""
+        return self.query().filter_by(id=id).first()
+    
+    def filter(self, *args, **kwargs):
+        """Add additional filters."""
+        return self.query().filter(*args, **kwargs)
+    
+    def filter_by(self, **kwargs):
+        """Add additional filter_by conditions."""
+        return self.query().filter_by(**kwargs)
+    
+    def count(self):
+        """Count records for current tenant."""
+        return self.query().count()
+
+
+def create_for_tenant(model_class, **kwargs):
+    """
+    Create a new model instance with the current tenant_id automatically set.
+    
+    Usage:
+        user = create_for_tenant(User, username='john', email='john@example.com')
+        db.session.add(user)
+        db.session.commit()
+    """
+    tenant_id = get_current_tenant_id()
+    return model_class(tenant_id=tenant_id, **kwargs)

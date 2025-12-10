@@ -27,6 +27,7 @@ Do not make changes to the folder `pt-app/static/`
 
 ### System Architecture
 - **Production Backend Architecture**: Flask (web interface), FastAPI (high-performance trading operations), WebSocket for real-time data, Celery with Redis for background processing, PostgreSQL with Redis caching, SQLAlchemy, and multi-service deployment with auto-scaling.
+- **Multi-Tenant Architecture**: Shared PostgreSQL database with tenant isolation via `tenant_id` column on all user-scoped tables. Tenant resolution middleware (`middleware/tenant_middleware.py`) extracts tenant from subdomain, X-Tenant-ID header, or authenticated user. Default tenant is 'live' (Target Capital). Enterprise clients get isolated subdomains (e.g., `acme.targetcapital.ai`).
 - **Frontend Architecture**: Jinja2 templating, Bootstrap 5.3.0 for CSS, Font Awesome 6.4.0 for icons, Google Fonts (Inter), and vanilla JavaScript. Employs a mobile-first responsive design with Bootstrap's grid system.
 - **UI/UX Decisions**: Clean white backgrounds, subtle shadows, rounded elements, modern typography (Poppins/Inter), inspired by getquin.com and arvat.ai. Perplexity-style interface with a clean, minimalist design for the Research Assistant.
 

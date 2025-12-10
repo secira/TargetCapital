@@ -55,6 +55,7 @@ class BrokerAccount(db.Model):
     __tablename__ = 'user_brokers'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     broker_type = db.Column(db.String(50), nullable=False)  # Store as string, not enum
     broker_name = db.Column(db.String(50), nullable=False)  # Display name

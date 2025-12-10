@@ -1,11 +1,115 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from enum import Enum
 
 # Import broker models
 from models_broker import BrokerAccount, BrokerHolding, BrokerPosition, BrokerOrder
+
+
+# ============================================================================
+# MULTI-TENANT ARCHITECTURE
+# ============================================================================
+
+class Tenant(db.Model):
+    """
+    Multi-tenant support model. Each tenant represents a separate organization
+    or white-label deployment of Target Capital.
+    
+    Base tenant: 'live' - Target Capital's primary deployment
+    Additional tenants: Added during client onboarding
+    """
+    __tablename__ = 'tenants'
+    
+    # String-based tenant ID (e.g., 'live', 'client_acme', 'partner_xyz')
+    id = db.Column(db.String(50), primary_key=True)
+    
+    # Tenant Information
+    name = db.Column(db.String(200), nullable=False)  # Display name
+    slug = db.Column(db.String(50), unique=True, nullable=False)  # URL-safe identifier
+    domain = db.Column(db.String(200), nullable=True)  # Custom domain if any
+    
+    # Branding & Customization
+    logo_url = db.Column(db.String(500), nullable=True)
+    primary_color = db.Column(db.String(20), nullable=True)
+    secondary_color = db.Column(db.String(20), nullable=True)
+    
+    # Configuration (JSON for flexible settings)
+    config = db.Column(db.JSON, nullable=True, default=dict)
+    
+    # Feature Flags (JSON for tenant-specific features)
+    features = db.Column(db.JSON, nullable=True, default=dict)
+    
+    # Contact Information
+    contact_email = db.Column(db.String(200), nullable=True)
+    contact_phone = db.Column(db.String(20), nullable=True)
+    
+    # Status
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), 
+                          onupdate=lambda: datetime.now(timezone.utc))
+    
+    def __repr__(self):
+        return f'<Tenant {self.id}: {self.name}>'
+    
+    @classmethod
+    def get_default_tenant(cls):
+        """Get the default 'live' tenant (Target Capital)"""
+        return cls.query.get('live')
+    
+    @classmethod
+    def get_or_create_default(cls):
+        """Get or create the default 'live' tenant"""
+        tenant = cls.query.get('live')
+        if not tenant:
+            tenant = cls(
+                id='live',
+                name='Target Capital',
+                slug='live',
+                domain=None,
+                is_active=True,
+                config={
+                    'subscription_enabled': True,
+                    'broker_integration_enabled': True,
+                    'ai_features_enabled': True
+                },
+                features={
+                    'research_assistant': True,
+                    'smart_signals': True,
+                    'portfolio_hub': True,
+                    'trade_assist': True
+                }
+            )
+            db.session.add(tenant)
+            db.session.commit()
+        return tenant
+
+
+# ============================================================================
+# TENANT-SCOPED MIXIN
+# ============================================================================
+
+class TenantMixin:
+    """
+    Mixin class for models that need tenant scoping.
+    Adds tenant_id column and helper methods.
+    """
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+    
+    @staticmethod
+    def get_current_tenant_id():
+        """Get current tenant ID from Flask request context"""
+        from flask import g, has_request_context
+        if has_request_context() and hasattr(g, 'tenant_id'):
+            return g.tenant_id
+        return 'live'  # Default to 'live' tenant
+
 
 # Portfolio Asset Classes
 class AssetType(Enum):
@@ -128,6 +232,7 @@ class Testimonial(db.Model):
 class ConversationHistory(db.Model):
     """Store conversation history for Research Assistant"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     session_id = db.Column(db.String(100), nullable=False)  # Unique session identifier
     query = db.Column(db.Text, nullable=False)
@@ -138,11 +243,13 @@ class ConversationHistory(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User', backref='conversations')
+    tenant = db.relationship('Tenant', backref='conversations')
 
 
 class AgentCheckpoint(db.Model):
     """Store LangGraph agent checkpoints for resumable workflows"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     agent_type = db.Column(db.String(50), nullable=False)  # research, portfolio, signal
     checkpoint_id = db.Column(db.String(100), unique=True, nullable=False)
@@ -153,11 +260,13 @@ class AgentCheckpoint(db.Model):
     completed = db.Column(db.Boolean, default=False)
     
     user = db.relationship('User', backref='agent_checkpoints')
+    tenant = db.relationship('Tenant', backref='agent_checkpoints')
 
 
 class PortfolioOptimizationReport(db.Model):
     """Store portfolio optimization reports from multi-agent analysis"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     report_data = db.Column(db.JSON, nullable=False)  # Complete multi-agent output
     risk_analysis = db.Column(db.JSON, nullable=True)
@@ -167,11 +276,13 @@ class PortfolioOptimizationReport(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User', backref='optimization_reports')
+    tenant = db.relationship('Tenant', backref='optimization_reports')
 
 
 class TradingSignal(db.Model):
     """Store generated trading signals from LangGraph pipeline"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     signal_date = db.Column(db.Date, nullable=False)
     symbol = db.Column(db.String(50), nullable=False)
     action = db.Column(db.String(10), nullable=False)  # BUY/SELL
@@ -186,13 +297,19 @@ class TradingSignal(db.Model):
     status = db.Column(db.String(20), default='active')  # active, executed, expired, cancelled
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    tenant = db.relationship('Tenant', backref='trading_signals')
+    
     def __repr__(self):
         return f'<TradingSignal {self.symbol} {self.action} @ {self.entry_price}>'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=True)  # Made nullable for mobile-only signup
-    email = db.Column(db.String(120), unique=True, nullable=True)  # Made nullable for mobile-only signup
+    
+    # Multi-tenant support
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    username = db.Column(db.String(80), nullable=True)  # Made nullable for mobile-only signup
+    email = db.Column(db.String(120), nullable=True)  # Made nullable for mobile-only signup
     password_hash = db.Column(db.String(256), nullable=True)  # Made nullable for OTP-only accounts
     first_name = db.Column(db.String(50), nullable=True)
     last_name = db.Column(db.String(50), nullable=True)
@@ -203,8 +320,15 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
     
+    # Unique constraints now include tenant_id for multi-tenant isolation
+    __table_args__ = (
+        db.UniqueConstraint('tenant_id', 'username', name='uq_tenant_username'),
+        db.UniqueConstraint('tenant_id', 'email', name='uq_tenant_email'),
+        db.UniqueConstraint('tenant_id', 'mobile_number', name='uq_tenant_mobile'),
+    )
+    
     # Mobile number and OTP fields
-    mobile_number = db.Column(db.String(20), unique=True, nullable=True)
+    mobile_number = db.Column(db.String(20), nullable=True)  # Unique per tenant via constraint
     mobile_verified = db.Column(db.Boolean, default=False)
     current_otp = db.Column(db.String(10), nullable=True)
     otp_expires_at = db.Column(db.DateTime, nullable=True)
@@ -432,6 +556,7 @@ class PortfolioPreferences(db.Model):
 class Payment(db.Model):
     """Track all payment transactions"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     razorpay_payment_id = db.Column(db.String(100), unique=True, nullable=False)
     razorpay_order_id = db.Column(db.String(100), nullable=False)
@@ -444,12 +569,14 @@ class Payment(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # Relationship
+    # Relationships
     user = db.relationship('User', backref='payments')
+    tenant = db.relationship('Tenant', backref='payments')
 
 class Referral(db.Model):
     """Track referral rewards and commissions"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     referrer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     referred_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reward_amount = db.Column(db.Float, default=0.0)
@@ -460,9 +587,11 @@ class Referral(db.Model):
     # Relationships
     referrer = db.relationship('User', foreign_keys=[referrer_id], backref='referrals_made')
     referred = db.relationship('User', foreign_keys=[referred_id], backref='referral_record')
+    tenant = db.relationship('Tenant', backref='referrals')
 
 class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     symbol = db.Column(db.String(10), nullable=False)
     company_name = db.Column(db.String(200), nullable=True)
@@ -470,8 +599,10 @@ class WatchlistItem(db.Model):
     target_price = db.Column(db.Float, nullable=True)
     notes = db.Column(db.Text, nullable=True)
     
-    # Unique constraint to prevent duplicate symbols per user
-    __table_args__ = (db.UniqueConstraint('user_id', 'symbol', name='unique_user_symbol'),)
+    # Unique constraint per tenant to prevent duplicate symbols per user
+    __table_args__ = (db.UniqueConstraint('tenant_id', 'user_id', 'symbol', name='uq_tenant_user_symbol'),)
+    
+    tenant = db.relationship('Tenant', backref='watchlist_items')
 
 class StockAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -497,6 +628,7 @@ class StockAnalysis(db.Model):
 class AIAnalysis(db.Model):
     """Store comprehensive AI agent analysis results"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     symbol = db.Column(db.String(10), nullable=False)
     analysis_type = db.Column(db.String(50), nullable=False)  # STOCK, PORTFOLIO, SENTIMENT
@@ -525,10 +657,13 @@ class AIAnalysis(db.Model):
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    tenant = db.relationship('Tenant', backref='ai_analyses')
 
 class PortfolioOptimization(db.Model):
     """Store portfolio optimization recommendations"""
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     # Current portfolio state
@@ -554,6 +689,7 @@ class PortfolioTrade(db.Model):
     __tablename__ = 'portfolio_trades'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # User who made the trade
     open_date = db.Column(db.Date, nullable=False)
     symbol_type = db.Column(db.String(20), nullable=False)  # Index, futures, currency, crypto, options, stocks, gold
@@ -653,6 +789,7 @@ class ManualEquityHolding(db.Model):
     __tablename__ = 'manual_equity_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -716,6 +853,7 @@ class ManualMutualFundHolding(db.Model):
     __tablename__ = 'manual_mutual_fund_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -789,6 +927,7 @@ class ManualFixedDepositHolding(db.Model):
     __tablename__ = 'manual_fixed_deposit_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/bank holds this
     
@@ -902,6 +1041,7 @@ class ManualRealEstateHolding(db.Model):
     __tablename__ = 'manual_real_estate_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Property management broker
     
@@ -997,6 +1137,7 @@ class ManualCommodityHolding(db.Model):
     __tablename__ = 'manual_commodity_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -1089,6 +1230,7 @@ class ManualCryptocurrencyHolding(db.Model):
     __tablename__ = 'manual_cryptocurrency_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/exchange holds this
     
@@ -1169,6 +1311,7 @@ class ManualInsuranceHolding(db.Model):
     __tablename__ = 'manual_insurance_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Insurance broker/agent
     
@@ -1285,6 +1428,7 @@ class ManualFuturesOptionsHolding(db.Model):
     __tablename__ = 'manual_futures_options_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this position
     
