@@ -190,6 +190,9 @@ class TenantQuery:
     """
     Helper class for tenant-scoped database queries.
     
+    This class provides explicit tenant filtering for database queries.
+    For automatic filtering, use the TenantAwareQuery infrastructure.
+    
     Usage:
         from middleware.tenant_middleware import TenantQuery
         
@@ -200,40 +203,46 @@ class TenantQuery:
         active_users = TenantQuery(User).filter_by(active=True).all()
     """
     
-    def __init__(self, model_class):
+    def __init__(self, model_class, tenant_id=None):
         self.model_class = model_class
-        self.tenant_id = get_current_tenant_id()
+        self.tenant_id = tenant_id or get_current_tenant_id()
     
-    def query(self):
-        """Get base query filtered by tenant."""
-        return self.model_class.query.filter_by(tenant_id=self.tenant_id)
+    def _base_query(self):
+        """Get base query with tenant filter applied."""
+        if hasattr(self.model_class, 'tenant_id'):
+            return self.model_class.query.filter_by(tenant_id=self.tenant_id)
+        return self.model_class.query
     
     def all(self):
         """Get all records for current tenant."""
-        return self.query().all()
+        return self._base_query().all()
     
     def first(self):
         """Get first record for current tenant."""
-        return self.query().first()
+        return self._base_query().first()
     
     def get(self, id):
         """Get record by ID, ensuring it belongs to current tenant."""
-        return self.query().filter_by(id=id).first()
+        return self._base_query().filter_by(id=id).first()
     
-    def filter(self, *args, **kwargs):
+    def filter(self, *args):
         """Add additional filters."""
-        return self.query().filter(*args, **kwargs)
+        return self._base_query().filter(*args)
     
     def filter_by(self, **kwargs):
         """Add additional filter_by conditions."""
-        return self.query().filter_by(**kwargs)
+        return self._base_query().filter_by(**kwargs)
     
     def count(self):
         """Count records for current tenant."""
-        return self.query().count()
+        return self._base_query().count()
+    
+    def order_by(self, *args):
+        """Add ordering to query."""
+        return self._base_query().order_by(*args)
 
 
-def create_for_tenant(model_class, **kwargs):
+def create_for_tenant(model_class, tenant_id=None, **kwargs):
     """
     Create a new model instance with the current tenant_id automatically set.
     
@@ -242,5 +251,9 @@ def create_for_tenant(model_class, **kwargs):
         db.session.add(user)
         db.session.commit()
     """
-    tenant_id = get_current_tenant_id()
-    return model_class(tenant_id=tenant_id, **kwargs)
+    effective_tenant_id = tenant_id or get_current_tenant_id()
+    
+    if hasattr(model_class, 'tenant_id'):
+        kwargs['tenant_id'] = effective_tenant_id
+    
+    return model_class(**kwargs)

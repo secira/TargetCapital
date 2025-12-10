@@ -274,6 +274,15 @@ with app.app_context():
     
     # Initialize default 'live' tenant (Target Capital)
     models.Tenant.get_or_create_default()
+    
+    # Initialize tenant-aware SQLAlchemy infrastructure
+    try:
+        from middleware.tenant_sqlalchemy import setup_tenant_sqlalchemy, init_tenant_scoped_models
+        setup_tenant_sqlalchemy(db)
+        init_tenant_scoped_models()
+        logging.info("✅ Tenant-aware SQLAlchemy infrastructure initialized")
+    except Exception as e:
+        logging.warning(f"⚠️ Could not initialize tenant SQLAlchemy: {e}")
 
 # Initialize multi-tenant middleware
 from middleware.tenant_middleware import init_tenant_middleware
