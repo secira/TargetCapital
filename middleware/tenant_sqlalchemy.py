@@ -121,8 +121,9 @@ def setup_tenant_sqlalchemy(db):
     Configure SQLAlchemy for automatic tenant filtering.
     
     This sets up:
-    1. Event listeners for automatic tenant_id on INSERT
-    2. PostgreSQL session variable for RLS
+    1. do_orm_execute listener for automatic tenant filtering on SELECT
+    2. Event listeners for automatic tenant_id on INSERT
+    3. PostgreSQL session variable for RLS
     3. Query hooks for automatic filtering
     
     Args:
@@ -156,6 +157,36 @@ def setup_tenant_sqlalchemy(db):
             logger.debug(f"Set PostgreSQL session app.tenant_id = {tenant_id}")
         except Exception as e:
             logger.warning(f"Could not set PostgreSQL session variable: {e}")
+    
+    @event.listens_for(Session, "do_orm_execute")
+    def intercept_orm_execute(orm_execute_state):
+        """
+        Intercept ORM execute to inject tenant filters on SELECT queries.
+        
+        This is the primary enforcement point for tenant isolation at the ORM level.
+        It ensures all SELECT queries (including eager loads, joins, session.execute)
+        are automatically filtered by tenant_id.
+        """
+        if not orm_execute_state.is_select:
+            return
+        
+        tenant_id = get_tenant_id()
+        
+        if getattr(orm_execute_state.statement, '_tenant_bypass', False):
+            return
+        
+        statement = orm_execute_state.statement
+        
+        if hasattr(statement, 'froms'):
+            for table in statement.froms:
+                table_name = getattr(table, 'name', None)
+                if table_name and table_name in TENANT_SCOPED_TABLES:
+                    for col in table.c:
+                        if col.name == 'tenant_id':
+                            new_stmt = statement.where(col == tenant_id)
+                            orm_execute_state.statement = new_stmt
+                            logger.debug(f"do_orm_execute: Applied tenant filter ({tenant_id}) to {table_name}")
+                            break
     
     logger.info("✅ Tenant-aware SQLAlchemy infrastructure configured")
 

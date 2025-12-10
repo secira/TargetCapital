@@ -22,58 +22,23 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TENANT_SCOPED_TABLES = [
-    'user',
-    'portfolio',
-    'user_brokers',
-    'watchlist_item',
-    'risk_profiles',
-    'portfolio_preferences',
-    'user_payments',
-    'payment',
-    'conversation_history',
-    'chat_conversations',
-    'chat_messages',
-    'research_conversations',
-    'research_messages',
-    'vector_documents',
-    'source_citations',
-    'trading_signal',
-    'trading_signals',
-    'signal_performance',
-    'executed_trades',
-    'trade_executions',
-    'active_trades',
-    'trade_history',
-    'market_analysis',
-    'daily_trading_signals',
-    'portfolio_analyses',
-    'portfolio_recommendations',
-    'ai_analysis',
-    'ai_stock_picks',
-    'stock_holdings',
-    'mutual_fund_holdings',
-    'fixed_deposits',
-    'real_estate_holdings',
-    'gold_holdings',
-    'nps_holdings',
-    'crypto_holdings',
-    'esop_holdings',
-    'ppf_holdings',
-    'sovereign_gold_bonds',
-    'nsc_holdings',
-    'kisan_vikas_patra',
-    'insurance_policies',
-    'other_investments',
-    'portfolio_asset_embeddings',
-    'broker_accounts',
-    'broker_holdings',
-    'broker_positions',
-    'broker_orders',
-    'broker_sync_logs',
-    'agent_checkpoints',
-    'portfolio_optimization_reports',
-]
+def discover_tenant_scoped_tables(conn):
+    """
+    Dynamically discover all tables with tenant_id column from database.
+    This ensures RLS policies are created for ALL tenant-scoped tables.
+    """
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT table_name 
+        FROM information_schema.columns 
+        WHERE column_name = 'tenant_id' 
+        AND table_schema = 'public'
+        ORDER BY table_name
+    """)
+    tables = [row[0] for row in cursor.fetchall()]
+    cursor.close()
+    logger.info(f"Discovered {len(tables)} tenant-scoped tables from database")
+    return tables
 
 
 def get_db_connection():
@@ -182,38 +147,22 @@ DROP POLICY IF EXISTS tenant_isolation_delete ON "{table_name}";
 
 
 def apply_rls_policies():
-    """Apply RLS policies to all tenant-scoped tables."""
+    """Apply RLS policies to all tenant-scoped tables (dynamically discovered)."""
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        cursor.execute("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
-        existing_tables = {row[0] for row in cursor.fetchall()}
+        tenant_tables = discover_tenant_scoped_tables(conn)
         
-        logger.info(f"Found {len(existing_tables)} tables in database")
+        logger.info(f"Found {len(tenant_tables)} tenant-scoped tables to protect")
         
         logger.info("Creating admin bypass role...")
         cursor.execute(create_bypass_role_sql())
         
         success_count = 0
-        skip_count = 0
         error_count = 0
         
-        for table_name in TENANT_SCOPED_TABLES:
-            if table_name not in existing_tables:
-                logger.warning(f"⚠️  Table '{table_name}' does not exist, skipping")
-                skip_count += 1
-                continue
-            
-            cursor.execute(f"""
-                SELECT column_name FROM information_schema.columns 
-                WHERE table_name = '{table_name}' AND column_name = 'tenant_id'
-            """)
-            if not cursor.fetchone():
-                logger.warning(f"⚠️  Table '{table_name}' has no tenant_id column, skipping")
-                skip_count += 1
-                continue
-            
+        for table_name in tenant_tables:
             try:
                 logger.info(f"Applying RLS to '{table_name}'...")
                 sql = create_rls_policy_sql(table_name)
@@ -230,10 +179,9 @@ def apply_rls_policies():
         logger.info(f"RLS Policy Application Complete")
         logger.info(f"{'='*50}")
         logger.info(f"✅ Success: {success_count} tables")
-        logger.info(f"⚠️  Skipped: {skip_count} tables")
         logger.info(f"❌ Errors: {error_count} tables")
         
-        return success_count, skip_count, error_count
+        return success_count, 0, error_count
         
     except Exception as e:
         conn.rollback()
@@ -245,11 +193,13 @@ def apply_rls_policies():
 
 
 def verify_rls_policies():
-    """Verify RLS policies are correctly applied."""
+    """Verify RLS policies are correctly applied (using dynamic discovery)."""
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
+        tenant_tables = discover_tenant_scoped_tables(conn)
+        
         cursor.execute("""
             SELECT tablename, rowsecurity 
             FROM pg_tables 
@@ -276,7 +226,7 @@ def verify_rls_policies():
         protected_count = 0
         unprotected_count = 0
         
-        for table_name in TENANT_SCOPED_TABLES:
+        for table_name in tenant_tables:
             if table_name not in table_security:
                 continue
             
@@ -305,12 +255,14 @@ def verify_rls_policies():
 
 
 def rollback_rls_policies():
-    """Remove RLS policies from all tables."""
+    """Remove RLS policies from all tables (using dynamic discovery)."""
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        for table_name in TENANT_SCOPED_TABLES:
+        tenant_tables = discover_tenant_scoped_tables(conn)
+        
+        for table_name in tenant_tables:
             try:
                 logger.info(f"Removing RLS from '{table_name}'...")
                 sql = rollback_rls_policy_sql(table_name)
