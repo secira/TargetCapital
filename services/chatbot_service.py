@@ -10,6 +10,7 @@ import requests
 from models import (ChatConversation, ChatMessage, ChatbotKnowledgeBase, 
                    Portfolio, User, AIStockPick)
 from app import db
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -78,18 +79,19 @@ Remember: You provide educational insights with real-time market context, not gu
         if not session_id:
             session_id = str(uuid.uuid4())
             
-        conversation = ChatConversation.query.filter_by(
+        conversation = TenantQuery(ChatConversation).filter_by(
             user_id=user_id, 
             session_id=session_id,
             is_active=True
         ).first()
         
         if not conversation:
-            conversation = ChatConversation()
-            conversation.user_id = user_id
-            conversation.session_id = session_id
-            conversation.title = "New Investment Chat"
-            conversation.is_active = True
+            conversation = create_for_tenant(ChatConversation,
+                user_id=user_id,
+                session_id=session_id,
+                title="New Investment Chat",
+                is_active=True
+            )
             db.session.add(conversation)
             db.session.commit()
             logger.info(f"Created new conversation {session_id} for user {user_id}")
@@ -106,13 +108,13 @@ Remember: You provide educational insights with real-time market context, not gu
         }
         
         try:
-            # Get user info
-            user = User.query.get(user_id)
+            # Get user info (tenant-scoped)
+            user = TenantQuery(User).filter_by(id=user_id).first()
             if user:
                 context['user_plan'] = user.pricing_plan.value if user.pricing_plan else 'FREE'
                 
-            # Get portfolio holdings
-            portfolio_items = Portfolio.query.filter_by(user_id=user_id).limit(10).all()
+            # Get portfolio holdings (tenant-scoped)
+            portfolio_items = TenantQuery(Portfolio).filter_by(user_id=user_id).all()[:10]
             for item in portfolio_items:
                 context['portfolio_holdings'].append({
                     'symbol': item.ticker_symbol,

@@ -9,6 +9,7 @@ from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, Stoc
                    ChatConversation, ChatMessage, ChatbotKnowledgeBase, TradingSignal,
                    RiskProfile, PortfolioTrade, DailyTradingSignal, Admin)
 from models_broker import BrokerAccount
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 from services.nse_service import nse_service
 from services.nse_realtime_service import get_live_market_data, get_stock_quote
 from services.market_data_service import market_data_service
@@ -954,8 +955,10 @@ def login():
             flash('Please fill in all fields.', 'error')
             return render_template('auth/login.html')
         
-        # Support login with username or email
+        # Support login with username or email (tenant-scoped)
+        tenant_id = get_current_tenant_id()
         user = User.query.filter(
+            User.tenant_id == tenant_id,
             (User.username == username) | (User.email == username)
         ).first()
         
@@ -989,17 +992,17 @@ def register():
             flash('Please fill in all required fields.', 'error')
             return render_template('auth/register.html')
         
-        # Check if username or email already exists
-        if User.query.filter_by(username=username).first():
+        # Check if username or email already exists within current tenant
+        if TenantQuery(User).filter_by(username=username).first():
             flash('Username already exists.', 'error')
             return render_template('auth/register.html')
         
-        if User.query.filter_by(email=email).first():
+        if TenantQuery(User).filter_by(email=email).first():
             flash('Email already registered.', 'error')
             return render_template('auth/register.html')
         
-        # Create new user
-        user = User(
+        # Create new user bound to current tenant
+        user = create_for_tenant(User,
             username=username,
             email=email,
             first_name=first_name,

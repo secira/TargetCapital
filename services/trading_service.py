@@ -13,6 +13,7 @@ from models import (
     ActiveTrade, TradeHistory, MarketAnalysis, BrokerAccount, User
 )
 from app import db
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 import requests
 import os
 
@@ -360,9 +361,9 @@ class TradingService:
     def deploy_trade(self, user_id: int, recommendation_id: int) -> Dict:
         """Deploy trade to broker (routing to broker API)"""
         try:
-            # First check user's pricing plan and trading permissions
+            # First check user's pricing plan and trading permissions (tenant-scoped)
             from models import User, PricingPlan
-            user = User.query.get(user_id)
+            user = TenantQuery(User).filter_by(id=user_id).first()
             
             if not user:
                 return {'success': False, 'error': 'User not found'}
@@ -386,7 +387,7 @@ class TradingService:
                     'error': 'Direct trade execution is only available for Target Pro subscription.'
                 }
             
-            recommendation = TradeRecommendation.query.filter_by(
+            recommendation = TenantQuery(TradeRecommendation).filter_by(
                 id=recommendation_id,
                 user_id=user_id
             ).first()
@@ -397,8 +398,8 @@ class TradingService:
             if recommendation.status != 'PENDING':
                 return {'success': False, 'error': 'Recommendation already processed'}
             
-            # Get user's primary broker account
-            broker_account = BrokerAccount.query.filter_by(
+            # Get user's primary broker account (tenant-scoped)
+            broker_account = TenantQuery(BrokerAccount).filter_by(
                 user_id=user_id,
                 is_primary=True
             ).first()
@@ -413,8 +414,8 @@ class TradingService:
                     'error': 'Trading is only allowed with your primary broker. Please set this broker as primary to trade.'
                 }
             
-            # Create trade execution record
-            execution = TradeExecution(
+            # Create trade execution record with tenant_id
+            execution = create_for_tenant(TradeExecution,
                 user_id=user_id,
                 recommendation_id=recommendation_id,
                 broker_account_id=broker_account.id,
@@ -440,8 +441,8 @@ class TradingService:
                 recommendation.status = 'EXECUTED'
                 recommendation.deployed_at = datetime.utcnow()
                 
-                # Create active trade record
-                active_trade = ActiveTrade(
+                # Create active trade record with tenant_id
+                active_trade = create_for_tenant(ActiveTrade,
                     user_id=user_id,
                     execution_id=execution.id,
                     strategy_name=recommendation.strategy.name,
@@ -517,8 +518,8 @@ class TradingService:
                 'recommendations': []
             }
             
-            # Get active trades
-            active_trades = ActiveTrade.query.filter_by(
+            # Get active trades (tenant-scoped)
+            active_trades = TenantQuery(ActiveTrade).filter_by(
                 user_id=user_id,
                 is_active=True
             ).order_by(desc(ActiveTrade.entry_time)).all()
@@ -541,10 +542,10 @@ class TradingService:
                     'target_price': trade.target_price
                 })
             
-            # Get recent trade history
-            history = TradeHistory.query.filter_by(user_id=user_id).order_by(
+            # Get recent trade history (tenant-scoped)
+            history = TenantQuery(TradeHistory).filter_by(user_id=user_id).order_by(
                 desc(TradeHistory.exit_time)
-            ).limit(10).all()
+            ).all()[:10]
             
             for record in history:
                 result['recent_history'].append({
@@ -562,8 +563,8 @@ class TradingService:
                     'exit_time': record.exit_time
                 })
             
-            # Get pending recommendations
-            recommendations = TradeRecommendation.query.filter_by(
+            # Get pending recommendations (tenant-scoped)
+            recommendations = TenantQuery(TradeRecommendation).filter_by(
                 user_id=user_id,
                 status='PENDING'
             ).order_by(desc(TradeRecommendation.recommendation_date)).all()

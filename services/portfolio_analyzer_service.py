@@ -12,6 +12,7 @@ from collections import defaultdict
 from sqlalchemy import func, and_
 from models import Portfolio, RiskProfile, PortfolioAnalysis, PortfolioRecommendation, User, BrokerAccount
 from app import db
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 import requests
 import os
 
@@ -20,12 +21,13 @@ class PortfolioAnalyzerService:
     
     def __init__(self, user_id: int):
         self.user_id = user_id
-        self.user = User.query.get(user_id)
+        self.tenant_id = get_current_tenant_id()
+        self.user = TenantQuery(User).filter_by(id=user_id).first()
         
     def sync_broker_data(self) -> Dict:
         """Sync portfolio data from connected broker accounts"""
         try:
-            broker_accounts = BrokerAccount.query.filter_by(user_id=self.user_id).all()
+            broker_accounts = TenantQuery(BrokerAccount).filter_by(user_id=self.user_id).all()
             sync_results = {
                 'success': True,
                 'synced_brokers': [],
@@ -45,7 +47,7 @@ class PortfolioAnalyzerService:
                     if holdings:
                         # Update or create portfolio entries
                         for holding in holdings:
-                            existing_holding = Portfolio.query.filter_by(
+                            existing_holding = TenantQuery(Portfolio).filter_by(
                                 user_id=self.user_id,
                                 broker_id=broker.broker_name,
                                 ticker_symbol=holding.get('symbol', '')
@@ -58,8 +60,8 @@ class PortfolioAnalyzerService:
                                 existing_holding.current_value = holding.get('current_value', 0)
                                 existing_holding.last_sync_date = datetime.utcnow()
                             else:
-                                # Create new holding
-                                new_holding = Portfolio(
+                                # Create new holding with tenant_id
+                                new_holding = create_for_tenant(Portfolio,
                                     user_id=self.user_id,
                                     broker_id=broker.broker_name,
                                     ticker_symbol=holding.get('symbol', ''),
@@ -107,7 +109,7 @@ class PortfolioAnalyzerService:
             for holding_data in holdings_data:
                 try:
                     # Check for duplicates
-                    existing = Portfolio.query.filter_by(
+                    existing = TenantQuery(Portfolio).filter_by(
                         user_id=self.user_id,
                         ticker_symbol=holding_data.get('symbol', '').upper(),
                         broker_id=None  # Manual uploads have no broker_id
@@ -179,8 +181,8 @@ class PortfolioAnalyzerService:
     def analyze_portfolio(self) -> Dict:
         """Comprehensive portfolio analysis with AI insights"""
         try:
-            # Get all user holdings
-            holdings = Portfolio.query.filter_by(user_id=self.user_id).all()
+            # Get all user holdings (tenant-scoped)
+            holdings = TenantQuery(Portfolio).filter_by(user_id=self.user_id).all()
             
             if not holdings:
                 return self._generate_empty_portfolio_analysis()
@@ -202,8 +204,8 @@ class PortfolioAnalyzerService:
             # AI-based health assessment
             ai_assessment = self._generate_ai_assessment(holdings, sector_allocation, asset_allocation, risk_metrics)
             
-            # Create analysis record
-            analysis = PortfolioAnalysis(
+            # Create analysis record with tenant_id
+            analysis = create_for_tenant(PortfolioAnalysis,
                 user_id=self.user_id,
                 analysis_date=date.today(),
                 total_portfolio_value=total_current,

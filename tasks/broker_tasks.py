@@ -1,13 +1,40 @@
 """
 Background tasks for broker operations
 Async processing of broker API calls and data synchronization
+
+MULTI-TENANT NOTE:
+These tasks operate on specific broker_account_id which inherently includes 
+tenant isolation (each BrokerAccount has tenant_id). No additional tenant 
+filtering is needed because:
+1. Tasks receive specific account IDs that are already tenant-scoped
+2. Related data (holdings, orders) is created with same tenant_id as the account
+3. Queries using account ID maintain tenant boundaries automatically
 """
 import logging
 from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
 from datetime import datetime, timedelta, timezone
+from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def tenant_context(tenant_id):
+    """Context manager to set tenant_id for background tasks without request context"""
+    from flask import g, has_request_context
+    
+    if has_request_context():
+        old_tenant = getattr(g, 'tenant_id', None)
+        g.tenant_id = tenant_id
+        try:
+            yield
+        finally:
+            if old_tenant is not None:
+                g.tenant_id = old_tenant
+    else:
+        # Outside request context, just yield (tenant isolation via data model)
+        yield
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def sync_broker_holdings(self, broker_account_id):
@@ -137,25 +164,35 @@ def sync_broker_orders(self, broker_account_id):
 
 @shared_task
 def sync_all_broker_data():
-    """Sync data for all connected broker accounts"""
+    """Sync data for all connected broker accounts across all tenants
+    
+    Note: This processes all accounts but tenant isolation is maintained because:
+    - Each individual sync task operates on a specific account_id
+    - The account's tenant_id is preserved in all related data
+    """
     from app import app, db
     from models_broker import BrokerAccount
     
     with app.app_context():
-        # Get all connected broker accounts
+        # Get all connected broker accounts (across all tenants - isolation via account_id)
         connected_accounts = BrokerAccount.query.filter_by(
             connection_status='connected'
         ).all()
         
         synced_count = 0
+        tenant_summary = {}
         for account in connected_accounts:
-            # Queue individual sync tasks
+            # Queue individual sync tasks (tenant isolation via account data)
             sync_broker_holdings.delay(account.id)
             sync_broker_orders.delay(account.id)
             synced_count += 1
+            
+            # Track by tenant for logging
+            tenant_id = account.tenant_id or 'live'
+            tenant_summary[tenant_id] = tenant_summary.get(tenant_id, 0) + 1
         
-        logger.info(f"Queued sync tasks for {synced_count} broker accounts")
-        return {'success': True, 'accounts_synced': synced_count}
+        logger.info(f"Queued sync tasks for {synced_count} broker accounts across {len(tenant_summary)} tenants")
+        return {'success': True, 'accounts_synced': synced_count, 'tenants': tenant_summary}
 
 @shared_task(bind=True, max_retries=3)
 def execute_broker_order(self, broker_account_id, order_params):

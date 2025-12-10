@@ -16,6 +16,7 @@ from models import (ResearchConversation, ResearchMessage, VectorDocument,
                    SourceCitation, SignalPerformance, Portfolio, User,
                    BrokerAccount)
 from app import db
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -86,17 +87,18 @@ Remember: This is educational research - not guaranteed investment advice. Users
     def create_or_get_conversation(self, user_id: int, conversation_id: Optional[int] = None) -> ResearchConversation:
         """Create new conversation or retrieve existing one"""
         if conversation_id:
-            conversation = ResearchConversation.query.filter_by(
+            conversation = TenantQuery(ResearchConversation).filter_by(
                 id=conversation_id,
                 user_id=user_id
             ).first()
             if conversation:
                 return conversation
         
-        # Create new conversation
-        conversation = ResearchConversation()
-        conversation.user_id = user_id
-        conversation.title = "New Research Session"
+        # Create new conversation with tenant_id
+        conversation = create_for_tenant(ResearchConversation,
+            user_id=user_id,
+            title="New Research Session"
+        )
         db.session.add(conversation)
         db.session.commit()
         logger.info(f"Created new research conversation {conversation.id} for user {user_id}")
@@ -124,14 +126,14 @@ Remember: This is educational research - not guaranteed investment advice. Users
         }
         
         try:
-            # Get user info
-            user = User.query.get(user_id)
+            # Get user info (tenant-scoped)
+            user = TenantQuery(User).filter_by(id=user_id).first()
             if user:
                 context['user_profile']['plan'] = user.pricing_plan.value if user.pricing_plan else 'FREE'
             
-            # Get portfolio preferences for personalized recommendations
+            # Get portfolio preferences for personalized recommendations (tenant-scoped)
             from models import PortfolioPreferences
-            prefs = PortfolioPreferences.query.filter_by(user_id=user_id).first()
+            prefs = TenantQuery(PortfolioPreferences).filter_by(user_id=user_id).first()
             if prefs and prefs.completed:
                 context['preferences'] = {
                     'age': prefs.age,
@@ -147,8 +149,8 @@ Remember: This is educational research - not guaranteed investment advice. Users
                 # Update risk tolerance from preferences
                 context['user_profile']['risk_tolerance'] = prefs.risk_tolerance or 'MODERATE'
             
-            # Get portfolio holdings
-            portfolio_items = Portfolio.query.filter_by(user_id=user_id).all()
+            # Get portfolio holdings (tenant-scoped)
+            portfolio_items = TenantQuery(Portfolio).filter_by(user_id=user_id).all()
             total_value = 0
             
             for item in portfolio_items:
@@ -171,8 +173,8 @@ Remember: This is educational research - not guaranteed investment advice. Users
             
             context['portfolio']['total_value'] = total_value
             
-            # Get connected brokers
-            brokers = BrokerAccount.query.filter_by(
+            # Get connected brokers (tenant-scoped)
+            brokers = TenantQuery(BrokerAccount).filter_by(
                 user_id=user_id,
                 connection_status='connected'
             ).all()

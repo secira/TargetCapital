@@ -6,6 +6,7 @@ from app import db
 from flask import Blueprint, redirect, request, url_for, flash
 from flask_login import login_required, login_user, logout_user
 from models import User
+from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 from oauthlib.oauth2 import WebApplicationClient
 
 GOOGLE_CLIENT_ID = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
@@ -73,12 +74,15 @@ def callback():
     else:
         return "User email not available or not verified by Google.", 400
 
-    user = User.query.filter_by(email=users_email).first()
+    # Check for existing user in current tenant
+    user = TenantQuery(User).filter_by(email=users_email).first()
     if not user:
-        user = User()
-        user.username = users_name
-        user.email = users_email
-        user.is_verified = True
+        # Create new user bound to current tenant
+        user = create_for_tenant(User,
+            username=users_name,
+            email=users_email,
+            is_verified=True
+        )
         db.session.add(user)
         db.session.commit()
 
