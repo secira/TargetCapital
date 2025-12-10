@@ -4,14 +4,13 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="py-5 bg-gradient-primary text-white">
+<section class="py-5 bg-primary text-white">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Trading Support</h1>
                 <p class="lead text-white mb-4">
-                    Trading signals with transparent performance, gated by experience level. 
-                    Make informed decisions with full historical track records and risk-reward analysis.
+                    AI-powered trading signals gated by experience level. Full transparency with historical performance and risk analysis.
                 </p>
                 <div class="d-flex gap-3">
                     <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill">
@@ -30,76 +29,50 @@
     </div>
 </section>
 
-<!-- Signal Types Section -->
+<!-- Signal Types -->
 <section class="py-5 bg-white">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="display-6 fw-bold text-dark mb-4">Our Signal Types</h2>
-            <p class="lead text-muted mx-auto" style="max-width: 600px;">
-                Choose from multiple signal strategies designed for different trading styles and risk preferences
-            </p>
+            <h2 class="display-6 fw-bold text-dark mb-4">Signal Types for Every Trading Style</h2>
+            <p class="lead text-muted">Choose the strategy that matches your time frame and risk profile</p>
         </div>
         
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body text-center p-4">
-                        <div class="mb-4">
-                            <i class="fas fa-bolt text-primary fa-3x"></i>
-                        </div>
-                        <h5 class="fw-bold mb-3">Intraday Signals</h5>
-                        <p class="text-muted mb-4">
-                            Quick scalping opportunities with 5-15 minute holding periods. 
-                            Perfect for active day traders seeking frequent profit opportunities.
-                        </p>
-                        <ul class="list-unstyled text-start">
-                            <li><i class="fas fa-check text-success me-2"></i>1-5 minute timeframes</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Quick entry/exit points</li>
-                            <li><i class="fas fa-check text-success me-2"></i>High frequency signals</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Risk management alerts</li>
-                        </ul>
+                        <i class="fas fa-bolt text-primary fa-3x mb-3"></i>
+                        <h5 class="fw-bold mb-3">Intraday</h5>
+                        <p class="text-muted mb-3">Quick scalping with 5-15 minute holds for active day traders.</p>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>High frequency</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Quick entry/exit</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Risk alerts</small>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body text-center p-4">
-                        <div class="mb-4">
-                            <i class="fas fa-chart-line text-success fa-3x"></i>
-                        </div>
+                        <i class="fas fa-chart-line text-success fa-3x mb-3"></i>
                         <h5 class="fw-bold mb-3">Swing Trading</h5>
-                        <p class="text-muted mb-4">
-                            Medium-term signals for 2-10 day holding periods. 
-                            Ideal for traders who want quality over quantity.
-                        </p>
-                        <ul class="list-unstyled text-start">
-                            <li><i class="fas fa-check text-success me-2"></i>Daily timeframes</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Technical pattern analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Trend reversal signals</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Support/resistance levels</li>
-                        </ul>
+                        <p class="text-muted mb-3">Medium-term signals for 2-10 day holds. Quality over quantity.</p>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Daily timeframes</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Technical patterns</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Trend analysis</small>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-4">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px;">
                     <div class="card-body text-center p-4">
-                        <div class="mb-4">
-                            <i class="fas fa-chart-area text-warning fa-3x"></i>
-                        </div>
+                        <i class="fas fa-chart-area text-warning fa-3x mb-3"></i>
                         <h5 class="fw-bold mb-3">Position Trading</h5>
-                        <p class="text-muted mb-4">
-                            Long-term signals for weeks to months holding periods. 
-                            Perfect for patient investors seeking substantial returns.
-                        </p>
-                        <ul class="list-unstyled text-start">
-                            <li><i class="fas fa-check text-success me-2"></i>Weekly/monthly analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Fundamental analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Long-term trend signals</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Portfolio allocation advice</li>
-                        </ul>
+                        <p class="text-muted mb-3">Long-term signals for weeks to months. Fundamental analysis.</p>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Weekly/monthly</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Fundamentals</small>
+                        <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Long-term trends</small>
                     </div>
                 </div>
             </div>
@@ -107,75 +80,70 @@
     </div>
 </section>
 
-
-<!-- Features Section -->
+<!-- Key Features -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h2 class="display-6 fw-bold text-dark mb-4">Advanced Signal Features</h2>
+                <h2 class="display-6 fw-bold text-dark mb-4">Why Choose Our Signals</h2>
                 <div class="feature-list">
                     <div class="d-flex mb-4">
-                        <div class="me-3">
-                            <i class="fas fa-brain text-primary fa-2x"></i>
-                        </div>
+                        <i class="fas fa-brain text-primary fa-2x me-3"></i>
                         <div>
-                            <h5 class="fw-bold mb-2">AI-Powered Analysis</h5>
-                            <p class="text-muted">
-                                Our advanced AI algorithms analyze 1000+ data points per second to identify optimal trading opportunities
-                            </p>
+                            <h5 class="fw-bold mb-2">AI-Powered</h5>
+                            <p class="text-muted">Advanced algorithms analyzing 1000+ data points per second</p>
                         </div>
                     </div>
                     
                     <div class="d-flex mb-4">
-                        <div class="me-3">
-                            <i class="fas fa-shield-alt text-success fa-2x"></i>
-                        </div>
+                        <i class="fas fa-shield-alt text-success fa-2x me-3"></i>
                         <div>
                             <h5 class="fw-bold mb-2">Risk Management</h5>
-                            <p class="text-muted">
-                                Every signal comes with calculated stop-loss levels and position sizing recommendations
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex mb-4">
-                        <div class="me-3">
-                            <i class="fas fa-clock text-warning fa-2x"></i>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold mb-2">Real-time Alerts</h5>
-                            <p class="text-muted">
-                                Get instant notifications via dashboard, email, and mobile app for timely signal execution
-                            </p>
+                            <p class="text-muted">Stop-loss levels and position sizing with every signal</p>
                         </div>
                     </div>
                     
                     <div class="d-flex">
-                        <div class="me-3">
-                            <i class="fas fa-chart-bar text-info fa-2x"></i>
-                        </div>
+                        <i class="fas fa-chart-bar text-info fa-2x me-3"></i>
                         <div>
-                            <h5 class="fw-bold mb-2">Performance Tracking</h5>
-                            <p class="text-muted">
-                                Track signal performance with detailed analytics and historical success rates
-                            </p>
+                            <h5 class="fw-bold mb-2">Performance Tracked</h5>
+                            <p class="text-muted">Real-time analytics and historical success rates</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+            <div class="col-lg-6 text-center">
+                <div class="bg-white p-5 rounded-3 shadow-sm">
+                    <h6 class="fw-bold text-dark mb-4">Platform Stats</h6>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <h4 class="fw-bold text-primary">1,000+</h4>
+                            <small class="text-muted">Active Traders</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="fw-bold text-success">87.5%</h4>
+                            <small class="text-muted">Success Rate</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="fw-bold text-warning">₹10 Cr+</h4>
+                            <small class="text-muted">Trading Volume</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="fw-bold text-info">24/7</h4>
+                            <small class="text-muted">Coverage</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
+<!-- CTA -->
 <section class="py-5 bg-primary text-white">
     <div class="container text-center">
-        <h2 class="display-6 fw-bold mb-4">Ready to Start Trading Smarter?</h2>
-        <p class="lead text-white mb-4">
-            Join thousands of traders who are already using our AI-powered signals to maximize their returns
-        </p>
+        <h2 class="display-6 fw-bold mb-4">Ready to Trade Smarter?</h2>
+        <p class="lead text-white mb-4">Join traders using AI-powered signals to maximize returns</p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4 py-3 rounded-pill">
                 <i class="fas fa-rocket me-2"></i>Start Free Trial
@@ -183,25 +151,6 @@
             <a href="{{ url_for('contact') }}" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
                 <i class="fas fa-phone me-2"></i>Contact Sales
             </a>
-        </div>
-        
-        <div class="row mt-5">
-            <div class="col-md-3">
-                <h3 class="fw-bold">1,000+</h3>
-                <p class="mb-0">Active Traders</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">87.5%</h3>
-                <p class="mb-0">Success Rate</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">₹10 Cr+</h3>
-                <p class="mb-0">Trading Volume</p>
-            </div>
-            <div class="col-md-3">
-                <h3 class="fw-bold">24/7</h3>
-                <p class="mb-0">Market Coverage</p>
-            </div>
         </div>
     </div>
 </section>
