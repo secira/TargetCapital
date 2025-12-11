@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 
 import requests
 from app import db
@@ -9,87 +10,131 @@ from models import User
 from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 from oauthlib.oauth2 import WebApplicationClient
 
-GOOGLE_CLIENT_ID = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
-GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
+logger = logging.getLogger(__name__)
+
+# Safely load Google OAuth credentials
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-DEV_REDIRECT_URL = f'https://{os.environ["REPLIT_DEV_DOMAIN"]}/google_login/callback'
+REPLIT_DEV_DOMAIN = os.environ.get("REPLIT_DEV_DOMAIN", "localhost:5000")
+DEV_REDIRECT_URL = f'https://{REPLIT_DEV_DOMAIN}/google_login/callback'
 
-print(f"""To make Google authentication work:
+if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
+    logger.info(f"✅ Google OAuth configured with redirect URI: {DEV_REDIRECT_URL}")
+else:
+    logger.warning(f"⚠️ Google OAuth not configured. Please set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET")
+    logger.info(f"""To make Google authentication work:
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Create a new OAuth 2.0 Client ID
 3. Add {DEV_REDIRECT_URL} to Authorized redirect URIs
-
-For detailed instructions, see:
-https://docs.replit.com/additional-resources/google-auth-in-flask#set-up-your-oauth-app--client
+4. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET environment variables
 """)
 
-client = WebApplicationClient(GOOGLE_CLIENT_ID)
+client = WebApplicationClient(GOOGLE_CLIENT_ID) if GOOGLE_CLIENT_ID else None
 
 google_auth = Blueprint("google_auth", __name__)
 
 
 @google_auth.route("/google_login")
 def login():
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET or not client:
+        logger.error("Google OAuth not configured")
+        flash('Google authentication is not configured. Please contact support.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+        authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
-        scope=["openid", "email", "profile"],
-    )
-    return redirect(request_uri)
+        request_uri = client.prepare_request_uri(
+            authorization_endpoint,
+            redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+            scope=["openid", "email", "profile"],
+        )
+        logger.info(f"Redirecting to Google authorization endpoint")
+        return redirect(request_uri)
+    except Exception as e:
+        logger.error(f"Error during Google login: {str(e)}")
+        flash('An error occurred during Google authentication. Please try again.', 'error')
+        return redirect(url_for('login'))
 
 
 @google_auth.route("/google_login/callback")
 def callback():
-    code = request.args.get("code")
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
-    token_endpoint = google_provider_cfg["token_endpoint"]
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET or not client:
+        logger.error("Google OAuth not configured for callback")
+        flash('Google authentication is not configured.', 'error')
+        return redirect(url_for('login'))
+    
+    try:
+        code = request.args.get("code")
+        if not code:
+            logger.warning("No authorization code received from Google")
+            flash('Authorization failed. Please try again.', 'error')
+            return redirect(url_for('login'))
+        
+        google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+        token_endpoint = google_provider_cfg["token_endpoint"]
 
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url.replace("http://", "https://"),
-        redirect_url=request.base_url.replace("http://", "https://"),
-        code=code,
-    )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
-
-    client.parse_request_body_response(json.dumps(token_response.json()))
-
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
-
-    userinfo = userinfo_response.json()
-    if userinfo.get("email_verified"):
-        users_email = userinfo["email"]
-        users_name = userinfo.get("given_name", userinfo.get("name", users_email.split('@')[0]))
-    else:
-        return "User email not available or not verified by Google.", 400
-
-    # Check for existing user in current tenant
-    user = TenantQuery(User).filter_by(email=users_email).first()
-    if not user:
-        # Create new user bound to current tenant
-        user = create_for_tenant(User,
-            username=users_name,
-            email=users_email,
-            is_verified=True
+        token_url, headers, body = client.prepare_token_request(
+            token_endpoint,
+            authorization_response=request.url.replace("http://", "https://"),
+            redirect_url=request.base_url.replace("http://", "https://"),
+            code=code,
         )
-        db.session.add(user)
-        db.session.commit()
+        token_response = requests.post(
+            token_url,
+            headers=headers,
+            data=body,
+            auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+        )
+        
+        if token_response.status_code != 200:
+            logger.error(f"Token exchange failed: {token_response.text}")
+            flash('Failed to authenticate with Google. Please try again.', 'error')
+            return redirect(url_for('login'))
 
-    login_user(user)
-    flash('Successfully logged in with Google!', 'success')
+        client.parse_request_body_response(json.dumps(token_response.json()))
 
-    return redirect(url_for("dashboard"))
+        userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+        uri, headers, body = client.add_token(userinfo_endpoint)
+        userinfo_response = requests.get(uri, headers=headers, data=body)
+
+        userinfo = userinfo_response.json()
+        if userinfo.get("email_verified"):
+            users_email = userinfo["email"]
+            users_name = userinfo.get("given_name", userinfo.get("name", users_email.split('@')[0]))
+        else:
+            logger.warning(f"Google email not verified for user")
+            flash('Please verify your email with Google and try again.', 'error')
+            return redirect(url_for('login'))
+
+        # Check for existing user in current tenant
+        user = TenantQuery(User).filter_by(email=users_email).first()
+        if not user:
+            # Create new user bound to current tenant
+            user = create_for_tenant(User,
+                username=users_name,
+                email=users_email,
+                is_verified=True
+            )
+            db.session.add(user)
+            db.session.commit()
+            logger.info(f"New user created via Google OAuth: {users_email}")
+        else:
+            logger.info(f"Existing user logged in via Google OAuth: {users_email}")
+
+        login_user(user)
+        flash('Successfully logged in with Google!', 'success')
+        logger.info(f"User {users_email} logged in successfully via Google OAuth")
+
+        return redirect(url_for("dashboard"))
+    
+    except Exception as e:
+        logger.error(f"Error during Google OAuth callback: {str(e)}", exc_info=True)
+        flash('An error occurred during authentication. Please try again.', 'error')
+        return redirect(url_for('login'))
 
 
 @google_auth.route("/logout")

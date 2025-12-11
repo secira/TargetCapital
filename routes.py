@@ -1090,16 +1090,7 @@ def profile():
                          trading_signals_count=trading_signals_count,
                          analyses_count=analyses_count)
 
-# OAuth success redirect routes
-@app.route('/auth/google/callback')
-def google_oauth_success():
-    """Handle successful Google OAuth login"""
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    else:
-        flash('Google authentication failed. Please try again.', 'error')
-        return redirect(url_for('login'))
-
+# OAuth success redirect routes (handled by google_auth blueprint for Google)
 @app.route('/auth/facebook/callback')
 def facebook_oauth_success():
     """Handle successful Facebook OAuth login"""
