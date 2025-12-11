@@ -55,7 +55,7 @@ class BrokerAccount(db.Model):
     __tablename__ = 'user_brokers'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     broker_type = db.Column(db.String(50), nullable=False)  # Store as string, not enum
     broker_name = db.Column(db.String(50), nullable=False)  # Display name
@@ -188,7 +188,7 @@ class BrokerHolding(db.Model):
     __tablename__ = 'broker_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     # Stock details
@@ -234,7 +234,7 @@ class BrokerPosition(db.Model):
     __tablename__ = 'broker_positions'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     # Position details  
@@ -267,7 +267,7 @@ class BrokerOrder(db.Model):
     __tablename__ = 'broker_orders'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     # Order identification
@@ -331,7 +331,7 @@ class BrokerSyncLog(db.Model):
     __tablename__ = 'broker_sync_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False, index=True)  # Critical performance index
     
     sync_type = db.Column(db.String(50), nullable=False)  # holdings, positions, orders, profile

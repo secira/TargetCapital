@@ -232,7 +232,7 @@ class Testimonial(db.Model):
 class ConversationHistory(db.Model):
     """Store conversation history for Research Assistant"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     session_id = db.Column(db.String(100), nullable=False)  # Unique session identifier
     query = db.Column(db.Text, nullable=False)
@@ -249,7 +249,7 @@ class ConversationHistory(db.Model):
 class AgentCheckpoint(db.Model):
     """Store LangGraph agent checkpoints for resumable workflows"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     agent_type = db.Column(db.String(50), nullable=False)  # research, portfolio, signal
     checkpoint_id = db.Column(db.String(100), unique=True, nullable=False)
@@ -266,7 +266,7 @@ class AgentCheckpoint(db.Model):
 class PortfolioOptimizationReport(db.Model):
     """Store portfolio optimization reports from multi-agent analysis"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     report_data = db.Column(db.JSON, nullable=False)  # Complete multi-agent output
     risk_analysis = db.Column(db.JSON, nullable=True)
@@ -282,7 +282,7 @@ class PortfolioOptimizationReport(db.Model):
 class TradingSignal(db.Model):
     """Store generated trading signals from LangGraph pipeline"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     signal_date = db.Column(db.Date, nullable=False)
     symbol = db.Column(db.String(50), nullable=False)
     action = db.Column(db.String(10), nullable=False)  # BUY/SELL
@@ -306,7 +306,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Multi-tenant support
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     
     username = db.Column(db.String(80), nullable=True)  # Made nullable for mobile-only signup
     email = db.Column(db.String(120), nullable=True)  # Made nullable for mobile-only signup
@@ -428,7 +428,7 @@ class PortfolioPreferences(db.Model):
     __tablename__ = 'portfolio_preferences'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, unique=True)
     
     # Personal Details
@@ -557,7 +557,7 @@ class PortfolioPreferences(db.Model):
 class Payment(db.Model):
     """Track all payment transactions"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     razorpay_payment_id = db.Column(db.String(100), unique=True, nullable=False)
     razorpay_order_id = db.Column(db.String(100), nullable=False)
@@ -577,7 +577,7 @@ class Payment(db.Model):
 class Referral(db.Model):
     """Track referral rewards and commissions"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     referrer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     referred_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     reward_amount = db.Column(db.Float, default=0.0)
@@ -592,7 +592,7 @@ class Referral(db.Model):
 
 class WatchlistItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     symbol = db.Column(db.String(10), nullable=False)
     company_name = db.Column(db.String(200), nullable=True)
@@ -607,7 +607,7 @@ class WatchlistItem(db.Model):
 
 class StockAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     symbol = db.Column(db.String(10), nullable=False)
     company_name = db.Column(db.String(200), nullable=False)
     current_price = db.Column(db.Float, nullable=False)
@@ -630,7 +630,7 @@ class StockAnalysis(db.Model):
 class AIAnalysis(db.Model):
     """Store comprehensive AI agent analysis results"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     symbol = db.Column(db.String(10), nullable=False)
     analysis_type = db.Column(db.String(50), nullable=False)  # STOCK, PORTFOLIO, SENTIMENT
@@ -665,7 +665,7 @@ class AIAnalysis(db.Model):
 class PortfolioOptimization(db.Model):
     """Store portfolio optimization recommendations"""
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     # Current portfolio state
@@ -691,7 +691,7 @@ class PortfolioTrade(db.Model):
     __tablename__ = 'portfolio_trades'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # User who made the trade
     open_date = db.Column(db.Date, nullable=False)
     symbol_type = db.Column(db.String(20), nullable=False)  # Index, futures, currency, crypto, options, stocks, gold
@@ -764,7 +764,7 @@ class AIStockPick(db.Model):
     __tablename__ = 'ai_stock_picks'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     pick_date = db.Column(db.Date, nullable=False)
     symbol = db.Column(db.String(20), nullable=False)
     company_name = db.Column(db.String(200), nullable=False)
@@ -792,7 +792,7 @@ class ManualEquityHolding(db.Model):
     __tablename__ = 'manual_equity_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -856,7 +856,7 @@ class ManualMutualFundHolding(db.Model):
     __tablename__ = 'manual_mutual_fund_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -930,7 +930,7 @@ class ManualFixedDepositHolding(db.Model):
     __tablename__ = 'manual_fixed_deposit_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/bank holds this
     
@@ -1044,7 +1044,7 @@ class ManualRealEstateHolding(db.Model):
     __tablename__ = 'manual_real_estate_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Property management broker
     
@@ -1140,7 +1140,7 @@ class ManualCommodityHolding(db.Model):
     __tablename__ = 'manual_commodity_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this
     
@@ -1233,7 +1233,7 @@ class ManualCryptocurrencyHolding(db.Model):
     __tablename__ = 'manual_cryptocurrency_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker/exchange holds this
     
@@ -1314,7 +1314,7 @@ class ManualInsuranceHolding(db.Model):
     __tablename__ = 'manual_insurance_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Insurance broker/agent
     
@@ -1381,7 +1381,7 @@ class ManualBankAccount(db.Model):
     __tablename__ = 'manual_bank_accounts'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     
     # Account Details
@@ -1432,7 +1432,7 @@ class ManualFuturesOptionsHolding(db.Model):
     __tablename__ = 'manual_futures_options_holdings'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     broker_account_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=True, index=True)  # Optional: Which broker holds this position
     
@@ -1535,7 +1535,7 @@ class Portfolio(db.Model):
     __tablename__ = 'portfolio'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     broker_id = db.Column(db.String(50), nullable=True)  # Temporary - matches current database
     ticker_symbol = db.Column(db.String(20), nullable=False)  # Original length
@@ -1788,7 +1788,7 @@ class RiskProfile(db.Model):
     __tablename__ = 'risk_profiles'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     age_group = db.Column(db.String(20), nullable=False)  # 18-25, 26-35, 36-45, 46-55, 55+
     investment_goal = db.Column(db.String(50), nullable=False)  # wealth_creation, retirement, children_education, etc.
@@ -1811,7 +1811,7 @@ class PortfolioAnalysis(db.Model):
     __tablename__ = 'portfolio_analyses'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     analysis_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     
@@ -1855,7 +1855,7 @@ class PortfolioRecommendation(db.Model):
     __tablename__ = 'portfolio_recommendations'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     analysis_id = db.Column(db.Integer, db.ForeignKey('portfolio_analyses.id'), nullable=False)
     
@@ -1884,7 +1884,7 @@ class TradingAsset(db.Model):
     __tablename__ = 'trading_assets'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     symbol = db.Column(db.String(50), nullable=False, unique=True)
     company_name = db.Column(db.String(200), nullable=False)
     asset_class = db.Column(db.String(20), nullable=False)  # stocks, options, futures, mutual_funds, crypto
@@ -1900,7 +1900,7 @@ class TradingStrategy(db.Model):
     __tablename__ = 'trading_strategies'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     strategy_type = db.Column(db.String(50), nullable=False)  # directional, non_directional, arbitrage
@@ -1918,7 +1918,7 @@ class TradeRecommendation(db.Model):
     __tablename__ = 'trade_recommendations'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     asset_id = db.Column(db.Integer, db.ForeignKey('trading_assets.id'), nullable=False)
     strategy_id = db.Column(db.Integer, db.ForeignKey('trading_strategies.id'), nullable=False)
@@ -1960,7 +1960,7 @@ class TradeExecution(db.Model):
     __tablename__ = 'trade_executions'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     recommendation_id = db.Column(db.Integer, db.ForeignKey('trade_recommendations.id'), nullable=False)
     broker_account_id = db.Column(db.Integer, nullable=True)  # Reference to broker account
@@ -2000,7 +2000,7 @@ class ActiveTrade(db.Model):
     __tablename__ = 'active_trades'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     execution_id = db.Column(db.Integer, db.ForeignKey('trade_executions.id'), nullable=False)
     strategy_name = db.Column(db.String(100), nullable=False)
@@ -2036,7 +2036,7 @@ class TradeHistory(db.Model):
     __tablename__ = 'trade_history'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     active_trade_id = db.Column(db.Integer, db.ForeignKey('active_trades.id'), nullable=False)
     
@@ -2074,7 +2074,7 @@ class MarketAnalysis(db.Model):
     __tablename__ = 'market_analysis'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     symbol = db.Column(db.String(50), nullable=False)
     analysis_date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
     
@@ -2104,7 +2104,7 @@ class ChatConversation(db.Model):
     __tablename__ = 'chat_conversations'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     session_id = db.Column(db.String(100), nullable=False)  # UUID for grouping messages
     title = db.Column(db.String(200), nullable=True)  # Auto-generated conversation title
@@ -2132,7 +2132,7 @@ class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     conversation_id = db.Column(db.Integer, db.ForeignKey('chat_conversations.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     message_type = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
@@ -2196,7 +2196,7 @@ class DailyTradingSignal(db.Model):
     __tablename__ = 'daily_trading_signals'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     signal_date = db.Column(db.Date, nullable=False)
     signal_type = db.Column(db.String(20), nullable=False)  # Stocks, Options, Futures
     symbol = db.Column(db.String(50), nullable=False)
@@ -2319,7 +2319,7 @@ class ExecutedTrade(db.Model):
     __tablename__ = 'executed_trades'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
     broker_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
@@ -2361,7 +2361,7 @@ class UserPayment(db.Model):
     __tablename__ = 'user_payments'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     # Payment details
@@ -2406,7 +2406,7 @@ class ResearchConversation(db.Model):
     __tablename__ = 'research_conversations'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     title = db.Column(db.String(200), nullable=True)  # Auto-generated from first query
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -2426,7 +2426,7 @@ class ResearchMessage(db.Model):
     __tablename__ = 'research_messages'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     conversation_id = db.Column(db.Integer, db.ForeignKey('research_conversations.id'), nullable=False)
     role = db.Column(db.String(20), nullable=False)  # 'user' or 'assistant'
     content = db.Column(db.Text, nullable=False)
@@ -2448,7 +2448,7 @@ class VectorDocument(db.Model):
     __tablename__ = 'vector_documents'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     document_type = db.Column(db.String(50), nullable=False)  # 'stock_data', 'news', 'earnings', 'user_note'
     symbol = db.Column(db.String(50), nullable=True)  # Stock symbol if applicable
     title = db.Column(db.String(300), nullable=False)
@@ -2481,7 +2481,7 @@ class SourceCitation(db.Model):
     __tablename__ = 'source_citations'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     message_id = db.Column(db.Integer, db.ForeignKey('research_messages.id'), nullable=False)
     vector_doc_id = db.Column(db.Integer, db.ForeignKey('vector_documents.id'), nullable=True)
     
@@ -2505,7 +2505,7 @@ class SignalPerformance(db.Model):
     __tablename__ = 'signal_performance'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
     
     # Outcome tracking
