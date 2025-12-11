@@ -3,17 +3,250 @@
 {% block title %}Register - Target Capital{% endblock %}
 
 {% block content %}
-<section class="bg-white text-dark" style="padding-top: 120px; min-height: 100vh;">
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+    
+    .auth-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .auth-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .auth-header {
+        background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
+        border-bottom: 1px solid #e5e7eb;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+    
+    .auth-header h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .auth-header p {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+        font-weight: 400;
+    }
+    
+    .auth-body {
+        padding: 2.5rem 2rem;
+    }
+    
+    .form-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .form-control {
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        height: 48px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 0 16px;
+        transition: all 0.2s ease;
+        background-color: #ffffff;
+    }
+    
+    .form-control:focus {
+        border-color: #00091a;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(0, 9, 26, 0.08);
+    }
+    
+    .form-control::placeholder {
+        color: #d1d5db;
+    }
+    
+    .btn-primary-auth {
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        height: 48px;
+        background-color: #00091a;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        transition: all 0.3s ease;
+        letter-spacing: 0.3px;
+    }
+    
+    .btn-primary-auth:hover {
+        background-color: #1a1a2e;
+        box-shadow: 0 4px 12px rgba(0, 9, 26, 0.2);
+        transform: translateY(-1px);
+    }
+    
+    .btn-primary-auth:active {
+        transform: translateY(0);
+    }
+    
+    .divider-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        color: #6b7280;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: #00091a;
+        border-color: #00091a;
+    }
+    
+    .form-check-label {
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        color: #4a4a4a;
+        margin-left: 8px;
+        cursor: pointer;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+    
+    .form-check-label a {
+        color: #00091a;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .form-check-label a:hover {
+        text-decoration: underline;
+    }
+    
+    .auth-footer-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        color: #4a4a4a;
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .auth-footer-text a {
+        color: #00091a;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .auth-footer-text a:hover {
+        color: #1a1a2e;
+        text-decoration: underline;
+    }
+    
+    .alert {
+        font-family: 'Poppins', sans-serif;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .alert-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .mobile-promo {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .mobile-promo .btn {
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        height: 48px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        letter-spacing: 0.3px;
+    }
+    
+    .mobile-promo-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .form-text {
+        font-family: 'Poppins', sans-serif;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 6px;
+        font-weight: 400;
+    }
+    
+    .security-badge {
+        background: #ecfdf5;
+        border: 1px solid #d1fae5;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    
+    .security-badge span {
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        color: #047857;
+        font-weight: 500;
+    }
+</style>
+
+<section class="auth-container bg-white">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <h2 class="fw-bold text-primary">Create Account</h2>
-                            <p class="text-muted">Join Target Capital and start trading smarter</p>
-                        </div>
-
+                <!-- Main Auth Card -->
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h2>Create Account</h2>
+                        <p>Join Target Capital and start trading smarter</p>
+                    </div>
+                    
+                    <div class="auth-body">
+                        <!-- Flash Messages -->
                         {% with messages = get_flashed_messages(with_categories=true) %}
                             {% if messages %}
                                 {% for category, message in messages %}
@@ -26,89 +259,90 @@
                         {% endwith %}
 
                         <!-- Quick Mobile Registration -->
-                        <div class="d-grid gap-2 mb-4">
-                            <a href="{{ url_for('mobile_register') }}" class="btn btn-success w-100 py-3">
-                                <i class="fas fa-mobile-alt me-2"></i>Register with Mobile Number (OTP)
-                            </a>
-                            <small class="text-center text-muted">
-                                <i class="fas fa-star text-warning"></i> Popular in India - Quick & Secure
-                            </small>
-                        </div>
-                        
-                        <!-- Or Divider -->
-                        <div class="d-flex align-items-center mb-4">
-                            <hr class="flex-grow-1">
-                            <span class="px-3 text-muted">or register with email</span>
-                            <hr class="flex-grow-1">
-                        </div>
-
-                        <form method="POST" action="{{ url_for('register') }}">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="first_name" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="first_name" name="first_name" 
-                                           placeholder="First name">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="last_name" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="last_name" name="last_name" 
-                                           placeholder="Last name">
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control" id="username" name="username" required 
-                                       placeholder="Choose a username">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="email" name="email" required 
-                                       placeholder="Enter your email">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required 
-                                       placeholder="Create a strong password">
-                                <div class="form-text">Password must be at least 6 characters long.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
-                                       placeholder="Confirm your password">
-                            </div>
-                            
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
-                                <label class="form-check-label" for="agree_terms">
-                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
-                                    <a href="#" class="text-primary">Privacy Policy</a>
-                                </label>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary w-100 mb-3">
-                                <i class="fas fa-user-plus me-2"></i>Create Account
+                        <div class="mobile-promo">
+                            <div style="font-size: 20px; margin-bottom: 0.75rem;">📱</div>
+                            <button class="btn btn-success w-100" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                                <i class="fas fa-mobile-alt me-2"></i>Register with Mobile (OTP)
                             </button>
-                        </form>
-                        
-                        <!-- Success Message -->
-                        <div class="text-center mb-3">
-                            <hr class="my-3">
-                            <small class="text-success bg-white px-3">
-                                <i class="fas fa-shield-alt me-1"></i>Secure registration
-                            </small>
+                            <div class="mobile-promo-text">Popular in India - Quick & Secure</div>
                         </div>
                         
-                        <div class="text-center">
-                            <p class="mb-0">Already have an account? 
-                                <a href="{{ url_for('login') }}" class="text-primary text-decoration-none fw-bold">
-                                    Sign in here
-                                </a>
-                            </p>
+                        <!-- Email Registration Form -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <div class="d-flex align-items-center" style="margin-bottom: 1.5rem;">
+                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
+                                <span class="px-3 divider-text">Email Registration</span>
+                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
+                            </div>
+
+                            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                
+                                <!-- Name Fields Row -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-4">
+                                            <label for="first_name" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" 
+                                                   placeholder="First name">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-4">
+                                            <label for="last_name" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" 
+                                                   placeholder="Last name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" required 
+                                           placeholder="Choose a username">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required 
+                                           placeholder="your@email.com">
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" required 
+                                           placeholder="Create a strong password">
+                                    <div class="form-text">At least 6 characters</div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
+                                           placeholder="Confirm your password">
+                                </div>
+                                
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
+                                    <label class="form-check-label" for="agree_terms">
+                                        I agree to the <a href="{{ url_for('terms_of_service') }}">Terms of Service</a> and 
+                                        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary-auth w-100">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Security Badge -->
+                        <div class="security-badge">
+                            <span><i class="fas fa-shield-alt me-1"></i>Bank-grade Encryption</span>
+                        </div>
+                        
+                        <div class="auth-footer-text">
+                            Already have an account? 
+                            <a href="{{ url_for('login') }}">Sign in</a>
                         </div>
                     </div>
                 </div>
@@ -123,10 +357,18 @@ document.getElementById('confirm_password').addEventListener('input', function()
     const password = document.getElementById('password').value;
     const confirmPassword = this.value;
     
-    if (password !== confirmPassword) {
+    if (password && password !== confirmPassword) {
         this.setCustomValidity('Passwords do not match');
     } else {
         this.setCustomValidity('');
+    }
+});
+
+// Form submission prevention on invalid state
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    if (document.getElementById('password').value !== document.getElementById('confirm_password').value) {
+        e.preventDefault();
+        alert('Passwords do not match');
     }
 });
 </script>
