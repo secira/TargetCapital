@@ -153,57 +153,145 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-5">
+    <style>
+        footer {
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        footer h5 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+        
+        footer h6 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            color: #e5e7eb;
+        }
+        
+        footer p {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.6;
+            color: #d1d5db;
+        }
+        
+        footer a {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        
+        footer a:hover {
+            color: #ffffff;
+            transform: translateX(2px);
+        }
+        
+        footer ul li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .social-links a {
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        footer hr {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        
+        .footer-copyright {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+            color: #9ca3af;
+        }
+        
+        .footer-security {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #d1d5db;
+            letter-spacing: 0.2px;
+        }
+    </style>
+    
+    <footer class="text-light py-5">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                    <h5 class="fw-bold">
+                    <h5>
                         <i class="fas fa-chart-line me-2"></i>Target Capital
                     </h5>
-                    <p class="text-white">Advanced AI-powered stock trading and portfolio analysis platform helping investors make smarter decisions.</p>
+                    <p>Advanced AI-powered stock trading and portfolio analysis platform helping investors make smarter decisions.</p>
                     <div class="social-links">
-                        <a href="https://x.com/ShankarUday2020" class="text-light me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/company/tcapitalbiz/" class="text-light me-3"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://www.facebook.com/tcapital2020/" class="text-light me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="https://x.com/ShankarUday2020" title="Twitter" class="text-light"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/company/tcapitalbiz/" title="LinkedIn" class="text-light"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://www.facebook.com/tcapital2020/" title="Facebook" class="text-light"><i class="fab fa-facebook"></i></a>
                     </div>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold">Company</h6>
+                    <h6>Company</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('about') }}" class="text-white">About Us</a></li>
-                        <li><a href="{{ url_for('careers') }}" class="text-white">Careers</a></li>
-                        <li><a href="{{ url_for('partners') }}" class="text-white">Partners</a></li>
+                        <li><a href="{{ url_for('about') }}">About Us</a></li>
+                        <li><a href="{{ url_for('careers') }}">Careers</a></li>
+                        <li><a href="{{ url_for('partners') }}">Partners</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold">Features</h6>
+                    <h6>Features</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('stock_research') }}" class="text-white">AI Research & Signals</a></li>
-                        <li><a href="{{ url_for('portfolio_analysis') }}" class="text-white">Portfolio Analysis</a></li>
-                        <li><a href="{{ url_for('trading_signals') }}" class="text-white">Trading Support</a></li>
-
+                        <li><a href="{{ url_for('stock_research') }}">AI Research & Signals</a></li>
+                        <li><a href="{{ url_for('portfolio_analysis') }}">Portfolio Analysis</a></li>
+                        <li><a href="{{ url_for('trading_signals') }}">Trading Support</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold">Support</h6>
+                    <h6>Support</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('help_center') }}" class="text-white">Help Center</a></li>
-                        <li><a href="{{ url_for('contact') }}" class="text-white">Contact Us</a></li>
-                        <li><a href="{{ url_for('blog') }}" class="text-white">Knowledge Base</a></li>
+                        <li><a href="{{ url_for('help_center') }}">Help Center</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+                        <li><a href="{{ url_for('blog') }}">Knowledge Base</a></li>
                     </ul>
                 </div>
                 
                 <div class="col-lg-2 col-md-6 mb-4">
-                    <h6 class="fw-bold">Legal</h6>
+                    <h6>Legal</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('privacy_policy') }}" class="text-white">Privacy Policy</a></li>
-                        <li><a href="{{ url_for('terms_of_service') }}" class="text-white">Terms of Service</a></li>
-                        <li><a href="{{ url_for('risk_disclosure') }}" class="text-white">Risk Disclosure</a></li>
-                        <li><a href="{{ url_for('compliance') }}" class="text-white">Compliance</a></li>
-                        <li><a href="{{ url_for('cancellation_refund_policy') }}" class="text-white">Cancellation & Refund</a></li>
+                        <li><a href="{{ url_for('privacy_policy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms_of_service') }}">Terms of Service</a></li>
+                        <li><a href="{{ url_for('risk_disclosure') }}">Risk Disclosure</a></li>
+                        <li><a href="{{ url_for('compliance') }}">Compliance</a></li>
+                        <li><a href="{{ url_for('cancellation_refund_policy') }}">Cancellation & Refund</a></li>
                     </ul>
                 </div>
             </div>
@@ -212,14 +300,12 @@
             
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <p class="text-white mb-0">&copy; 2025 Scentric Network Private Limited All rights reserved.</p>
+                    <p class="footer-copyright mb-0">&copy; 2025 Scentric Network Private Limited. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="text-white mb-0">
-                        <small>
-                            <i class="fas fa-shield-alt me-1"></i>
-                            SEBI Regulated | NSE | SIPC Protected
-                        </small>
+                    <p class="footer-security mb-0">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        SEBI Regulated | NSE | SIPC Protected
                     </p>
                 </div>
             </div>
