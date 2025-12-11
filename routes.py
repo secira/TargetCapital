@@ -975,7 +975,7 @@ def login():
     return render_template('auth/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("3 per minute")  # Strict rate limit for registration
+@limiter.limit("15 per minute")
 def register():
     """User registration route"""
     if current_user.is_authenticated:
