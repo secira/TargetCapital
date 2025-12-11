@@ -145,9 +145,11 @@ class WebSocketManager {
 window.WebSocketManager = WebSocketManager;
 }
 
-// Global WebSocket manager instance
-const wsManager = window.wsManager || new WebSocketManager();
-window.wsManager = wsManager;
+// Global WebSocket manager instance (avoid duplicate declaration error)
+if (!window.wsManager) {
+    window.wsManager = new WebSocketManager();
+}
+var wsManager = window.wsManager;
 
 // Real-time Market Data Component
 class RealTimeMarketData extends Component {

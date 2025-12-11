@@ -27,6 +27,8 @@ def get_tenant_from_subdomain(host):
         - app.targetcapital.ai -> 'live' (default)
         - targetcapital.ai -> 'live' (default)
         - localhost:5000 -> 'live' (default)
+        - *.worf.replit.dev -> 'live' (Replit dev domain)
+        - *.replit.dev -> 'live' (Replit domain)
     """
     if not host:
         return None
@@ -36,6 +38,10 @@ def get_tenant_from_subdomain(host):
     
     # Skip localhost and IP addresses
     if host in ('localhost', '127.0.0.1') or host.startswith('192.168.'):
+        return None
+    
+    # Skip Replit development domains - always use 'live' tenant
+    if '.replit.dev' in host or '.replit.app' in host or '.repl.co' in host:
         return None
     
     # Known production domains that don't indicate a tenant
