@@ -47,3 +47,8 @@ externalPort = 3003
 
 [agent]
 integrations = ["perplexity_v0:1.0.0", "flask_google_oauth:1.0.0", "twilio_send_message:1.0.0"]
+
+[userenv]
+
+[userenv.shared]
+TELEGRAM_CHAT_ID = "7624692252"
