@@ -260,6 +260,9 @@
                 <a href="{{ url_for('admin_trading_signals') }}" class="admin-nav-item {{ 'active' if 'trading_signals' in request.endpoint }}">
                     <i class="fas fa-chart-line me-2"></i>Trading Signals
                 </a>
+                <a href="{{ url_for('admin_research_config') }}" class="admin-nav-item {{ 'active' if 'research_config' in request.endpoint }}">
+                    <i class="fas fa-brain me-2"></i>AI Research Config
+                </a>
                 <a href="{{ url_for('admin_payments') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_payments' }}">
                     <i class="fas fa-credit-card me-2"></i>Payments
                 </a>

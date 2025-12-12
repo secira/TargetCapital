@@ -1,0 +1,35 @@
+
+In the Dashboard Research and Signals
+
+Like to redesign the screen.
+
+Screen Layout
+
+Heading Research and Singnals in the first line
+
+Next line
+
+Show a search  criteria with following fields
+
+1. Date Range
+2. Assets we like to support for Research and AI Signals (Stocks, Funds, F&O, Strategy, Portfolio). 
+
+Provide a Button called "Analayse". This will trigger the LangGraph Smart Signal Pipeline. Once Analysis is done, it should stored in the database for the asset type, for that date. 
+
+We need a AI research engine built to create a detail analysis of the stocks. The research parameters will include Qualitative Sentiment and the Quantitative Sentiment. Please find the details for configuing the parameters. Create a configuration screen for the Admin to configure this.
+
+a. Qualitative Sentments (15% Weightage)
+    Detail analsyis of the data from  Annual Reports, Twitter SEarch, Moneycontrol news, Any relevant chat rooms, Glass door, Moneycontrol, NSE India, BSE India, Economic Times Markets, Zerodha, Pulse/Varsity, Investing.com India, StockEdge, Groww, Screener.in, Upstox, AngelOne, o	TrueData/Global Data Feeds
+
+b. Quantitative Sentments (50% weightage)
+	Use the Technical Indicators, RSI, Super Trend, Exponential moving average 9 and 20. Any other indicator that can give the direction and momentum.
+
+c. Search Sentiments(10% Weightage)
+	Google Trends, Google Search, Perpelixity Search. 
+
+4. Trend Analysis (25% weigthage)
+	Open Interest, Index PCR, VIX etc.
+
+Once the data is collected store it in the database. Use the RAG/Lang Graph flow for storing and analysis. Build the architecure to store the relevant information in the Vector Database and analysis and display using the right LLM. 
+
+Create node for each Step in the Langraph Work flow. If the user request, first search in the database before doing in the new search. Database should store the individual score of each Sentiment and also overall Sentiment.  Based on the score out of 100 we will recommed the Stock or the particualr asset. Suggest a number above which it can be recommended. 

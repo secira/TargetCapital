@@ -1394,7 +1394,8 @@ def dashboard_trading_signals():
                          signals=signals, 
                          ai_picks=ai_picks,
                          today=selected_date,
-                         selected_date=selected_date_str)
+                         selected_date=selected_date_str,
+                         timedelta=timedelta)
 
 @app.route('/dashboard/trade-now')
 @login_required  
@@ -3780,6 +3781,235 @@ def admin_blog_toggle_featured(post_id):
     flash(f'Post "{post.title}" has been {status}.', 'success')
     return redirect(url_for('admin_blog_list'))
 
+
+# AI Research Configuration Routes
+@app.route('/admin/research-config')
+@admin_required
+def admin_research_config():
+    """AI Research Configuration page"""
+    from models import ResearchWeightConfig, ResearchThresholdConfig
+    
+    tenant_id = get_current_tenant_id()
+    
+    # Get active weight config
+    weight_config = ResearchWeightConfig.get_active_config(tenant_id)
+    if weight_config:
+        weight_config_dict = {
+            'qualitative_pct': weight_config.qualitative_pct,
+            'quantitative_pct': weight_config.quantitative_pct,
+            'search_pct': weight_config.search_pct,
+            'trend_pct': weight_config.trend_pct
+        }
+        tech_params = weight_config.tech_params or {}
+        qualitative_sources = weight_config.qualitative_sources or {}
+    else:
+        weight_config_dict = {
+            'qualitative_pct': 15,
+            'quantitative_pct': 50,
+            'search_pct': 10,
+            'trend_pct': 25
+        }
+        tech_params = {
+            'rsi_period': 14,
+            'rsi_overbought': 70,
+            'rsi_oversold': 30,
+            'supertrend_period': 10,
+            'ema_short': 9,
+            'ema_long': 20
+        }
+        qualitative_sources = {
+            'annual_reports': True,
+            'twitter': True,
+            'moneycontrol': True,
+            'economic_times': True,
+            'nse_india': True,
+            'bse_india': True,
+            'screener': True,
+            'glassdoor': True
+        }
+    
+    # Get active threshold config
+    threshold_config = ResearchThresholdConfig.get_active_config(tenant_id)
+    if threshold_config:
+        threshold_config_dict = {
+            'strong_buy_threshold': threshold_config.strong_buy_threshold,
+            'buy_threshold': threshold_config.buy_threshold,
+            'hold_low': threshold_config.hold_low,
+            'hold_high': threshold_config.hold_high,
+            'sell_threshold': threshold_config.sell_threshold,
+            'min_confidence': float(threshold_config.min_confidence)
+        }
+    else:
+        threshold_config_dict = {
+            'strong_buy_threshold': 80,
+            'buy_threshold': 65,
+            'hold_low': 45,
+            'hold_high': 64,
+            'sell_threshold': 30,
+            'min_confidence': 0.6
+        }
+    
+    # Get configuration history
+    config_history = ResearchWeightConfig.query.filter_by(
+        tenant_id=tenant_id
+    ).order_by(ResearchWeightConfig.created_at.desc()).limit(10).all()
+    
+    return render_template('admin/research_config.html',
+                         weight_config=weight_config_dict,
+                         tech_params=tech_params,
+                         qualitative_sources=qualitative_sources,
+                         threshold_config=threshold_config_dict,
+                         config_history=config_history)
+
+
+@app.route('/admin/research-config/weights', methods=['POST'])
+@admin_required
+def admin_save_research_weights():
+    """Save research weight configuration"""
+    from models import ResearchWeightConfig
+    
+    tenant_id = get_current_tenant_id()
+    
+    qualitative_pct = int(request.form.get('qualitative_pct', 15))
+    quantitative_pct = int(request.form.get('quantitative_pct', 50))
+    search_pct = int(request.form.get('search_pct', 10))
+    trend_pct = int(request.form.get('trend_pct', 25))
+    
+    # Validate weights sum to 100
+    total = qualitative_pct + quantitative_pct + search_pct + trend_pct
+    if total != 100:
+        flash(f'Weights must sum to 100%. Current total: {total}%', 'error')
+        return redirect(url_for('admin_research_config'))
+    
+    # Deactivate current config
+    current_config = ResearchWeightConfig.get_active_config(tenant_id)
+    if current_config:
+        current_config.is_active = False
+        version = current_config.version + 1
+        tech_params = current_config.tech_params
+        qualitative_sources = current_config.qualitative_sources
+    else:
+        version = 1
+        tech_params = {}
+        qualitative_sources = {}
+    
+    # Create new config
+    new_config = ResearchWeightConfig(
+        tenant_id=tenant_id,
+        qualitative_pct=qualitative_pct,
+        quantitative_pct=quantitative_pct,
+        search_pct=search_pct,
+        trend_pct=trend_pct,
+        tech_params=tech_params,
+        qualitative_sources=qualitative_sources,
+        version=version,
+        is_active=True,
+        created_by=current_user.id
+    )
+    
+    db.session.add(new_config)
+    db.session.commit()
+    
+    flash('Weight configuration saved successfully!', 'success')
+    logging.info(f"Research weights updated by user {current_user.id}: Q:{qualitative_pct}% QT:{quantitative_pct}% S:{search_pct}% T:{trend_pct}%")
+    
+    return redirect(url_for('admin_research_config'))
+
+
+@app.route('/admin/research-config/tech-params', methods=['POST'])
+@admin_required
+def admin_save_tech_params():
+    """Save technical indicator parameters"""
+    from models import ResearchWeightConfig
+    
+    tenant_id = get_current_tenant_id()
+    
+    tech_params = {
+        'rsi_period': int(request.form.get('rsi_period', 14)),
+        'rsi_overbought': int(request.form.get('rsi_overbought', 70)),
+        'rsi_oversold': int(request.form.get('rsi_oversold', 30)),
+        'supertrend_period': int(request.form.get('supertrend_period', 10)),
+        'ema_short': int(request.form.get('ema_short', 9)),
+        'ema_long': int(request.form.get('ema_long', 20))
+    }
+    
+    current_config = ResearchWeightConfig.get_active_config(tenant_id)
+    if current_config:
+        current_config.tech_params = tech_params
+        db.session.commit()
+        flash('Technical parameters saved successfully!', 'success')
+    else:
+        flash('Please save weight configuration first.', 'error')
+    
+    return redirect(url_for('admin_research_config'))
+
+
+@app.route('/admin/research-config/thresholds', methods=['POST'])
+@admin_required
+def admin_save_thresholds():
+    """Save recommendation thresholds"""
+    from models import ResearchThresholdConfig
+    
+    tenant_id = get_current_tenant_id()
+    
+    # Deactivate current config
+    current_config = ResearchThresholdConfig.get_active_config(tenant_id)
+    if current_config:
+        current_config.is_active = False
+    
+    # Create new threshold config
+    from decimal import Decimal
+    new_config = ResearchThresholdConfig(
+        tenant_id=tenant_id,
+        strong_buy_threshold=int(request.form.get('strong_buy_threshold', 80)),
+        buy_threshold=int(request.form.get('buy_threshold', 65)),
+        hold_low=int(request.form.get('hold_low', 45)),
+        hold_high=int(request.form.get('hold_high', 64)),
+        sell_threshold=int(request.form.get('sell_threshold', 30)),
+        min_confidence=Decimal(str(int(request.form.get('min_confidence', 60)) / 100)),
+        is_active=True,
+        created_by=current_user.id
+    )
+    
+    db.session.add(new_config)
+    db.session.commit()
+    
+    flash('Threshold configuration saved successfully!', 'success')
+    logging.info(f"Research thresholds updated by user {current_user.id}")
+    
+    return redirect(url_for('admin_research_config'))
+
+
+@app.route('/admin/research-config/data-sources', methods=['POST'])
+@admin_required
+def admin_save_data_sources():
+    """Save data source configuration"""
+    from models import ResearchWeightConfig
+    
+    tenant_id = get_current_tenant_id()
+    
+    qualitative_sources = {
+        'annual_reports': 'source_annual_reports' in request.form,
+        'twitter': 'source_twitter' in request.form,
+        'moneycontrol': 'source_moneycontrol' in request.form,
+        'economic_times': 'source_economic_times' in request.form,
+        'nse_india': 'source_nse_india' in request.form,
+        'bse_india': 'source_bse_india' in request.form,
+        'screener': 'source_screener' in request.form,
+        'glassdoor': 'source_glassdoor' in request.form
+    }
+    
+    current_config = ResearchWeightConfig.get_active_config(tenant_id)
+    if current_config:
+        current_config.qualitative_sources = qualitative_sources
+        db.session.commit()
+        flash('Data sources configuration saved successfully!', 'success')
+    else:
+        flash('Please save weight configuration first.', 'error')
+    
+    return redirect(url_for('admin_research_config'))
+
+
 # Update blog routes to handle slug-based URLs
 @app.route('/blog/<slug>')
 def blog_post_by_slug(slug):
@@ -4111,6 +4341,71 @@ def api_research_query():
             'success': False,
             'error': 'An error occurred. Please try again.'
         }), 500
+
+
+@app.route('/api/ai-research/analyse', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_ai_research_analyse():
+    """Run AI research pipeline for sentiment analysis"""
+    try:
+        from services.langgraph_ai_research_pipeline import ai_research_pipeline
+        import asyncio
+        
+        data = request.get_json()
+        symbol = data.get('symbol', '').strip().upper()
+        asset_type = data.get('asset_type', 'stocks')
+        date_from = data.get('date_from')
+        date_to = data.get('date_to')
+        
+        if not symbol:
+            return jsonify({'success': False, 'error': 'Symbol is required'}), 400
+        
+        tenant_id = get_current_tenant_id()
+        
+        # Run the analysis pipeline
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            result = loop.run_until_complete(
+                ai_research_pipeline.run_analysis(
+                    symbol=symbol,
+                    asset_type=asset_type,
+                    asset_name=symbol,
+                    date_range_start=date_from,
+                    date_range_end=date_to,
+                    user_id=current_user.id,
+                    tenant_id=tenant_id
+                )
+            )
+        finally:
+            loop.close()
+        
+        if result.get('success'):
+            return jsonify({
+                'success': True,
+                'symbol': result.get('symbol'),
+                'overall_score': result.get('overall_score'),
+                'confidence': result.get('confidence'),
+                'recommendation': result.get('recommendation'),
+                'recommendation_summary': result.get('recommendation_summary'),
+                'component_scores': result.get('component_scores'),
+                'run_id': result.get('run_id'),
+                'cache_hit': result.get('cache_hit', False)
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Analysis failed')
+            }), 500
+            
+    except Exception as e:
+        logger.error(f"AI research analysis error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'An error occurred during analysis. Please try again.'
+        }), 500
+
 
 @app.route('/api/portfolio/optimize-langgraph', methods=['POST'])
 @login_required

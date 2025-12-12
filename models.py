@@ -2538,3 +2538,331 @@ class SignalPerformance(db.Model):
         return f'<SignalPerformance {self.id} - {self.outcome}>'
 
 
+# ============================================================================
+# AI RESEARCH & SIGNAL ANALYSIS SYSTEM
+# ============================================================================
+
+class ResearchAssetType(Enum):
+    """Asset types supported for AI research analysis"""
+    STOCKS = "stocks"
+    FUNDS = "funds"
+    FNO = "fno"           # Futures & Options
+    STRATEGY = "strategy"
+    PORTFOLIO = "portfolio"
+
+
+class ResearchComponentType(Enum):
+    """Types of sentiment analysis components"""
+    QUALITATIVE = "qualitative"     # 15% weight - Annual reports, news, social
+    QUANTITATIVE = "quantitative"   # 50% weight - Technical indicators
+    SEARCH = "search"               # 10% weight - Google trends, Perplexity
+    TREND = "trend"                 # 25% weight - OI, PCR, VIX
+
+
+class ResearchRecommendation(Enum):
+    """Recommendation levels based on overall score"""
+    STRONG_BUY = "strong_buy"       # Score >= 80
+    BUY = "buy"                     # Score 65-79
+    HOLD = "hold"                   # Score 45-64
+    CAUTIONARY_SELL = "cautionary_sell"  # Score 30-44
+    STRONG_SELL = "strong_sell"    # Score < 30
+    INCONCLUSIVE = "inconclusive"  # Low confidence
+
+
+class ResearchWeightConfig(db.Model):
+    """Admin-configurable weights for sentiment analysis components"""
+    __tablename__ = 'research_weight_config'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    # Weight percentages (must sum to 100)
+    qualitative_pct = db.Column(db.Integer, nullable=False, default=15)
+    quantitative_pct = db.Column(db.Integer, nullable=False, default=50)
+    search_pct = db.Column(db.Integer, nullable=False, default=10)
+    trend_pct = db.Column(db.Integer, nullable=False, default=25)
+    
+    # Technical indicator configuration (JSON)
+    tech_params = db.Column(db.JSON, nullable=True, default=lambda: {
+        'rsi_period': 14,
+        'rsi_overbought': 70,
+        'rsi_oversold': 30,
+        'supertrend_period': 10,
+        'supertrend_multiplier': 3,
+        'ema_short': 9,
+        'ema_long': 20
+    })
+    
+    # Trend analysis parameters (JSON)
+    trend_params = db.Column(db.JSON, nullable=True, default=lambda: {
+        'oi_change_threshold': 5,
+        'pcr_bullish_threshold': 0.7,
+        'pcr_bearish_threshold': 1.3,
+        'vix_low': 15,
+        'vix_high': 25
+    })
+    
+    # Qualitative source configuration (JSON)
+    qualitative_sources = db.Column(db.JSON, nullable=True, default=lambda: {
+        'annual_reports': True,
+        'twitter': True,
+        'moneycontrol': True,
+        'economic_times': True,
+        'nse_india': True,
+        'bse_india': True,
+        'screener': True,
+        'glassdoor': True
+    })
+    
+    # Versioning
+    version = db.Column(db.Integer, nullable=False, default=1)
+    is_active = db.Column(db.Boolean, default=True)
+    effective_from = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def validate_weights(self):
+        """Ensure weights sum to 100"""
+        total = self.qualitative_pct + self.quantitative_pct + self.search_pct + self.trend_pct
+        return total == 100
+    
+    @classmethod
+    def get_active_config(cls, tenant_id='live'):
+        """Get the currently active weight configuration"""
+        return cls.query.filter_by(tenant_id=tenant_id, is_active=True).order_by(cls.effective_from.desc()).first()
+    
+    def __repr__(self):
+        return f'<ResearchWeightConfig v{self.version} Q:{self.qualitative_pct}% QT:{self.quantitative_pct}% S:{self.search_pct}% T:{self.trend_pct}%>'
+
+
+class ResearchThresholdConfig(db.Model):
+    """Admin-configurable thresholds for recommendations"""
+    __tablename__ = 'research_threshold_config'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    # Score thresholds (out of 100)
+    strong_buy_threshold = db.Column(db.Integer, nullable=False, default=80)
+    buy_threshold = db.Column(db.Integer, nullable=False, default=65)
+    hold_low = db.Column(db.Integer, nullable=False, default=45)
+    hold_high = db.Column(db.Integer, nullable=False, default=64)
+    sell_threshold = db.Column(db.Integer, nullable=False, default=30)
+    
+    # Confidence threshold (0-1)
+    min_confidence = db.Column(db.Numeric(3, 2), nullable=False, default=0.6)
+    
+    # Hysteresis to avoid recommendation churn
+    hysteresis = db.Column(db.Integer, nullable=False, default=5)
+    
+    is_active = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    @classmethod
+    def get_active_config(cls, tenant_id='live'):
+        """Get the currently active threshold configuration"""
+        return cls.query.filter_by(tenant_id=tenant_id, is_active=True).first()
+    
+    def get_recommendation(self, score, confidence=1.0):
+        """Determine recommendation based on score and confidence"""
+        if confidence < float(self.min_confidence):
+            return ResearchRecommendation.INCONCLUSIVE
+        
+        if score >= self.strong_buy_threshold:
+            return ResearchRecommendation.STRONG_BUY
+        elif score >= self.buy_threshold:
+            return ResearchRecommendation.BUY
+        elif score >= self.hold_low:
+            return ResearchRecommendation.HOLD
+        elif score >= self.sell_threshold:
+            return ResearchRecommendation.CAUTIONARY_SELL
+        else:
+            return ResearchRecommendation.STRONG_SELL
+    
+    def __repr__(self):
+        return f'<ResearchThresholdConfig SB:{self.strong_buy_threshold} B:{self.buy_threshold} SS:{self.sell_threshold}>'
+
+
+class ResearchRun(db.Model):
+    """Main record for each AI research analysis run"""
+    __tablename__ = 'research_run'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    
+    # Analysis target
+    asset_type = db.Column(db.String(50), nullable=False)  # ResearchAssetType value
+    symbol = db.Column(db.String(50), nullable=True)       # Stock symbol or asset identifier
+    asset_name = db.Column(db.String(200), nullable=True)  # Display name
+    
+    # Analysis period
+    analysis_date = db.Column(db.Date, nullable=False, index=True)
+    date_range_start = db.Column(db.Date, nullable=True)
+    date_range_end = db.Column(db.Date, nullable=True)
+    
+    # Status tracking
+    status = db.Column(db.String(20), nullable=False, default='pending')  # pending, processing, completed, failed
+    error_message = db.Column(db.Text, nullable=True)
+    
+    # Scores (out of 100)
+    overall_score = db.Column(db.Numeric(5, 2), nullable=True)
+    confidence = db.Column(db.Numeric(3, 2), nullable=True)  # 0-1 confidence level
+    
+    # Recommendation
+    recommendation = db.Column(db.String(30), nullable=True)  # ResearchRecommendation value
+    recommendation_summary = db.Column(db.Text, nullable=True)  # AI-generated summary
+    
+    # Input parameters (JSON)
+    inputs_json = db.Column(db.JSON, nullable=True)
+    
+    # Cache key for deduplication
+    cache_key = db.Column(db.String(64), nullable=True, index=True)
+    
+    # Timestamps
+    run_started_at = db.Column(db.DateTime, nullable=True)
+    run_completed_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='research_runs')
+    components = db.relationship('ResearchSignalComponent', backref='research_run', lazy='dynamic', cascade='all, delete-orphan')
+    
+    @property
+    def duration_seconds(self):
+        """Calculate analysis duration in seconds"""
+        if self.run_started_at and self.run_completed_at:
+            return (self.run_completed_at - self.run_started_at).total_seconds()
+        return None
+    
+    def generate_cache_key(self):
+        """Generate a cache key for this analysis"""
+        import hashlib
+        key_parts = f"{self.tenant_id}:{self.asset_type}:{self.symbol}:{self.analysis_date}"
+        return hashlib.md5(key_parts.encode()).hexdigest()
+    
+    def __repr__(self):
+        return f'<ResearchRun {self.id} {self.symbol} Score:{self.overall_score} {self.recommendation}>'
+
+
+class ResearchSignalComponent(db.Model):
+    """Individual sentiment component scores for a research run"""
+    __tablename__ = 'research_signal_component'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    run_id = db.Column(db.Integer, db.ForeignKey('research_run.id'), nullable=False, index=True)
+    
+    # Component type
+    component_type = db.Column(db.String(30), nullable=False)  # ResearchComponentType value
+    
+    # Scoring
+    weight_pct = db.Column(db.Integer, nullable=False)    # Weight applied (e.g., 50 for 50%)
+    raw_score = db.Column(db.Numeric(5, 2), nullable=True)   # Score out of 100
+    weighted_score = db.Column(db.Numeric(5, 2), nullable=True)  # raw_score * (weight_pct/100)
+    confidence = db.Column(db.Numeric(3, 2), nullable=True)   # 0-1 confidence
+    
+    # Signal direction
+    signal = db.Column(db.String(20), nullable=True)  # bullish, bearish, neutral
+    
+    # Detailed breakdown (JSON)
+    breakdown = db.Column(db.JSON, nullable=True)  # Sub-scores and details
+    
+    # Evidence reference
+    evidence_count = db.Column(db.Integer, default=0)
+    
+    # Metadata
+    metadata_json = db.Column(db.JSON, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to evidence
+    evidence = db.relationship('ResearchEvidence', backref='component', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<ResearchSignalComponent {self.component_type} Score:{self.raw_score} Weight:{self.weight_pct}%>'
+
+
+class ResearchEvidence(db.Model):
+    """Evidence collected during research analysis"""
+    __tablename__ = 'research_evidence'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    component_id = db.Column(db.Integer, db.ForeignKey('research_signal_component.id'), nullable=False, index=True)
+    
+    # Source information
+    source_name = db.Column(db.String(100), nullable=False)   # e.g., 'Moneycontrol', 'Twitter', 'NSE'
+    source_type = db.Column(db.String(50), nullable=False)    # news, social, technical, trend
+    source_url = db.Column(db.String(500), nullable=True)
+    
+    # Content
+    title = db.Column(db.String(300), nullable=True)
+    snippet = db.Column(db.Text, nullable=True)               # Relevant text snippet
+    
+    # Sentiment analysis
+    sentiment_score = db.Column(db.Numeric(5, 2), nullable=True)  # -100 to +100
+    sentiment_label = db.Column(db.String(20), nullable=True)     # positive, negative, neutral
+    
+    # Vector embedding reference (for RAG)
+    embedding_id = db.Column(db.String(100), nullable=True)
+    
+    # Metadata
+    collected_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime, nullable=True)          # When the source was published
+    
+    def __repr__(self):
+        return f'<ResearchEvidence {self.source_name}: {self.sentiment_label}>'
+
+
+class ResearchCache(db.Model):
+    """Cache for storing research results to avoid redundant API calls"""
+    __tablename__ = 'research_cache'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    # Cache key (hash of asset_type + symbol + date + params)
+    cache_key = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    
+    # Cache metadata
+    asset_type = db.Column(db.String(50), nullable=False)
+    symbol = db.Column(db.String(50), nullable=True)
+    analysis_date = db.Column(db.Date, nullable=False)
+    
+    # Cached result
+    result_payload = db.Column(db.JSON, nullable=False)
+    overall_score = db.Column(db.Numeric(5, 2), nullable=True)
+    recommendation = db.Column(db.String(30), nullable=True)
+    
+    # Validity
+    computed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    is_valid = db.Column(db.Boolean, default=True)
+    
+    # Hit tracking
+    hit_count = db.Column(db.Integer, default=0)
+    last_hit_at = db.Column(db.DateTime, nullable=True)
+    
+    @classmethod
+    def get_valid_cache(cls, cache_key, tenant_id='live'):
+        """Get valid cached result if exists"""
+        cache = cls.query.filter_by(
+            cache_key=cache_key, 
+            tenant_id=tenant_id, 
+            is_valid=True
+        ).first()
+        
+        if cache and cache.expires_at > datetime.utcnow():
+            cache.hit_count += 1
+            cache.last_hit_at = datetime.utcnow()
+            db.session.commit()
+            return cache
+        return None
+    
+    def __repr__(self):
+        return f'<ResearchCache {self.symbol} Score:{self.overall_score} Hits:{self.hit_count}>'
+
+

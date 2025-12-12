@@ -69,6 +69,56 @@ h5, h6 {
 .trading-signals-table td {
     border: none !important;
 }
+
+/* AI Research Score Circle */
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#10b981 0%, #e5e7eb 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.score-circle::before {
+    content: '';
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: white;
+}
+
+.score-value {
+    position: relative;
+    z-index: 1;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.score-circle.strong-buy { background: conic-gradient(#10b981 var(--score-pct), #e5e7eb 0%); }
+.score-circle.buy { background: conic-gradient(#3b82f6 var(--score-pct), #e5e7eb 0%); }
+.score-circle.hold { background: conic-gradient(#6b7280 var(--score-pct), #e5e7eb 0%); }
+.score-circle.sell { background: conic-gradient(#f59e0b var(--score-pct), #e5e7eb 0%); }
+.score-circle.strong-sell { background: conic-gradient(#ef4444 var(--score-pct), #e5e7eb 0%); }
+
+/* AI Research Panel Toggle Animation */
+#aiResearchPanel.collapsing {
+    transition: height 0.3s ease;
+}
+
+#aiResearchToggleIcon {
+    transition: transform 0.3s ease;
+}
+
+#aiResearchPanel.show + #aiResearchToggleIcon,
+[aria-expanded="true"] #aiResearchToggleIcon {
+    transform: rotate(180deg);
+}
 </style>
 {% endblock %}
 
@@ -106,6 +156,177 @@ h5, h6 {
 {% endblock %}
 
 {% block dashboard_content %}
+
+    <!-- AI Research & Analysis Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-gradient text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #00091a 0%, #1a365d 100%); border-radius: 12px 12px 0 0;">
+                    <div>
+                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>AI Research Engine</h5>
+                        <small class="opacity-75">Multi-component sentiment analysis powered by LangGraph</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#aiResearchPanel" aria-expanded="false">
+                        <i class="fas fa-chevron-down" id="aiResearchToggleIcon"></i>
+                    </button>
+                </div>
+                <div class="collapse show" id="aiResearchPanel">
+                    <div class="card-body p-4">
+                        <form id="aiResearchForm">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted mb-1">Asset Type</label>
+                                    <select class="form-select" id="assetType" name="asset_type">
+                                        <option value="stocks" selected>Stocks (Equity)</option>
+                                        <option value="futures">Index Futures</option>
+                                        <option value="options">Stock Options</option>
+                                        <option value="commodities">Commodities</option>
+                                        <option value="crypto">Cryptocurrency</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small text-muted mb-1">Symbol / Asset Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="symbolSearch" name="symbol" placeholder="e.g., RELIANCE, TATAMOTORS" autocomplete="off" list="symbolSuggestions">
+                                        <datalist id="symbolSuggestions">
+                                            <option value="RELIANCE">Reliance Industries</option>
+                                            <option value="TCS">Tata Consultancy Services</option>
+                                            <option value="INFY">Infosys</option>
+                                            <option value="HDFC">HDFC Bank</option>
+                                            <option value="ICICIBANK">ICICI Bank</option>
+                                            <option value="TATAMOTORS">Tata Motors</option>
+                                            <option value="SBIN">State Bank of India</option>
+                                            <option value="HDFCBANK">HDFC Bank</option>
+                                            <option value="BAJFINANCE">Bajaj Finance</option>
+                                            <option value="WIPRO">Wipro</option>
+                                        </datalist>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted mb-1">From Date</label>
+                                    <input type="date" class="form-control" id="analysisFromDate" name="date_from" value="{{ (today - timedelta(days=30)).strftime('%Y-%m-%d') if today else '' }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted mb-1">To Date</label>
+                                    <input type="date" class="form-control" id="analysisToDate" name="date_to" value="{{ today.strftime('%Y-%m-%d') if today else '' }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary w-100" id="analyseBtn" style="background: #00091a; border-color: #00091a;">
+                                        <i class="fas fa-chart-pie me-2"></i>Analyse
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                                        <span class="text-muted small">Components:</span>
+                                        <span class="badge bg-info text-white"><i class="fas fa-newspaper me-1"></i>Qualitative 15%</span>
+                                        <span class="badge bg-primary"><i class="fas fa-chart-bar me-1"></i>Quantitative 50%</span>
+                                        <span class="badge bg-warning text-dark"><i class="fas fa-search me-1"></i>Search 10%</span>
+                                        <span class="badge bg-success"><i class="fas fa-chart-line me-1"></i>Trend 25%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Analysis Results Panel (Hidden initially) -->
+                        <div id="analysisResultsPanel" class="mt-4" style="display: none;">
+                            <hr>
+                            <div class="row g-3">
+                                <!-- Overall Score Card -->
+                                <div class="col-md-4">
+                                    <div class="card h-100 border-0 bg-light">
+                                        <div class="card-body text-center">
+                                            <h6 class="text-muted mb-3">Overall Score</h6>
+                                            <div class="position-relative d-inline-block">
+                                                <div class="score-circle" id="overallScoreCircle">
+                                                    <span class="score-value" id="overallScoreValue">--</span>
+                                                </div>
+                                            </div>
+                                            <div id="recommendationBadge" class="mt-3">
+                                                <span class="badge bg-secondary fs-6">Analysing...</span>
+                                            </div>
+                                            <p class="text-muted small mt-2 mb-0" id="confidenceText">Confidence: --</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Component Scores -->
+                                <div class="col-md-8">
+                                    <div class="card h-100 border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="text-muted mb-3">Component Analysis</h6>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="small"><i class="fas fa-newspaper text-info me-1"></i>Qualitative (15%)</span>
+                                                    <span class="small fw-bold" id="qualScore">--/100</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-info" id="qualProgress" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="small"><i class="fas fa-chart-bar text-primary me-1"></i>Quantitative (50%)</span>
+                                                    <span class="small fw-bold" id="quantScore">--/100</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-primary" id="quantProgress" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="small"><i class="fas fa-search text-warning me-1"></i>Search Sentiment (10%)</span>
+                                                    <span class="small fw-bold" id="searchScore">--/100</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning" id="searchProgress" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-0">
+                                                <div class="d-flex justify-content-between mb-1">
+                                                    <span class="small"><i class="fas fa-chart-line text-success me-1"></i>Trend Analysis (25%)</span>
+                                                    <span class="small fw-bold" id="trendScore">--/100</span>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" id="trendProgress" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recommendation Summary -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-light border mb-0" id="recommendationSummary">
+                                        <i class="fas fa-lightbulb text-warning me-2"></i>
+                                        <span id="summaryText">Analysis summary will appear here...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div id="analysisLoading" class="mt-4 text-center py-4" style="display: none;">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted mb-0">Running AI analysis pipeline...</p>
+                            <small class="text-muted" id="pipelineStage">Preparing context...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- LangGraph Signal Pipeline Visualization (Admin Only) -->
     {% if current_user.is_admin %}
@@ -1404,6 +1625,173 @@ function addToWatchlist(symbol) {
         console.error('Error:', error);
         alert('Failed to add to watchlist. Please try again.');
     });
+}
+
+// AI Research Form Handler
+document.addEventListener('DOMContentLoaded', function() {
+    const aiResearchForm = document.getElementById('aiResearchForm');
+    if (aiResearchForm) {
+        aiResearchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            runAIAnalysis();
+        });
+    }
+    
+    // Toggle icon rotation
+    const aiResearchPanel = document.getElementById('aiResearchPanel');
+    if (aiResearchPanel) {
+        aiResearchPanel.addEventListener('shown.bs.collapse', function() {
+            document.getElementById('aiResearchToggleIcon').style.transform = 'rotate(180deg)';
+        });
+        aiResearchPanel.addEventListener('hidden.bs.collapse', function() {
+            document.getElementById('aiResearchToggleIcon').style.transform = 'rotate(0deg)';
+        });
+    }
+});
+
+function runAIAnalysis() {
+    const assetType = document.getElementById('assetType').value;
+    const symbol = document.getElementById('symbolSearch').value.trim().toUpperCase();
+    const dateFrom = document.getElementById('analysisFromDate').value;
+    const dateTo = document.getElementById('analysisToDate').value;
+    
+    if (!symbol) {
+        alert('Please enter a symbol or asset name to analyse.');
+        return;
+    }
+    
+    // Show loading state
+    document.getElementById('analysisLoading').style.display = 'block';
+    document.getElementById('analysisResultsPanel').style.display = 'none';
+    document.getElementById('analyseBtn').disabled = true;
+    document.getElementById('analyseBtn').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analysing...';
+    
+    // Simulate pipeline stages
+    const stages = ['Preparing context...', 'Analysing qualitative sentiment...', 'Processing quantitative data...', 
+                    'Checking search trends...', 'Analysing market trends...', 'Aggregating scores...', 'Generating recommendation...'];
+    let stageIndex = 0;
+    const stageInterval = setInterval(() => {
+        if (stageIndex < stages.length) {
+            document.getElementById('pipelineStage').textContent = stages[stageIndex];
+            stageIndex++;
+        }
+    }, 1500);
+    
+    // Call API
+    fetch('/api/ai-research/analyse', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            asset_type: assetType,
+            symbol: symbol,
+            date_from: dateFrom,
+            date_to: dateTo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        clearInterval(stageInterval);
+        document.getElementById('analysisLoading').style.display = 'none';
+        document.getElementById('analyseBtn').disabled = false;
+        document.getElementById('analyseBtn').innerHTML = '<i class="fas fa-chart-pie me-2"></i>Analyse';
+        
+        if (data.success) {
+            displayAnalysisResults(data);
+        } else {
+            alert('Analysis failed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        clearInterval(stageInterval);
+        console.error('Analysis error:', error);
+        document.getElementById('analysisLoading').style.display = 'none';
+        document.getElementById('analyseBtn').disabled = false;
+        document.getElementById('analyseBtn').innerHTML = '<i class="fas fa-chart-pie me-2"></i>Analyse';
+        alert('Failed to run analysis. Please try again.');
+    });
+}
+
+function displayAnalysisResults(data) {
+    document.getElementById('analysisResultsPanel').style.display = 'block';
+    
+    // Update overall score
+    const score = Math.round(data.overall_score || 0);
+    const scorePct = score + '%';
+    const scoreCircle = document.getElementById('overallScoreCircle');
+    scoreCircle.style.setProperty('--score-pct', scorePct);
+    scoreCircle.style.background = `conic-gradient(${getScoreColor(data.recommendation)} ${scorePct}, #e5e7eb 0%)`;
+    document.getElementById('overallScoreValue').textContent = score;
+    
+    // Update recommendation badge
+    const recBadge = document.getElementById('recommendationBadge');
+    const recClass = getRecommendationClass(data.recommendation);
+    const recText = formatRecommendation(data.recommendation);
+    recBadge.innerHTML = `<span class="badge ${recClass} fs-6">${recText}</span>`;
+    
+    // Update confidence
+    const confidence = Math.round((data.confidence || 0) * 100);
+    document.getElementById('confidenceText').textContent = `Confidence: ${confidence}%`;
+    
+    // Update component scores
+    if (data.component_scores) {
+        data.component_scores.forEach(comp => {
+            const rawScore = Math.round(comp.raw_score || 0);
+            if (comp.type === 'qualitative') {
+                document.getElementById('qualScore').textContent = rawScore + '/100';
+                document.getElementById('qualProgress').style.width = rawScore + '%';
+            } else if (comp.type === 'quantitative') {
+                document.getElementById('quantScore').textContent = rawScore + '/100';
+                document.getElementById('quantProgress').style.width = rawScore + '%';
+            } else if (comp.type === 'search') {
+                document.getElementById('searchScore').textContent = rawScore + '/100';
+                document.getElementById('searchProgress').style.width = rawScore + '%';
+            } else if (comp.type === 'trend') {
+                document.getElementById('trendScore').textContent = rawScore + '/100';
+                document.getElementById('trendProgress').style.width = rawScore + '%';
+            }
+        });
+    }
+    
+    // Update summary
+    document.getElementById('summaryText').textContent = data.recommendation_summary || 'Analysis complete.';
+}
+
+function getScoreColor(recommendation) {
+    const colors = {
+        'strong_buy': '#10b981',
+        'buy': '#3b82f6',
+        'hold': '#6b7280',
+        'cautionary_sell': '#f59e0b',
+        'strong_sell': '#ef4444',
+        'inconclusive': '#9ca3af'
+    };
+    return colors[recommendation] || '#6b7280';
+}
+
+function getRecommendationClass(recommendation) {
+    const classes = {
+        'strong_buy': 'bg-success',
+        'buy': 'bg-primary',
+        'hold': 'bg-secondary',
+        'cautionary_sell': 'bg-warning text-dark',
+        'strong_sell': 'bg-danger',
+        'inconclusive': 'bg-light text-dark'
+    };
+    return classes[recommendation] || 'bg-secondary';
+}
+
+function formatRecommendation(recommendation) {
+    const labels = {
+        'strong_buy': 'STRONG BUY',
+        'buy': 'BUY',
+        'hold': 'HOLD',
+        'cautionary_sell': 'CAUTIONARY SELL',
+        'strong_sell': 'STRONG SELL',
+        'inconclusive': 'INCONCLUSIVE'
+    };
+    return labels[recommendation] || recommendation.toUpperCase();
 }
 </script>
 
