@@ -405,32 +405,6 @@ h5, h6 {
     </div>
     {% endif %}
 
-    <!-- Information Notice for subscription tiers -->
-    {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}
-    <div class="alert alert-warning border-0 rounded-3 shadow-sm mb-4">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-info-circle fa-2x text-warning me-3"></i>
-            <div>
-                <h5 class="alert-heading mb-1">View-Only Trading Signals</h5>
-                <p class="mb-2">You can view AI-powered signals, but trading requires TARGET PRO (₹2,499) or HNI (₹4,999) subscription to execute trades with your primary broker.</p>
-                <a href="{{ url_for('pricing') }}" class="btn btn-warning btn-sm">
-                    <i class="fas fa-rocket me-1"></i>Upgrade to Trade
-                </a>
-            </div>
-        </div>
-    </div>
-    {% elif current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
-    <div class="alert alert-success border-0 rounded-3 shadow-sm mb-4">
-        <div class="d-flex align-items-center">
-            <i class="fas fa-rocket fa-2x text-success me-3"></i>
-            <div>
-                <h5 class="alert-heading mb-1"><i class="fas fa-check-circle me-1"></i>Trade Support Enabled</h5>
-                <p class="mb-2">Click the <strong><i class="fas fa-rocket"></i> rocket button</strong> on any signal to launch the 6-stage validation pipeline and execute trades through your primary broker.</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <!-- Trading Signals Table -->
     <div class="card border-0 shadow-sm rounded-3" id="signals-container">
         <div class="card-body p-0">
