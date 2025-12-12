@@ -17,7 +17,11 @@ WHATSAPP_PHONE_ID = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
 WHATSAPP_GROUP_ID = os.environ.get('WHATSAPP_GROUP_ID')
 
 # Telegram Bot Configuration  
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+_raw_telegram_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+# Extract clean token (format: numeric_id:alphanumeric_string)
+import re
+_token_match = re.search(r'(\d+:[A-Za-z0-9_-]+)', _raw_telegram_token)
+TELEGRAM_BOT_TOKEN = _token_match.group(1) if _token_match else _raw_telegram_token
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID')  # Group chat ID
 
 def send_whatsapp_message(message_text):
