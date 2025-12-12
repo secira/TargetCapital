@@ -128,12 +128,6 @@ h5, h6 {
 {% block dashboard_toolbar %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="d-flex align-items-center">
-        <div class="me-3">
-            <input type="date" class="form-control form-control-sm" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
-        </div>
-        <button class="btn btn-sm btn-success me-2" onclick="refreshSignals()" title="Auto-refresh every 2 minutes">
-            <i class="fas fa-sync-alt me-1"></i>Live
-        </button>
         {% if current_user.is_admin %}
         <button class="btn btn-sm btn-primary" onclick="generateLangGraphSignals()" id="generateBtn">
             <i class="fas fa-robot me-1"></i>Generate AI Signals
