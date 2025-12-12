@@ -13,7 +13,7 @@ import openai
 import requests
 from sqlalchemy import text
 from models import (ResearchConversation, ResearchMessage, VectorDocument, 
-                   SourceCitation, SignalPerformance, Portfolio, User,
+                   SourceCitation, Portfolio, User,
                    BrokerAccount)
 from app import db
 from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant

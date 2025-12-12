@@ -4,10 +4,10 @@ from flask_limiter.util import get_remote_address
 from app import app, db, limiter, csrf
 from services.perplexity_service import PerplexityService
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
-                   AIAnalysis, PortfolioOptimization, AIStockPick, Portfolio,
+                   AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
                    ChatConversation, ChatMessage, ChatbotKnowledgeBase, TradingSignal,
-                   RiskProfile, PortfolioTrade, DailyTradingSignal, Admin)
+                   RiskProfile, Admin)
 from models_broker import BrokerAccount
 from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant
 from services.nse_service import nse_service

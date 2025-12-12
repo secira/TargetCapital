@@ -279,8 +279,10 @@ class PortfolioOptimizationReport(db.Model):
     tenant = db.relationship('Tenant', backref='optimization_reports')
 
 
-class TradingSignal(db.Model):
+class LangGraphSignal(db.Model):
     """Store generated trading signals from LangGraph pipeline"""
+    __tablename__ = 'trading_signal'
+    
     id = db.Column(db.Integer, primary_key=True)
     tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
     signal_date = db.Column(db.Date, nullable=False)
@@ -297,10 +299,10 @@ class TradingSignal(db.Model):
     status = db.Column(db.String(20), default='active')  # active, executed, expired, cancelled
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    tenant = db.relationship('Tenant', backref='trading_signals')
+    tenant = db.relationship('Tenant', backref='langgraph_signals')
     
     def __repr__(self):
-        return f'<TradingSignal {self.symbol} {self.action} @ {self.entry_price}>'
+        return f'<LangGraphSignal {self.symbol} {self.action} @ {self.entry_price}>'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -626,138 +628,6 @@ class StockAnalysis(db.Model):
     ai_confidence = db.Column(db.Float, nullable=True)  # Confidence score 0-1
     ai_notes = db.Column(db.Text, nullable=True)  # AI analysis notes
     risk_level = db.Column(db.String(10), nullable=True)  # LOW, MEDIUM, HIGH
-
-class AIAnalysis(db.Model):
-    """Store comprehensive AI agent analysis results"""
-    id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    symbol = db.Column(db.String(10), nullable=False)
-    analysis_type = db.Column(db.String(50), nullable=False)  # STOCK, PORTFOLIO, SENTIMENT
-    
-    # Trading Agent Results
-    trading_recommendation = db.Column(db.String(20), nullable=True)
-    trading_confidence = db.Column(db.Float, nullable=True)
-    trading_reasoning = db.Column(db.Text, nullable=True)
-    
-    # Sentiment Agent Results
-    sentiment_score = db.Column(db.Float, nullable=True)
-    sentiment_label = db.Column(db.String(20), nullable=True)
-    news_sentiment = db.Column(db.String(20), nullable=True)
-    
-    # Risk Agent Results
-    risk_level = db.Column(db.String(10), nullable=True)
-    suggested_position_size = db.Column(db.Float, nullable=True)
-    risk_warnings = db.Column(db.Text, nullable=True)
-    
-    # Final Recommendation
-    final_recommendation = db.Column(db.String(20), nullable=False)
-    overall_confidence = db.Column(db.Float, nullable=False)
-    
-    # Technical Indicators (JSON stored as text)
-    technical_indicators = db.Column(db.Text, nullable=True)
-    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    tenant = db.relationship('Tenant', backref='ai_analyses')
-
-class PortfolioOptimization(db.Model):
-    """Store portfolio optimization recommendations"""
-    id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
-    # Current portfolio state
-    total_value = db.Column(db.Float, nullable=False)
-    num_positions = db.Column(db.Integer, nullable=False)
-    
-    # Optimization results
-    rebalance_needed = db.Column(db.Boolean, default=False)
-    efficiency_score = db.Column(db.Float, nullable=True)
-    diversification_score = db.Column(db.Float, nullable=True)
-    
-    # Recommendations (JSON stored as text)
-    suggested_actions = db.Column(db.Text, nullable=True)
-    allocation_recommendations = db.Column(db.Text, nullable=True)
-    
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship to user
-    user = db.relationship('User', backref='portfolio_optimizations')
-
-class PortfolioTrade(db.Model):
-    """User's personal portfolio trades and trade journal"""
-    __tablename__ = 'portfolio_trades'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # User who made the trade
-    open_date = db.Column(db.Date, nullable=False)
-    symbol_type = db.Column(db.String(20), nullable=False)  # Index, futures, currency, crypto, options, stocks, gold
-    ticker_symbol = db.Column(db.String(20), nullable=False)
-    option_type = db.Column(db.String(20), nullable=True)  # call, put, stock
-    trade_strategy = db.Column(db.String(100), nullable=True)  # Covered calls, Naked put, Buy and hold
-    strike_price = db.Column(db.Float, nullable=True)  # Strike price for options
-    expiration_date = db.Column(db.Date, nullable=True)  # Option expiry date
-    number_of_units = db.Column(db.Integer, nullable=False)  # Number of contracts or shares
-    trade_direction = db.Column(db.String(10), nullable=False)  # Long or Short
-    entry_price = db.Column(db.Float, nullable=False)
-    current_price = db.Column(db.Float, nullable=True)
-    trade_fees = db.Column(db.Float, nullable=True)  # Brokerage charges
-    capital_risk = db.Column(db.Float, nullable=False)  # Total purchase capital
-    exit_date = db.Column(db.Date, nullable=True)
-    exit_price = db.Column(db.Float, nullable=True)
-    trade_result = db.Column(db.String(20), nullable=True)  # Profit, Loss, Breakeven
-    trade_duration = db.Column(db.Integer, nullable=True)  # Days held
-    assignment_details = db.Column(db.Text, nullable=True)
-    reason_for_exit = db.Column(db.String(100), nullable=True)  # Stop loss, target, etc.
-    trading_account = db.Column(db.String(50), nullable=True)  # Brokerage account
-    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Status and performance tracking
-    signal_status = db.Column(db.String(20), default='Active')  # Active, Closed, Stopped
-    pnl_amount = db.Column(db.Float, nullable=True)
-    pnl_percentage = db.Column(db.Float, nullable=True)
-    
-    # Relationship to user
-    user = db.relationship('User', backref='portfolio_trades')
-    
-    def calculate_pnl(self):
-        """Calculate P&L based on current or exit price"""
-        if self.exit_price:
-            price_diff = self.exit_price - self.entry_price
-        elif self.current_price:
-            price_diff = self.current_price - self.entry_price
-        else:
-            return 0, 0
-            
-        if self.trade_direction.lower() == 'short':
-            price_diff = -price_diff
-            
-        pnl_amount = price_diff * self.number_of_units
-        pnl_percentage = (price_diff / self.entry_price) * 100 if self.entry_price > 0 else 0
-        
-        return pnl_amount, pnl_percentage
-    
-    def get_status_badge_class(self):
-        """Return Bootstrap badge class based on status"""
-        if self.signal_status == 'Active':
-            return 'bg-primary'
-        elif self.signal_status == 'Closed':
-            return 'bg-success'
-        elif self.signal_status == 'Stopped':
-            return 'bg-danger'
-        return 'bg-secondary'
-    
-    def get_pnl_class(self):
-        """Return CSS class for P&L display"""
-        pnl_amount, _ = self.calculate_pnl()
-        if pnl_amount > 0:
-            return 'text-success'
-        elif pnl_amount < 0:
-            return 'text-danger'
-        return 'text-muted'
 
 class AIStockPick(db.Model):
     """AI-generated daily stock picks for dashboard display"""
@@ -2189,33 +2059,6 @@ class ChatbotKnowledgeBase(db.Model):
         return f'<Knowledge {self.category}: {self.topic}>'
 
 
-# Legacy Trading Models completely removed to avoid schema conflicts
-
-
-class DailyTradingSignal(db.Model):
-    __tablename__ = 'daily_trading_signals'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
-    signal_date = db.Column(db.Date, nullable=False)
-    signal_type = db.Column(db.String(20), nullable=False)  # Stocks, Options, Futures
-    symbol = db.Column(db.String(50), nullable=False)
-    action = db.Column(db.String(10), nullable=False)  # BUY, SELL, HOLD
-    entry_price = db.Column(db.Float, nullable=True)
-    target_price = db.Column(db.Float, nullable=True)
-    stop_loss = db.Column(db.Float, nullable=True)
-    quantity = db.Column(db.Integer, nullable=True)
-    strategy = db.Column(db.String(100), nullable=True)
-    confidence = db.Column(db.Float, nullable=True)  # 0-100
-    risk_level = db.Column(db.String(20), default='Medium')  # Low, Medium, High
-    time_frame = db.Column(db.String(20), nullable=True)  # Intraday, Short Term, Long Term
-    notes = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-
-
 # Admin Models for Trading Signal Management
 class Admin(UserMixin, db.Model):
     __tablename__ = 'admins'
@@ -2498,44 +2341,6 @@ class SourceCitation(db.Model):
     
     def __repr__(self):
         return f'<SourceCitation {self.id} - {self.source_title}>'
-
-
-class SignalPerformance(db.Model):
-    """Tracks performance of trading signals for accuracy metrics"""
-    __tablename__ = 'signal_performance'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
-    trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
-    
-    # Outcome tracking
-    outcome = db.Column(db.String(20), nullable=True)  # 'TARGET_HIT', 'STOP_LOSS_HIT', 'EXPIRED', 'MANUAL_EXIT'
-    actual_exit_price = db.Column(db.Numeric(10, 2), nullable=True)
-    actual_return_pct = db.Column(db.Numeric(10, 2), nullable=True)
-    
-    # Performance metrics
-    max_price_reached = db.Column(db.Numeric(10, 2), nullable=True)
-    min_price_reached = db.Column(db.Numeric(10, 2), nullable=True)
-    days_active = db.Column(db.Integer, nullable=True)
-    
-    # User feedback
-    user_rating = db.Column(db.Integer, nullable=True)  # 1-5 stars
-    user_feedback = db.Column(db.Text, nullable=True)
-    
-    outcome_date = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationships
-    trading_signal = db.relationship('TradingSignal', backref='performance')
-    
-    @property
-    def is_successful(self):
-        """Check if signal was successful"""
-        return self.outcome in ['TARGET_HIT', 'MANUAL_EXIT'] and self.actual_return_pct and self.actual_return_pct > 0
-    
-    def __repr__(self):
-        return f'<SignalPerformance {self.id} - {self.outcome}>'
 
 
 # ============================================================================
