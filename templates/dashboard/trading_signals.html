@@ -131,16 +131,9 @@ h5, h6 {
         <div class="me-3">
             <input type="date" class="form-control form-control-sm" id="signalsDate" value="{{ today.strftime('%Y-%m-%d') if today else '' }}" onchange="loadSignalsForDate(this.value)" style="width: 150px;">
         </div>
-        <div class="btn-group me-2">
-            <button class="btn btn-sm btn-success" onclick="refreshSignals()" title="Auto-refresh every 2 minutes">
-                <i class="fas fa-sync-alt me-1"></i>Live
-            </button>
-            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('all')">All</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('stock')">Stocks</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('option')">Options</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('index_future')">Futures</button>
-            <button class="btn btn-sm btn-outline-primary" onclick="filterSignals('strategy')">Strategies</button>
-        </div>
+        <button class="btn btn-sm btn-success me-2" onclick="refreshSignals()" title="Auto-refresh every 2 minutes">
+            <i class="fas fa-sync-alt me-1"></i>Live
+        </button>
         {% if current_user.is_admin %}
         <button class="btn btn-sm btn-primary" onclick="generateLangGraphSignals()" id="generateBtn">
             <i class="fas fa-robot me-1"></i>Generate AI Signals
