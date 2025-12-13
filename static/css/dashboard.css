@@ -879,3 +879,156 @@
     padding-top: 0.75rem !important;
     padding-bottom: 0.75rem !important;
 }
+
+/* ===========================================
+   Blue & Gray Color Scheme Only
+   =========================================== */
+
+/* Override Bootstrap background gradients to blue/gray */
+.dashboard-app .bg-gradient-primary,
+.dashboard-app .bg-gradient-success,
+.dashboard-app .bg-gradient-info {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
+}
+
+.dashboard-app .bg-gradient-warning,
+.dashboard-app .bg-gradient-danger {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+}
+
+/* Override Bootstrap solid backgrounds */
+.dashboard-app .bg-success,
+.dashboard-app .bg-info {
+    background-color: #3182ce !important;
+}
+
+.dashboard-app .bg-warning {
+    background-color: #718096 !important;
+    color: white !important;
+}
+
+.dashboard-app .bg-danger {
+    background-color: #4a5568 !important;
+}
+
+/* Override card header gradients */
+.dashboard-app .card-header.bg-success,
+.dashboard-app .card-header.bg-info,
+.dashboard-app .card-header.bg-gradient-primary {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
+}
+
+.dashboard-app .card-header.bg-warning,
+.dashboard-app .card-header.bg-danger {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+    color: white !important;
+}
+
+/* Progress bars - blue and gray only */
+.dashboard-app .progress-bar.bg-success,
+.dashboard-app .progress-bar.bg-info {
+    background-color: #3182ce !important;
+}
+
+.dashboard-app .progress-bar.bg-warning {
+    background-color: #a0aec0 !important;
+}
+
+.dashboard-app .progress-bar.bg-danger {
+    background-color: #718096 !important;
+}
+
+/* Badge overrides - blue and gray */
+.dashboard-app .badge.bg-success,
+.dashboard-app .badge.bg-info {
+    background-color: #3182ce !important;
+    color: white !important;
+}
+
+.dashboard-app .badge.bg-warning {
+    background-color: #a0aec0 !important;
+    color: #1a202c !important;
+}
+
+.dashboard-app .badge.bg-danger {
+    background-color: #718096 !important;
+    color: white !important;
+}
+
+/* Status dots - blue and gray */
+.status-dot.active {
+    background: #3182ce !important;
+}
+
+.status-dot.warning {
+    background: #a0aec0 !important;
+}
+
+.status-dot.error {
+    background: #718096 !important;
+}
+
+/* Alert overrides */
+.dashboard-app .alert-success {
+    background-color: rgba(49, 130, 206, 0.1) !important;
+    border-color: #3182ce !important;
+    color: #2c5282 !important;
+}
+
+.dashboard-app .alert-warning {
+    background-color: rgba(160, 174, 192, 0.15) !important;
+    border-color: #a0aec0 !important;
+    color: #4a5568 !important;
+}
+
+.dashboard-app .alert-danger {
+    background-color: rgba(113, 128, 150, 0.15) !important;
+    border-color: #718096 !important;
+    color: #2d3748 !important;
+}
+
+/* Button overrides */
+.dashboard-app .btn-success {
+    background-color: #3182ce !important;
+    border-color: #3182ce !important;
+}
+
+.dashboard-app .btn-success:hover {
+    background-color: #2c5282 !important;
+    border-color: #2c5282 !important;
+}
+
+.dashboard-app .btn-warning {
+    background-color: #a0aec0 !important;
+    border-color: #a0aec0 !important;
+    color: #1a202c !important;
+}
+
+.dashboard-app .btn-danger {
+    background-color: #718096 !important;
+    border-color: #718096 !important;
+}
+
+/* Text color overrides */
+.dashboard-app .text-success {
+    color: #3182ce !important;
+}
+
+.dashboard-app .text-warning {
+    color: #718096 !important;
+}
+
+.dashboard-app .text-danger {
+    color: #4a5568 !important;
+}
+
+/* Signal indicator button */
+.dashboard-app .signal-indicator .btn {
+    border-color: #3182ce !important;
+    color: #3182ce !important;
+}
+
+.dashboard-app .signal-indicator .btn:hover {
+    background-color: #3182ce !important;
+    color: white !important;
+}
