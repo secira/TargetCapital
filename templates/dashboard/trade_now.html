@@ -22,13 +22,13 @@
             </div>
         </div>
         {% else %}
-        <div class="alert alert-warning d-flex align-items-center" role="alert">
-            <i class="fas fa-exclamation-triangle me-3"></i>
+        <div class="alert d-flex align-items-center" role="alert" style="background: rgba(113, 128, 150, 0.1); border: 1px solid #a0aec0;">
+            <i class="fas fa-exclamation-triangle me-3" style="color: #718096;"></i>
             <div>
-                <strong>No Broker Connected</strong>
-                <small class="d-block text-muted">Connect a broker account to enable direct trade execution</small>
+                <strong style="color: #4a5568;">No Broker Connected</strong>
+                <small class="d-block" style="color: #718096;">Connect a broker account to enable direct trade execution</small>
             </div>
-            <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-primary btn-sm ms-auto">Connect Broker</a>
+            <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-sm ms-auto" style="background: #3182ce; color: white;">Connect Broker</a>
         </div>
         {% endif %}
     </div>
@@ -36,25 +36,25 @@
 
 <!-- Trade Support Status -->
 {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}
-<div class="alert alert-warning border-0 rounded-3 shadow-sm mb-4">
+<div class="alert border-0 rounded-3 shadow-sm mb-4" style="background: rgba(113, 128, 150, 0.1); border-left: 4px solid #718096 !important;">
     <div class="d-flex align-items-center">
-        <i class="fas fa-info-circle fa-2x text-warning me-3"></i>
+        <i class="fas fa-info-circle fa-2x me-3" style="color: #718096;"></i>
         <div>
-            <h5 class="alert-heading mb-1">View-Only Trading Signals</h5>
-            <p class="mb-2">You can view AI-powered signals, but trading requires TARGET PRO (₹2,499) or HNI (₹4,999) subscription to execute trades with your primary broker.</p>
-            <a href="{{ url_for('pricing') }}" class="btn btn-warning btn-sm">
+            <h5 class="alert-heading mb-1" style="color: #4a5568;">View-Only Trading Signals</h5>
+            <p class="mb-2" style="color: #4a5568;">You can view AI-powered signals, but trading requires TARGET PRO (₹2,499) or HNI (₹4,999) subscription to execute trades with your primary broker.</p>
+            <a href="{{ url_for('pricing') }}" class="btn btn-sm" style="background: #3182ce; color: white;">
                 <i class="fas fa-rocket me-1"></i>Upgrade to Trade
             </a>
         </div>
     </div>
 </div>
 {% elif current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
-<div class="alert alert-success border-0 rounded-3 shadow-sm mb-4">
+<div class="alert border-0 rounded-3 shadow-sm mb-4" style="background: rgba(49, 130, 206, 0.1); border-left: 4px solid #3182ce !important;">
     <div class="d-flex align-items-center">
-        <i class="fas fa-rocket fa-2x text-success me-3"></i>
+        <i class="fas fa-rocket fa-2x me-3" style="color: #3182ce;"></i>
         <div>
-            <h5 class="alert-heading mb-1"><i class="fas fa-check-circle me-1"></i>Trade Support Enabled</h5>
-            <p class="mb-2">Click the <strong><i class="fas fa-rocket"></i> rocket button</strong> on any signal to launch the 6-stage validation pipeline and execute trades through your primary broker.</p>
+            <h5 class="alert-heading mb-1" style="color: #2c5282;"><i class="fas fa-check-circle me-1"></i>Trade Support Enabled</h5>
+            <p class="mb-2" style="color: #4a5568;">Click the <strong><i class="fas fa-rocket"></i> rocket button</strong> on any signal to launch the 6-stage validation pipeline and execute trades through your primary broker.</p>
         </div>
     </div>
 </div>
@@ -64,7 +64,7 @@
 <div class="row mb-4">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);">
                 <h5 class="mb-0">
                     <i class="fas fa-robot me-2"></i>AI Trade Recommendation Engine
                 </h5>
