@@ -87,7 +87,7 @@
     </div>
     
     <div class="col-md-3 mb-3">
-        <div class="card border-0 h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card border-0 h-100" style="background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);">
             <div class="card-body text-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -195,9 +195,9 @@
                     </h6>
                     <div class="d-flex align-items-center gap-2">
                         {% if current_user.portfolio_preferences and current_user.portfolio_preferences.completed %}
-                            <span class="badge bg-success">Configured</span>
+                            <span class="badge" style="background: #3182ce; color: white;">Configured</span>
                         {% else %}
-                            <span class="badge bg-warning">Not Set</span>
+                            <span class="badge" style="background: #718096; color: white;">Not Set</span>
                         {% endif %}
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -427,19 +427,19 @@
     cursor: pointer;
 }
 .bg-gradient-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
 }
 .bg-gradient-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
 }
 .bg-gradient-danger {
-    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
 }
 .bg-gradient-info {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%) !important;
 }
 .bg-gradient-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%) !important;
 }
 </style>
 

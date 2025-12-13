@@ -53,32 +53,32 @@
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #4CAF50;">
+            <div class="stat-card" style="border-left-color: #3182ce;">
                 <h6 class="text-muted mb-2">Total Portfolio Value</h6>
                 <h3 class="mb-0">₹{{ "%.2f"|format(portfolio_summary.total_current_value / 10000000) }} Cr</h3>
                 <small class="text-muted">₹{{ "{:,.0f}".format(portfolio_summary.total_current_value) }}</small>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #2196F3;">
+            <div class="stat-card" style="border-left-color: #2c5282;">
                 <h6 class="text-muted mb-2">Total Investment</h6>
                 <h3 class="mb-0">₹{{ "%.2f"|format(portfolio_summary.total_investment / 10000000) }} Cr</h3>
                 <small class="text-muted">₹{{ "{:,.0f}".format(portfolio_summary.total_investment) }}</small>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: {% if portfolio_summary.total_pnl >= 0 %}#4CAF50{% else %}#f44336{% endif %};">
+            <div class="stat-card" style="border-left-color: {% if portfolio_summary.total_pnl >= 0 %}#3182ce{% else %}#718096{% endif %};">
                 <h6 class="text-muted mb-2">Total Returns</h6>
-                <h3 class="mb-0 {% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                <h3 class="mb-0" style="color: {% if portfolio_summary.total_pnl >= 0 %}#3182ce{% else %}#718096{% endif %};">
                     {{ "%.2f"|format(portfolio_summary.pnl_percentage) }}%
                 </h3>
-                <small class="{% if portfolio_summary.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                <small style="color: {% if portfolio_summary.total_pnl >= 0 %}#3182ce{% else %}#718096{% endif %};">
                     ₹{{ "{:,.0f}".format(portfolio_summary.total_pnl) }}
                 </small>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="stat-card" style="border-left-color: #FF9800;">
+            <div class="stat-card" style="border-left-color: #718096;">
                 <h6 class="text-muted mb-2">Risk Profile</h6>
                 <h3 class="mb-0">{{ portfolio_summary.risk_profile.category }}</h3>
                 <small class="text-muted">Score: {{ "%.0f"|format(portfolio_summary.risk_profile.score) }}/100</small>
@@ -119,8 +119,8 @@
     <!-- LangGraph Multi-Agent Optimizer -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-primary">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <div class="card shadow-sm" style="border-color: #3182ce;">
+                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);">
                     <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>LangGraph Multi-Agent Portfolio Optimizer</h5>
                     <button class="btn btn-light btn-sm" onclick="runPortfolioOptimization()" id="optimizeBtn">
                         <i class="fas fa-robot me-1"></i>Run AI Optimization
@@ -162,9 +162,9 @@
                         </h5>
                         <div class="d-flex align-items-center gap-2">
                             {% if current_user.portfolio_preferences and current_user.portfolio_preferences.completed %}
-                                <span class="badge bg-success">Configured</span>
+                                <span class="badge" style="background: #3182ce; color: white;">Configured</span>
                             {% else %}
-                                <span class="badge bg-warning">Not Set</span>
+                                <span class="badge" style="background: #718096; color: white;">Not Set</span>
                             {% endif %}
                             <i class="fas fa-chevron-down"></i>
                         </div>
@@ -304,11 +304,11 @@
                             <tbody>
                                 {% for performer in top_performers %}
                                 <tr>
-                                    <td><span class="badge bg-warning text-dark">#{{ loop.index }}</span></td>
+                                    <td><span class="badge" style="background: #718096; color: white;">#{{ loop.index }}</span></td>
                                     <td><strong>{{ performer.name }}</strong></td>
                                     <td><span class="badge bg-secondary">{{ performer.type }}</span></td>
                                     <td>₹{{ "{:,.0f}".format(performer.value) }}</td>
-                                    <td><span class="badge {% if performer.return >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                    <td><span class="badge" style="background: {% if performer.return >= 0 %}#3182ce{% else %}#4a5568{% endif %}; color: white;">
                                         {{ "%.2f"|format(performer.return) }}%
                                     </span></td>
                                 </tr>
@@ -380,7 +380,7 @@ new Chart(riskDistCtx, {
         datasets: [{
             label: 'Portfolio Allocation (%)',
             data: Object.values(riskData),
-            backgroundColor: ['#f44336', '#FF9800', '#4CAF50', '#2196F3', '#9E9E9E'],
+            backgroundColor: ['#3182ce', '#2c5282', '#4a5568', '#718096', '#a0aec0'],
             borderRadius: 8
         }]
     },
