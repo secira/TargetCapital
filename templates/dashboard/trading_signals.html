@@ -100,11 +100,11 @@ h5, h6 {
     color: #1a1a1a;
 }
 
-.score-circle.strong-buy { background: conic-gradient(#10b981 var(--score-pct), #e5e7eb 0%); }
-.score-circle.buy { background: conic-gradient(#3b82f6 var(--score-pct), #e5e7eb 0%); }
-.score-circle.hold { background: conic-gradient(#6b7280 var(--score-pct), #e5e7eb 0%); }
-.score-circle.sell { background: conic-gradient(#f59e0b var(--score-pct), #e5e7eb 0%); }
-.score-circle.strong-sell { background: conic-gradient(#ef4444 var(--score-pct), #e5e7eb 0%); }
+.score-circle.strong-buy { background: conic-gradient(#3182ce var(--score-pct), #e5e7eb 0%); }
+.score-circle.buy { background: conic-gradient(#3182ce var(--score-pct), #e5e7eb 0%); }
+.score-circle.hold { background: conic-gradient(#718096 var(--score-pct), #e5e7eb 0%); }
+.score-circle.sell { background: conic-gradient(#4a5568 var(--score-pct), #e5e7eb 0%); }
+.score-circle.strong-sell { background: conic-gradient(#4a5568 var(--score-pct), #e5e7eb 0%); }
 
 /* AI Research Panel Toggle Animation */
 #aiResearchPanel.collapsing {
@@ -194,10 +194,10 @@ h5, h6 {
                                 <div class="col-12">
                                     <div class="d-flex flex-wrap gap-2 align-items-center">
                                         <span class="text-muted small">Components:</span>
-                                        <span class="badge bg-info text-white"><i class="fas fa-newspaper me-1"></i>Qualitative 15%</span>
-                                        <span class="badge bg-primary"><i class="fas fa-chart-bar me-1"></i>Quantitative 50%</span>
-                                        <span class="badge bg-warning text-dark"><i class="fas fa-search me-1"></i>Search 10%</span>
-                                        <span class="badge bg-success"><i class="fas fa-chart-line me-1"></i>Trend 25%</span>
+                                        <span class="badge" style="background: #3182ce; color: white;"><i class="fas fa-newspaper me-1"></i>Qualitative 15%</span>
+                                        <span class="badge" style="background: #2c5282; color: white;"><i class="fas fa-chart-bar me-1"></i>Quantitative 50%</span>
+                                        <span class="badge" style="background: #718096; color: white;"><i class="fas fa-search me-1"></i>Search 10%</span>
+                                        <span class="badge" style="background: #4a5568; color: white;"><i class="fas fa-chart-line me-1"></i>Trend 25%</span>
                                     </div>
                                 </div>
                             </div>
@@ -383,8 +383,8 @@ h5, h6 {
     {% if current_user.is_admin %}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-info">
-                <div class="card-header bg-info text-white">
+            <div class="card shadow-sm" style="border-color: #3182ce;">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);">
                     <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>LangGraph Smart Signal Pipeline</h5>
                 </div>
                 <div class="card-body">
@@ -1800,11 +1800,11 @@ function displayAnalysisResults(data) {
 
 function getSignalBadgeClass(signal) {
     const classes = {
-        'bullish': 'bg-success',
-        'bearish': 'bg-danger',
+        'bullish': 'bg-primary',
+        'bearish': 'bg-secondary',
         'neutral': 'bg-secondary',
-        'strong_bullish': 'bg-success',
-        'strong_bearish': 'bg-danger'
+        'strong_bullish': 'bg-primary',
+        'strong_bearish': 'bg-secondary'
     };
     return classes[signal.toLowerCase()] || 'bg-secondary';
 }
@@ -1899,23 +1899,23 @@ function formatDetailedAnalysis(comp, type, data) {
 
 function getScoreColor(recommendation) {
     const colors = {
-        'strong_buy': '#10b981',
-        'buy': '#3b82f6',
-        'hold': '#6b7280',
-        'cautionary_sell': '#f59e0b',
-        'strong_sell': '#ef4444',
-        'inconclusive': '#9ca3af'
+        'strong_buy': '#3182ce',
+        'buy': '#3182ce',
+        'hold': '#718096',
+        'cautionary_sell': '#4a5568',
+        'strong_sell': '#4a5568',
+        'inconclusive': '#a0aec0'
     };
-    return colors[recommendation] || '#6b7280';
+    return colors[recommendation] || '#718096';
 }
 
 function getRecommendationClass(recommendation) {
     const classes = {
-        'strong_buy': 'bg-success',
+        'strong_buy': 'bg-primary',
         'buy': 'bg-primary',
         'hold': 'bg-secondary',
-        'cautionary_sell': 'bg-warning text-dark',
-        'strong_sell': 'bg-danger',
+        'cautionary_sell': 'bg-secondary',
+        'strong_sell': 'bg-secondary',
         'inconclusive': 'bg-light text-dark'
     };
     return classes[recommendation] || 'bg-secondary';

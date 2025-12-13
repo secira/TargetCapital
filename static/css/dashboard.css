@@ -1032,3 +1032,87 @@
     background-color: #3182ce !important;
     color: white !important;
 }
+
+/* Additional color overrides for consistent blue/gray */
+.dashboard-app .border-info {
+    border-color: #3182ce !important;
+}
+
+.dashboard-app .border-success {
+    border-color: #3182ce !important;
+}
+
+.dashboard-app .border-warning {
+    border-color: #a0aec0 !important;
+}
+
+/* Override all text-info, text-success, text-warning classes */
+.dashboard-app .text-info {
+    color: #3182ce !important;
+}
+
+/* Icon color overrides for consistency */
+.dashboard-app .fa-newspaper,
+.dashboard-app .fa-chart-bar,
+.dashboard-app .fa-search,
+.dashboard-app .fa-chart-line {
+    color: #3182ce !important;
+}
+
+/* Score circle blue/gray only */
+.dashboard-app .score-circle.strong-buy,
+.dashboard-app .score-circle.buy {
+    background: conic-gradient(#3182ce var(--score-pct), #e5e7eb 0%) !important;
+}
+
+.dashboard-app .score-circle.hold {
+    background: conic-gradient(#718096 var(--score-pct), #e5e7eb 0%) !important;
+}
+
+.dashboard-app .score-circle.sell,
+.dashboard-app .score-circle.strong-sell {
+    background: conic-gradient(#4a5568 var(--score-pct), #e5e7eb 0%) !important;
+}
+
+/* Pipeline card headers - all use navy/blue */
+.dashboard-app .card-header.bg-info,
+.dashboard-app .card-header.bg-success,
+.dashboard-app .card-header.bg-warning {
+    background: linear-gradient(135deg, #00091a 0%, #1a365d 100%) !important;
+    color: white !important;
+}
+
+/* Pipeline step circles - blue/gray only */
+.dashboard-app .pipeline-step-circle,
+.dashboard-app .step-number {
+    background: #3182ce !important;
+    color: white !important;
+}
+
+.dashboard-app .pipeline-step.completed .pipeline-step-circle,
+.dashboard-app .pipeline-step.completed .step-number {
+    background: #2c5282 !important;
+}
+
+.dashboard-app .pipeline-step.active .pipeline-step-circle,
+.dashboard-app .pipeline-step.active .step-number {
+    background: #3182ce !important;
+}
+
+.dashboard-app .pipeline-step.pending .pipeline-step-circle,
+.dashboard-app .pipeline-step.pending .step-number {
+    background: #a0aec0 !important;
+}
+
+/* All numbered circles in pipeline */
+.dashboard-app [class*="step-"] .rounded-circle,
+.dashboard-app .rounded-circle.bg-primary,
+.dashboard-app .rounded-circle.bg-info,
+.dashboard-app .rounded-circle.bg-success {
+    background-color: #3182ce !important;
+}
+
+/* Progress bar in pipeline */
+.dashboard-app .progress-bar {
+    background-color: #3182ce !important;
+}
