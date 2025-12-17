@@ -204,6 +204,13 @@ def api_add_broker_account():
                     'success': False,
                     'message': 'Target Pro plan allows up to 3 broker connections. You have reached the limit.'
                 }), 400
+        elif current_user.pricing_plan == PricingPlan.HNI:
+            # HNI users can have up to 3 brokers
+            if existing_brokers_count >= 3:
+                return jsonify({
+                    'success': False,
+                    'message': 'HNI plan allows up to 3 broker connections. You have reached the limit.'
+                }), 400
         
         # Step 1: Save broker credentials (DO NOT CONNECT YET)
         # Create broker account in 'disconnected' state

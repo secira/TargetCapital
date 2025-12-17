@@ -167,22 +167,22 @@ class RazorpayService:
                 'name': 'Target Plus Plan',
                 'price': 1499,
                 'duration_days': 30,
-                'features': ['Advanced charts', 'Real-time data', 'Trading signals', 'Single broker connection', 'Portfolio analysis only', 'Basic AI advisor'],
-                'limits': {'portfolios': 3, 'watchlist': 50, 'ai_queries': 100, 'brokers': 1}
+                'features': ['Advanced charts', 'Real-time data', 'Trading signals', '1 broker connection', 'Portfolio analysis only', 'Basic AI advisor'],
+                'limits': {'portfolios': 3, 'watchlist': 50, 'ai_queries': 100, 'brokers': 1, 'trade_brokers': 0}
             },
             'TARGET_PRO': {
                 'name': 'Target Pro Plan',
                 'price': 2499,
                 'duration_days': 30,
-                'features': ['All Target Plus features', 'Connect to a broker', 'Trade support with 1 broker', 'Advanced AI insights', 'Portfolio optimization'],
-                'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3}
+                'features': ['All Target Plus features', '3 broker connections', 'Trade Plus with 1 primary broker', 'Advanced AI insights', 'Portfolio optimization'],
+                'limits': {'portfolios': 10, 'watchlist': 200, 'ai_queries': 500, 'brokers': 3, 'trade_brokers': 1}
             },
             'HNI': {
                 'name': 'HNI Account',
                 'price': 4999,
                 'duration_days': 30,
-                'features': ['All features', 'Trade execution with 1 broker', 'Priority support', 'Custom strategies', 'Dedicated account manager'],
-                'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': -1}  # -1 means unlimited
+                'features': ['All Target Pro features', '3 broker connections', 'Trade Plus with 1 primary broker', 'Priority support', 'Dedicated account manager'],
+                'limits': {'portfolios': -1, 'watchlist': -1, 'ai_queries': -1, 'brokers': 3, 'trade_brokers': 1}
             }
         }
     
