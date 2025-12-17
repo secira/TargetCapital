@@ -23,7 +23,7 @@ Target Capital leverages LangGraph as its primary AI architecture for autonomous
 -   **LangGraph Research Assistant**: A multi-step state graph for query understanding, context retrieval, market analysis, response generation, and trade suggestions, integrating pgvector and Perplexity Sonar Pro.
 -   **Multi-Agent Portfolio Optimizer**: Features four specialized parallel agents (Risk Analyzer, Sector Analyzer, Asset Allocator, Opportunity Finder) orchestrated by a Coordinator Agent to synthesize optimization reports.
 -   **Smart Trading Signal Pipeline**: A five-stage conditional pipeline (Market Scanner, Signal Generator, Validator, Broker Checker, Execution Planner) for generating and validating trading signals.
--   **Trade Support Pipeline**: A six-stage validation pipeline (Subscription, Broker, Funds, Signal, Risk, Execution Planner) for trade execution, requiring user confirmation for order placement.
+-   **Trade Plus Pipeline**: A six-stage validation pipeline (Subscription, Broker, Funds, Signal, Risk, Execution Planner) for trade execution, requiring user confirmation for order placement.
 -   **Visual Agent Workflow System**: JavaScript-based visualizations for Portfolio Agent Workflow, Signal Pipeline Workflow, and Trade Execution Workflow, providing real-time status and metrics.
 -   **State Persistence Layer**: PostgreSQL models for storing conversation history, agent checkpoints, portfolio optimization reports, trading signals, and portfolio asset embeddings.
 
