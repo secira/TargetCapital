@@ -39,6 +39,13 @@ Target Capital leverages LangGraph as its primary AI architecture for autonomous
 -   **Subscription Model**: Tiered pricing with feature-gated access (FREE, TARGET PLUS, TARGET PRO, HNI).
 -   **Knowledge Base**: Replaces a traditional blog with educational trading articles.
 
+**Mobile App & PWA Support**:
+-   **Mobile REST API (v1)**: Versioned API at `/api/v1/mobile/` with JWT authentication for mobile app integration.
+-   **JWT Authentication**: Stateless token-based auth with access tokens (24hr) and refresh tokens (30 days).
+-   **Mobile Endpoints**: Authentication (email/password, OTP), portfolio, trading signals, brokers, market data.
+-   **Progressive Web App (PWA)**: Full PWA support with service worker, offline caching, install prompts, and push notifications.
+-   **Mobile-First Design**: Responsive UI with touch optimization, viewport handling, and slow-connection mode.
+
 **Enterprise Multi-Tenant Security Architecture**:
 Implements defense-in-depth tenant isolation through three layers:
 1.  **SQLAlchemy ORM Automatic Filtering**: Dynamically discovers models with `tenant_id` and auto-injects tenant filters on SELECT queries, validates `tenant_id` on new records, and syncs session variables for RLS.
