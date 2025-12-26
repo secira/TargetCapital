@@ -1,22 +1,9 @@
 {% extends "account/account_base.html" %}
 
-{% block account_content %}
-<!-- Hero Section -->
-<section class="bg-white" style="padding: 40px 0 30px 0;">
-    <div class="container-fluid">
-        <div class="row text-center">
-            <div class="col-12">
-                <h1 class="display-5 fw-bold text-dark mb-3">
-                    Manage Your Subscription
-                </h1>
-                <p class="lead text-muted mb-4" style="font-size: 1.1rem;">
-                    View your current plan, upgrade or downgrade, and manage payment history
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
+{% block account_title %}Billing & Subscription{% endblock %}
+{% block account_subtitle %}View your current plan, upgrade or downgrade, and manage payment history{% endblock %}
 
+{% block account_content %}
 <!-- Current Plan Status -->
 <section class="bg-light" style="padding: 30px 0;">
     <div class="container-fluid">

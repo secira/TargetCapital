@@ -1,0 +1,335 @@
+<nav class="sidebar-nav" style="padding-top: 80px;">
+    {% if current_user.is_authenticated %}
+    <div class="menu-section plan-section">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-crown"></i>
+                Current Plan
+            </h3>
+        </div>
+        
+        <div class="plan-info">
+            <div class="plan-details">
+                <span class="plan-name">{{ current_user.get_plan_display_name() }}</span>
+                <span class="plan-badge {{ current_user.pricing_plan.value }}">
+                    {% if current_user.pricing_plan.value == 'free' %}
+                    Free
+                    {% elif current_user.pricing_plan.value == 'target_plus' %}
+                    Target Plus
+                    {% elif current_user.pricing_plan.value == 'target_pro' %}
+                    Target Pro
+                    {% else %}
+                    HNI Account
+                    {% endif %}
+                </span>
+            </div>
+            
+            {% if current_user.pricing_plan.value == 'free' %}
+            <a href="{{ url_for('pricing') }}" class="upgrade-link">
+                <i class="fas fa-arrow-up"></i>
+                Upgrade Plan
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="sidebar-menu">
+        <div class="menu-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-user-cog"></i>
+                    Account Settings
+                </h3>
+            </div>
+            
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if active_section == 'profile' else '' }}" 
+                       href="{{ url_for('account_profile') }}">
+                        <i class="nav-icon fas fa-user"></i>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if active_section == 'account' else '' }}" 
+                       href="{{ url_for('account_settings') }}">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <span class="nav-text">Account Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if active_section == 'billing' else '' }}" 
+                       href="{{ url_for('account_billing') }}">
+                        <i class="nav-icon fas fa-credit-card"></i>
+                        <span class="nav-text">Billing & Subscription</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if active_section == 'referrals' else '' }}" 
+                       href="{{ url_for('account_referrals') }}">
+                        <i class="nav-icon fas fa-share-alt"></i>
+                        <span class="nav-text">Referrals</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="menu-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-arrow-left"></i>
+                    Navigation
+                </h3>
+            </div>
+            
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('dashboard') }}">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Back to Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="{{ url_for('logout') }}">
+                        <i class="nav-icon fas fa-sign-out-alt"></i>
+                        <span class="nav-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+.sidebar-nav {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: inherit;
+}
+
+.sidebar-menu {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+}
+
+.menu-section {
+    margin-bottom: 32px;
+}
+
+.plan-section {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.menu-section:last-child {
+    margin-bottom: 0;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin-bottom: 4px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 0 25px 25px 0;
+    margin-right: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 52px;
+    box-sizing: border-box;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #4299e1;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #e6f2ff;
+    color: #1a202c;
+    transform: translateX(8px);
+}
+
+.nav-link.active::before {
+    transform: scaleY(1);
+}
+
+.nav-link.text-danger:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.nav-link:hover .nav-icon {
+    transform: scale(1.1);
+}
+
+.nav-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-header {
+    padding: 0 20px 12px;
+}
+
+.section-title {
+    font-size: 9px;
+    font-weight: 500;
+    color: #718096;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title i {
+    font-size: 11px;
+}
+
+.plan-info {
+    padding: 0 20px;
+}
+
+.plan-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.plan-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a202c;
+}
+
+.plan-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-badge.free {
+    background: #718096;
+    color: white;
+}
+
+.plan-badge.target_plus {
+    background: #4299e1;
+    color: white;
+}
+
+.plan-badge.target_pro {
+    background: #9f7aea;
+    color: white;
+}
+
+.plan-badge.premium {
+    background: #f6ad55;
+    color: white;
+}
+
+.upgrade-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #4299e1;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.upgrade-link:hover {
+    color: #63b3ed;
+}
+
+@media (max-width: 991.98px) {
+    .nav-link {
+        margin-right: 0;
+        border-radius: 0;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        transform: none;
+    }
+}
+
+.nav-link:focus {
+    outline: 2px solid #4299e1;
+    outline-offset: 2px;
+}
+
+.nav-link:focus:not(:focus-visible) {
+    outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-link,
+    .nav-icon {
+        transition: none;
+        animation: none;
+    }
+}
+</style>

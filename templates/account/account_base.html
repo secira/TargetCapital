@@ -1,97 +1,357 @@
 {% extends "base.html" %}
 
-{% block title %}Account Settings - tCapital{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Account Sidebar Navigation -->
-        <div class="col-md-3 col-lg-2 px-0 bg-light border-end">
-            <div class="account-sidebar p-3">
-                <h5 class="mb-4"><i class="fas fa-user-cog me-2"></i>Account</h5>
-                <nav class="nav nav-pills flex-column">
-                    <a class="nav-link {% if active_section == 'profile' %}active{% endif %}" 
-                       href="{{ url_for('account_profile') }}">
-                        <i class="fas fa-user me-2"></i>Profile
-                    </a>
-                    <a class="nav-link {% if active_section == 'account' %}active{% endif %}" 
-                       href="{{ url_for('account_settings') }}">
-                        <i class="fas fa-cog me-2"></i>Account
-                    </a>
-                    <a class="nav-link {% if active_section == 'billing' %}active{% endif %}" 
-                       href="{{ url_for('account_billing') }}">
-                        <i class="fas fa-credit-card me-2"></i>Billing
-                    </a>
-                    <a class="nav-link {% if active_section == 'referrals' %}active{% endif %}" 
-                       href="{{ url_for('account_referrals') }}">
-                        <i class="fas fa-share-alt me-2"></i>Referrals
-                    </a>
-                </nav>
-                
-                <!-- Quick Stats -->
-                <div class="mt-5 pt-4 border-top">
-                    <div class="small text-muted mb-2">Current Plan</div>
-                    <div class="fw-bold text-primary">{{ current_user.get_plan_display_name() }}</div>
-                    {% if current_user.pricing_plan != PricingPlan.FREE %}
-                    <div class="small text-muted mt-1">
-                        {% if current_user.is_subscription_active() %}
-                        <i class="fas fa-check-circle text-success me-1"></i>Active
-                        {% else %}
-                        <i class="fas fa-exclamation-circle text-warning me-1"></i>Inactive
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+{% block navbar %}
+<nav class="navbar navbar-expand-lg navbar-light fixed-top border-bottom" style="padding: 20px 0; border-bottom: 1px solid #e9ecef !important; background-color: #ffffff !important;">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}" style="font-weight: 600;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}?v=3" 
+                 alt="Target Capital Logo" height="70" class="me-0">
+        </a>
         
-        <!-- Main Content Area -->
-        <div class="col-md-9 col-lg-10">
-            <div class="p-4">
-                {% block account_content %}{% endblock %}
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="padding: 0.25rem 0.5rem;">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="d-flex align-items-center ms-auto">
+                {% if current_user.is_authenticated %}
+                    <div class="dropdown">
+                        <a class="text-decoration-none text-dark d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 500; font-size: 15px;">
+                            <i class="fas fa-user-circle me-2 text-primary"></i>{{ current_user.get_full_name() }}
+                            <i class="fas fa-chevron-down ms-2" style="font-size: 12px;"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown" style="border-radius: 8px; padding: 8px 0;">
+                            <li><a class="dropdown-item py-2" href="{{ url_for('dashboard') }}" style="font-size: 14px;">
+                                <i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard
+                            </a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('account_profile') }}" style="font-size: 14px;">
+                                <i class="fas fa-user me-2 text-muted"></i>Profile
+                            </a></li>
+                            <li><a class="dropdown-item py-2" href="{{ url_for('account_billing') }}" style="font-size: 14px;">
+                                <i class="fas fa-credit-card me-2 text-muted"></i>Billing
+                            </a></li>
+                            <li class="px-3 py-1">
+                                <small class="text-muted">Current Plan:</small><br>
+                                <small class="fw-bold text-primary">{{ current_user.get_plan_display_name() }}</small>
+                                {% if not current_user.is_subscription_active() and current_user.pricing_plan.name != 'FREE' %}
+                                <span class="badge bg-warning ms-1">Expired</span>
+                                {% endif %}
+                            </li>
+                            {% if current_user.is_admin %}
+                            <li><a class="dropdown-item py-2" href="{{ url_for('admin_dashboard') }}" style="font-size: 14px;">
+                                <i class="fas fa-cog me-2 text-muted"></i>Admin Panel
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}" style="font-size: 14px;">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a></li>
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="account-app">
+    <button class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <aside class="account-sidebar" id="accountSidebar">
+        {% include 'account/account_sidebar.html' %}
+    </aside>
+
+    <main class="account-main">
+        <header class="account-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>{% block account_title %}Account{% endblock %}</h1>
+                    <p class="header-subtitle">{% block account_subtitle %}Manage your account settings{% endblock %}</p>
+                </div>
+            </div>
+        </header>
+
+        <section class="account-content">
+            <div class="content-container">
+                {% block account_content %}{% endblock %}
+            </div>
+        </section>
+    </main>
+
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay"></div>
 </div>
 
+<script>
+class AccountLayout {
+    constructor() {
+        this.sidebar = document.getElementById('accountSidebar');
+        this.overlay = document.getElementById('mobileSidebarOverlay');
+        this.menuToggle = document.getElementById('mobileMenuToggle');
+        this.init();
+    }
+
+    init() {
+        this.bindEvents();
+        this.handleResize();
+        window.addEventListener('resize', () => this.handleResize());
+    }
+
+    bindEvents() {
+        if (this.menuToggle) {
+            this.menuToggle.addEventListener('click', () => this.toggleMobileSidebar());
+        }
+
+        if (this.overlay) {
+            this.overlay.addEventListener('click', () => this.closeMobileSidebar());
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeMobileSidebar();
+            }
+        });
+
+        const navLinks = this.sidebar?.querySelectorAll('.nav-link');
+        navLinks?.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    this.closeMobileSidebar();
+                }
+            });
+        });
+    }
+
+    toggleMobileSidebar() {
+        if (this.sidebar?.classList.contains('show')) {
+            this.closeMobileSidebar();
+        } else {
+            this.openMobileSidebar();
+        }
+    }
+
+    openMobileSidebar() {
+        this.sidebar?.classList.add('show');
+        this.overlay?.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeMobileSidebar() {
+        this.sidebar?.classList.remove('show');
+        this.overlay?.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    handleResize() {
+        if (window.innerWidth >= 992) {
+            this.closeMobileSidebar();
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.accountLayout = new AccountLayout();
+});
+</script>
+
 <style>
-.account-sidebar {
+.account-app {
+    display: flex;
     min-height: 100vh;
+    background-color: #f8fafc;
+    width: 100%;
+    overflow-x: hidden;
 }
 
-.nav-pills .nav-link {
-    color: #6c757d;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    padding: 12px 16px;
-    transition: all 0.2s;
-}
-
-.nav-pills .nav-link:hover {
-    background-color: #e9ecef;
-    color: #495057;
-}
-
-.nav-pills .nav-link.active {
-    background-color: #0d6efd;
+.mobile-menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1050;
+    background: #00091a;
     color: white;
+    border: none;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 9, 26, 0.15);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: #001122;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 9, 26, 0.25);
+}
+
+@media (min-width: 992px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
+.account-sidebar {
+    width: 280px;
+    background: #f8f9fa;
+    color: #2d3748;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1040;
+    transition: transform 0.3s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.1) transparent;
+    border-right: 1px solid #e2e8f0;
+}
+
+.account-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.account-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.account-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+@media (max-width: 991.98px) {
+    .account-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .account-sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+.account-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px;
+    min-height: 100vh;
+    width: calc(100% - 280px);
+    max-width: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .account-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.account-header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.account-header .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    max-width: 100%;
+}
+
+.account-header .header-title h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.account-header .header-subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin: 4px 0 0 0;
+}
+
+.account-content {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+}
+
+.account-content .content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1035;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+@media (max-width: 991.98px) {
+    .account-header .header-content {
+        padding: 20px 16px;
+        padding-left: 70px;
+    }
+    
+    .account-content {
+        padding: 20px 16px;
+    }
 }
 
 .card {
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    background: white;
 }
 
 .card-header {
     border-radius: 12px 12px 0 0 !important;
     background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 20px;
+}
+
+.card-header h5, .card-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.card-body {
+    padding: 20px;
 }
 
 .btn {
     border-radius: 8px;
     padding: 10px 20px;
+    font-weight: 500;
 }
 
 .form-control, .form-select {
@@ -102,8 +362,14 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+    border-color: #4299e1;
+    box-shadow: 0 0 0 0.2rem rgba(66, 153, 225, 0.1);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 6px;
 }
 </style>
 {% endblock %}
