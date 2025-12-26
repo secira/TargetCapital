@@ -57,7 +57,7 @@
                     
                     <div class="quick-actions">
                         <h6 class="fw-semibold mb-3">Quick Actions</h6>
-                        <a href="{{ url_for('dashboard_ai_assistant') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="btn btn-outline-primary w-100 mb-2">
                             <i class="fas fa-robot me-2"></i>Ask AI About {{ asset.name }}
                         </a>
                         {% if current_user.can_access_menu('dashboard_trade_now') %}
@@ -287,25 +287,25 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
-                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
                             <i class="fas fa-graduation-cap me-3 text-primary"></i>
                             <div>
                                 <h6 class="mb-1">{{ asset.name }} Trading Guide</h6>
-                                <small class="text-muted">Learn the fundamentals of {{ asset.name|lower }} trading</small>
+                                <small class="text-muted">Ask our AI advisor about {{ asset.name|lower }} trading</small>
                             </div>
                         </a>
-                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
                             <i class="fas fa-chart-pie me-3 text-success"></i>
                             <div>
                                 <h6 class="mb-1">Risk Management</h6>
-                                <small class="text-muted">Position sizing and risk strategies</small>
+                                <small class="text-muted">Get AI guidance on position sizing and risk strategies</small>
                             </div>
                         </a>
-                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
                             <i class="fas fa-lightbulb me-3 text-warning"></i>
                             <div>
                                 <h6 class="mb-1">Trading Strategies</h6>
-                                <small class="text-muted">Popular {{ asset.name|lower }} trading strategies</small>
+                                <small class="text-muted">Explore {{ asset.name|lower }} trading strategies with AI</small>
                             </div>
                         </a>
                     </div>

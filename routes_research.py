@@ -228,28 +228,28 @@ def api_research_analyze():
         - Recommendation (STRONG_BUY, BUY, HOLD, CAUTIONARY_SELL, STRONG_SELL)
         - Component scores and details
     """
-    plan = current_user.pricing_plan
-    plan_value = plan.value if hasattr(plan, 'value') else str(plan)
-    if plan_value == 'free':
-        return jsonify({
-            'success': False,
-            'error': 'I-Score analysis requires Target Plus subscription or higher'
-        }), 403
-    
-    data = request.get_json()
-    if not data:
-        return jsonify({'success': False, 'error': 'No data provided'}), 400
-    
-    symbol = data.get('symbol', '').upper().strip()
-    asset_type = data.get('asset_type', 'stocks').lower()
-    
-    if not symbol:
-        return jsonify({'success': False, 'error': 'Symbol is required'}), 400
-    
-    if asset_type not in ASSET_TYPES:
-        return jsonify({'success': False, 'error': f'Invalid asset type: {asset_type}'}), 400
-    
     try:
+        plan = current_user.pricing_plan
+        plan_value = plan.value if hasattr(plan, 'value') else str(plan)
+        if plan_value == 'free':
+            return jsonify({
+                'success': False,
+                'error': 'I-Score analysis requires Target Plus subscription or higher'
+            }), 403
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+        
+        symbol = data.get('symbol', '').upper().strip()
+        asset_type = data.get('asset_type', 'stocks').lower()
+        
+        if not symbol:
+            return jsonify({'success': False, 'error': 'Symbol is required'}), 400
+        
+        if asset_type not in ASSET_TYPES:
+            return jsonify({'success': False, 'error': f'Invalid asset type: {asset_type}'}), 400
+        
         from services.langgraph_iscore_engine import LangGraphIScoreEngine
         
         engine = LangGraphIScoreEngine()
@@ -263,7 +263,8 @@ def api_research_analyze():
         return jsonify(result)
         
     except Exception as e:
-        logger.error(f"I-Score analysis error for {symbol}: {e}")
+        db.session.rollback()
+        logger.error(f"I-Score analysis error for {symbol if 'symbol' in dir() else 'unknown'}: {e}")
         return jsonify({
             'success': False,
             'error': 'Analysis failed. Please try again later.'
@@ -274,105 +275,133 @@ def api_research_analyze():
 @login_required
 def api_research_cached(symbol):
     """Get cached I-Score for a symbol if available"""
-    plan = current_user.pricing_plan
-    plan_value = plan.value if hasattr(plan, 'value') else str(plan)
-    if plan_value == 'free':
-        return jsonify({'success': False, 'cached': False}), 403
-    
-    symbol = symbol.upper().strip()
-    asset_type = request.args.get('asset_type', 'stocks')
-    
-    import hashlib
-    cache_key = hashlib.md5(f"iscore:{asset_type}:{symbol}:{date.today().isoformat()}".encode()).hexdigest()
-    
-    cached = ResearchCache.query.filter_by(
-        cache_key=cache_key,
-        is_valid=True
-    ).first()
-    
-    if cached and cached.expires_at > datetime.utcnow():
-        cached.hit_count += 1
-        cached.last_hit_at = datetime.utcnow()
-        db.session.commit()
+    try:
+        plan = current_user.pricing_plan
+        plan_value = plan.value if hasattr(plan, 'value') else str(plan)
+        if plan_value == 'free':
+            return jsonify({'success': False, 'cached': False}), 403
         
-        result = cached.result_payload or {}
-        return jsonify({
-            'success': True,
-            'cached': True,
-            'symbol': symbol,
-            'iscore': float(cached.overall_score) if cached.overall_score else result.get('overall_score', 0),
-            'recommendation': cached.recommendation or result.get('recommendation', 'INCONCLUSIVE'),
-            'summary': result.get('recommendation_summary', ''),
-            'components': {
-                'qualitative': result.get('qualitative', {}),
-                'quantitative': result.get('quantitative', {}),
-                'search': result.get('search', {}),
-                'trend': result.get('trend', {})
-            },
-            'computed_at': cached.computed_at.isoformat() if cached.computed_at else None
-        })
+        symbol = symbol.upper().strip()
+        asset_type = request.args.get('asset_type', 'stocks')
+        
+        import hashlib
+        cache_key = hashlib.md5(f"iscore:{asset_type}:{symbol}:{date.today().isoformat()}".encode()).hexdigest()
+        
+        cached = ResearchCache.query.filter_by(
+            cache_key=cache_key,
+            is_valid=True
+        ).first()
+        
+        if cached and cached.expires_at > datetime.utcnow():
+            cached.hit_count += 1
+            cached.last_hit_at = datetime.utcnow()
+            db.session.commit()
+            
+            result = cached.result_payload or {}
+            return jsonify({
+                'success': True,
+                'cached': True,
+                'symbol': symbol,
+                'iscore': float(cached.overall_score) if cached.overall_score else result.get('overall_score', 0),
+                'recommendation': cached.recommendation or result.get('recommendation', 'INCONCLUSIVE'),
+                'summary': result.get('recommendation_summary', ''),
+                'components': {
+                    'qualitative': result.get('qualitative', {}),
+                    'quantitative': result.get('quantitative', {}),
+                    'search': result.get('search', {}),
+                    'trend': result.get('trend', {})
+                },
+                'computed_at': cached.computed_at.isoformat() if cached.computed_at else None
+            })
+        
+        return jsonify({'success': True, 'cached': False, 'symbol': symbol})
     
-    return jsonify({'success': True, 'cached': False, 'symbol': symbol})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"I-Score cache lookup error for {symbol}: {e}")
+        return jsonify({'success': True, 'cached': False, 'symbol': symbol})
 
 
 @app.route('/api/research/recent')
 @login_required
 def api_research_recent():
     """Get recent I-Score analyses for the current user"""
-    plan = current_user.pricing_plan
-    plan_value = plan.value if hasattr(plan, 'value') else str(plan)
-    if plan_value == 'free':
-        return jsonify({'success': False, 'analyses': []}), 403
+    try:
+        plan = current_user.pricing_plan
+        plan_value = plan.value if hasattr(plan, 'value') else str(plan)
+        if plan_value == 'free':
+            return jsonify({'success': False, 'analyses': []}), 403
+        
+        recent = ResearchRun.query.filter_by(
+            user_id=current_user.id,
+            status='completed'
+        ).order_by(ResearchRun.created_at.desc()).limit(10).all()
+        
+        analyses = []
+        for run in recent:
+            analyses.append({
+                'id': run.id,
+                'symbol': run.symbol,
+                'asset_type': run.asset_type,
+                'iscore': float(run.overall_score) if run.overall_score else 0,
+                'recommendation': run.recommendation,
+                'summary': run.recommendation_summary,
+                'analyzed_at': run.created_at.isoformat() if run.created_at else None
+            })
+        
+        return jsonify({'success': True, 'analyses': analyses})
     
-    recent = ResearchRun.query.filter_by(
-        user_id=current_user.id,
-        status='completed'
-    ).order_by(ResearchRun.created_at.desc()).limit(10).all()
-    
-    analyses = []
-    for run in recent:
-        analyses.append({
-            'id': run.id,
-            'symbol': run.symbol,
-            'asset_type': run.asset_type,
-            'iscore': float(run.overall_score) if run.overall_score else 0,
-            'recommendation': run.recommendation,
-            'summary': run.recommendation_summary,
-            'analyzed_at': run.created_at.isoformat() if run.created_at else None
-        })
-    
-    return jsonify({'success': True, 'analyses': analyses})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"I-Score recent lookup error: {e}")
+        return jsonify({'success': True, 'analyses': []})
 
 
 @app.route('/api/research/thresholds')
 @login_required
 def api_research_thresholds():
     """Get current I-Score thresholds for display"""
-    from models import ResearchThresholdConfig
-    
-    config = ResearchThresholdConfig.get_active_config()
-    
-    if config:
+    try:
+        from models import ResearchThresholdConfig
+        
+        config = ResearchThresholdConfig.get_active_config()
+        
+        if config:
+            return jsonify({
+                'success': True,
+                'thresholds': {
+                    'strong_buy': config.strong_buy_threshold,
+                    'buy': config.buy_threshold,
+                    'hold_low': config.hold_low,
+                    'hold_high': config.hold_high,
+                    'sell': config.sell_threshold,
+                    'min_confidence': float(config.min_confidence)
+                }
+            })
+        
         return jsonify({
             'success': True,
             'thresholds': {
-                'strong_buy': config.strong_buy_threshold,
-                'buy': config.buy_threshold,
-                'hold_low': config.hold_low,
-                'hold_high': config.hold_high,
-                'sell': config.sell_threshold,
-                'min_confidence': float(config.min_confidence)
+                'strong_buy': 80,
+                'buy': 65,
+                'hold_low': 45,
+                'hold_high': 64,
+                'sell': 30,
+                'min_confidence': 0.6
             }
         })
     
-    return jsonify({
-        'success': True,
-        'thresholds': {
-            'strong_buy': 80,
-            'buy': 65,
-            'hold_low': 45,
-            'hold_high': 64,
-            'sell': 30,
-            'min_confidence': 0.6
-        }
-    })
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"I-Score thresholds lookup error: {e}")
+        return jsonify({
+            'success': True,
+            'thresholds': {
+                'strong_buy': 80,
+                'buy': 65,
+                'hold_low': 45,
+                'hold_high': 64,
+                'sell': 30,
+                'min_confidence': 0.6
+            }
+        })
