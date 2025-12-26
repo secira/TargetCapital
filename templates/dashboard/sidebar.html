@@ -48,18 +48,6 @@
                     </a>
                 </li>
 
-                <!-- Research and Signals (Trader+ only) -->
-                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trading_signals' else '' }}" 
-                       href="{{ url_for('dashboard_trading_signals') }}">
-                        <i class="nav-icon fas fa-chart-line"></i>
-                        <span class="nav-text">Research and Signals</span>
-                        <span class="nav-badge">Live</span>
-                    </a>
-                </li>
-                {% endif %}
-
                 <!-- Portfolio (Trader+ only) -->
                 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
                 <li class="nav-item">
@@ -83,6 +71,72 @@
                 {% endif %}
             </ul>
         </div>
+        
+        <!-- Research and Signals Section (Trader+ only) -->
+        {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
+        <div class="menu-section">
+            <div class="section-header collapsible-header" onclick="toggleResearchSignals()">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Research & Signals
+                    <span class="nav-badge ms-2">Live</span>
+                    <i class="fas fa-chevron-down toggle-icon" id="researchSignalsToggle"></i>
+                </h3>
+            </div>
+            
+            <ul class="nav-list submenu-list" id="researchSignalsMenu" style="display: none;">
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_stocks' else '' }}" 
+                       href="{{ url_for('research_stocks') }}">
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <span class="nav-text">Stocks</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_futures' else '' }}" 
+                       href="{{ url_for('research_futures') }}">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <span class="nav-text">Futures</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_options' else '' }}" 
+                       href="{{ url_for('research_options') }}">
+                        <i class="nav-icon fas fa-layer-group"></i>
+                        <span class="nav-text">Options</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_commodities' else '' }}" 
+                       href="{{ url_for('research_commodities') }}">
+                        <i class="nav-icon fas fa-cubes"></i>
+                        <span class="nav-text">Commodities</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_currency' else '' }}" 
+                       href="{{ url_for('research_currency') }}">
+                        <i class="nav-icon fas fa-rupee-sign"></i>
+                        <span class="nav-text">Currency</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_bonds' else '' }}" 
+                       href="{{ url_for('research_bonds') }}">
+                        <i class="nav-icon fas fa-file-contract"></i>
+                        <span class="nav-text">Bonds</span>
+                    </a>
+                </li>
+                <li class="nav-item submenu-item">
+                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_mutual_funds' else '' }}" 
+                       href="{{ url_for('research_mutual_funds') }}">
+                        <i class="nav-icon fas fa-piggy-bank"></i>
+                        <span class="nav-text">Mutual Funds</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
 
         <!-- Portfolio Hub Section -->
         <div class="menu-section">
@@ -181,14 +235,6 @@
                     </a>
                 </li>
                 
-                <!-- Crypto -->
-                <li class="nav-item submenu-item">
-                    <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_cryptocurrency' else '' }}" 
-                       href="{{ url_for('dashboard_cryptocurrency') }}">
-                        <i class="nav-icon fab fa-bitcoin"></i>
-                        <span class="nav-text">Cryptocurrency</span>
-                    </a>
-                </li>
             </ul>
         </div>
     </div>
@@ -669,29 +715,61 @@ function togglePortfolioHub() {
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
         toggleIcon.classList.add('expanded');
-        // Save state to localStorage
         localStorage.setItem('portfolioHubExpanded', 'true');
     } else {
         menu.style.display = 'none';
         toggleIcon.classList.remove('expanded');
-        // Save state to localStorage
         localStorage.setItem('portfolioHubExpanded', 'false');
     }
 }
 
-// Restore Portfolio Hub state on page load
-document.addEventListener('DOMContentLoaded', function() {
-    const isExpanded = localStorage.getItem('portfolioHubExpanded');
-    const menu = document.getElementById('portfolioHubMenu');
-    const toggleIcon = document.getElementById('portfolioHubToggle');
+// Research & Signals Toggle Function
+function toggleResearchSignals() {
+    const menu = document.getElementById('researchSignalsMenu');
+    const toggleIcon = document.getElementById('researchSignalsToggle');
     
-    // If previously expanded or if we're on a portfolio hub page, show it
-    const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks'];
-    const currentEndpoint = '{{ request.endpoint }}';
-    
-    if (isExpanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
+    if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
         toggleIcon.classList.add('expanded');
+        localStorage.setItem('researchSignalsExpanded', 'true');
+    } else {
+        menu.style.display = 'none';
+        toggleIcon.classList.remove('expanded');
+        localStorage.setItem('researchSignalsExpanded', 'false');
+    }
+}
+
+// Restore menu states on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentEndpoint = '{{ request.endpoint }}';
+    
+    // Portfolio Hub state
+    const portfolioHubExpanded = localStorage.getItem('portfolioHubExpanded');
+    const portfolioMenu = document.getElementById('portfolioHubMenu');
+    const portfolioToggle = document.getElementById('portfolioHubToggle');
+    const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks', 'dashboard_insurance', 
+                               'dashboard_equities', 'dashboard_mutual_funds', 'dashboard_fixed_deposits',
+                               'dashboard_futures_options', 'dashboard_real_estate', 'dashboard_commodities'];
+    
+    if (portfolioMenu && portfolioToggle) {
+        if (portfolioHubExpanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
+            portfolioMenu.style.display = 'block';
+            portfolioToggle.classList.add('expanded');
+        }
+    }
+    
+    // Research & Signals state
+    const researchExpanded = localStorage.getItem('researchSignalsExpanded');
+    const researchMenu = document.getElementById('researchSignalsMenu');
+    const researchToggle = document.getElementById('researchSignalsToggle');
+    const researchPages = ['research_stocks', 'research_futures', 'research_options', 
+                          'research_commodities', 'research_currency', 'research_bonds', 'research_mutual_funds'];
+    
+    if (researchMenu && researchToggle) {
+        if (researchExpanded === 'true' || researchPages.includes(currentEndpoint)) {
+            researchMenu.style.display = 'block';
+            researchToggle.classList.add('expanded');
+        }
     }
 });
 </script>

@@ -1,0 +1,277 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}{{ asset.title }} - Target Capital{% endblock %}
+
+{% block dashboard_title %}{{ asset.title }}{% endblock %}
+{% block dashboard_subtitle %}{{ asset.subtitle }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="research-page">
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="asset-icon me-3" style="width: 56px; height: 56px; background: linear-gradient(135deg, #4299e1, #3182ce); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="{{ asset.icon }} text-white" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">{{ asset.name }} Overview</h4>
+                            <p class="text-muted mb-0">{{ asset.description }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        {% for feature in asset.features %}
+                        <div class="col-md-6">
+                            <div class="feature-card p-3 bg-light rounded-3 h-100">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3" style="width: 40px; height: 40px; background: rgba(66, 153, 225, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="{{ feature.icon }}" style="color: #4299e1;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold">{{ feature.title }}</h6>
+                                        <p class="text-muted mb-0 small">{{ feature.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2"></i>Market Hours</h5>
+                    <p class="text-muted mb-4">{{ asset.market_hours }}</p>
+                    
+                    <div class="market-status mb-4">
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                            <span class="fw-medium">Market Status</span>
+                            <span class="badge bg-secondary" id="marketStatus">Closed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <h6 class="fw-semibold mb-3">Quick Actions</h6>
+                        <a href="{{ url_for('dashboard_ai_assistant') }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-robot me-2"></i>Ask AI About {{ asset.name }}
+                        </a>
+                        {% if current_user.can_access_menu('dashboard_trade_now') %}
+                        <a href="{{ url_for('dashboard_trade_now') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-exchange-alt me-2"></i>Trade {{ asset.name }}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-bolt me-2 text-warning"></i>
+                            Active {{ asset.name }} Signals
+                        </h5>
+                        <span class="badge bg-primary">{{ signals|length }} Active</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% set plan_value = current_user.pricing_plan.value if current_user.pricing_plan.value is defined else current_user.pricing_plan %}
+                    {% if plan_value == 'free' %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-lock fa-3x text-muted mb-3"></i>
+                        <h5 class="fw-semibold">Upgrade to Access Trading Signals</h5>
+                        <p class="text-muted mb-4">Get real-time AI-powered trading signals with Target Plus or higher.</p>
+                        <a href="{{ url_for('pricing') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-up me-2"></i>Upgrade Now
+                        </a>
+                    </div>
+                    {% elif signals %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Symbol</th>
+                                    <th>Action</th>
+                                    <th>Entry</th>
+                                    <th>Target</th>
+                                    <th>Stop Loss</th>
+                                    <th>Risk</th>
+                                    <th>Time Frame</th>
+                                    <th class="pe-4 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for signal in signals %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-semibold">{{ signal.symbol }}</div>
+                                        <small class="text-muted">{{ signal.company_name or '' }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if signal.action == 'BUY' else 'bg-danger' }}">
+                                            {{ signal.action }}
+                                        </span>
+                                    </td>
+                                    <td>₹{{ signal.entry_price|round(2) if signal.entry_price else '-' }}</td>
+                                    <td class="text-success">₹{{ signal.target_price|round(2) if signal.target_price else '-' }}</td>
+                                    <td class="text-danger">₹{{ signal.stop_loss|round(2) if signal.stop_loss else '-' }}</td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success' if signal.risk_level == 'LOW' else 'bg-warning' if signal.risk_level == 'MEDIUM' else 'bg-danger' }}">
+                                            {{ signal.risk_level or 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td>{{ signal.time_frame or 'Intraday' }}</td>
+                                    <td class="pe-4 text-end">
+                                        {% if current_user.can_access_menu('dashboard_trade_now') %}
+                                        <a href="{{ url_for('execute_trading_signal', signal_id=signal.id) }}" 
+                                           class="btn btn-sm btn-primary">
+                                            Execute
+                                        </a>
+                                        {% else %}
+                                        <span class="badge bg-secondary">View Only</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                        <h5 class="fw-semibold">No Active Signals</h5>
+                        <p class="text-muted mb-0">There are no active {{ asset.name }} trading signals at the moment.</p>
+                        <p class="text-muted small">New signals are generated based on AI analysis of market conditions.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4 mt-2">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-book me-2 text-info"></i>
+                        {{ asset.name }} Learning Resources
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                            <i class="fas fa-graduation-cap me-3 text-primary"></i>
+                            <div>
+                                <h6 class="mb-1">{{ asset.name }} Trading Guide</h6>
+                                <small class="text-muted">Learn the fundamentals of {{ asset.name|lower }} trading</small>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                            <i class="fas fa-chart-pie me-3 text-success"></i>
+                            <div>
+                                <h6 class="mb-1">Risk Management</h6>
+                                <small class="text-muted">Position sizing and risk strategies</small>
+                            </div>
+                        </a>
+                        <a href="{{ url_for('knowledge_base') }}" class="list-group-item list-group-item-action d-flex align-items-center py-3">
+                            <i class="fas fa-lightbulb me-3 text-warning"></i>
+                            <div>
+                                <h6 class="mb-1">Trading Strategies</h6>
+                                <small class="text-muted">Popular {{ asset.name|lower }} trading strategies</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>
+                        About {{ asset.name }} Signals
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="fw-semibold">How are signals generated?</h6>
+                        <p class="text-muted small mb-0">Our AI analyzes technical indicators, price patterns, volume data, and market sentiment to generate actionable trading signals with entry, target, and stop-loss levels.</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="fw-semibold">Signal accuracy</h6>
+                        <p class="text-muted small mb-0">Signals are validated through our multi-stage LangGraph pipeline including market scanning, signal generation, validation, and broker compatibility checks.</p>
+                    </div>
+                    <div>
+                        <h6 class="fw-semibold">Disclaimer</h6>
+                        <p class="text-muted small mb-0">Trading signals are for informational purposes. Past performance does not guarantee future results. Always conduct your own research.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.research-page {
+    max-width: 1400px;
+}
+
+.feature-card {
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    background: #e6f2ff !important;
+    transform: translateY(-2px);
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a5568;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table td {
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.list-group-item:hover {
+    background: #f8fafc;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusBadge = document.getElementById('marketStatus');
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const day = now.getDay();
+    
+    const currentTime = hours * 60 + minutes;
+    const marketOpen = 9 * 60 + 15;
+    const marketClose = 15 * 60 + 30;
+    
+    if (day >= 1 && day <= 5 && currentTime >= marketOpen && currentTime <= marketClose) {
+        statusBadge.textContent = 'Open';
+        statusBadge.classList.remove('bg-secondary');
+        statusBadge.classList.add('bg-success');
+    } else {
+        statusBadge.textContent = 'Closed';
+    }
+});
+</script>
+{% endblock %}
