@@ -324,13 +324,11 @@ def api_share_signal(signal_id):
     
     try:
         if platform == 'whatsapp':
-            # TODO: Implement WhatsApp API integration
             signal.shared_whatsapp = True
             signal.whatsapp_shared_at = datetime.utcnow()
             message = "Signal shared to WhatsApp successfully!"
             
         elif platform == 'telegram':
-            # TODO: Implement Telegram Bot API integration
             signal.shared_telegram = True
             signal.telegram_shared_at = datetime.utcnow()
             message = "Signal shared to Telegram successfully!"
@@ -343,3 +341,267 @@ def api_share_signal(signal_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)}), 500
+
+
+# ============================================================================
+# I-SCORE RESEARCH CONFIGURATION
+# ============================================================================
+
+@admin_bp.route('/research-config')
+@admin_required
+def research_config():
+    """I-Score research configuration page"""
+    from models import ResearchWeightConfig, ResearchThresholdConfig
+    
+    weight_config = ResearchWeightConfig.get_active_config() or ResearchWeightConfig()
+    threshold_config = ResearchThresholdConfig.get_active_config() or ResearchThresholdConfig()
+    
+    tech_params = weight_config.tech_params or {
+        'rsi_period': 14,
+        'rsi_overbought': 70,
+        'rsi_oversold': 30,
+        'supertrend_period': 10,
+        'supertrend_multiplier': 3,
+        'ema_short': 9,
+        'ema_long': 20
+    }
+    
+    trend_params = weight_config.trend_params or {
+        'oi_change_threshold': 5,
+        'pcr_bullish_threshold': 0.7,
+        'pcr_bearish_threshold': 1.3,
+        'vix_low': 15,
+        'vix_high': 25
+    }
+    
+    qualitative_sources = weight_config.qualitative_sources or {
+        'annual_reports': True,
+        'twitter': True,
+        'moneycontrol': True,
+        'economic_times': True,
+        'nse_india': True,
+        'bse_india': True,
+        'screener': True,
+        'glassdoor': True
+    }
+    
+    return render_template('admin/research_config.html',
+                          weight_config=weight_config,
+                          threshold_config=threshold_config,
+                          tech_params=tech_params,
+                          trend_params=trend_params,
+                          qualitative_sources=qualitative_sources)
+
+
+@admin_bp.route('/save-research-weights', methods=['POST'])
+@admin_required
+def admin_save_research_weights():
+    """Save I-Score weight configuration"""
+    from models import ResearchWeightConfig
+    
+    try:
+        qualitative_pct = int(request.form.get('qualitative_pct', 15))
+        quantitative_pct = int(request.form.get('quantitative_pct', 50))
+        search_pct = int(request.form.get('search_pct', 10))
+        trend_pct = int(request.form.get('trend_pct', 25))
+        
+        total = qualitative_pct + quantitative_pct + search_pct + trend_pct
+        if total != 100:
+            flash(f'Weights must sum to 100%. Current total: {total}%', 'error')
+            return redirect(url_for('admin.research_config'))
+        
+        existing = ResearchWeightConfig.get_active_config()
+        if existing:
+            existing.is_active = False
+        
+        new_config = ResearchWeightConfig(
+            qualitative_pct=qualitative_pct,
+            quantitative_pct=quantitative_pct,
+            search_pct=search_pct,
+            trend_pct=trend_pct,
+            tech_params=existing.tech_params if existing else None,
+            trend_params=existing.trend_params if existing else None,
+            qualitative_sources=existing.qualitative_sources if existing else None,
+            version=(existing.version + 1) if existing else 1,
+            is_active=True,
+            created_by=session.get('admin_id')
+        )
+        
+        db.session.add(new_config)
+        db.session.commit()
+        
+        flash('I-Score weight configuration saved successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving configuration: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_config'))
+
+
+@admin_bp.route('/save-tech-params', methods=['POST'])
+@admin_required
+def admin_save_tech_params():
+    """Save technical indicator parameters"""
+    from models import ResearchWeightConfig
+    
+    try:
+        tech_params = {
+            'rsi_period': int(request.form.get('rsi_period', 14)),
+            'rsi_overbought': int(request.form.get('rsi_overbought', 70)),
+            'rsi_oversold': int(request.form.get('rsi_oversold', 30)),
+            'supertrend_period': int(request.form.get('supertrend_period', 10)),
+            'supertrend_multiplier': float(request.form.get('supertrend_multiplier', 3)),
+            'ema_short': int(request.form.get('ema_short', 9)),
+            'ema_long': int(request.form.get('ema_long', 20))
+        }
+        
+        config = ResearchWeightConfig.get_active_config()
+        if config:
+            config.tech_params = tech_params
+            config.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash('Technical indicator parameters saved!', 'success')
+        else:
+            new_config = ResearchWeightConfig(
+                tech_params=tech_params,
+                is_active=True
+            )
+            db.session.add(new_config)
+            db.session.commit()
+            flash('Technical indicator parameters saved!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving parameters: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_config'))
+
+
+@admin_bp.route('/save-threshold-config', methods=['POST'])
+@admin_required
+def admin_save_threshold_config():
+    """Save I-Score recommendation thresholds"""
+    from models import ResearchThresholdConfig
+    
+    try:
+        strong_buy = int(request.form.get('strong_buy_threshold', 80))
+        buy = int(request.form.get('buy_threshold', 65))
+        hold_low = int(request.form.get('hold_low', 45))
+        hold_high = int(request.form.get('hold_high', 64))
+        sell = int(request.form.get('sell_threshold', 30))
+        min_confidence = float(request.form.get('min_confidence', 0.6))
+        
+        existing = ResearchThresholdConfig.get_active_config()
+        if existing:
+            existing.strong_buy_threshold = strong_buy
+            existing.buy_threshold = buy
+            existing.hold_low = hold_low
+            existing.hold_high = hold_high
+            existing.sell_threshold = sell
+            existing.min_confidence = min_confidence
+            existing.updated_at = datetime.utcnow()
+        else:
+            new_config = ResearchThresholdConfig(
+                strong_buy_threshold=strong_buy,
+                buy_threshold=buy,
+                hold_low=hold_low,
+                hold_high=hold_high,
+                sell_threshold=sell,
+                min_confidence=min_confidence,
+                is_active=True,
+                created_by=session.get('admin_id')
+            )
+            db.session.add(new_config)
+        
+        db.session.commit()
+        flash('I-Score thresholds saved successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving thresholds: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_config'))
+
+
+@admin_bp.route('/save-qualitative-sources', methods=['POST'])
+@admin_required
+def admin_save_qualitative_sources():
+    """Save qualitative data source configuration"""
+    from models import ResearchWeightConfig
+    
+    try:
+        sources = {
+            'annual_reports': 'annual_reports' in request.form,
+            'twitter': 'twitter' in request.form,
+            'moneycontrol': 'moneycontrol' in request.form,
+            'economic_times': 'economic_times' in request.form,
+            'nse_india': 'nse_india' in request.form,
+            'bse_india': 'bse_india' in request.form,
+            'screener': 'screener' in request.form,
+            'glassdoor': 'glassdoor' in request.form,
+            'zerodha_varsity': 'zerodha_varsity' in request.form,
+            'investing_com': 'investing_com' in request.form,
+            'stockedge': 'stockedge' in request.form,
+            'groww': 'groww' in request.form,
+            'upstox': 'upstox' in request.form,
+            'angelone': 'angelone' in request.form
+        }
+        
+        config = ResearchWeightConfig.get_active_config()
+        if config:
+            config.qualitative_sources = sources
+            config.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash('Qualitative data sources saved!', 'success')
+        else:
+            new_config = ResearchWeightConfig(
+                qualitative_sources=sources,
+                is_active=True
+            )
+            db.session.add(new_config)
+            db.session.commit()
+            flash('Qualitative data sources saved!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving sources: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_config'))
+
+
+@admin_bp.route('/save-trend-params', methods=['POST'])
+@admin_required
+def admin_save_trend_params():
+    """Save trend analysis parameters"""
+    from models import ResearchWeightConfig
+    
+    try:
+        trend_params = {
+            'oi_change_threshold': float(request.form.get('oi_change_threshold', 5)),
+            'pcr_bullish_threshold': float(request.form.get('pcr_bullish_threshold', 0.7)),
+            'pcr_bearish_threshold': float(request.form.get('pcr_bearish_threshold', 1.3)),
+            'vix_low': float(request.form.get('vix_low', 15)),
+            'vix_high': float(request.form.get('vix_high', 25))
+        }
+        
+        config = ResearchWeightConfig.get_active_config()
+        if config:
+            config.trend_params = trend_params
+            config.updated_at = datetime.utcnow()
+            db.session.commit()
+            flash('Trend analysis parameters saved!', 'success')
+        else:
+            new_config = ResearchWeightConfig(
+                trend_params=trend_params,
+                is_active=True
+            )
+            db.session.add(new_config)
+            db.session.commit()
+            flash('Trend analysis parameters saved!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving parameters: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_config'))

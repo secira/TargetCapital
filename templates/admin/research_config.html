@@ -8,7 +8,7 @@
         <h4 class="mb-0"><i class="fas fa-brain me-2"></i>AI Research Configuration</h4>
         <small class="text-muted">Configure sentiment analysis weights and recommendation thresholds</small>
     </div>
-    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
     </a>
 </div>
@@ -20,7 +20,7 @@
                 <h6 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Sentiment Weight Configuration</h6>
             </div>
             <div class="admin-card-body">
-                <form method="POST" action="{{ url_for('admin_save_research_weights') }}" id="weightsForm">
+                <form method="POST" action="{{ url_for('admin.admin_save_research_weights') }}" id="weightsForm">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <div class="alert alert-info mb-4">
@@ -88,7 +88,7 @@
                 <h6 class="mb-0"><i class="fas fa-cogs me-2"></i>Technical Indicator Parameters</h6>
             </div>
             <div class="admin-card-body">
-                <form method="POST" action="{{ url_for('admin_save_tech_params') }}">
+                <form method="POST" action="{{ url_for('admin.admin_save_tech_params') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <div class="row">
@@ -144,7 +144,7 @@
                 <h6 class="mb-0"><i class="fas fa-bullseye me-2"></i>Recommendation Thresholds</h6>
             </div>
             <div class="admin-card-body">
-                <form method="POST" action="{{ url_for('admin_save_thresholds') }}">
+                <form method="POST" action="{{ url_for('admin.admin_save_threshold_config') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <div class="alert alert-warning mb-4">
@@ -235,7 +235,7 @@
                 <h6 class="mb-0"><i class="fas fa-database me-2"></i>Data Sources Configuration</h6>
             </div>
             <div class="admin-card-body">
-                <form method="POST" action="{{ url_for('admin_save_data_sources') }}">
+                <form method="POST" action="{{ url_for('admin.admin_save_qualitative_sources') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <p class="text-muted mb-3">Enable/disable qualitative data sources:</p>
@@ -243,58 +243,86 @@
                     <div class="row">
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_annual_reports" 
+                                <input class="form-check-input" type="checkbox" name="annual_reports" 
                                        id="annual_reports" {{ 'checked' if qualitative_sources.annual_reports else '' }}>
                                 <label class="form-check-label" for="annual_reports">Annual Reports</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_twitter" 
+                                <input class="form-check-input" type="checkbox" name="twitter" 
                                        id="twitter" {{ 'checked' if qualitative_sources.twitter else '' }}>
                                 <label class="form-check-label" for="twitter">Twitter/X</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_moneycontrol" 
+                                <input class="form-check-input" type="checkbox" name="moneycontrol" 
                                        id="moneycontrol" {{ 'checked' if qualitative_sources.moneycontrol else '' }}>
                                 <label class="form-check-label" for="moneycontrol">Moneycontrol</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_economic_times" 
+                                <input class="form-check-input" type="checkbox" name="economic_times" 
                                        id="economic_times" {{ 'checked' if qualitative_sources.economic_times else '' }}>
                                 <label class="form-check-label" for="economic_times">Economic Times</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_nse_india" 
+                                <input class="form-check-input" type="checkbox" name="nse_india" 
                                        id="nse_india" {{ 'checked' if qualitative_sources.nse_india else '' }}>
                                 <label class="form-check-label" for="nse_india">NSE India</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_bse_india" 
+                                <input class="form-check-input" type="checkbox" name="bse_india" 
                                        id="bse_india" {{ 'checked' if qualitative_sources.bse_india else '' }}>
                                 <label class="form-check-label" for="bse_india">BSE India</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_screener" 
+                                <input class="form-check-input" type="checkbox" name="screener" 
                                        id="screener" {{ 'checked' if qualitative_sources.screener else '' }}>
                                 <label class="form-check-label" for="screener">Screener.in</label>
                             </div>
                         </div>
                         <div class="col-6 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="source_glassdoor" 
+                                <input class="form-check-input" type="checkbox" name="glassdoor" 
                                        id="glassdoor" {{ 'checked' if qualitative_sources.glassdoor else '' }}>
                                 <label class="form-check-label" for="glassdoor">Glassdoor</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="zerodha_varsity" 
+                                       id="zerodha_varsity" {{ 'checked' if qualitative_sources.zerodha_varsity else '' }}>
+                                <label class="form-check-label" for="zerodha_varsity">Zerodha Varsity</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="investing_com" 
+                                       id="investing_com" {{ 'checked' if qualitative_sources.investing_com else '' }}>
+                                <label class="form-check-label" for="investing_com">Investing.com</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="stockedge" 
+                                       id="stockedge" {{ 'checked' if qualitative_sources.stockedge else '' }}>
+                                <label class="form-check-label" for="stockedge">StockEdge</label>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="groww" 
+                                       id="groww" {{ 'checked' if qualitative_sources.groww else '' }}>
+                                <label class="form-check-label" for="groww">Groww</label>
                             </div>
                         </div>
                     </div>

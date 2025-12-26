@@ -71,6 +71,124 @@
         </div>
     </div>
     
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="fas fa-brain me-2 text-primary"></i>
+                            I-Score Analysis
+                        </h5>
+                        <span class="badge bg-info">AI-Powered Research</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {% set plan_value = current_user.pricing_plan.value if current_user.pricing_plan.value is defined else current_user.pricing_plan %}
+                    {% if plan_value == 'free' %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-lock fa-2x text-muted mb-3"></i>
+                        <h6 class="fw-semibold">Upgrade for I-Score Analysis</h6>
+                        <p class="text-muted small mb-3">Get AI-powered Intelli Score for any {{ asset.name|lower }}.</p>
+                        <a href="{{ url_for('pricing') }}" class="btn btn-sm btn-primary">Upgrade Now</a>
+                    </div>
+                    {% else %}
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Enter Symbol</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="iscoreSymbol" 
+                                           placeholder="e.g., RELIANCE, NIFTY" style="text-transform: uppercase;">
+                                    <button class="btn btn-primary" type="button" id="analyzeBtn" onclick="analyzeSymbol()">
+                                        <i class="fas fa-search me-1"></i> Analyze
+                                    </button>
+                                </div>
+                                <small class="text-muted">Enter a {{ asset.name|lower }} symbol for I-Score analysis</small>
+                            </div>
+                            
+                            <div class="alert alert-light border mb-0" id="iscoreInfo">
+                                <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2 text-primary"></i>What is I-Score?</h6>
+                                <p class="small text-muted mb-2">
+                                    I-Score (Intelli Score) is our AI-powered rating system that analyzes:
+                                </p>
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Qualitative Sentiment (15%)</strong>: News, social media, annual reports</li>
+                                    <li><strong>Quantitative Sentiment (50%)</strong>: RSI, SuperTrend, EMA indicators</li>
+                                    <li><strong>Search Sentiment (10%)</strong>: Google Trends, Perplexity search</li>
+                                    <li><strong>Trend Analysis (25%)</strong>: Open Interest, PCR, VIX</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-7">
+                            <div id="iscoreLoading" style="display: none;" class="text-center py-5">
+                                <div class="spinner-border text-primary mb-3" role="status"></div>
+                                <p class="text-muted">Analyzing <span id="loadingSymbol"></span>...</p>
+                                <small class="text-muted">Running LangGraph AI workflow</small>
+                            </div>
+                            
+                            <div id="iscoreResult" style="display: none;">
+                                <div class="text-center mb-4">
+                                    <h6 class="text-muted mb-2">I-Score for <span id="resultSymbol" class="fw-bold"></span></h6>
+                                    <div class="iscore-circle mx-auto mb-3" id="iscoreCircle">
+                                        <svg width="160" height="160" viewBox="0 0 160 160">
+                                            <circle cx="80" cy="80" r="70" fill="none" stroke="#e9ecef" stroke-width="12"/>
+                                            <circle id="iscoreArc" cx="80" cy="80" r="70" fill="none" stroke="#4299e1" stroke-width="12"
+                                                    stroke-linecap="round" stroke-dasharray="440" stroke-dashoffset="440"
+                                                    transform="rotate(-90 80 80)"/>
+                                            <text x="80" y="75" text-anchor="middle" font-size="36" font-weight="bold" fill="#1a202c" id="iscoreValue">--</text>
+                                            <text x="80" y="100" text-anchor="middle" font-size="14" fill="#718096">/100</text>
+                                        </svg>
+                                    </div>
+                                    <div id="recommendationBadge" class="mb-2"></div>
+                                    <p class="text-muted small mb-0" id="resultSummary"></p>
+                                </div>
+                                
+                                <div class="row g-2" id="componentScores">
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-light rounded text-center">
+                                            <small class="text-muted d-block">Qualitative</small>
+                                            <span class="fw-bold" id="qualScore">--</span>
+                                            <small class="text-muted">/100</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-light rounded text-center">
+                                            <small class="text-muted d-block">Quantitative</small>
+                                            <span class="fw-bold" id="quantScore">--</span>
+                                            <small class="text-muted">/100</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-light rounded text-center">
+                                            <small class="text-muted d-block">Search</small>
+                                            <span class="fw-bold" id="searchScore">--</span>
+                                            <small class="text-muted">/100</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="p-2 bg-light rounded text-center">
+                                            <small class="text-muted d-block">Trend</small>
+                                            <span class="fw-bold" id="trendScore">--</span>
+                                            <small class="text-muted">/100</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="iscoreError" style="display: none;" class="text-center py-4">
+                                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                <p class="text-muted mb-0" id="errorMessage">Analysis failed</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="row g-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
@@ -254,6 +372,8 @@
 </style>
 
 <script>
+const ASSET_KEY = '{{ asset_key }}';
+
 document.addEventListener('DOMContentLoaded', function() {
     const statusBadge = document.getElementById('marketStatus');
     const now = new Date();
@@ -272,6 +392,107 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         statusBadge.textContent = 'Closed';
     }
+    
+    const symbolInput = document.getElementById('iscoreSymbol');
+    if (symbolInput) {
+        symbolInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeSymbol();
+            }
+        });
+    }
 });
+
+function analyzeSymbol() {
+    const symbolInput = document.getElementById('iscoreSymbol');
+    const symbol = symbolInput.value.toUpperCase().trim();
+    
+    if (!symbol) {
+        alert('Please enter a symbol to analyze');
+        return;
+    }
+    
+    document.getElementById('iscoreInfo').style.display = 'none';
+    document.getElementById('iscoreResult').style.display = 'none';
+    document.getElementById('iscoreError').style.display = 'none';
+    document.getElementById('iscoreLoading').style.display = 'block';
+    document.getElementById('loadingSymbol').textContent = symbol;
+    document.getElementById('analyzeBtn').disabled = true;
+    
+    fetch('/api/research/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            symbol: symbol,
+            asset_type: ASSET_KEY
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('iscoreLoading').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = false;
+        
+        if (data.success) {
+            displayIScoreResult(data);
+        } else {
+            document.getElementById('iscoreError').style.display = 'block';
+            document.getElementById('errorMessage').textContent = data.error || 'Analysis failed';
+        }
+    })
+    .catch(error => {
+        document.getElementById('iscoreLoading').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('iscoreError').style.display = 'block';
+        document.getElementById('errorMessage').textContent = 'Network error. Please try again.';
+        console.error('I-Score analysis error:', error);
+    });
+}
+
+function displayIScoreResult(data) {
+    document.getElementById('iscoreResult').style.display = 'block';
+    document.getElementById('resultSymbol').textContent = data.symbol;
+    
+    const iscore = Math.round(data.iscore || 0);
+    document.getElementById('iscoreValue').textContent = iscore;
+    
+    const arc = document.getElementById('iscoreArc');
+    const circumference = 2 * Math.PI * 70;
+    const offset = circumference - (iscore / 100) * circumference;
+    arc.style.transition = 'stroke-dashoffset 1s ease-out, stroke 0.5s';
+    arc.setAttribute('stroke-dashoffset', offset);
+    
+    let arcColor = '#4299e1';
+    if (iscore >= 80) arcColor = '#38a169';
+    else if (iscore >= 65) arcColor = '#3182ce';
+    else if (iscore >= 45) arcColor = '#ecc94b';
+    else if (iscore >= 30) arcColor = '#ed8936';
+    else arcColor = '#e53e3e';
+    arc.setAttribute('stroke', arcColor);
+    
+    const recommendation = data.recommendation || 'INCONCLUSIVE';
+    const badgeContainer = document.getElementById('recommendationBadge');
+    let badgeClass = 'bg-secondary';
+    let badgeText = recommendation.replace(/_/g, ' ');
+    
+    switch(recommendation) {
+        case 'STRONG_BUY': badgeClass = 'bg-success'; break;
+        case 'BUY': badgeClass = 'bg-primary'; break;
+        case 'HOLD': badgeClass = 'bg-warning text-dark'; break;
+        case 'CAUTIONARY_SELL': badgeClass = 'bg-orange'; break;
+        case 'STRONG_SELL': badgeClass = 'bg-danger'; break;
+    }
+    badgeContainer.innerHTML = `<span class="badge ${badgeClass} px-3 py-2">${badgeText}</span>`;
+    
+    document.getElementById('resultSummary').textContent = data.summary || '';
+    
+    if (data.components) {
+        document.getElementById('qualScore').textContent = Math.round(data.components.qualitative?.score || 0);
+        document.getElementById('quantScore').textContent = Math.round(data.components.quantitative?.score || 0);
+        document.getElementById('searchScore').textContent = Math.round(data.components.search?.score || 0);
+        document.getElementById('trendScore').textContent = Math.round(data.components.trend?.score || 0);
+    }
+}
 </script>
 {% endblock %}
