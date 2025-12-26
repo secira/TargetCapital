@@ -125,7 +125,7 @@ def get_signals_for_asset(signal_type):
         return []
     
     signals = TradingSignal.query.filter(
-        TradingSignal.is_active == True,
+        TradingSignal.status == 'ACTIVE',
         TradingSignal.signal_type == signal_type,
         db.or_(
             TradingSignal.expires_at.is_(None),
