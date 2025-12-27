@@ -106,10 +106,14 @@ class LangGraphIScoreEngine:
         workflow = StateGraph(IScoreState)
         
         workflow.add_node("check_cache", self.check_cache)
+        workflow.add_node("route_asset_type", self.route_asset_type)
         workflow.add_node("qualitative_analysis", self.qualitative_analysis)
         workflow.add_node("quantitative_analysis", self.quantitative_analysis)
         workflow.add_node("search_sentiment", self.search_sentiment)
         workflow.add_node("trend_analysis", self.trend_analysis)
+        workflow.add_node("qualitative_analysis_mf", self.qualitative_analysis_mf)
+        workflow.add_node("quantitative_analysis_mf", self.quantitative_analysis_mf)
+        workflow.add_node("trend_analysis_mf", self.trend_analysis_mf)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
         
@@ -120,14 +124,32 @@ class LangGraphIScoreEngine:
             self._should_compute,
             {
                 "cached": "store_results",
-                "compute": "qualitative_analysis"
+                "compute": "route_asset_type"
+            }
+        )
+        
+        workflow.add_conditional_edges(
+            "route_asset_type",
+            self._get_asset_route,
+            {
+                "mutual_funds": "qualitative_analysis_mf",
+                "stocks": "qualitative_analysis"
             }
         )
         
         workflow.add_edge("qualitative_analysis", "quantitative_analysis")
         workflow.add_edge("quantitative_analysis", "search_sentiment")
-        workflow.add_edge("search_sentiment", "trend_analysis")
         workflow.add_edge("trend_analysis", "aggregate_scores")
+        
+        workflow.add_edge("qualitative_analysis_mf", "quantitative_analysis_mf")
+        workflow.add_edge("quantitative_analysis_mf", "search_sentiment_mf")
+        workflow.add_edge("trend_analysis_mf", "aggregate_scores")
+        
+        workflow.add_node("search_sentiment_mf", self.search_sentiment)
+        
+        workflow.add_edge("search_sentiment", "trend_analysis")
+        workflow.add_edge("search_sentiment_mf", "trend_analysis_mf")
+        
         workflow.add_edge("aggregate_scores", "store_results")
         workflow.add_edge("store_results", END)
         
@@ -138,6 +160,26 @@ class LangGraphIScoreEngine:
         if state.get("cache_hit") and state.get("cached_result"):
             return "cached"
         return "compute"
+    
+    def _get_asset_route(self, state: IScoreState) -> str:
+        """Route to appropriate analysis based on asset type"""
+        asset_type = state.get('asset_type', 'stocks')
+        if asset_type in ['mutual_funds', 'mutual-funds', 'mf']:
+            return "mutual_funds"
+        return "stocks"
+    
+    def _get_trend_route(self, state: IScoreState) -> str:
+        """Route to appropriate trend analysis based on asset type"""
+        asset_type = state.get('asset_type', 'stocks')
+        if asset_type in ['mutual_funds', 'mutual-funds', 'mf']:
+            return "mutual_funds"
+        return "stocks"
+    
+    def route_asset_type(self, state: IScoreState) -> Dict:
+        """Node to route based on asset type"""
+        asset_type = state.get('asset_type', 'stocks')
+        logger.info(f"I-Score Router: Routing {state['symbol']} as {asset_type}")
+        return {'step': f'routing_to_{asset_type}'}
     
     def _generate_cache_key(self, asset_type: str, symbol: str, analysis_date: date) -> str:
         """Generate cache key for this analysis"""
@@ -676,6 +718,259 @@ class LangGraphIScoreEngine:
             'trend_confidence': 0.3,
             'step': 'trend_fallback'
         }
+    
+    # ==================== MUTUAL FUND ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_mf(self, state: IScoreState) -> Dict:
+        """Mutual Fund Qualitative Analysis (15% weight) - Fund House, Manager, Expense Ratio"""
+        logger.info(f"I-Score MF Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.mfapi_service import mfapi_service
+            fund_data = mfapi_service.analyze_for_iscore(symbol)
+            
+            if fund_data.get('success'):
+                fund_house = fund_data.get('fund_house', '')
+                fund_age = fund_data.get('fund_age_years', 0)
+                category = fund_data.get('scheme_category', '')
+                
+                score = 50
+                
+                top_amcs = ['HDFC', 'ICICI', 'SBI', 'Nippon', 'Axis', 'Kotak', 'Aditya Birla', 'UTI', 'Franklin', 'DSP']
+                if any(amc.lower() in fund_house.lower() for amc in top_amcs):
+                    score += 15
+                
+                if fund_age >= 10:
+                    score += 20
+                elif fund_age >= 5:
+                    score += 15
+                elif fund_age >= 3:
+                    score += 10
+                elif fund_age >= 1:
+                    score += 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'AMFI Data', 'type': 'regulatory', 'coverage': f'Fund House: {fund_house}'},
+                    {'name': 'Fund Age', 'type': 'track_record', 'coverage': f'Age: {fund_age} years'},
+                    {'name': 'Category', 'type': 'classification', 'coverage': category}
+                ]
+                
+                reasoning = f"Fund managed by {fund_house} with {fund_age} years track record. Category: {category}. Qualitative score based on AMC reputation and fund maturity."
+                
+                return {
+                    'qualitative_score': score,
+                    'qualitative_details': {
+                        'fund_house': fund_house,
+                        'fund_age_years': fund_age,
+                        'category': category,
+                        'scheme_name': fund_data.get('scheme_name', '')
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.8,
+                    'asset_name': fund_data.get('scheme_name', symbol),
+                    'step': 'mf_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"MF Qualitative analysis error: {e}")
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Fund data unavailable'},
+            'qualitative_sources': [{'name': 'MFapi', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Qualitative analysis unavailable for this fund',
+            'qualitative_confidence': 0.3,
+            'step': 'mf_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_mf(self, state: IScoreState) -> Dict:
+        """Mutual Fund Quantitative Analysis (50% weight) - Returns, CAGR, NAV, Risk Metrics"""
+        logger.info(f"I-Score MF Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.mfapi_service import mfapi_service
+            fund_data = mfapi_service.analyze_for_iscore(symbol)
+            
+            if fund_data.get('success'):
+                current_nav = fund_data.get('current_nav', 0)
+                nav_date = fund_data.get('nav_date', '')
+                returns = fund_data.get('returns', {})
+                cagr = fund_data.get('cagr', {})
+                risk_metrics = fund_data.get('risk_metrics', {})
+                
+                score = 50
+                
+                return_3y = returns.get('3y', 0) or 0
+                cagr_3y = cagr.get('3y', 0) or 0
+                
+                if cagr_3y >= 25:
+                    score += 30
+                elif cagr_3y >= 20:
+                    score += 25
+                elif cagr_3y >= 15:
+                    score += 20
+                elif cagr_3y >= 10:
+                    score += 10
+                elif cagr_3y >= 5:
+                    score += 5
+                elif cagr_3y < 0:
+                    score -= 15
+                
+                sharpe = risk_metrics.get('sharpe_ratio', 0) or 0
+                if sharpe >= 1.5:
+                    score += 15
+                elif sharpe >= 1.0:
+                    score += 10
+                elif sharpe >= 0.5:
+                    score += 5
+                elif sharpe < 0:
+                    score -= 10
+                
+                volatility = risk_metrics.get('volatility', 20) or 20
+                if volatility < 15:
+                    score += 5
+                elif volatility > 25:
+                    score -= 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'MFapi.in', 'type': 'nav_data', 'coverage': f'Current NAV: ₹{current_nav:.2f} ({nav_date})'},
+                    {'name': 'Returns Analysis', 'type': 'performance', 'coverage': f'3Y CAGR: {cagr_3y:.1f}%'},
+                    {'name': 'Risk Metrics', 'type': 'risk', 'coverage': f'Sharpe Ratio: {sharpe:.2f}, Volatility: {volatility:.1f}%'}
+                ]
+                
+                reasoning = f"NAV at ₹{current_nav:.2f}. 3-Year CAGR of {cagr_3y:.1f}% indicates {'strong' if cagr_3y > 15 else 'moderate' if cagr_3y > 5 else 'weak'} performance. Sharpe ratio of {sharpe:.2f} shows {'excellent' if sharpe > 1 else 'good' if sharpe > 0.5 else 'poor'} risk-adjusted returns."
+                
+                return {
+                    'current_price': current_nav,
+                    'previous_close': current_nav * 0.999,
+                    'price_change_pct': returns.get('1w', 0) or 0,
+                    'market_status': 'live',
+                    'quantitative_score': score,
+                    'quantitative_details': {
+                        'nav': {
+                            'current': current_nav,
+                            'date': nav_date
+                        },
+                        'returns': returns,
+                        'cagr': cagr,
+                        'risk_metrics': risk_metrics,
+                        'price_data': {
+                            'current': current_nav,
+                            'previous_close': current_nav * 0.999,
+                            'change_pct': returns.get('1w', 0) or 0
+                        }
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.85,
+                    'step': 'mf_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"MF Quantitative analysis error: {e}")
+        
+        return {
+            'current_price': 0,
+            'previous_close': 0,
+            'price_change_pct': 0,
+            'market_status': 'unknown',
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'NAV data unavailable'},
+            'quantitative_sources': [{'name': 'MFapi', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Quantitative analysis unavailable',
+            'quantitative_confidence': 0.3,
+            'step': 'mf_quantitative_fallback'
+        }
+    
+    def trend_analysis_mf(self, state: IScoreState) -> Dict:
+        """Mutual Fund Trend Analysis (25% weight) - Category Performance, Recent Trends"""
+        logger.info(f"I-Score MF Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.mfapi_service import mfapi_service
+            fund_data = mfapi_service.analyze_for_iscore(symbol)
+            
+            if fund_data.get('success'):
+                returns = fund_data.get('returns', {})
+                category = fund_data.get('scheme_category', '')
+                
+                score = 50
+                
+                return_1m = returns.get('1m', 0) or 0
+                return_3m = returns.get('3m', 0) or 0
+                return_6m = returns.get('6m', 0) or 0
+                
+                if return_1m > 5:
+                    score += 20
+                elif return_1m > 2:
+                    score += 10
+                elif return_1m > 0:
+                    score += 5
+                elif return_1m < -5:
+                    score -= 15
+                elif return_1m < -2:
+                    score -= 10
+                elif return_1m < 0:
+                    score -= 5
+                
+                if return_3m > return_1m * 3:
+                    trend_direction = 'accelerating'
+                    score += 10
+                elif return_3m < return_1m * 2:
+                    trend_direction = 'decelerating'
+                    score -= 5
+                else:
+                    trend_direction = 'stable'
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'Recent Performance', 'type': 'short_term', 'coverage': f'1M: {return_1m:.1f}%, 3M: {return_3m:.1f}%'},
+                    {'name': 'Trend Direction', 'type': 'momentum', 'coverage': f'Trend: {trend_direction}'},
+                    {'name': 'Category', 'type': 'benchmark', 'coverage': category}
+                ]
+                
+                reasoning = f"Recent trend shows {return_1m:.1f}% in 1 month, {return_3m:.1f}% in 3 months. Trend is {trend_direction}. Category: {category}."
+                
+                return {
+                    'trend_score': score,
+                    'trend_details': {
+                        'recent_returns': {
+                            '1w': returns.get('1w', 0),
+                            '1m': return_1m,
+                            '3m': return_3m,
+                            '6m': return_6m
+                        },
+                        'trend_direction': trend_direction,
+                        'category': category
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'mf_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"MF Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'MFapi', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'mf_trend_fallback'
+        }
+    
+    # ==================== END MUTUAL FUND ANALYSIS METHODS ====================
     
     def aggregate_scores(self, state: IScoreState) -> Dict:
         """Node 6: Aggregate all component scores into I-Score"""
