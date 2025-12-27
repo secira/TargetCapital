@@ -282,11 +282,11 @@ class LangGraphIScoreEngine:
             
             Return JSON with: sentiment_score, confidence (0-1), key_findings (list), sources (list)"""
             
-            response = perplexity.search(search_query)
+            response = perplexity.research_indian_stock(symbol, 'news_sentiment')
             
-            if response and response.get('answer'):
+            if response and response.get('research_content'):
                 try:
-                    parsed = self._parse_llm_response(response['answer'], 'qualitative')
+                    parsed = self._parse_llm_response(response['research_content'], 'qualitative')
                     score = parsed.get('sentiment_score', 50)
                     confidence = parsed.get('confidence', 0.7)
                     findings = parsed.get('key_findings', [])
@@ -445,11 +445,11 @@ class LangGraphIScoreEngine:
             Provide a sentiment score from 0-100 and key insights.
             Return JSON with: search_score, trend_direction (up/down/stable), buzz_level (high/medium/low)"""
             
-            response = perplexity.search(search_query)
+            response = perplexity.research_indian_stock(symbol, 'news_sentiment')
             
-            if response and response.get('answer'):
+            if response and response.get('research_content'):
                 try:
-                    parsed = self._parse_llm_response(response['answer'], 'search')
+                    parsed = self._parse_llm_response(response['research_content'], 'search')
                     score = parsed.get('search_score', 50)
                     trend = parsed.get('trend_direction', 'stable')
                     buzz = parsed.get('buzz_level', 'medium')
