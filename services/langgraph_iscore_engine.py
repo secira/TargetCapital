@@ -127,6 +127,14 @@ class LangGraphIScoreEngine:
         workflow.add_node("quantitative_analysis_currency", self.quantitative_analysis_currency)
         workflow.add_node("search_sentiment_currency", self.search_sentiment_currency)
         workflow.add_node("trend_analysis_currency", self.trend_analysis_currency)
+        workflow.add_node("qualitative_analysis_options", self.qualitative_analysis_options)
+        workflow.add_node("quantitative_analysis_options", self.quantitative_analysis_options)
+        workflow.add_node("search_sentiment_options", self.search_sentiment_options)
+        workflow.add_node("trend_analysis_options", self.trend_analysis_options)
+        workflow.add_node("qualitative_analysis_futures", self.qualitative_analysis_futures)
+        workflow.add_node("quantitative_analysis_futures", self.quantitative_analysis_futures)
+        workflow.add_node("search_sentiment_futures", self.search_sentiment_futures)
+        workflow.add_node("trend_analysis_futures", self.trend_analysis_futures)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
         
@@ -149,6 +157,8 @@ class LangGraphIScoreEngine:
                 "bonds": "qualitative_analysis_bond",
                 "commodities": "qualitative_analysis_commodity",
                 "currency": "qualitative_analysis_currency",
+                "options": "qualitative_analysis_options",
+                "futures": "qualitative_analysis_futures",
                 "stocks": "qualitative_analysis"
             }
         )
@@ -178,6 +188,16 @@ class LangGraphIScoreEngine:
         workflow.add_edge("search_sentiment_currency", "trend_analysis_currency")
         workflow.add_edge("trend_analysis_currency", "aggregate_scores")
         
+        workflow.add_edge("qualitative_analysis_options", "quantitative_analysis_options")
+        workflow.add_edge("quantitative_analysis_options", "search_sentiment_options")
+        workflow.add_edge("search_sentiment_options", "trend_analysis_options")
+        workflow.add_edge("trend_analysis_options", "aggregate_scores")
+        
+        workflow.add_edge("qualitative_analysis_futures", "quantitative_analysis_futures")
+        workflow.add_edge("quantitative_analysis_futures", "search_sentiment_futures")
+        workflow.add_edge("search_sentiment_futures", "trend_analysis_futures")
+        workflow.add_edge("trend_analysis_futures", "aggregate_scores")
+        
         workflow.add_edge("aggregate_scores", "store_results")
         workflow.add_edge("store_results", END)
         
@@ -200,6 +220,10 @@ class LangGraphIScoreEngine:
             return "commodities"
         if asset_type in ['currency', 'forex', 'fx']:
             return "currency"
+        if asset_type in ['options', 'option']:
+            return "options"
+        if asset_type in ['futures', 'future']:
+            return "futures"
         return "stocks"
     
     def _get_trend_route(self, state: IScoreState) -> str:
@@ -1920,6 +1944,669 @@ class LangGraphIScoreEngine:
         }
     
     # ==================== END CURRENCY ANALYSIS METHODS ====================
+    
+    # ==================== OPTIONS ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_options(self, state: IScoreState) -> Dict:
+        """Options Qualitative Analysis (15% weight) - IV percentile, PCR sentiment, Max Pain"""
+        logger.info(f"I-Score Options Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.options_service import options_service
+            options_data = options_service.analyze_for_iscore(symbol)
+            
+            if options_data.get('success'):
+                iv_percentile = options_data.get('iv_percentile', 50)
+                pcr_oi = options_data.get('pcr_oi', 1.0)
+                max_pain = options_data.get('max_pain', 0)
+                spot = options_data.get('spot_price', 0)
+                trend = options_data.get('trend', 'neutral')
+                
+                if pcr_oi > 1.2:
+                    pcr_sentiment = 'bearish'
+                    sentiment_adj = -5
+                elif pcr_oi < 0.8:
+                    pcr_sentiment = 'bullish'
+                    sentiment_adj = 5
+                else:
+                    pcr_sentiment = 'neutral'
+                    sentiment_adj = 0
+                
+                if iv_percentile > 80:
+                    iv_view = 'overvalued'
+                    iv_adj = -8
+                elif iv_percentile < 20:
+                    iv_view = 'undervalued'
+                    iv_adj = 8
+                else:
+                    iv_view = 'fair'
+                    iv_adj = 0
+                
+                max_pain_diff = ((spot - max_pain) / max_pain * 100) if max_pain else 0
+                if abs(max_pain_diff) < 1:
+                    mp_view = 'at_max_pain'
+                    mp_adj = 0
+                elif max_pain_diff > 2:
+                    mp_view = 'above_max_pain'
+                    mp_adj = -3
+                else:
+                    mp_view = 'below_max_pain'
+                    mp_adj = 3
+                
+                base_score = 55 if trend == 'bullish' else (45 if trend == 'bearish' else 50)
+                score = base_score + sentiment_adj + iv_adj + mp_adj
+                
+                sources_list = [
+                    {'name': 'Option Chain', 'type': 'derivatives', 'coverage': f'PCR OI: {pcr_oi:.2f}'},
+                    {'name': 'Implied Volatility', 'type': 'volatility', 'coverage': f'IV Percentile: {iv_percentile}%'},
+                    {'name': 'Max Pain', 'type': 'analysis', 'coverage': f'Max Pain: {max_pain}'}
+                ]
+                
+                reasoning = f"Options sentiment is {pcr_sentiment} (PCR: {pcr_oi:.2f}). IV is {iv_view} at {iv_percentile}th percentile. Spot is {mp_view.replace('_', ' ')}."
+                
+                return {
+                    'qualitative_score': min(100, max(0, score)),
+                    'qualitative_details': {
+                        'pcr_oi': pcr_oi,
+                        'pcr_sentiment': pcr_sentiment,
+                        'iv_percentile': iv_percentile,
+                        'iv_view': iv_view,
+                        'max_pain': max_pain,
+                        'max_pain_diff': round(max_pain_diff, 2),
+                        'trend': trend
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.8,
+                    'step': 'options_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Options qualitative analysis error: {e}", exc_info=True)
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Options data unavailable'},
+            'qualitative_sources': [{'name': 'Options Chain', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Default score due to data unavailability',
+            'qualitative_confidence': 0.3,
+            'step': 'options_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_options(self, state: IScoreState) -> Dict:
+        """Options Quantitative Analysis (50% weight) - Greeks, OI, Volume"""
+        logger.info(f"I-Score Options Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.options_service import options_service
+            options_data = options_service.analyze_for_iscore(symbol)
+            
+            if options_data.get('success'):
+                atm_iv = options_data.get('atm_iv', 15)
+                avg_iv = options_data.get('avg_iv', 15)
+                total_call_oi = options_data.get('total_call_oi', 0)
+                total_put_oi = options_data.get('total_put_oi', 0)
+                pcr_volume = options_data.get('pcr_volume', 1.0)
+                spot = options_data.get('spot_price', 0)
+                change_pct = options_data.get('price_change_pct', 0)
+                
+                option_chain = options_data.get('option_chain', {})
+                avg_delta = 0
+                avg_gamma = 0
+                avg_theta = 0
+                avg_vega = 0
+                count = 0
+                
+                for key, opt in option_chain.items():
+                    avg_delta += abs(opt.get('delta', 0))
+                    avg_gamma += opt.get('gamma', 0)
+                    avg_theta += opt.get('theta', 0)
+                    avg_vega += opt.get('vega', 0)
+                    count += 1
+                
+                if count:
+                    avg_delta /= count
+                    avg_gamma /= count
+                    avg_theta /= count
+                    avg_vega /= count
+                
+                iv_score = 50
+                if atm_iv < 12:
+                    iv_score = 65
+                elif atm_iv > 25:
+                    iv_score = 35
+                
+                if avg_gamma > 0.0015:
+                    gamma_signal = 'high_gamma'
+                    gamma_adj = 5
+                else:
+                    gamma_signal = 'normal_gamma'
+                    gamma_adj = 0
+                
+                momentum_score = 50 + (change_pct * 3)
+                momentum_score = min(80, max(20, momentum_score))
+                
+                score = (iv_score * 0.4) + (momentum_score * 0.4) + (50 + gamma_adj) * 0.2
+                
+                sources_list = [
+                    {'name': 'Greeks Analysis', 'type': 'technical', 'coverage': f'Delta: {avg_delta:.3f}, Gamma: {avg_gamma:.4f}'},
+                    {'name': 'IV Analysis', 'type': 'volatility', 'coverage': f'ATM IV: {atm_iv}%, Avg IV: {avg_iv}%'},
+                    {'name': 'OI Data', 'type': 'volume', 'coverage': f'Call OI: {total_call_oi:,}, Put OI: {total_put_oi:,}'}
+                ]
+                
+                reasoning = f"ATM IV at {atm_iv}% with {gamma_signal}. Spot change {change_pct:+.2f}%. PCR Volume: {pcr_volume:.2f}."
+                
+                return {
+                    'quantitative_score': min(100, max(0, score)),
+                    'quantitative_details': {
+                        'atm_iv': atm_iv,
+                        'avg_iv': avg_iv,
+                        'avg_delta': round(avg_delta, 4),
+                        'avg_gamma': round(avg_gamma, 5),
+                        'avg_theta': round(avg_theta, 2),
+                        'avg_vega': round(avg_vega, 2),
+                        'total_call_oi': total_call_oi,
+                        'total_put_oi': total_put_oi,
+                        'pcr_volume': pcr_volume,
+                        'gamma_signal': gamma_signal
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.85,
+                    'step': 'options_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Options quantitative analysis error: {e}", exc_info=True)
+        
+        return {
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'Options analysis failed'},
+            'quantitative_sources': [{'name': 'Options', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Default score due to analysis failure',
+            'quantitative_confidence': 0.3,
+            'step': 'options_quantitative_fallback'
+        }
+    
+    def search_sentiment_options(self, state: IScoreState) -> Dict:
+        """Options Search Sentiment Analysis (10% weight) - Market sentiment from news/social"""
+        logger.info(f"I-Score Options Node 4: Search sentiment for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.options_service import options_service
+            options_data = options_service.analyze_for_iscore(symbol)
+            
+            if options_data.get('success'):
+                pcr_oi = options_data.get('pcr_oi', 1.0)
+                iv_percentile = options_data.get('iv_percentile', 50)
+                trend = options_data.get('trend', 'neutral')
+                
+                if pcr_oi > 1.3:
+                    sentiment = 'bearish'
+                    score = 35
+                elif pcr_oi < 0.7:
+                    sentiment = 'bullish'
+                    score = 65
+                else:
+                    sentiment = 'neutral'
+                    score = 50
+                
+                if iv_percentile > 70:
+                    fear_level = 'high'
+                    score -= 5
+                elif iv_percentile < 30:
+                    fear_level = 'low'
+                    score += 5
+                else:
+                    fear_level = 'normal'
+                
+                sources_list = [
+                    {'name': 'PCR Sentiment', 'type': 'derivatives', 'coverage': f'Sentiment: {sentiment.capitalize()}'},
+                    {'name': 'IV Fear Gauge', 'type': 'volatility', 'coverage': f'Fear Level: {fear_level.capitalize()}'}
+                ]
+                
+                reasoning = f"Options market sentiment is {sentiment} based on PCR. Fear level is {fear_level} based on IV percentile."
+                
+                return {
+                    'search_score': min(100, max(0, score)),
+                    'search_details': {
+                        'sentiment': sentiment,
+                        'fear_level': fear_level,
+                        'pcr_based_sentiment': pcr_oi
+                    },
+                    'search_sources': sources_list,
+                    'search_reasoning': reasoning,
+                    'search_confidence': 0.7,
+                    'step': 'options_search_complete'
+                }
+        except Exception as e:
+            logger.error(f"Options search sentiment error: {e}", exc_info=True)
+        
+        return {
+            'search_score': 50,
+            'search_details': {'sentiment': 'neutral', 'fear_level': 'normal'},
+            'search_sources': [{'name': 'Options Data', 'type': 'sentiment', 'coverage': 'Market sentiment analysis'}],
+            'search_reasoning': 'Options sentiment is neutral',
+            'search_confidence': 0.6,
+            'step': 'options_search_complete'
+        }
+    
+    def trend_analysis_options(self, state: IScoreState) -> Dict:
+        """Options Trend Analysis (25% weight) - OI trends, IV trends, Greeks trends"""
+        logger.info(f"I-Score Options Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.options_service import options_service
+            options_data = options_service.analyze_for_iscore(symbol)
+            
+            if options_data.get('success'):
+                trend = options_data.get('trend', 'neutral')
+                pcr_oi = options_data.get('pcr_oi', 1.0)
+                iv_percentile = options_data.get('iv_percentile', 50)
+                change_pct = options_data.get('price_change_pct', 0)
+                
+                if trend == 'bullish' and pcr_oi < 0.9:
+                    trend_signal = 'strong_bullish'
+                    score = 70
+                elif trend == 'bearish' and pcr_oi > 1.1:
+                    trend_signal = 'strong_bearish'
+                    score = 30
+                elif trend == 'bullish':
+                    trend_signal = 'mild_bullish'
+                    score = 60
+                elif trend == 'bearish':
+                    trend_signal = 'mild_bearish'
+                    score = 40
+                else:
+                    trend_signal = 'neutral'
+                    score = 50
+                
+                if iv_percentile > 60:
+                    iv_trend = 'expanding'
+                    iv_outlook = 'Elevated volatility suggests caution'
+                elif iv_percentile < 40:
+                    iv_trend = 'contracting'
+                    iv_outlook = 'Low volatility may precede breakout'
+                else:
+                    iv_trend = 'stable'
+                    iv_outlook = 'Volatility is within normal range'
+                
+                sources_list = [
+                    {'name': 'Trend Analysis', 'type': 'trend', 'coverage': f'Signal: {trend_signal.replace("_", " ").title()}'},
+                    {'name': 'IV Trend', 'type': 'volatility', 'coverage': f'IV Trend: {iv_trend.capitalize()}'},
+                    {'name': 'Price Action', 'type': 'technical', 'coverage': f'Change: {change_pct:+.2f}%'}
+                ]
+                
+                reasoning = f"Options trend is {trend_signal.replace('_', ' ')}. {iv_outlook}. Price change: {change_pct:+.2f}%."
+                
+                return {
+                    'trend_score': min(100, max(0, score)),
+                    'trend_details': {
+                        'trend_signal': trend_signal,
+                        'iv_trend': iv_trend,
+                        'iv_outlook': iv_outlook,
+                        'iv_percentile': iv_percentile,
+                        'pcr_oi': pcr_oi
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'options_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"Options Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'Options', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'options_trend_fallback'
+        }
+    
+    # ==================== END OPTIONS ANALYSIS METHODS ====================
+    
+    # ==================== FUTURES ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_futures(self, state: IScoreState) -> Dict:
+        """Futures Qualitative Analysis (15% weight) - Basis, Rollover, COI Buildup"""
+        logger.info(f"I-Score Futures Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.futures_service import futures_service
+            futures_data = futures_service.analyze_for_iscore(symbol)
+            
+            if futures_data.get('success'):
+                basis = futures_data.get('basis', 0)
+                basis_pct = futures_data.get('basis_pct', 0)
+                coi_buildup = futures_data.get('coi_buildup', 'neutral')
+                rollover_cost = futures_data.get('rollover_cost', 0.1)
+                margin_required = futures_data.get('margin_required', 15)
+                trend = futures_data.get('trend', 'neutral')
+                
+                if basis_pct > 0.3:
+                    basis_view = 'contango'
+                    basis_adj = 5
+                elif basis_pct < -0.1:
+                    basis_view = 'backwardation'
+                    basis_adj = -3
+                else:
+                    basis_view = 'normal'
+                    basis_adj = 0
+                
+                if coi_buildup == 'long_buildup':
+                    coi_adj = 10
+                    coi_sentiment = 'bullish'
+                elif coi_buildup == 'short_buildup':
+                    coi_adj = -10
+                    coi_sentiment = 'bearish'
+                elif coi_buildup == 'short_covering':
+                    coi_adj = 5
+                    coi_sentiment = 'mildly_bullish'
+                elif coi_buildup == 'long_unwinding':
+                    coi_adj = -5
+                    coi_sentiment = 'mildly_bearish'
+                else:
+                    coi_adj = 0
+                    coi_sentiment = 'neutral'
+                
+                base_score = 55 if trend == 'bullish' else (45 if trend == 'bearish' else 50)
+                score = base_score + basis_adj + coi_adj
+                
+                sources_list = [
+                    {'name': 'Basis Analysis', 'type': 'derivatives', 'coverage': f'Basis: {basis:+.2f} ({basis_view})'},
+                    {'name': 'COI Analysis', 'type': 'oi', 'coverage': f'Buildup: {coi_buildup.replace("_", " ").title()}'},
+                    {'name': 'Rollover', 'type': 'cost', 'coverage': f'Rollover Cost: {rollover_cost}%'}
+                ]
+                
+                reasoning = f"Futures showing {basis_view} with {basis:+.2f} basis. COI indicates {coi_sentiment.replace('_', ' ')} sentiment. Rollover cost at {rollover_cost}%."
+                
+                return {
+                    'qualitative_score': min(100, max(0, score)),
+                    'qualitative_details': {
+                        'basis': basis,
+                        'basis_pct': basis_pct,
+                        'basis_view': basis_view,
+                        'coi_buildup': coi_buildup,
+                        'coi_sentiment': coi_sentiment,
+                        'rollover_cost': rollover_cost,
+                        'margin_required': margin_required
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.8,
+                    'step': 'futures_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Futures qualitative analysis error: {e}", exc_info=True)
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Futures data unavailable'},
+            'qualitative_sources': [{'name': 'Futures', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Default score due to data unavailability',
+            'qualitative_confidence': 0.3,
+            'step': 'futures_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_futures(self, state: IScoreState) -> Dict:
+        """Futures Quantitative Analysis (50% weight) - Price, OI, Volume, Technical Levels"""
+        logger.info(f"I-Score Futures Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.futures_service import futures_service
+            futures_data = futures_service.analyze_for_iscore(symbol)
+            
+            if futures_data.get('success'):
+                current_price = futures_data.get('current_price', 0)
+                change_pct = futures_data.get('price_change_pct', 0)
+                oi = futures_data.get('open_interest', 0)
+                oi_change_pct = futures_data.get('oi_change_pct', 0)
+                volume = futures_data.get('volume', 0)
+                support_levels = futures_data.get('support_levels', [])
+                resistance_levels = futures_data.get('resistance_levels', [])
+                day_high = futures_data.get('day_high', 0)
+                day_low = futures_data.get('day_low', 0)
+                
+                momentum_score = 50 + (change_pct * 5)
+                momentum_score = min(80, max(20, momentum_score))
+                
+                if oi_change_pct > 5:
+                    oi_signal = 'significant_oi_addition'
+                    oi_adj = 8
+                elif oi_change_pct < -5:
+                    oi_signal = 'significant_oi_reduction'
+                    oi_adj = -5
+                else:
+                    oi_signal = 'normal_oi_change'
+                    oi_adj = 0
+                
+                if support_levels and current_price:
+                    nearest_support = min(support_levels, key=lambda x: abs(current_price - x))
+                    support_distance = ((current_price - nearest_support) / current_price) * 100
+                else:
+                    support_distance = 0
+                
+                if resistance_levels and current_price:
+                    nearest_resistance = min(resistance_levels, key=lambda x: abs(current_price - x))
+                    resistance_distance = ((nearest_resistance - current_price) / current_price) * 100
+                else:
+                    resistance_distance = 0
+                
+                if support_distance < 0.5 and resistance_distance > 1:
+                    level_position = 'near_support'
+                    level_adj = 5
+                elif resistance_distance < 0.5 and support_distance > 1:
+                    level_position = 'near_resistance'
+                    level_adj = -3
+                else:
+                    level_position = 'between_levels'
+                    level_adj = 0
+                
+                score = (momentum_score * 0.5) + (50 + oi_adj) * 0.3 + (50 + level_adj) * 0.2
+                
+                sources_list = [
+                    {'name': 'Price Action', 'type': 'technical', 'coverage': f'Price: {current_price:,.2f} ({change_pct:+.2f}%)'},
+                    {'name': 'OI Analysis', 'type': 'oi', 'coverage': f'OI: {oi:,} ({oi_change_pct:+.1f}%)'},
+                    {'name': 'Technical Levels', 'type': 'support_resistance', 'coverage': f'Position: {level_position.replace("_", " ").title()}'}
+                ]
+                
+                reasoning = f"Price at {current_price:,.2f} with {change_pct:+.2f}% change. {oi_signal.replace('_', ' ').title()}. Currently {level_position.replace('_', ' ')}."
+                
+                return {
+                    'quantitative_score': min(100, max(0, score)),
+                    'quantitative_details': {
+                        'current_price': current_price,
+                        'price_change_pct': change_pct,
+                        'day_high': day_high,
+                        'day_low': day_low,
+                        'open_interest': oi,
+                        'oi_change_pct': oi_change_pct,
+                        'oi_signal': oi_signal,
+                        'volume': volume,
+                        'support_levels': support_levels,
+                        'resistance_levels': resistance_levels,
+                        'level_position': level_position
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.85,
+                    'step': 'futures_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Futures quantitative analysis error: {e}", exc_info=True)
+        
+        return {
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'Futures analysis failed'},
+            'quantitative_sources': [{'name': 'Futures', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Default score due to analysis failure',
+            'quantitative_confidence': 0.3,
+            'step': 'futures_quantitative_fallback'
+        }
+    
+    def search_sentiment_futures(self, state: IScoreState) -> Dict:
+        """Futures Search Sentiment Analysis (10% weight) - Market sentiment"""
+        logger.info(f"I-Score Futures Node 4: Search sentiment for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.futures_service import futures_service
+            futures_data = futures_service.analyze_for_iscore(symbol)
+            
+            if futures_data.get('success'):
+                coi_buildup = futures_data.get('coi_buildup', 'neutral')
+                trend = futures_data.get('trend', 'neutral')
+                oi_change_pct = futures_data.get('oi_change_pct', 0)
+                
+                if coi_buildup in ['long_buildup', 'short_covering'] and trend == 'bullish':
+                    sentiment = 'bullish'
+                    score = 65
+                elif coi_buildup in ['short_buildup', 'long_unwinding'] and trend == 'bearish':
+                    sentiment = 'bearish'
+                    score = 35
+                elif coi_buildup == 'long_buildup':
+                    sentiment = 'mildly_bullish'
+                    score = 58
+                elif coi_buildup == 'short_buildup':
+                    sentiment = 'mildly_bearish'
+                    score = 42
+                else:
+                    sentiment = 'neutral'
+                    score = 50
+                
+                if abs(oi_change_pct) > 10:
+                    activity = 'high'
+                elif abs(oi_change_pct) > 5:
+                    activity = 'moderate'
+                else:
+                    activity = 'low'
+                
+                sources_list = [
+                    {'name': 'COI Sentiment', 'type': 'derivatives', 'coverage': f'Sentiment: {sentiment.replace("_", " ").title()}'},
+                    {'name': 'Activity Level', 'type': 'volume', 'coverage': f'Activity: {activity.capitalize()}'}
+                ]
+                
+                reasoning = f"Futures market sentiment is {sentiment.replace('_', ' ')} based on COI buildup. Trading activity is {activity}."
+                
+                return {
+                    'search_score': min(100, max(0, score)),
+                    'search_details': {
+                        'sentiment': sentiment,
+                        'activity_level': activity,
+                        'coi_buildup': coi_buildup
+                    },
+                    'search_sources': sources_list,
+                    'search_reasoning': reasoning,
+                    'search_confidence': 0.7,
+                    'step': 'futures_search_complete'
+                }
+        except Exception as e:
+            logger.error(f"Futures search sentiment error: {e}", exc_info=True)
+        
+        return {
+            'search_score': 50,
+            'search_details': {'sentiment': 'neutral', 'activity_level': 'moderate'},
+            'search_sources': [{'name': 'Futures Data', 'type': 'sentiment', 'coverage': 'Market sentiment analysis'}],
+            'search_reasoning': 'Futures sentiment is neutral',
+            'search_confidence': 0.6,
+            'step': 'futures_search_complete'
+        }
+    
+    def trend_analysis_futures(self, state: IScoreState) -> Dict:
+        """Futures Trend Analysis (25% weight) - Price trend, OI trend, Expiry considerations"""
+        logger.info(f"I-Score Futures Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.futures_service import futures_service
+            futures_data = futures_service.analyze_for_iscore(symbol)
+            
+            if futures_data.get('success'):
+                trend = futures_data.get('trend', 'neutral')
+                coi_buildup = futures_data.get('coi_buildup', 'neutral')
+                days_to_expiry = futures_data.get('days_to_expiry', 30)
+                basis_pct = futures_data.get('basis_pct', 0)
+                change_pct = futures_data.get('price_change_pct', 0)
+                
+                if trend == 'bullish' and coi_buildup == 'long_buildup':
+                    trend_signal = 'strong_bullish'
+                    score = 72
+                elif trend == 'bearish' and coi_buildup == 'short_buildup':
+                    trend_signal = 'strong_bearish'
+                    score = 28
+                elif trend == 'bullish':
+                    trend_signal = 'mild_bullish'
+                    score = 60
+                elif trend == 'bearish':
+                    trend_signal = 'mild_bearish'
+                    score = 40
+                else:
+                    trend_signal = 'neutral'
+                    score = 50
+                
+                if days_to_expiry <= 3:
+                    expiry_view = 'near_expiry'
+                    expiry_note = 'Very near expiry - expect high volatility'
+                elif days_to_expiry <= 7:
+                    expiry_view = 'expiry_week'
+                    expiry_note = 'Expiry week - increased activity expected'
+                elif days_to_expiry <= 15:
+                    expiry_view = 'mid_series'
+                    expiry_note = 'Mid-series - normal trading conditions'
+                else:
+                    expiry_view = 'new_series'
+                    expiry_note = 'New series - rollover considerations apply'
+                
+                sources_list = [
+                    {'name': 'Trend Analysis', 'type': 'trend', 'coverage': f'Signal: {trend_signal.replace("_", " ").title()}'},
+                    {'name': 'COI Trend', 'type': 'oi', 'coverage': f'COI: {coi_buildup.replace("_", " ").title()}'},
+                    {'name': 'Expiry Status', 'type': 'expiry', 'coverage': f'{days_to_expiry} days to expiry'}
+                ]
+                
+                reasoning = f"Futures trend is {trend_signal.replace('_', ' ')}. {expiry_note}. Basis at {basis_pct:+.2f}%."
+                
+                return {
+                    'trend_score': min(100, max(0, score)),
+                    'trend_details': {
+                        'trend_signal': trend_signal,
+                        'coi_buildup': coi_buildup,
+                        'days_to_expiry': days_to_expiry,
+                        'expiry_view': expiry_view,
+                        'expiry_note': expiry_note,
+                        'basis_pct': basis_pct
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'futures_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"Futures Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'Futures', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'futures_trend_fallback'
+        }
+    
+    # ==================== END FUTURES ANALYSIS METHODS ====================
     
     def aggregate_scores(self, state: IScoreState) -> Dict:
         """Node 6: Aggregate all component scores into I-Score"""
