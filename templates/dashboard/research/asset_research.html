@@ -652,6 +652,37 @@ function displayIScoreResult(data) {
     currentAnalysisData = data;
     
     document.getElementById('iscoreResult').style.display = 'block';
+    
+    // Display Market Data Header
+    if (document.getElementById('assetName')) {
+        document.getElementById('assetName').textContent = data.asset_name || data.symbol;
+    }
+    if (document.getElementById('assetSymbol')) {
+        document.getElementById('assetSymbol').textContent = data.symbol;
+    }
+    
+    // Display Real-Time Price Data
+    if (data.market_data) {
+        const marketData = data.market_data;
+        const price = marketData.current_price || 0;
+        const change = marketData.change_pct || 0;
+        
+        if (document.getElementById('currentPrice')) {
+            document.getElementById('currentPrice').textContent = price > 0 ? '₹' + price.toFixed(2) : '₹--';
+        }
+        
+        if (document.getElementById('priceChange')) {
+            const changeColor = change > 0 ? 'text-success' : change < 0 ? 'text-danger' : 'text-muted';
+            const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+            document.getElementById('priceChange').innerHTML = `<span class="${changeColor}">${changeSymbol} ${Math.abs(change).toFixed(2)}%</span>`;
+        }
+        
+        if (document.getElementById('dataTimestamp') && marketData.timestamp) {
+            const date = new Date(marketData.timestamp);
+            document.getElementById('dataTimestamp').textContent = 'Data as of: ' + date.toLocaleString();
+        }
+    }
+    
     document.getElementById('resultSymbol').textContent = data.symbol;
     
     const iscore = Math.round(data.iscore || 0);
