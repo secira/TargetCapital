@@ -56,11 +56,13 @@ class NSEService:
             
             quote = nse_quote(symbol)
             if quote:
-                last_price = float(quote.get('lastPrice', 0))
+                # Handle None or missing lastPrice - convert to 0
+                last_price_val = quote.get('lastPrice')
+                last_price = float(last_price_val) if last_price_val is not None else 0
                 
-                # If market is closed and we get 0 price, use last close from fallback
-                if last_price == 0 and not market_status.get('is_open', False):
-                    self.logger.info(f"Market closed, using last close price for {symbol}")
+                # If market is closed or we get 0 price, use fallback with live yfinance data
+                if last_price == 0 or last_price_val is None:
+                    self.logger.info(f"NSE API returned no price for {symbol} (market closed or unavailable), using live fallback")
                     return self._get_fallback_quote(symbol)
                 
                 # If we got a valid price, use it
@@ -514,13 +516,13 @@ class NSEService:
             },
             'INFY': {
                 'company_name': 'Infosys Limited',
-                'current_price': 1656.00,
-                'previous_close': 1652.30,
-                'day_high': 1668.50,
-                'day_low': 1648.75,
+                'current_price': 1656.10,  # Latest from yfinance (27 Dec 2025)
+                'previous_close': 1663.40,  # Previous trading day
+                'day_high': 1668.80,
+                'day_low': 1651.70,
                 'week_52_high': 1856.00,
                 'week_52_low': 1210.30,
-                'volume': 6800000,
+                'volume': 2006491,
                 'pe_ratio': 27.9
             },
             'ICICIBANK': {
