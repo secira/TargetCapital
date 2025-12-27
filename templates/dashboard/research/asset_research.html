@@ -112,12 +112,19 @@
                                 <p class="small text-muted mb-2">
                                     I-Score (Intelli Score) is our AI-powered rating system that analyzes:
                                 </p>
-                                {% if asset.key == 'mutual_funds' %}
+                                {% if asset_key == 'mutual_funds' %}
                                 <ul class="small text-muted mb-0 ps-3">
                                     <li><strong>Qualitative Analysis (15%)</strong>: Fund house, fund age, AMC reputation</li>
                                     <li><strong>Performance Analysis (50%)</strong>: NAV, CAGR, Returns, Sharpe ratio</li>
                                     <li><strong>Search Sentiment (10%)</strong>: Market trends, Perplexity search</li>
                                     <li><strong>Trend Analysis (25%)</strong>: Recent returns, category comparison</li>
+                                </ul>
+                                {% elif asset_key == 'bonds' %}
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Credit Analysis (15%)</strong>: Credit rating, issuer quality, issuer type</li>
+                                    <li><strong>Yield Analysis (50%)</strong>: YTM, current yield, duration, price</li>
+                                    <li><strong>Search Sentiment (10%)</strong>: Market trends, Perplexity search</li>
+                                    <li><strong>Market Trend (25%)</strong>: Yield curve, rate outlook, liquidity</li>
                                 </ul>
                                 {% else %}
                                 <ul class="small text-muted mb-0 ps-3">
@@ -922,7 +929,39 @@ function showComponentDetails(componentKey) {
         }
     };
     
-    const componentConfig = isMutualFund ? mfComponentConfig : stockComponentConfig;
+    const bondComponentConfig = {
+        qualitative: {
+            name: 'Credit Quality Analysis',
+            icon: 'fas fa-shield-alt',
+            description: 'Analysis of credit rating, issuer reputation, issuer type (Sovereign/PSU/Corporate), and default risk.',
+            weight: 15,
+            sources: ['NSDL BondInfo', 'Credit Ratings (CRISIL/ICRA/CARE)', 'SEBI Data', 'Issuer Classification']
+        },
+        quantitative: {
+            name: 'Yield & Price Analysis',
+            icon: 'fas fa-percentage',
+            description: 'Yield metrics including YTM, current yield, yield spread, modified duration, and bond pricing.',
+            weight: 50,
+            indicators: ['YTM', 'Current Yield', 'Clean/Dirty Price', 'Modified Duration', 'Yield Spread']
+        },
+        search: {
+            name: 'Search Sentiment Analysis',
+            icon: 'fas fa-search',
+            description: 'Real-time search trends and AI-powered market intelligence from Perplexity.',
+            weight: 10,
+            sources: ['Perplexity AI', 'Search Trends', 'Market Intelligence']
+        },
+        trend: {
+            name: 'Market Trend Analysis',
+            icon: 'fas fa-chart-area',
+            description: 'Analysis of yield curve shape, RBI rate outlook, benchmark comparisons, and liquidity.',
+            weight: 25,
+            indicators: ['Yield Curve', '10Y Benchmark', 'Rate Outlook', 'Trading Liquidity']
+        }
+    };
+    
+    const isBond = ASSET_KEY === 'bonds' || ASSET_KEY === 'bond';
+    const componentConfig = isBond ? bondComponentConfig : (isMutualFund ? mfComponentConfig : stockComponentConfig);
     
     const config = componentConfig[componentKey];
     
@@ -978,6 +1017,7 @@ function showComponentDetails(componentKey) {
 function renderComponentDetails(componentKey, details) {
     let html = '';
     const isMutualFund = ASSET_KEY === 'mutual_funds' || ASSET_KEY === 'mutual-funds';
+    const isBond = ASSET_KEY === 'bonds' || ASSET_KEY === 'bond';
     
     if (componentKey === 'qualitative') {
         if (isMutualFund && details.fund_house) {
@@ -1042,21 +1082,86 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (!isMutualFund && details.findings && details.findings.length > 0) {
+        if (isBond && details.issuer) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Issuer</strong>
+                            <small class="text-muted d-block">Bond Issuing Entity</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold">${details.issuer}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.credit_rating) {
+            const ratingScores = {'Sovereign': 100, 'AAA': 95, 'AA+': 90, 'AA': 85, 'AA-': 80, 'A+': 75, 'A': 70, 'A-': 65};
+            const ratingScore = ratingScores[details.credit_rating] || 50;
+            const ratingSentiment = ratingScore >= 85 ? 'bullish' : ratingScore >= 70 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${ratingSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Credit Rating</strong>
+                            <small class="text-muted d-block">Default Risk Assessment</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${details.credit_rating}</span>
+                            <span class="indicator-badge ${ratingSentiment} ms-2">${ratingSentiment === 'bullish' ? 'Low Risk' : ratingSentiment === 'neutral' ? 'Moderate' : 'Higher Risk'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.issuer_type) {
+            const typeSentiment = details.issuer_type === 'sovereign' ? 'bullish' : details.issuer_type === 'psu' ? 'neutral' : 'neutral';
+            html += `
+                <div class="detail-item ${typeSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Issuer Type</strong>
+                            <small class="text-muted d-block">Entity Classification</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-info">${details.issuer_type.toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.category) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Category</strong>
+                            <small class="text-muted d-block">Bond Classification</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-secondary">${details.category}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (!isMutualFund && !isBond && details.findings && details.findings.length > 0) {
             html += `<div class="mb-3"><strong>Key Findings:</strong><ul class="mb-0 mt-2">`;
             details.findings.forEach(finding => {
                 html += `<li class="mb-1">${finding}</li>`;
             });
             html += `</ul></div>`;
         }
-        if (!isMutualFund && details.sources_analyzed && details.sources_analyzed.length > 0) {
+        if (!isMutualFund && !isBond && details.sources_analyzed && details.sources_analyzed.length > 0) {
             html += `<div class="mb-3"><strong>Sources Analyzed:</strong><div class="d-flex flex-wrap gap-2 mt-2">`;
             details.sources_analyzed.forEach(source => {
                 html += `<span class="badge bg-light text-dark border">${formatDetailKey(source)}</span>`;
             });
             html += `</div></div>`;
         }
-        if (!isMutualFund && details.citations && details.citations.length > 0) {
+        if (!isMutualFund && !isBond && details.citations && details.citations.length > 0) {
             html += `<div class="mb-3"><strong>Citations:</strong><ol class="small mb-0 mt-2">`;
             details.citations.slice(0, 5).forEach(citation => {
                 html += `<li><a href="${citation}" target="_blank" class="text-primary text-truncate d-inline-block" style="max-width: 400px;">${citation}</a></li>`;
@@ -1066,6 +1171,117 @@ function renderComponentDetails(componentKey, details) {
     }
     
     else if (componentKey === 'quantitative') {
+        if (isBond && details.price) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Bond Pricing</strong>
+                            <small class="text-muted d-block">Clean Price / Dirty Price</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">₹${parseFloat(details.price.clean || 0).toFixed(2)}</span>
+                            <span class="text-muted small ms-2">/ ₹${parseFloat(details.price.dirty || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.yield) {
+            const ytm = details.yield.ytm || 0;
+            const yieldSpread = details.yield.yield_spread || 0;
+            const yieldSentiment = yieldSpread >= 1 ? 'bullish' : yieldSpread >= 0.5 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${yieldSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Yield to Maturity (YTM)</strong>
+                            <small class="text-muted d-block">Annualized Return if Held to Maturity</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-4 fw-bold">${ytm.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            html += `
+                <div class="detail-item ${yieldSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Yield Spread</strong>
+                            <small class="text-muted d-block">Over Benchmark</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${yieldSentiment}">${yieldSpread >= 0 ? '+' : ''}${yieldSpread.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (details.yield.current_yield) {
+                html += `
+                    <div class="detail-item neutral">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Current Yield</strong>
+                                <small class="text-muted d-block">Annual Coupon / Price</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold">${details.yield.current_yield.toFixed(2)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            if (details.yield.coupon_rate) {
+                html += `
+                    <div class="detail-item neutral">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Coupon Rate</strong>
+                                <small class="text-muted d-block">Annual Interest Payment</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold">${details.yield.coupon_rate.toFixed(2)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        if (isBond && details.duration) {
+            const duration = details.duration.modified_duration || 0;
+            const durationRisk = details.duration.duration_risk || 'Moderate';
+            const durationSentiment = durationRisk === 'Low' ? 'bullish' : durationRisk === 'Moderate' ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${durationSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Modified Duration</strong>
+                            <small class="text-muted d-block">Interest Rate Sensitivity</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${duration.toFixed(1)}</span>
+                            <span class="indicator-badge ${durationSentiment} ms-2">${durationRisk} Risk</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (details.duration.years_to_maturity) {
+                html += `
+                    <div class="detail-item neutral">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Time to Maturity</strong>
+                                <small class="text-muted d-block">Years Until Bond Matures</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold">${details.duration.years_to_maturity.toFixed(1)} years</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
         if (isMutualFund && details.nav) {
             html += `
                 <div class="detail-item neutral">
@@ -1296,7 +1512,87 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (!isMutualFund && details.vix) {
+        if (isBond && details.yield_curve) {
+            const curveShape = details.yield_curve.shape || 'normal';
+            const benchmark10y = details.yield_curve.benchmark_10y || 7.18;
+            const rateOutlook = details.yield_curve.rate_outlook || 'stable';
+            const curveSentiment = curveShape === 'normal' ? 'bullish' : curveShape === 'inverted' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${curveSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Yield Curve</strong>
+                            <small class="text-muted d-block">Government Bond Yield Curve Shape</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${curveSentiment}">${formatDetailKey(curveShape)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>10Y Benchmark</strong>
+                            <small class="text-muted d-block">G-Sec 10 Year Yield</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${benchmark10y.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const rateSentiment = rateOutlook === 'stable' ? 'bullish' : rateOutlook === 'rising' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${rateSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Rate Outlook</strong>
+                            <small class="text-muted d-block">RBI Rate Direction</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${rateSentiment}">${formatDetailKey(rateOutlook)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.yield_position) {
+            const yieldSentiment = details.yield_position === 'attractive' ? 'bullish' : details.yield_position === 'fair' ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${yieldSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Yield Position</strong>
+                            <small class="text-muted d-block">Relative to Benchmark</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${yieldSentiment}">${formatDetailKey(details.yield_position)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isBond && details.liquidity) {
+            const liquidityLevel = details.liquidity.level || 'Medium';
+            const liquiditySentiment = liquidityLevel === 'High' ? 'bullish' : liquidityLevel === 'Medium' ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${liquiditySentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Trading Liquidity</strong>
+                            <small class="text-muted d-block">Market Depth & Volume</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${liquiditySentiment}">${liquidityLevel}</span>
+                            ${details.liquidity.trade_volume ? `<span class="text-muted small ms-2">(${details.liquidity.trade_volume} units)</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (!isMutualFund && !isBond && details.vix) {
             const vixSentiment = details.vix.signal === 'low_volatility' ? 'bullish' : details.vix.signal === 'high_volatility' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${vixSentiment}">
@@ -1313,7 +1609,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (!isMutualFund && details.pcr) {
+        if (!isMutualFund && !isBond && details.pcr) {
             const pcrSentiment = details.pcr.signal === 'bullish' ? 'bullish' : details.pcr.signal === 'bearish' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${pcrSentiment}">
@@ -1330,7 +1626,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (!isMutualFund && details.open_interest) {
+        if (!isMutualFund && !isBond && details.open_interest) {
             const oiSentiment = details.open_interest.signal === 'significant_buildup' ? 'bullish' : details.open_interest.signal === 'unwinding' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${oiSentiment}">

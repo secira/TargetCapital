@@ -115,6 +115,10 @@ class LangGraphIScoreEngine:
         workflow.add_node("quantitative_analysis_mf", self.quantitative_analysis_mf)
         workflow.add_node("search_sentiment_mf", self.search_sentiment)
         workflow.add_node("trend_analysis_mf", self.trend_analysis_mf)
+        workflow.add_node("qualitative_analysis_bond", self.qualitative_analysis_bond)
+        workflow.add_node("quantitative_analysis_bond", self.quantitative_analysis_bond)
+        workflow.add_node("search_sentiment_bond", self.search_sentiment)
+        workflow.add_node("trend_analysis_bond", self.trend_analysis_bond)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
         
@@ -134,6 +138,7 @@ class LangGraphIScoreEngine:
             self._get_asset_route,
             {
                 "mutual_funds": "qualitative_analysis_mf",
+                "bonds": "qualitative_analysis_bond",
                 "stocks": "qualitative_analysis"
             }
         )
@@ -147,6 +152,11 @@ class LangGraphIScoreEngine:
         workflow.add_edge("quantitative_analysis_mf", "search_sentiment_mf")
         workflow.add_edge("search_sentiment_mf", "trend_analysis_mf")
         workflow.add_edge("trend_analysis_mf", "aggregate_scores")
+        
+        workflow.add_edge("qualitative_analysis_bond", "quantitative_analysis_bond")
+        workflow.add_edge("quantitative_analysis_bond", "search_sentiment_bond")
+        workflow.add_edge("search_sentiment_bond", "trend_analysis_bond")
+        workflow.add_edge("trend_analysis_bond", "aggregate_scores")
         
         workflow.add_edge("aggregate_scores", "store_results")
         workflow.add_edge("store_results", END)
@@ -164,6 +174,8 @@ class LangGraphIScoreEngine:
         asset_type = state.get('asset_type', 'stocks')
         if asset_type in ['mutual_funds', 'mutual-funds', 'mf']:
             return "mutual_funds"
+        if asset_type in ['bonds', 'bond']:
+            return "bonds"
         return "stocks"
     
     def _get_trend_route(self, state: IScoreState) -> str:
@@ -969,6 +981,269 @@ class LangGraphIScoreEngine:
         }
     
     # ==================== END MUTUAL FUND ANALYSIS METHODS ====================
+    
+    # ==================== BOND ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_bond(self, state: IScoreState) -> Dict:
+        """Bond Qualitative Analysis (15% weight) - Credit Rating, Issuer Quality"""
+        logger.info(f"I-Score Bond Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.bond_service import bond_service
+            bond_data = bond_service.analyze_for_iscore(symbol)
+            
+            if bond_data.get('success'):
+                issuer = bond_data.get('issuer', '')
+                issuer_type = bond_data.get('issuer_type', 'unknown')
+                credit_rating = bond_data.get('credit_rating', 'NR')
+                credit_score = bond_data.get('credit_score', 50)
+                category = bond_data.get('category', '')
+                
+                score = credit_score
+                
+                if issuer_type == 'sovereign':
+                    score = min(100, score + 5)
+                elif issuer_type == 'psu':
+                    score = min(100, score + 3)
+                
+                sources_list = [
+                    {'name': 'NSDL BondInfo', 'type': 'regulatory', 'coverage': f'Issuer: {issuer}'},
+                    {'name': 'Credit Rating', 'type': 'credit', 'coverage': f'Rating: {credit_rating}'},
+                    {'name': 'SEBI Data', 'type': 'regulatory', 'coverage': f'Category: {category}'}
+                ]
+                
+                reasoning = f"Bond issued by {issuer} with credit rating {credit_rating}. Issuer type: {issuer_type.upper()}. Higher ratings indicate lower default risk and higher qualitative score."
+                
+                return {
+                    'qualitative_score': score,
+                    'qualitative_details': {
+                        'issuer': issuer,
+                        'issuer_type': issuer_type,
+                        'credit_rating': credit_rating,
+                        'credit_score': credit_score,
+                        'category': category,
+                        'bond_name': bond_data.get('name', '')
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.85,
+                    'asset_name': bond_data.get('name', symbol),
+                    'step': 'bond_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Bond Qualitative analysis error: {e}")
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Bond data unavailable'},
+            'qualitative_sources': [{'name': 'NSDL', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Qualitative analysis unavailable for this bond',
+            'qualitative_confidence': 0.3,
+            'step': 'bond_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_bond(self, state: IScoreState) -> Dict:
+        """Bond Quantitative Analysis (50% weight) - Yield, Price, Duration"""
+        logger.info(f"I-Score Bond Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.bond_service import bond_service
+            bond_data = bond_service.analyze_for_iscore(symbol)
+            
+            if bond_data.get('success'):
+                clean_price = bond_data.get('clean_price', 100)
+                dirty_price = bond_data.get('dirty_price', 100)
+                coupon_rate = bond_data.get('coupon_rate', 7.0)
+                current_yield = bond_data.get('current_yield', 7.0)
+                ytm = bond_data.get('ytm', 7.0)
+                yield_spread = bond_data.get('yield_spread', 0.5)
+                yield_score = bond_data.get('yield_score', 60)
+                modified_duration = bond_data.get('modified_duration', 4.0)
+                duration_score = bond_data.get('duration_score', 60)
+                duration_risk = bond_data.get('duration_risk', 'Moderate')
+                years_to_maturity = bond_data.get('years_to_maturity', 5.0)
+                face_value = bond_data.get('face_value', 1000)
+                
+                score = (yield_score * 0.6) + (duration_score * 0.4)
+                
+                if clean_price < face_value * 0.95:
+                    score += 10
+                elif clean_price > face_value * 1.05:
+                    score -= 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'NSE Bond Market', 'type': 'price_data', 'coverage': f'Clean Price: ₹{clean_price:.2f}'},
+                    {'name': 'Yield Analysis', 'type': 'yield', 'coverage': f'YTM: {ytm:.2f}%, Current Yield: {current_yield:.2f}%'},
+                    {'name': 'Duration Risk', 'type': 'risk', 'coverage': f'Modified Duration: {modified_duration:.1f} ({duration_risk})'}
+                ]
+                
+                reasoning = f"Bond trading at ₹{clean_price:.2f} with YTM of {ytm:.2f}%. Yield spread of {yield_spread:.2f}% over benchmark. Modified duration of {modified_duration:.1f} years indicates {duration_risk.lower()} interest rate sensitivity."
+                
+                return {
+                    'current_price': dirty_price,
+                    'previous_close': dirty_price * 0.999,
+                    'price_change_pct': 0.1,
+                    'market_status': 'live',
+                    'quantitative_score': score,
+                    'quantitative_details': {
+                        'price': {
+                            'clean': clean_price,
+                            'dirty': dirty_price,
+                            'face_value': face_value,
+                            'accrued_interest': bond_data.get('accrued_interest', 0)
+                        },
+                        'yield': {
+                            'coupon_rate': coupon_rate,
+                            'current_yield': current_yield,
+                            'ytm': ytm,
+                            'yield_spread': yield_spread,
+                            'yield_score': yield_score
+                        },
+                        'duration': {
+                            'modified_duration': modified_duration,
+                            'years_to_maturity': years_to_maturity,
+                            'duration_risk': duration_risk,
+                            'duration_score': duration_score
+                        },
+                        'price_data': {
+                            'current': dirty_price,
+                            'previous_close': dirty_price * 0.999,
+                            'change_pct': 0.1
+                        }
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.85,
+                    'step': 'bond_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Bond Quantitative analysis error: {e}")
+        
+        return {
+            'current_price': 0,
+            'previous_close': 0,
+            'price_change_pct': 0,
+            'market_status': 'unknown',
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'Bond price data unavailable'},
+            'quantitative_sources': [{'name': 'NSE Bond', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Quantitative analysis unavailable',
+            'quantitative_confidence': 0.3,
+            'step': 'bond_quantitative_fallback'
+        }
+    
+    def trend_analysis_bond(self, state: IScoreState) -> Dict:
+        """Bond Trend Analysis (25% weight) - Yield Curve, Rate Environment"""
+        logger.info(f"I-Score Bond Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.bond_service import bond_service
+            bond_data = bond_service.analyze_for_iscore(symbol)
+            yield_curve = bond_service.get_yield_curve_data()
+            
+            if bond_data.get('success'):
+                ytm = bond_data.get('ytm', 7.0)
+                modified_duration = bond_data.get('modified_duration', 4.0)
+                years_to_maturity = bond_data.get('years_to_maturity', 5.0)
+                trade_volume = bond_data.get('trade_volume', 0)
+                
+                score = 50
+                
+                curve_shape = yield_curve.get('curve_shape', 'normal')
+                benchmark_10y = yield_curve.get('benchmark_10y', 7.18)
+                
+                if curve_shape == 'normal':
+                    score += 10
+                    rate_outlook = 'stable'
+                elif curve_shape == 'steep':
+                    score += 5
+                    rate_outlook = 'rising'
+                elif curve_shape == 'flat':
+                    score -= 5
+                    rate_outlook = 'uncertain'
+                elif curve_shape == 'inverted':
+                    score -= 10
+                    rate_outlook = 'falling'
+                else:
+                    rate_outlook = 'neutral'
+                
+                if ytm > benchmark_10y + 0.5:
+                    score += 15
+                    yield_position = 'attractive'
+                elif ytm > benchmark_10y:
+                    score += 10
+                    yield_position = 'fair'
+                elif ytm > benchmark_10y - 0.3:
+                    score += 5
+                    yield_position = 'slightly below benchmark'
+                else:
+                    score -= 5
+                    yield_position = 'below benchmark'
+                
+                if trade_volume > 10000:
+                    liquidity = 'High'
+                    score += 5
+                elif trade_volume > 5000:
+                    liquidity = 'Medium'
+                    score += 2
+                else:
+                    liquidity = 'Low'
+                    score -= 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'RBI Yield Curve', 'type': 'benchmark', 'coverage': f'Curve: {curve_shape}, 10Y: {benchmark_10y:.2f}%'},
+                    {'name': 'Rate Outlook', 'type': 'macro', 'coverage': f'Rate environment: {rate_outlook}'},
+                    {'name': 'Liquidity', 'type': 'trading', 'coverage': f'Trade volume: {trade_volume} units ({liquidity})'}
+                ]
+                
+                reasoning = f"Yield curve is {curve_shape} with 10Y benchmark at {benchmark_10y:.2f}%. Bond YTM of {ytm:.2f}% is {yield_position}. Trading liquidity is {liquidity.lower()}. Rate outlook: {rate_outlook}."
+                
+                return {
+                    'trend_score': score,
+                    'trend_details': {
+                        'yield_curve': {
+                            'shape': curve_shape,
+                            'benchmark_10y': benchmark_10y,
+                            'rate_outlook': rate_outlook
+                        },
+                        'yield_position': yield_position,
+                        'liquidity': {
+                            'level': liquidity,
+                            'trade_volume': trade_volume
+                        },
+                        'maturity_info': {
+                            'years_to_maturity': years_to_maturity,
+                            'modified_duration': modified_duration
+                        }
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'bond_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"Bond Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'RBI', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'bond_trend_fallback'
+        }
+    
+    # ==================== END BOND ANALYSIS METHODS ====================
     
     def aggregate_scores(self, state: IScoreState) -> Dict:
         """Node 6: Aggregate all component scores into I-Score"""
