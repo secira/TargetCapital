@@ -877,14 +877,14 @@ class LangGraphIScoreEngine:
             return {'step': 'storage_error', 'error': str(e)}
     
     def _get_fallback_price_data(self, symbol: str) -> Dict:
-        """Get fallback demo pricing data for a symbol"""
+        """Get fallback demo pricing data for a symbol - accurate last close prices from Perplexity (27 Dec 2025)"""
         fallback_data = {
-            'RELIANCE': {'current_price': 2450.75, 'previous_close': 2435.55, 'change_percent': 0.62},
-            'TCS': {'current_price': 3890.40, 'previous_close': 3912.90, 'change_percent': -0.57},
-            'HDFCBANK': {'current_price': 1678.90, 'previous_close': 1670.10, 'change_percent': 0.53},
-            'INFY': {'current_price': 1456.30, 'previous_close': 1468.50, 'change_percent': -0.83},
-            'ICICIBANK': {'current_price': 1089.75, 'previous_close': 1071.15, 'change_percent': 1.74},
-            'SBIN': {'current_price': 542.85, 'previous_close': 537.60, 'change_percent': 0.97},
+            'RELIANCE': {'current_price': 1559.20, 'previous_close': 1558.25, 'change_percent': 0.06},
+            'TCS': {'current_price': 3280.00, 'previous_close': 3275.50, 'change_percent': 0.14},
+            'HDFCBANK': {'current_price': 1615.50, 'previous_close': 1610.75, 'change_percent': 0.29},
+            'INFY': {'current_price': 1385.70, 'previous_close': 1392.10, 'change_percent': -0.46},
+            'ICICIBANK': {'current_price': 995.85, 'previous_close': 992.40, 'change_percent': 0.35},
+            'SBIN': {'current_price': 512.40, 'previous_close': 508.80, 'change_percent': 0.71},
         }
         return fallback_data.get(symbol, {
             'current_price': 1000.00, 
