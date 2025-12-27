@@ -712,31 +712,37 @@ function displayIScoreResult(data) {
     }
 }
 
+// Global modal instances
+let overallModalInstance = null;
+let componentModalInstance = null;
+
 function closeOverallModal() {
-    const modalElement = document.getElementById('overallDetailsModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-        modal.hide();
+    if (overallModalInstance) {
+        overallModalInstance.hide();
+    } else {
+        const modalElement = document.getElementById('overallDetailsModal');
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.style.display = 'none';
     }
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-        backdrop.remove();
-    }
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
 }
 
 function closeComponentModal() {
-    const modalElement = document.getElementById('componentDetailsModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-        modal.hide();
+    if (componentModalInstance) {
+        componentModalInstance.hide();
+    } else {
+        const modalElement = document.getElementById('componentDetailsModal');
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.style.display = 'none';
     }
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-        backdrop.remove();
-    }
+    const backdrops = document.querySelectorAll('.modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
     document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
@@ -812,8 +818,8 @@ function showOverallDetails() {
     document.getElementById('modalOverallSummary').innerHTML = summaryHTML;
     
     const modalElement = document.getElementById('overallDetailsModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    overallModalInstance = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+    overallModalInstance.show();
 }
 
 function showComponentDetails(componentKey) {
@@ -911,8 +917,8 @@ function showComponentDetails(componentKey) {
     document.getElementById('componentModalBody').innerHTML = bodyHTML;
     
     const modalElement = document.getElementById('componentDetailsModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    componentModalInstance = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+    componentModalInstance.show();
 }
 
 function renderComponentDetails(componentKey, details) {
