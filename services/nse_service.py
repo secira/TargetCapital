@@ -50,41 +50,6 @@ class NSEService:
             Dictionary with stock data or fallback demo data if API fails
         """
         try:
-            # Try yfinance first for reliable data (works even when NSE API is down)
-            try:
-                import yfinance as yf
-                ticker = yf.Ticker(f"{symbol}.NS")
-                hist = ticker.history(period="1d")
-                
-                if not hist.empty:
-                    current_price = float(hist['Close'].iloc[-1])
-                    prev_close = float(hist['Open'].iloc[-1]) if len(hist) > 0 else current_price
-                    
-                    if current_price > 0:
-                        change_amount = current_price - prev_close
-                        change_percent = (change_amount / prev_close * 100) if prev_close > 0 else 0
-                        
-                        current_time = dt.datetime.now(timezone.utc)
-                        return {
-                            'symbol': symbol,
-                            'company_name': ticker.info.get('longName', symbol),
-                            'current_price': current_price,
-                            'previous_close': prev_close,
-                            'change_amount': change_amount,
-                            'change_percent': change_percent,
-                            'volume': int(hist['Volume'].iloc[-1]) if 'Volume' in hist else 0,
-                            'day_high': float(hist['High'].iloc[-1]) if 'High' in hist else current_price,
-                            'day_low': float(hist['Low'].iloc[-1]) if 'Low' in hist else current_price,
-                            'market_cap': ticker.info.get('marketCap'),
-                            'pe_ratio': ticker.info.get('trailingPE'),
-                            'timestamp': current_time,
-                            'data_source': 'yfinance',
-                            'real_timestamp': current_time
-                        }
-            except Exception as yf_error:
-                self.logger.debug(f"yfinance error for {symbol}: {yf_error}")
-            
-            # Fallback to NSEPython
             quote = nse_quote(symbol)
             if quote:
                 # Calculate delayed timestamp (simulate delayed data)
@@ -114,15 +79,14 @@ class NSEService:
                     'pe_ratio': quote.get('pe'),
                     'timestamp': delayed_timestamp,
                     'data_delay_minutes': delayed_minutes,
-                    'real_timestamp': current_time,
-                    'data_source': 'nsepython'
+                    'real_timestamp': current_time
                 }
             self._rate_limit_delay()
         except Exception as e:
             self.logger.warning(f"NSE API error for {symbol}: {str(e)}. Using fallback data.")
-            # Return fallback demo data when API is unavailable
-            return self._get_fallback_quote(symbol)
-        return None
+        
+        # Return fallback demo data when API is unavailable
+        return self._get_fallback_quote(symbol)
     
     def get_multiple_quotes(self, symbols: List[str]) -> List[Dict[str, Any]]:
         """
