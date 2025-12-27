@@ -662,13 +662,18 @@ function displayIScoreResult(data) {
     }
     
     // Display Real-Time Price Data
+    console.log('I-Score Response:', data);
+    console.log('Market Data:', data.market_data);
+    
     if (data.market_data) {
         const marketData = data.market_data;
-        const price = marketData.current_price || 0;
-        const change = marketData.change_pct || 0;
+        const price = parseFloat(marketData.current_price) || 0;
+        const change = parseFloat(marketData.change_pct) || 0;
+        
+        console.log('Parsed Price:', price, 'Parsed Change:', change);
         
         if (document.getElementById('currentPrice')) {
-            document.getElementById('currentPrice').textContent = price > 0 ? '₹' + price.toFixed(2) : '₹--';
+            document.getElementById('currentPrice').textContent = price > 0 ? '₹' + price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '₹--';
         }
         
         if (document.getElementById('priceChange')) {
@@ -680,6 +685,27 @@ function displayIScoreResult(data) {
         if (document.getElementById('dataTimestamp') && marketData.timestamp) {
             const date = new Date(marketData.timestamp);
             document.getElementById('dataTimestamp').textContent = 'Data as of: ' + date.toLocaleString();
+        }
+    } else {
+        console.log('No market_data in response');
+        // Fallback: Try to get price from quantitative component
+        if (data.components && data.components.quantitative && data.components.quantitative.details) {
+            const priceData = data.components.quantitative.details.price_data;
+            if (priceData) {
+                const price = parseFloat(priceData.current) || 0;
+                const change = parseFloat(priceData.change_pct) || 0;
+                console.log('Fallback Price from components:', price);
+                
+                if (document.getElementById('currentPrice') && price > 0) {
+                    document.getElementById('currentPrice').textContent = '₹' + price.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+                
+                if (document.getElementById('priceChange')) {
+                    const changeColor = change > 0 ? 'text-success' : change < 0 ? 'text-danger' : 'text-muted';
+                    const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '•';
+                    document.getElementById('priceChange').innerHTML = `<span class="${changeColor}">${changeSymbol} ${Math.abs(change).toFixed(2)}%</span>`;
+                }
+            }
         }
     }
     
