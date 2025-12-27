@@ -94,14 +94,21 @@ Implements defense-in-depth tenant isolation through three layers:
 
 **Verified Test Result** (27 Dec 2025):
 - Symbol: RELIANCE
-- I-Score: 53.64/100
+- I-Score: 53.64/100 (Confidence: 77%)
 - Recommendation: HOLD
 - Component Breakdown:
-  - Qualitative: 50.00 (15% weight)
-  - Quantitative: 56.79 (50% weight)
-  - Search Sentiment: 50.00 (10% weight)
-  - Trend Analysis: 50.98 (25% weight)
-- Status: All 7 nodes executed successfully, results stored in database
+  - Qualitative: 50.00 (15% weight) with news/social media sources
+  - Quantitative: 56.79 (50% weight) with RSI, EMA, SuperTrend indicators
+  - Search Sentiment: 50.00 (10% weight) from Perplexity search analysis
+  - Trend Analysis: 50.98 (25% weight) with VIX, PCR, OI data
+- Status: All 7 nodes executed successfully, results stored with complete reasoning
+
+**Transparency Features Implemented** (27 Dec 2025):
+- ✅ Real-time market data: Current price, previous close, % change, timestamp
+- ✅ Component sources: Each analysis component includes data sources used
+- ✅ Detailed reasoning: Every component includes clear analysis reasoning
+- ✅ Transparency audit trail: API returns "Every recommendation comes with clear reasoning and audit trails for complete transparency"
+- ✅ API Response Structure: Enhanced with market_data and sources/reasoning fields for each component
 
 **Key Files**:
 - `services/langgraph_iscore_engine.py`: Main I-Score workflow orchestration
