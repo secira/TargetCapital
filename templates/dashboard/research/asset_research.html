@@ -131,7 +131,7 @@
                             <div id="iscoreResult" style="display: none;">
                                 <div class="text-center mb-4">
                                     <h6 class="text-muted mb-2">I-Score for <span id="resultSymbol" class="fw-bold"></span></h6>
-                                    <div class="iscore-circle mx-auto mb-3" id="iscoreCircle">
+                                    <div class="iscore-circle mx-auto mb-3 clickable-score" id="iscoreCircle" onclick="showOverallDetails()" title="Click to see detailed analysis" style="cursor: pointer;">
                                         <svg width="160" height="160" viewBox="0 0 160 160">
                                             <circle cx="80" cy="80" r="70" fill="none" stroke="#e9ecef" stroke-width="12"/>
                                             <circle id="iscoreArc" cx="80" cy="80" r="70" fill="none" stroke="#4299e1" stroke-width="12"
@@ -140,6 +140,9 @@
                                             <text x="80" y="75" text-anchor="middle" font-size="36" font-weight="bold" fill="#1a202c" id="iscoreValue">--</text>
                                             <text x="80" y="100" text-anchor="middle" font-size="14" fill="#718096">/100</text>
                                         </svg>
+                                        <div class="click-hint mt-1">
+                                            <small class="text-primary"><i class="fas fa-info-circle me-1"></i>Click for details</small>
+                                        </div>
                                     </div>
                                     <div id="recommendationBadge" class="mb-2"></div>
                                     <p class="text-muted small mb-0" id="resultSummary"></p>
@@ -147,31 +150,39 @@
                                 
                                 <div class="row g-2" id="componentScores">
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('qualitative')" style="cursor: pointer;" title="Click to see qualitative analysis details">
                                             <small class="text-muted d-block">Qualitative</small>
                                             <span class="fw-bold" id="qualScore">--</span>
                                             <small class="text-muted">/100</small>
+                                            <div class="weight-badge"><small class="text-info">15%</small></div>
+                                            <i class="fas fa-chevron-right component-arrow"></i>
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('quantitative')" style="cursor: pointer;" title="Click to see quantitative analysis details">
                                             <small class="text-muted d-block">Quantitative</small>
                                             <span class="fw-bold" id="quantScore">--</span>
                                             <small class="text-muted">/100</small>
+                                            <div class="weight-badge"><small class="text-info">50%</small></div>
+                                            <i class="fas fa-chevron-right component-arrow"></i>
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('search')" style="cursor: pointer;" title="Click to see search sentiment details">
                                             <small class="text-muted d-block">Search</small>
                                             <span class="fw-bold" id="searchScore">--</span>
                                             <small class="text-muted">/100</small>
+                                            <div class="weight-badge"><small class="text-info">10%</small></div>
+                                            <i class="fas fa-chevron-right component-arrow"></i>
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('trend')" style="cursor: pointer;" title="Click to see trend analysis details">
                                             <small class="text-muted d-block">Trend</small>
                                             <span class="fw-bold" id="trendScore">--</span>
                                             <small class="text-muted">/100</small>
+                                            <div class="weight-badge"><small class="text-info">25%</small></div>
+                                            <i class="fas fa-chevron-right component-arrow"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -184,6 +195,88 @@
                         </div>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="overallDetailsModal" tabindex="-1" aria-labelledby="overallDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="overallDetailsModalLabel">
+                        <i class="fas fa-brain me-2"></i>I-Score Analysis Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <h2 class="display-4 fw-bold" id="modalOverallScore">--</h2>
+                        <p class="text-muted">Overall I-Score for <strong id="modalSymbol"></strong></p>
+                        <div id="modalRecommendation" class="mb-3"></div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>How I-Score is Calculated</h6>
+                        <p class="mb-2 small">I-Score combines multiple analysis dimensions with weighted scoring:</p>
+                        <div class="row text-center">
+                            <div class="col-3">
+                                <div class="fw-bold text-primary">15%</div>
+                                <small>Qualitative</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="fw-bold text-primary">50%</div>
+                                <small>Quantitative</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="fw-bold text-primary">10%</div>
+                                <small>Search</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="fw-bold text-primary">25%</div>
+                                <small>Trend</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-chart-bar me-2"></i>Component Score Breakdown</h6>
+                    <div class="row g-3" id="modalComponentBreakdown">
+                    </div>
+                    
+                    <div class="mt-4" id="modalOverallSummary">
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-gavel me-2"></i>Score Thresholds</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-success">Strong Buy: 80+</span>
+                            <span class="badge bg-primary">Buy: 65-79</span>
+                            <span class="badge bg-warning text-dark">Hold: 45-64</span>
+                            <span class="badge bg-orange">Cautionary Sell: 30-44</span>
+                            <span class="badge bg-danger">Strong Sell: &lt;30</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="componentDetailsModal" tabindex="-1" aria-labelledby="componentDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" id="componentModalHeader">
+                    <h5 class="modal-title" id="componentDetailsModalLabel">
+                        <i class="fas fa-chart-line me-2"></i>Component Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="componentModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -369,6 +462,126 @@
 .list-group-item:hover {
     background: #f8fafc;
 }
+
+.clickable-score {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.clickable-score:hover {
+    transform: scale(1.05);
+}
+
+.component-card {
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.component-card:hover {
+    background: #e6f2ff !important;
+    transform: translateY(-2px);
+    border-color: #4299e1;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+}
+
+.component-card .component-arrow {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    color: #4299e1;
+    font-size: 12px;
+    transition: opacity 0.3s ease;
+}
+
+.component-card:hover .component-arrow {
+    opacity: 1;
+}
+
+.weight-badge {
+    margin-top: 4px;
+}
+
+.click-hint {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.bg-orange {
+    background-color: #ed8936 !important;
+    color: white;
+}
+
+.score-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.detail-item {
+    padding: 12px;
+    border-radius: 8px;
+    background: #f8fafc;
+    margin-bottom: 8px;
+    border-left: 3px solid #4299e1;
+}
+
+.detail-item.positive {
+    border-left-color: #38a169;
+    background: #f0fff4;
+}
+
+.detail-item.negative {
+    border-left-color: #e53e3e;
+    background: #fff5f5;
+}
+
+.detail-item.neutral {
+    border-left-color: #ecc94b;
+    background: #fffff0;
+}
+
+.indicator-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 2px;
+}
+
+.indicator-badge.bullish {
+    background: #c6f6d5;
+    color: #276749;
+}
+
+.indicator-badge.bearish {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+.indicator-badge.neutral {
+    background: #fefcbf;
+    color: #975a16;
+}
+
+#componentModalHeader.qualitative { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+#componentModalHeader.quantitative { background: linear-gradient(135deg, #4299e1, #3182ce); color: white; }
+#componentModalHeader.search { background: linear-gradient(135deg, #48bb78, #38a169); color: white; }
+#componentModalHeader.trend { background: linear-gradient(135deg, #ed8936, #dd6b20); color: white; }
 </style>
 
 <script>
@@ -450,7 +663,11 @@ function analyzeSymbol() {
     });
 }
 
+let currentAnalysisData = null;
+
 function displayIScoreResult(data) {
+    currentAnalysisData = data;
+    
     document.getElementById('iscoreResult').style.display = 'block';
     document.getElementById('resultSymbol').textContent = data.symbol;
     
@@ -493,6 +710,426 @@ function displayIScoreResult(data) {
         document.getElementById('searchScore').textContent = Math.round(data.components.search?.score || 0);
         document.getElementById('trendScore').textContent = Math.round(data.components.trend?.score || 0);
     }
+}
+
+function showOverallDetails() {
+    if (!currentAnalysisData) return;
+    
+    const data = currentAnalysisData;
+    const iscore = Math.round(data.iscore || 0);
+    
+    document.getElementById('modalOverallScore').textContent = iscore;
+    document.getElementById('modalSymbol').textContent = data.symbol;
+    
+    const recommendation = data.recommendation || 'INCONCLUSIVE';
+    let badgeClass = 'bg-secondary';
+    let badgeText = recommendation.replace(/_/g, ' ');
+    
+    switch(recommendation) {
+        case 'STRONG_BUY': badgeClass = 'bg-success'; break;
+        case 'BUY': badgeClass = 'bg-primary'; break;
+        case 'HOLD': badgeClass = 'bg-warning text-dark'; break;
+        case 'CAUTIONARY_SELL': badgeClass = 'bg-orange'; break;
+        case 'STRONG_SELL': badgeClass = 'bg-danger'; break;
+    }
+    document.getElementById('modalRecommendation').innerHTML = `<span class="badge ${badgeClass} px-4 py-2 fs-6">${badgeText}</span>`;
+    
+    let breakdownHTML = '';
+    const components = [
+        { key: 'qualitative', name: 'Qualitative Sentiment', icon: 'fas fa-newspaper', weight: 15 },
+        { key: 'quantitative', name: 'Quantitative Sentiment', icon: 'fas fa-chart-line', weight: 50 },
+        { key: 'search', name: 'Search Sentiment', icon: 'fas fa-search', weight: 10 },
+        { key: 'trend', name: 'Trend Analysis', icon: 'fas fa-arrow-trend-up', weight: 25 }
+    ];
+    
+    components.forEach(comp => {
+        const score = Math.round(data.components?.[comp.key]?.score || 0);
+        const weighted = (score * comp.weight / 100).toFixed(1);
+        const barColor = getScoreColor(score);
+        
+        breakdownHTML += `
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="${comp.icon} me-2 text-primary"></i>
+                            <h6 class="mb-0 fw-semibold">${comp.name}</h6>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="fs-4 fw-bold">${score}</span>
+                            <span class="text-muted small">Weight: ${comp.weight}% (contributes ${weighted})</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-bar-fill" style="width: ${score}%; background-color: ${barColor};"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById('modalComponentBreakdown').innerHTML = breakdownHTML;
+    
+    let summaryHTML = '';
+    if (data.summary) {
+        summaryHTML = `
+            <div class="alert alert-light border">
+                <h6 class="fw-bold mb-2"><i class="fas fa-file-alt me-2"></i>Analysis Summary</h6>
+                <p class="mb-0">${data.summary}</p>
+            </div>
+        `;
+    }
+    document.getElementById('modalOverallSummary').innerHTML = summaryHTML;
+    
+    const modal = new bootstrap.Modal(document.getElementById('overallDetailsModal'));
+    modal.show();
+}
+
+function showComponentDetails(componentKey) {
+    if (!currentAnalysisData) return;
+    
+    const data = currentAnalysisData;
+    const component = data.components?.[componentKey] || {};
+    const score = Math.round(component.score || 0);
+    
+    const componentConfig = {
+        qualitative: {
+            name: 'Qualitative Sentiment Analysis',
+            icon: 'fas fa-newspaper',
+            description: 'Analysis of news articles, social media sentiment, annual reports, and other qualitative data sources.',
+            weight: 15,
+            sources: ['News Articles', 'Social Media', 'Annual Reports', 'Analyst Reports']
+        },
+        quantitative: {
+            name: 'Quantitative Technical Analysis',
+            icon: 'fas fa-chart-line',
+            description: 'Technical indicators including RSI, SuperTrend, EMA crossovers, and volume analysis.',
+            weight: 50,
+            indicators: ['RSI (14)', 'SuperTrend', 'EMA Crossover', 'MACD', 'Volume Analysis']
+        },
+        search: {
+            name: 'Search Sentiment Analysis',
+            icon: 'fas fa-search',
+            description: 'Real-time search trends and AI-powered market intelligence from Perplexity.',
+            weight: 10,
+            sources: ['Perplexity AI', 'Search Trends', 'Market Intelligence']
+        },
+        trend: {
+            name: 'Market Trend Analysis',
+            icon: 'fas fa-arrow-trend-up',
+            description: 'Analysis of market trends including Open Interest, Put-Call Ratio, and VIX correlation.',
+            weight: 25,
+            indicators: ['Open Interest', 'Put-Call Ratio (PCR)', 'VIX Index', 'Delivery Volume']
+        }
+    };
+    
+    const config = componentConfig[componentKey];
+    
+    const header = document.getElementById('componentModalHeader');
+    header.className = `modal-header ${componentKey}`;
+    
+    document.getElementById('componentDetailsModalLabel').innerHTML = `
+        <i class="${config.icon} me-2"></i>${config.name}
+    `;
+    
+    let bodyHTML = `
+        <div class="text-center mb-4">
+            <div class="display-4 fw-bold" style="color: ${getScoreColor(score)};">${score}</div>
+            <p class="text-muted mb-0">out of 100</p>
+            <div class="mt-2">
+                <span class="badge bg-info">Weight: ${config.weight}%</span>
+                <span class="badge ${getScoreBadgeClass(score)} ms-1">${getScoreLabel(score)}</span>
+            </div>
+        </div>
+        
+        <div class="alert alert-light border mb-4">
+            <p class="mb-0">${config.description}</p>
+        </div>
+        
+        <div class="score-bar mb-4" style="height: 12px;">
+            <div class="score-bar-fill" style="width: ${score}%; background-color: ${getScoreColor(score)};"></div>
+        </div>
+    `;
+    
+    if (component.details && Object.keys(component.details).length > 0 && !component.details.error) {
+        bodyHTML += `<h6 class="fw-bold mb-3"><i class="fas fa-list-check me-2"></i>Analysis Details</h6>`;
+        bodyHTML += renderComponentDetails(componentKey, component.details);
+    } else {
+        bodyHTML += `
+            <h6 class="fw-bold mb-3"><i class="fas fa-database me-2"></i>Data Sources Used</h6>
+            <div class="d-flex flex-wrap gap-2 mb-4">
+                ${(config.sources || config.indicators || []).map(s => `<span class="badge bg-light text-dark border">${s}</span>`).join('')}
+            </div>
+            
+            <div class="alert alert-secondary">
+                <i class="fas fa-info-circle me-2"></i>
+                <span>Detailed breakdown data will be available in future updates. The score of <strong>${score}</strong> indicates a ${getScoreLabel(score).toLowerCase()} signal for this component.</span>
+            </div>
+        `;
+    }
+    
+    if (component.summary || component.reason) {
+        bodyHTML += `
+            <div class="mt-4 p-3 bg-light rounded">
+                <h6 class="fw-semibold mb-2"><i class="fas fa-lightbulb me-2 text-warning"></i>Key Insight</h6>
+                <p class="mb-0">${component.summary || component.reason || 'Analysis complete.'}</p>
+            </div>
+        `;
+    }
+    
+    document.getElementById('componentModalBody').innerHTML = bodyHTML;
+    
+    const modal = new bootstrap.Modal(document.getElementById('componentDetailsModal'));
+    modal.show();
+}
+
+function renderComponentDetails(componentKey, details) {
+    let html = '';
+    
+    if (componentKey === 'qualitative') {
+        if (details.findings && details.findings.length > 0) {
+            html += `<div class="mb-3"><strong>Key Findings:</strong><ul class="mb-0 mt-2">`;
+            details.findings.forEach(finding => {
+                html += `<li class="mb-1">${finding}</li>`;
+            });
+            html += `</ul></div>`;
+        }
+        if (details.sources_analyzed && details.sources_analyzed.length > 0) {
+            html += `<div class="mb-3"><strong>Sources Analyzed:</strong><div class="d-flex flex-wrap gap-2 mt-2">`;
+            details.sources_analyzed.forEach(source => {
+                html += `<span class="badge bg-light text-dark border">${formatDetailKey(source)}</span>`;
+            });
+            html += `</div></div>`;
+        }
+        if (details.citations && details.citations.length > 0) {
+            html += `<div class="mb-3"><strong>Citations:</strong><ol class="small mb-0 mt-2">`;
+            details.citations.slice(0, 5).forEach(citation => {
+                html += `<li><a href="${citation}" target="_blank" class="text-primary text-truncate d-inline-block" style="max-width: 400px;">${citation}</a></li>`;
+            });
+            html += `</ol></div>`;
+        }
+    }
+    
+    else if (componentKey === 'quantitative') {
+        if (details.rsi) {
+            const rsiSentiment = details.rsi.signal === 'oversold' ? 'bullish' : details.rsi.signal === 'overbought' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${rsiSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>RSI (14)</strong>
+                            <small class="text-muted d-block">Relative Strength Index</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${details.rsi.value}</span>
+                            <span class="indicator-badge ${rsiSentiment} ms-2">${formatDetailKey(details.rsi.signal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.supertrend) {
+            const trendSentiment = details.supertrend.direction === 'bullish' ? 'bullish' : 'bearish';
+            html += `
+                <div class="detail-item ${trendSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>SuperTrend</strong>
+                            <small class="text-muted d-block">Trend Direction Indicator</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${trendSentiment}">${formatDetailKey(details.supertrend.direction)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.ema) {
+            const emaSentiment = details.ema.signal.includes('bullish') ? 'bullish' : details.ema.signal.includes('bearish') ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${emaSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>EMA Crossover</strong>
+                            <small class="text-muted d-block">EMA ${details.ema.short}/${details.ema.long}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${emaSentiment}">${formatDetailKey(details.ema.signal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.price_data) {
+            const priceChange = details.price_data.change_pct || 0;
+            const priceSentiment = priceChange > 0 ? 'bullish' : priceChange < 0 ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${priceSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Price Action</strong>
+                            <small class="text-muted d-block">Current vs Previous Close</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-6">₹${details.price_data.current?.toFixed(2) || '-'}</span>
+                            <span class="indicator-badge ${priceSentiment} ms-2">${priceChange > 0 ? '+' : ''}${priceChange.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    else if (componentKey === 'search') {
+        if (details.trend_direction) {
+            const trendSentiment = details.trend_direction === 'up' ? 'bullish' : details.trend_direction === 'down' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${trendSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Search Trend Direction</strong>
+                        <span class="indicator-badge ${trendSentiment}">${formatDetailKey(details.trend_direction)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.buzz_level) {
+            const buzzSentiment = details.buzz_level === 'high' ? 'bullish' : details.buzz_level === 'low' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${buzzSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Market Buzz Level</strong>
+                        <span class="indicator-badge ${buzzSentiment}">${formatDetailKey(details.buzz_level)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.analysis) {
+            html += `
+                <div class="alert alert-light border mt-3">
+                    <h6 class="fw-semibold mb-2"><i class="fas fa-search me-2"></i>Search Analysis</h6>
+                    <p class="mb-0 small">${details.analysis}</p>
+                </div>
+            `;
+        }
+    }
+    
+    else if (componentKey === 'trend') {
+        if (details.vix) {
+            const vixSentiment = details.vix.signal === 'low_volatility' ? 'bullish' : details.vix.signal === 'high_volatility' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${vixSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>India VIX</strong>
+                            <small class="text-muted d-block">Volatility Index</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${details.vix.value}</span>
+                            <span class="indicator-badge ${vixSentiment} ms-2">${formatDetailKey(details.vix.signal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.pcr) {
+            const pcrSentiment = details.pcr.signal === 'bullish' ? 'bullish' : details.pcr.signal === 'bearish' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${pcrSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Put-Call Ratio (PCR)</strong>
+                            <small class="text-muted d-block">Options Market Sentiment</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${details.pcr.value}</span>
+                            <span class="indicator-badge ${pcrSentiment} ms-2">${formatDetailKey(details.pcr.signal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.open_interest) {
+            const oiSentiment = details.open_interest.signal === 'significant_buildup' ? 'bullish' : details.open_interest.signal === 'unwinding' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${oiSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Open Interest</strong>
+                            <small class="text-muted d-block">F&O Position Buildup</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-6">${details.open_interest.change_pct > 0 ? '+' : ''}${details.open_interest.change_pct}%</span>
+                            <span class="indicator-badge ${oiSentiment} ms-2">${formatDetailKey(details.open_interest.signal)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (details.market_trend) {
+            const marketSentiment = details.market_trend.nifty_change > 0 ? 'bullish' : details.market_trend.nifty_change < 0 ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${marketSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>NIFTY 50 Trend</strong>
+                            <small class="text-muted d-block">Broader Market Direction</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${marketSentiment}">${details.market_trend.nifty_change > 0 ? '+' : ''}${details.market_trend.nifty_change?.toFixed(2) || 0}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    return html || '<p class="text-muted">No detailed data available for this component.</p>';
+}
+
+function getScoreColor(score) {
+    if (score >= 80) return '#38a169';
+    if (score >= 65) return '#3182ce';
+    if (score >= 45) return '#ecc94b';
+    if (score >= 30) return '#ed8936';
+    return '#e53e3e';
+}
+
+function getScoreLabel(score) {
+    if (score >= 80) return 'Strong Bullish';
+    if (score >= 65) return 'Bullish';
+    if (score >= 45) return 'Neutral';
+    if (score >= 30) return 'Bearish';
+    return 'Strong Bearish';
+}
+
+function getScoreBadgeClass(score) {
+    if (score >= 80) return 'bg-success';
+    if (score >= 65) return 'bg-primary';
+    if (score >= 45) return 'bg-warning text-dark';
+    if (score >= 30) return 'bg-orange';
+    return 'bg-danger';
+}
+
+function getSentimentClass(value) {
+    if (typeof value === 'number') {
+        if (value >= 65) return 'bullish';
+        if (value >= 45) return 'neutral';
+        return 'bearish';
+    }
+    const strVal = String(value).toLowerCase();
+    if (strVal.includes('bullish') || strVal.includes('positive') || strVal.includes('strong') || strVal.includes('buy') || strVal === 'yes' || strVal === 'true') return 'bullish';
+    if (strVal.includes('bearish') || strVal.includes('negative') || strVal.includes('weak') || strVal.includes('sell') || strVal === 'no' || strVal === 'false') return 'bearish';
+    return 'neutral';
+}
+
+function formatDetailKey(key) {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function formatDetailValue(value) {
+    if (typeof value === 'number') return value.toFixed(2);
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    return String(value);
 }
 </script>
 {% endblock %}
