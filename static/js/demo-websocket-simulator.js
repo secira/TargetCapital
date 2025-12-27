@@ -34,8 +34,8 @@ class DemoWebSocketSimulator {
         // Start performance monitoring
         this.startPerformanceMonitoring();
         
-        // Show demo mode notification
-        this.showDemoNotification();
+        // Demo notification disabled - was causing recurring popup
+        // this.showDemoNotification();
     }
     
     stop() {
