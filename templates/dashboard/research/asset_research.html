@@ -8,70 +8,6 @@
 {% block dashboard_content %}
 <div class="research-page">
     <div class="row g-4 mb-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="asset-icon me-3" style="width: 56px; height: 56px; background: linear-gradient(135deg, #4299e1, #3182ce); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i class="{{ asset.icon }} text-white" style="font-size: 24px;"></i>
-                        </div>
-                        <div>
-                            <h4 class="mb-1 fw-bold">{{ asset.name }} Overview</h4>
-                            <p class="text-muted mb-0">{{ asset.description }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="row g-3">
-                        {% for feature in asset.features %}
-                        <div class="col-md-6">
-                            <div class="feature-card p-3 bg-light rounded-3 h-100">
-                                <div class="d-flex align-items-start">
-                                    <div class="feature-icon me-3" style="width: 40px; height: 40px; background: rgba(66, 153, 225, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <i class="{{ feature.icon }}" style="color: #4299e1;"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-1 fw-semibold">{{ feature.title }}</h6>
-                                        <p class="text-muted mb-0 small">{{ feature.desc }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2"></i>Market Hours</h5>
-                    <p class="text-muted mb-4">{{ asset.market_hours }}</p>
-                    
-                    <div class="market-status mb-4">
-                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
-                            <span class="fw-medium">Market Status</span>
-                            <span class="badge bg-secondary" id="marketStatus">Closed</span>
-                        </div>
-                    </div>
-                    
-                    <div class="quick-actions">
-                        <h6 class="fw-semibold mb-3">Quick Actions</h6>
-                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="btn btn-outline-primary w-100 mb-2">
-                            <i class="fas fa-robot me-2"></i>Ask AI About {{ asset.name }}
-                        </a>
-                        {% if current_user.can_access_menu('dashboard_trade_now') %}
-                        <a href="{{ url_for('dashboard_trade_now') }}" class="btn btn-primary w-100">
-                            <i class="fas fa-exchange-alt me-2"></i>Trade {{ asset.name }}
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row g-4 mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom py-3">
@@ -363,6 +299,70 @@
                         <p class="text-muted small">New signals are generated based on AI analysis of market conditions.</p>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="asset-icon me-3" style="width: 56px; height: 56px; background: linear-gradient(135deg, #4299e1, #3182ce); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i class="{{ asset.icon }} text-white" style="font-size: 24px;"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">{{ asset.name }} Overview</h4>
+                            <p class="text-muted mb-0">{{ asset.description }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        {% for feature in asset.features %}
+                        <div class="col-md-6">
+                            <div class="feature-card p-3 bg-light rounded-3 h-100">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3" style="width: 40px; height: 40px; background: rgba(66, 153, 225, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="{{ feature.icon }}" style="color: #4299e1;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-semibold">{{ feature.title }}</h6>
+                                        <p class="text-muted mb-0 small">{{ feature.desc }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-clock me-2"></i>Market Hours</h5>
+                    <p class="text-muted mb-4">{{ asset.market_hours }}</p>
+                    
+                    <div class="market-status mb-4">
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                            <span class="fw-medium">Market Status</span>
+                            <span class="badge bg-secondary" id="marketStatus">Closed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <h6 class="fw-semibold mb-3">Quick Actions</h6>
+                        <a href="{{ url_for('dashboard_ai_advisor') }}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-robot me-2"></i>Ask AI About {{ asset.name }}
+                        </a>
+                        {% if current_user.can_access_menu('dashboard_trade_now') %}
+                        <a href="{{ url_for('dashboard_trade_now') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-exchange-alt me-2"></i>Trade {{ asset.name }}
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
