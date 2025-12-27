@@ -131,7 +131,7 @@
                             <div id="iscoreResult" style="display: none;">
                                 <div class="text-center mb-4">
                                     <h6 class="text-muted mb-2">I-Score for <span id="resultSymbol" class="fw-bold"></span></h6>
-                                    <div class="iscore-circle mx-auto mb-3 clickable-score" id="iscoreCircle" onclick="showOverallDetails()" title="Click to see detailed analysis" style="cursor: pointer;">
+                                    <div class="iscore-circle mx-auto mb-3 clickable-score" id="iscoreCircle" onclick="toggleOverallDetails()" title="Click to see detailed analysis" style="cursor: pointer;">
                                         <svg width="160" height="160" viewBox="0 0 160 160">
                                             <circle cx="80" cy="80" r="70" fill="none" stroke="#e9ecef" stroke-width="12"/>
                                             <circle id="iscoreArc" cx="80" cy="80" r="70" fill="none" stroke="#4299e1" stroke-width="12"
@@ -150,7 +150,7 @@
                                 
                                 <div class="row g-2" id="componentScores">
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('qualitative')" style="cursor: pointer;" title="Click to see qualitative analysis details">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="toggleComponentDetails('qualitative')" style="cursor: pointer;" title="Click to see qualitative analysis details">
                                             <small class="text-muted d-block">Qualitative</small>
                                             <span class="fw-bold" id="qualScore">--</span>
                                             <small class="text-muted">/100</small>
@@ -159,7 +159,7 @@
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('quantitative')" style="cursor: pointer;" title="Click to see quantitative analysis details">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="toggleComponentDetails('quantitative')" style="cursor: pointer;" title="Click to see quantitative analysis details">
                                             <small class="text-muted d-block">Quantitative</small>
                                             <span class="fw-bold" id="quantScore">--</span>
                                             <small class="text-muted">/100</small>
@@ -168,7 +168,7 @@
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('search')" style="cursor: pointer;" title="Click to see search sentiment details">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="toggleComponentDetails('search')" style="cursor: pointer;" title="Click to see search sentiment details">
                                             <small class="text-muted d-block">Search</small>
                                             <span class="fw-bold" id="searchScore">--</span>
                                             <small class="text-muted">/100</small>
@@ -177,7 +177,7 @@
                                         </div>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <div class="p-2 bg-light rounded text-center component-card" onclick="showComponentDetails('trend')" style="cursor: pointer;" title="Click to see trend analysis details">
+                                        <div class="p-2 bg-light rounded text-center component-card" onclick="toggleComponentDetails('trend')" style="cursor: pointer;" title="Click to see trend analysis details">
                                             <small class="text-muted d-block">Trend</small>
                                             <span class="fw-bold" id="trendScore">--</span>
                                             <small class="text-muted">/100</small>
@@ -185,6 +185,52 @@
                                             <i class="fas fa-chevron-right component-arrow"></i>
                                         </div>
                                     </div>
+                                </div>
+                                
+                                <!-- Inline Overall Details -->
+                                <div id="inlineOverallDetails" style="display: none; margin-top: 30px;" class="card border-0 shadow-sm">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0"><i class="fas fa-brain me-2"></i>I-Score Analysis Details</h5>
+                                        <button type="button" class="btn btn-sm btn-light" onclick="toggleOverallDetails()"><i class="fas fa-times"></i></button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center mb-4">
+                                            <h2 class="display-4 fw-bold" id="inlineOverallScore">--</h2>
+                                            <div id="inlineRecommendation" class="mb-3"></div>
+                                        </div>
+                                        <div class="alert alert-info">
+                                            <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>How I-Score is Calculated</h6>
+                                            <p class="mb-2 small">I-Score combines multiple analysis dimensions with weighted scoring:</p>
+                                            <div class="row text-center">
+                                                <div class="col-3"><div class="fw-bold text-primary">15%</div><small>Qualitative</small></div>
+                                                <div class="col-3"><div class="fw-bold text-primary">50%</div><small>Quantitative</small></div>
+                                                <div class="col-3"><div class="fw-bold text-primary">10%</div><small>Search</small></div>
+                                                <div class="col-3"><div class="fw-bold text-primary">25%</div><small>Trend</small></div>
+                                            </div>
+                                        </div>
+                                        <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-chart-bar me-2"></i>Component Score Breakdown</h6>
+                                        <div class="row g-3" id="inlineComponentBreakdown"></div>
+                                        <div class="mt-4" id="inlineOverallSummary"></div>
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold mb-2"><i class="fas fa-gavel me-2"></i>Score Thresholds</h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <span class="badge bg-success">Strong Buy: 80+</span>
+                                                <span class="badge bg-primary">Buy: 65-79</span>
+                                                <span class="badge bg-warning text-dark">Hold: 45-64</span>
+                                                <span class="badge bg-orange">Cautionary Sell: 30-44</span>
+                                                <span class="badge bg-danger">Strong Sell: &lt;30</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Inline Component Details -->
+                                <div id="inlineComponentDetails" style="display: none; margin-top: 30px;" class="card border-0 shadow-sm">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0" id="inlineComponentTitle"><i class="fas fa-chart-line me-2"></i>Component Details</h5>
+                                        <button type="button" class="btn btn-sm btn-light" onclick="toggleComponentDetails()"><i class="fas fa-times"></i></button>
+                                    </div>
+                                    <div class="card-body" id="inlineComponentBody"></div>
                                 </div>
                             </div>
                             
@@ -200,87 +246,6 @@
         </div>
     </div>
     
-    <div class="modal fade" id="overallDetailsModal" tabindex="-1" aria-labelledby="overallDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="overallDetailsModalLabel">
-                        <i class="fas fa-brain me-2"></i>I-Score Analysis Details
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" onclick="closeOverallModal()" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <h2 class="display-4 fw-bold" id="modalOverallScore">--</h2>
-                        <p class="text-muted">Overall I-Score for <strong id="modalSymbol"></strong></p>
-                        <div id="modalRecommendation" class="mb-3"></div>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>How I-Score is Calculated</h6>
-                        <p class="mb-2 small">I-Score combines multiple analysis dimensions with weighted scoring:</p>
-                        <div class="row text-center">
-                            <div class="col-3">
-                                <div class="fw-bold text-primary">15%</div>
-                                <small>Qualitative</small>
-                            </div>
-                            <div class="col-3">
-                                <div class="fw-bold text-primary">50%</div>
-                                <small>Quantitative</small>
-                            </div>
-                            <div class="col-3">
-                                <div class="fw-bold text-primary">10%</div>
-                                <small>Search</small>
-                            </div>
-                            <div class="col-3">
-                                <div class="fw-bold text-primary">25%</div>
-                                <small>Trend</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <h6 class="fw-bold mt-4 mb-3"><i class="fas fa-chart-bar me-2"></i>Component Score Breakdown</h6>
-                    <div class="row g-3" id="modalComponentBreakdown">
-                    </div>
-                    
-                    <div class="mt-4" id="modalOverallSummary">
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-gavel me-2"></i>Score Thresholds</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge bg-success">Strong Buy: 80+</span>
-                            <span class="badge bg-primary">Buy: 65-79</span>
-                            <span class="badge bg-warning text-dark">Hold: 45-64</span>
-                            <span class="badge bg-orange">Cautionary Sell: 30-44</span>
-                            <span class="badge bg-danger">Strong Sell: &lt;30</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeOverallModal()">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal fade" id="componentDetailsModal" tabindex="-1" aria-labelledby="componentDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header" id="componentModalHeader">
-                    <h5 class="modal-title" id="componentDetailsModalLabel">
-                        <i class="fas fa-chart-line me-2"></i>Component Details
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" onclick="closeComponentModal()" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="componentModalBody">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeComponentModal()">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
     
     <div class="row g-4">
         <div class="col-12">
@@ -712,25 +677,13 @@ function displayIScoreResult(data) {
     }
 }
 
-function closeOverallModal() {
-    const modalElement = document.getElementById('overallDetailsModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-        modal.hide();
+function toggleOverallDetails() {
+    const detailsDiv = document.getElementById('inlineOverallDetails');
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+        showOverallDetails();
     } else {
-        const bsModal = new bootstrap.Modal(modalElement);
-        bsModal.hide();
-    }
-}
-
-function closeComponentModal() {
-    const modalElement = document.getElementById('componentDetailsModal');
-    const modal = bootstrap.Modal.getInstance(modalElement);
-    if (modal) {
-        modal.hide();
-    } else {
-        const bsModal = new bootstrap.Modal(modalElement);
-        bsModal.hide();
+        detailsDiv.style.display = 'none';
     }
 }
 
@@ -740,8 +693,7 @@ function showOverallDetails() {
     const data = currentAnalysisData;
     const iscore = Math.round(data.iscore || 0);
     
-    document.getElementById('modalOverallScore').textContent = iscore;
-    document.getElementById('modalSymbol').textContent = data.symbol;
+    document.getElementById('inlineOverallScore').textContent = iscore;
     
     const recommendation = data.recommendation || 'INCONCLUSIVE';
     let badgeClass = 'bg-secondary';
@@ -754,7 +706,7 @@ function showOverallDetails() {
         case 'CAUTIONARY_SELL': badgeClass = 'bg-orange'; break;
         case 'STRONG_SELL': badgeClass = 'bg-danger'; break;
     }
-    document.getElementById('modalRecommendation').innerHTML = `<span class="badge ${badgeClass} px-4 py-2 fs-6">${badgeText}</span>`;
+    document.getElementById('inlineRecommendation').innerHTML = `<span class="badge ${badgeClass} px-4 py-2 fs-6">${badgeText}</span>`;
     
     let breakdownHTML = '';
     const components = [
@@ -790,7 +742,7 @@ function showOverallDetails() {
         `;
     });
     
-    document.getElementById('modalComponentBreakdown').innerHTML = breakdownHTML;
+    document.getElementById('inlineComponentBreakdown').innerHTML = breakdownHTML;
     
     let summaryHTML = '';
     if (data.summary) {
@@ -801,11 +753,17 @@ function showOverallDetails() {
             </div>
         `;
     }
-    document.getElementById('modalOverallSummary').innerHTML = summaryHTML;
-    
-    const modalElement = document.getElementById('overallDetailsModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    document.getElementById('inlineOverallSummary').innerHTML = summaryHTML;
+}
+
+function toggleComponentDetails(componentKey) {
+    const detailsDiv = document.getElementById('inlineComponentDetails');
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+        showComponentDetails(componentKey);
+    } else {
+        detailsDiv.style.display = 'none';
+    }
 }
 
 function showComponentDetails(componentKey) {
@@ -900,11 +858,8 @@ function showComponentDetails(componentKey) {
         `;
     }
     
-    document.getElementById('componentModalBody').innerHTML = bodyHTML;
-    
-    const modalElement = document.getElementById('componentDetailsModal');
-    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    modal.show();
+    document.getElementById('inlineComponentTitle').innerHTML = `<i class="${config.icon} me-2"></i>${config.name}`;
+    document.getElementById('inlineComponentBody').innerHTML = bodyHTML;
 }
 
 function renderComponentDetails(componentKey, details) {
