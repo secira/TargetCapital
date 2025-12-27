@@ -781,7 +781,8 @@ function showOverallDetails() {
     }
     document.getElementById('modalOverallSummary').innerHTML = summaryHTML;
     
-    const modal = new bootstrap.Modal(document.getElementById('overallDetailsModal'));
+    const modalElement = document.getElementById('overallDetailsModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     modal.show();
 }
 
@@ -879,7 +880,8 @@ function showComponentDetails(componentKey) {
     
     document.getElementById('componentModalBody').innerHTML = bodyHTML;
     
-    const modal = new bootstrap.Modal(document.getElementById('componentDetailsModal'));
+    const modalElement = document.getElementById('componentDetailsModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
     modal.show();
 }
 
