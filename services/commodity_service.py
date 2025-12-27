@@ -14,6 +14,7 @@ API Integration:
 import requests
 import logging
 import os
+import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 
@@ -372,13 +373,97 @@ class CommodityService:
         
         return None
     
+    def _fetch_from_yfinance(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch commodity data from yfinance (Global futures prices)"""
+        # Map MCX symbols to yfinance commodity futures symbols
+        yf_symbol_map = {
+            'GOLD': 'GC=F',      # COMEX Gold Futures
+            'SILVER': 'SI=F',    # COMEX Silver Futures
+            'CRUDEOIL': 'CL=F',  # WTI Crude Oil Futures
+            'NATURALGAS': 'NG=F', # Natural Gas Futures
+            'COPPER': 'HG=F',    # Copper Futures
+            'ALUMINIUM': 'ALI=F', # Aluminum Futures (CME)
+            'ZINC': 'ZN=F',      # Zinc
+            'NICKEL': 'NI=F',    # Nickel (note: may not have good data)
+            'LEAD': 'LE=F',      # Lead (may not be available)
+            'COTTON': 'CT=F',    # Cotton Futures
+        }
+        
+        yf_symbol = yf_symbol_map.get(symbol.upper())
+        if not yf_symbol:
+            return None
+        
+        try:
+            ticker = yf.Ticker(yf_symbol)
+            history = ticker.history(period="5d")
+            
+            if history.empty:
+                logger.warning(f"No yfinance data for commodity {symbol}")
+                return None
+            
+            # Get latest data
+            latest = history.iloc[-1]
+            current_price_usd = float(latest['Close'])
+            
+            # Get previous close
+            previous_close_usd = float(history.iloc[-2]['Close']) if len(history) >= 2 else current_price_usd
+            
+            # Get USDINR rate for conversion to Indian prices
+            usdinr = yf.Ticker("INR=X")
+            usdinr_history = usdinr.history(period="1d")
+            usdinr_rate = float(usdinr_history.iloc[-1]['Close']) if not usdinr_history.empty else 83.0
+            
+            # Convert to INR and adjust units based on commodity
+            # MCX Gold is per 10 grams, COMEX Gold is per troy ounce (31.1 grams)
+            # MCX Silver is per kg, COMEX Silver is per troy ounce
+            # MCX Crude is per barrel, same as WTI
+            unit_conversions = {
+                'GOLD': 31.1 / 10,      # Troy oz to 10 grams
+                'SILVER': 31.1 / 1000,  # Troy oz to kg
+                'CRUDEOIL': 1,          # Both per barrel
+                'NATURALGAS': 1,        # mmBtu
+                'COPPER': 2.205,        # lb to kg
+                'ALUMINIUM': 2.205,     # lb to kg
+                'COTTON': 1,            # per bale approximation
+            }
+            
+            conversion = unit_conversions.get(symbol.upper(), 1)
+            current_price = round(current_price_usd * usdinr_rate / conversion, 2)
+            previous_close = round(previous_close_usd * usdinr_rate / conversion, 2)
+            day_high = round(float(latest['High']) * usdinr_rate / conversion, 2)
+            day_low = round(float(latest['Low']) * usdinr_rate / conversion, 2)
+            
+            logger.info(f"✅ Got real price for {symbol} from yfinance: ₹{current_price}")
+            
+            return {
+                'symbol': symbol,
+                'current_price': current_price,
+                'previous_close': previous_close,
+                'day_high': day_high,
+                'day_low': day_low,
+                'volume': int(latest.get('Volume', 0)),
+                'data_source': 'yfinance (Global)',
+                'success': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"yfinance fetch failed for commodity {symbol}: {e}")
+            return None
+    
     def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Attempt to fetch live data, fallback to sample data if APIs unavailable"""
+        """Attempt to fetch live data - tries multiple sources"""
+        # Try APIdatafeed first (primary for Indian MCX data)
         live_data = self._fetch_from_apidatafeed(symbol)
         if live_data:
             return live_data
         
+        # Try Commodities-API (global data)
         live_data = self._fetch_from_commodities_api(symbol)
+        if live_data:
+            return live_data
+        
+        # Try yfinance as fallback (always available, no API key needed)
+        live_data = self._fetch_from_yfinance(symbol)
         if live_data:
             return live_data
         

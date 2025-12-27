@@ -14,6 +14,7 @@ Analysis Platforms:
 import requests
 import logging
 import os
+import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 
@@ -348,13 +349,64 @@ class FuturesService:
         
         return None
     
+    def _fetch_from_yfinance(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch futures underlying price from yfinance (always available)"""
+        # Map symbols to yfinance format
+        yf_symbol_map = {
+            'NIFTY': '^NSEI',      # NIFTY 50 Index
+            'BANKNIFTY': '^NSEBANK',  # Bank NIFTY Index
+            'FINNIFTY': '^CNXFIN',    # Nifty Financial Services (approximate)
+        }
+        
+        yf_symbol = yf_symbol_map.get(symbol.upper(), f"{symbol}.NS")
+        
+        try:
+            ticker = yf.Ticker(yf_symbol)
+            history = ticker.history(period="5d")
+            
+            if history.empty:
+                logger.warning(f"No yfinance data for futures {symbol}")
+                return None
+            
+            latest = history.iloc[-1]
+            spot_price = float(latest['Close'])
+            previous_close = float(history.iloc[-2]['Close']) if len(history) >= 2 else spot_price
+            
+            # Approximate futures price (spot + small premium)
+            basis_pct = 0.15  # Approximate basis for near-month
+            current_price = round(spot_price * (1 + basis_pct/100), 2)
+            
+            logger.info(f"✅ Got price for {symbol} futures from yfinance: {current_price}")
+            
+            return {
+                'symbol': symbol,
+                'current_price': current_price,
+                'previous_close': round(previous_close * (1 + basis_pct/100), 2),
+                'spot_price': round(spot_price, 2),
+                'day_high': round(float(latest['High']) * (1 + basis_pct/100), 2),
+                'day_low': round(float(latest['Low']) * (1 + basis_pct/100), 2),
+                'data_source': 'yfinance (Live)',
+                'success': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"yfinance fetch failed for futures {symbol}: {e}")
+            return None
+    
     def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Attempt to fetch live data, fallback chain"""
+        """Attempt to fetch live data - tries multiple sources"""
+        # Try TrueData first (primary)
         live_data = self._fetch_from_truedata(symbol)
         if live_data:
             return live_data
         
+        # Try NSE Official API
         live_data = self._fetch_from_nse(symbol)
+        if live_data:
+            return live_data
+        
+        # Try yfinance as fallback (always available)
+        live_data = self._fetch_from_yfinance(symbol)
         if live_data:
             return live_data
         

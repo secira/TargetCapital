@@ -14,6 +14,7 @@ Analysis Platforms:
 import requests
 import logging
 import os
+import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 import math
@@ -440,13 +441,57 @@ class OptionsService:
         
         return None
     
+    def _fetch_spot_from_yfinance(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch spot price from yfinance (always available, no API key)"""
+        # Map symbols to yfinance format
+        yf_symbol_map = {
+            'NIFTY': '^NSEI',      # NIFTY 50 Index
+            'BANKNIFTY': '^NSEBANK',  # Bank NIFTY Index
+            'FINNIFTY': '^CNXFIN',    # Nifty Financial Services (approximate)
+        }
+        
+        yf_symbol = yf_symbol_map.get(symbol.upper(), f"{symbol}.NS")
+        
+        try:
+            ticker = yf.Ticker(yf_symbol)
+            history = ticker.history(period="5d")
+            
+            if history.empty:
+                logger.warning(f"No yfinance data for options underlying {symbol}")
+                return None
+            
+            latest = history.iloc[-1]
+            spot_price = float(latest['Close'])
+            previous_close = float(history.iloc[-2]['Close']) if len(history) >= 2 else spot_price
+            
+            logger.info(f"✅ Got spot price for {symbol} from yfinance: {spot_price}")
+            
+            return {
+                'symbol': symbol,
+                'spot_price': round(spot_price, 2),
+                'previous_close': round(previous_close, 2),
+                'data_source': 'yfinance (Live)',
+                'success': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"yfinance fetch failed for options underlying {symbol}: {e}")
+            return None
+    
     def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Attempt to fetch live data, fallback chain"""
+        """Attempt to fetch live data - tries multiple sources"""
+        # Try TrueData first (primary for full option chain)
         live_data = self._fetch_from_truedata(symbol)
         if live_data:
             return live_data
         
+        # Try NSE Official API
         live_data = self._fetch_from_nse(symbol)
+        if live_data:
+            return live_data
+        
+        # Try yfinance for at least spot price (always available)
+        live_data = self._fetch_spot_from_yfinance(symbol)
         if live_data:
             return live_data
         

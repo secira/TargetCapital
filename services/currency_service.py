@@ -14,6 +14,7 @@ API Integration:
 import requests
 import logging
 import os
+import yfinance as yf
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 
@@ -387,18 +388,71 @@ class CurrencyService:
         
         return None
     
+    def _fetch_from_yfinance(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch forex data from yfinance (always available, no API key)"""
+        # Convert to yfinance format: USDINR -> USDINR=X
+        yf_symbol = f"{symbol}=X"
+        
+        try:
+            ticker = yf.Ticker(yf_symbol)
+            history = ticker.history(period="5d")
+            
+            if history.empty:
+                logger.warning(f"No yfinance data for currency {symbol}")
+                return None
+            
+            # Get latest data
+            latest = history.iloc[-1]
+            current_rate = float(latest['Close'])
+            
+            # Get previous close
+            previous_close = float(history.iloc[-2]['Close']) if len(history) >= 2 else current_rate
+            
+            day_high = float(latest['High'])
+            day_low = float(latest['Low'])
+            
+            # Calculate bid/ask (approximate spread)
+            spread = current_rate * 0.0002  # Typical spread
+            bid = round(current_rate - spread/2, 4)
+            ask = round(current_rate + spread/2, 4)
+            
+            logger.info(f"✅ Got real rate for {symbol} from yfinance: {current_rate}")
+            
+            return {
+                'symbol': symbol,
+                'current_rate': round(current_rate, 4),
+                'previous_close': round(previous_close, 4),
+                'day_high': round(day_high, 4),
+                'day_low': round(day_low, 4),
+                'bid': bid,
+                'ask': ask,
+                'data_source': 'yfinance (Live)',
+                'success': True
+            }
+            
+        except Exception as e:
+            logger.warning(f"yfinance fetch failed for currency {symbol}: {e}")
+            return None
+    
     def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Attempt to fetch live data, fallback to sample data if APIs unavailable"""
+        """Attempt to fetch live data - tries multiple sources"""
+        # Try TraderMade first (primary)
         live_data = self._fetch_from_tradermade(symbol)
         if live_data:
             return live_data
         
+        # Try ExchangeRate-API
         if len(symbol) == 6:
             base = symbol[:3]
             quote = symbol[3:]
             live_data = self._fetch_from_exchangerate(base, quote)
             if live_data:
                 return live_data
+        
+        # Try yfinance as fallback (always available, no API key)
+        live_data = self._fetch_from_yfinance(symbol)
+        if live_data:
+            return live_data
         
         return None
     

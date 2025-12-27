@@ -11,10 +11,18 @@ Data Sources:
 
 import requests
 import logging
+import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
+
+# Import perplexity service for real-time bond data
+try:
+    from services.perplexity_service import PerplexityService
+    PERPLEXITY_AVAILABLE = True
+except ImportError:
+    PERPLEXITY_AVAILABLE = False
 
 
 class BondService:
@@ -26,6 +34,15 @@ class BondService:
             'Accept': 'application/json',
             'User-Agent': 'TargetCapital/1.0'
         })
+        
+        # Initialize Perplexity service for real-time yield data
+        self.perplexity_service = None
+        if PERPLEXITY_AVAILABLE and os.environ.get('PERPLEXITY_API_KEY'):
+            try:
+                self.perplexity_service = PerplexityService()
+                logger.info("Perplexity service initialized for bond yield data")
+            except Exception as e:
+                logger.warning(f"Could not initialize Perplexity service: {e}")
         
         self.common_bonds = {
             'GOI2029': {
@@ -224,6 +241,34 @@ class BondService:
             logger.error(f"NSDL BondInfo search error: {e}")
             return []
     
+    def _fetch_live_yield_from_perplexity(self) -> Optional[float]:
+        """Fetch current India 10-year G-Sec yield from Perplexity"""
+        if not self.perplexity_service:
+            return None
+        
+        try:
+            # Query Perplexity for current G-Sec yield
+            result = self.perplexity_service.research_indian_stock(
+                "India 10 year government bond yield",
+                research_type="news_sentiment"
+            )
+            
+            if result.get('success'):
+                content = str(result.get('content', ''))
+                # Try to extract yield value from response
+                import re
+                yield_match = re.search(r'(\d+\.?\d*)\s*%?\s*(yield|percent)', content.lower())
+                if yield_match:
+                    yield_value = float(yield_match.group(1))
+                    if 5 < yield_value < 10:  # Sanity check for Indian G-Sec yields
+                        logger.info(f"✅ Got live G-Sec yield from Perplexity: {yield_value}%")
+                        return yield_value
+            
+            return None
+        except Exception as e:
+            logger.warning(f"Perplexity yield fetch failed: {e}")
+            return None
+    
     def get_bond_details(self, symbol: str) -> Dict[str, Any]:
         """Get comprehensive bond details from multiple sources"""
         symbol_upper = symbol.upper().strip()
@@ -232,7 +277,18 @@ class BondService:
             bond = self.common_bonds[symbol_upper].copy()
             bond['symbol'] = symbol_upper
             bond['success'] = True
-            bond['data_source'] = 'NSDL BondInfo + NSE'
+            
+            # Try to get live yield data
+            live_yield = self._fetch_live_yield_from_perplexity()
+            if live_yield:
+                # Adjust yields based on live benchmark (10-year G-Sec)
+                # Other bonds typically have a spread over benchmark
+                base_spread = bond.get('ytm', 7.0) - 7.0  # Current spread over 7%
+                bond['ytm'] = round(live_yield + base_spread, 2)
+                bond['current_yield'] = round(live_yield + base_spread - 0.10, 2)
+                bond['data_source'] = 'NSDL BondInfo + Perplexity (Live)'
+            else:
+                bond['data_source'] = 'NSDL BondInfo + NSE (Sample)'
             
             maturity = datetime.strptime(bond['maturity_date'], '%Y-%m-%d')
             today = datetime.now()
