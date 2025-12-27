@@ -758,9 +758,11 @@ function showOverallDetails() {
 
 function toggleComponentDetails(componentKey) {
     const detailsDiv = document.getElementById('inlineComponentDetails');
-    if (detailsDiv.style.display === 'none') {
+    if (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') {
         detailsDiv.style.display = 'block';
-        showComponentDetails(componentKey);
+        if (componentKey) {
+            showComponentDetails(componentKey);
+        }
     } else {
         detailsDiv.style.display = 'none';
     }
@@ -805,13 +807,6 @@ function showComponentDetails(componentKey) {
     };
     
     const config = componentConfig[componentKey];
-    
-    const header = document.getElementById('componentModalHeader');
-    header.className = `modal-header ${componentKey}`;
-    
-    document.getElementById('componentDetailsModalLabel').innerHTML = `
-        <i class="${config.icon} me-2"></i>${config.name}
-    `;
     
     let bodyHTML = `
         <div class="text-center mb-4">
