@@ -207,7 +207,7 @@
                     <h5 class="modal-title" id="overallDetailsModalLabel">
                         <i class="fas fa-brain me-2"></i>I-Score Analysis Details
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeOverallModal()" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center mb-4">
@@ -258,7 +258,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeOverallModal()">Close</button>
                 </div>
             </div>
         </div>
@@ -271,12 +271,12 @@
                     <h5 class="modal-title" id="componentDetailsModalLabel">
                         <i class="fas fa-chart-line me-2"></i>Component Details
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeComponentModal()" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="componentModalBody">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeComponentModal()">Close</button>
                 </div>
             </div>
         </div>
@@ -710,6 +710,36 @@ function displayIScoreResult(data) {
         document.getElementById('searchScore').textContent = Math.round(data.components.search?.score || 0);
         document.getElementById('trendScore').textContent = Math.round(data.components.trend?.score || 0);
     }
+}
+
+function closeOverallModal() {
+    const modalElement = document.getElementById('overallDetailsModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+        modal.hide();
+    }
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+        backdrop.remove();
+    }
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+}
+
+function closeComponentModal() {
+    const modalElement = document.getElementById('componentDetailsModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+        modal.hide();
+    }
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+        backdrop.remove();
+    }
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
 }
 
 function showOverallDetails() {
