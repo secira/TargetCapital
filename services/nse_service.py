@@ -9,6 +9,7 @@ import datetime as dt
 from datetime import timezone
 from typing import Dict, List, Optional, Any
 import pandas as pd
+import yfinance as yf
 
 try:
     from nsepython import (
@@ -240,6 +241,51 @@ class NSEService:
         except Exception as e:
             self.logger.error(f"Error fetching historical data for {symbol}: {str(e)}")
         return None
+    
+    def get_intraday_data(self, symbol: str, interval: str = "1h") -> Optional[pd.DataFrame]:
+        """
+        Get intraday stock data using yfinance (hourly by default)
+        Args:
+            symbol: NSE stock symbol (e.g., 'RELIANCE', 'TCS')
+            interval: Data interval - '1h' (hourly) or '15m' (15-minute). Default: '1h'
+        Returns:
+            DataFrame with OHLCV data and technical indicators or None on error
+        """
+        try:
+            # Convert NSE symbol to Yahoo Finance format
+            yf_symbol = f"{symbol}.NS"
+            
+            # Fetch past 10 days of intraday data
+            ticker = yf.Ticker(yf_symbol)
+            df = ticker.history(period="10d", interval=interval)
+            
+            if df.empty:
+                self.logger.warning(f"No intraday data for {symbol}")
+                return None
+            
+            # Rename columns to lowercase for consistency
+            df.columns = [col.lower() for col in df.columns]
+            
+            # Calculate technical indicators on intraday data
+            # RSI (14-period)
+            delta = df['close'].diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss
+            df['rsi'] = 100 - (100 / (1 + rs))
+            
+            # EMA (9 and 20 period)
+            df['ema_9'] = df['close'].ewm(span=9, adjust=False).mean()
+            df['ema_20'] = df['close'].ewm(span=20, adjust=False).mean()
+            
+            # SuperTrend (10-period ATR)
+            df['atr'] = df['high'].rolling(14).max() - df['low'].rolling(14).min()
+            
+            return df
+            
+        except Exception as e:
+            self.logger.warning(f"Error fetching intraday data for {symbol}: {str(e)}")
+            return None
     
     def search_stocks(self, query: str) -> List[Dict[str, str]]:
         """

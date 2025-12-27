@@ -478,7 +478,16 @@ class LangGraphIScoreEngine:
                 rsi_overbought = tech_params.get('rsi_overbought', 70)
                 rsi_oversold = tech_params.get('rsi_oversold', 30)
                 
-                simulated_rsi = 50 + (price_change_pct * 5)
+                # Try to get real RSI from intraday (hourly) data
+                intraday_df = nse.get_intraday_data(symbol, interval="1h")
+                if intraday_df is not None and not intraday_df.empty and 'rsi' in intraday_df.columns:
+                    simulated_rsi = float(intraday_df['rsi'].iloc[-1])  # Latest RSI value
+                    if pd.isna(simulated_rsi):
+                        simulated_rsi = 50 + (price_change_pct * 5)
+                else:
+                    # Fallback to simulated RSI if intraday data unavailable
+                    simulated_rsi = 50 + (price_change_pct * 5)
+                
                 simulated_rsi = min(100, max(0, simulated_rsi))
                 
                 if simulated_rsi > rsi_overbought:
