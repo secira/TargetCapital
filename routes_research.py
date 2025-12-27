@@ -25,7 +25,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-bullseye', 'title': 'Price Targets', 'desc': 'AI-generated price targets with confidence levels'}
         ],
         'market_hours': 'NSE/BSE: 9:15 AM - 3:30 PM IST',
-        'signal_type': 'STOCK'
+        'signal_type': 'STOCK',
+        'example_symbols': 'RELIANCE, TCS, INFY'
     },
     'futures': {
         'name': 'Futures',
@@ -40,7 +41,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-clock', 'title': 'Expiry Strategies', 'desc': 'Time-decay aware trading signals'}
         ],
         'market_hours': 'NSE F&O: 9:15 AM - 3:30 PM IST',
-        'signal_type': 'FUTURES'
+        'signal_type': 'FUTURES',
+        'example_symbols': 'NIFTY, BANKNIFTY, FINNIFTY'
     },
     'options': {
         'name': 'Options',
@@ -55,7 +57,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-fire', 'title': 'Max Pain Analysis', 'desc': 'Weekly max pain levels and trends'}
         ],
         'market_hours': 'NSE F&O: 9:15 AM - 3:30 PM IST',
-        'signal_type': 'OPTIONS'
+        'signal_type': 'OPTIONS',
+        'example_symbols': 'NIFTY, BANKNIFTY, SENSEX'
     },
     'commodities': {
         'name': 'Commodities',
@@ -70,7 +73,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-globe', 'title': 'Global Correlation', 'desc': 'International market linkages'}
         ],
         'market_hours': 'MCX: 9:00 AM - 11:30 PM IST',
-        'signal_type': 'COMMODITY'
+        'signal_type': 'COMMODITY',
+        'example_symbols': 'GOLDM, SILVERM, CRUDEOIL'
     },
     'currency': {
         'name': 'Currency',
@@ -85,7 +89,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-globe-asia', 'title': 'Global FX', 'desc': 'DXY and emerging market correlations'}
         ],
         'market_hours': 'NSE Currency: 9:00 AM - 5:00 PM IST',
-        'signal_type': 'CURRENCY'
+        'signal_type': 'CURRENCY',
+        'example_symbols': 'USDINR, EURINR, GBPINR'
     },
     'bonds': {
         'name': 'Bonds',
@@ -100,7 +105,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-percentage', 'title': 'Rate Outlook', 'desc': 'RBI rate decision impact analysis'}
         ],
         'market_hours': 'RBI Retail Direct: 9:00 AM - 5:00 PM IST',
-        'signal_type': 'BOND'
+        'signal_type': 'BOND',
+        'example_symbols': 'GSUMSM, GOVT6, GOVT7'
     },
     'mutual_funds': {
         'name': 'Mutual Funds',
@@ -115,7 +121,8 @@ ASSET_TYPES = {
             {'icon': 'fas fa-user-tie', 'title': 'Fund Manager', 'desc': 'Track record and style analysis'}
         ],
         'market_hours': 'AMC: 9:30 AM - 3:00 PM IST (NAV cut-off)',
-        'signal_type': 'MF'
+        'signal_type': 'MF',
+        'example_symbols': 'HDFCBANK, ICICIBANK, AXISBANK'
     }
 }
 
