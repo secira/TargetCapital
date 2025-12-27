@@ -113,6 +113,7 @@ class LangGraphIScoreEngine:
         workflow.add_node("trend_analysis", self.trend_analysis)
         workflow.add_node("qualitative_analysis_mf", self.qualitative_analysis_mf)
         workflow.add_node("quantitative_analysis_mf", self.quantitative_analysis_mf)
+        workflow.add_node("search_sentiment_mf", self.search_sentiment)
         workflow.add_node("trend_analysis_mf", self.trend_analysis_mf)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
@@ -139,16 +140,13 @@ class LangGraphIScoreEngine:
         
         workflow.add_edge("qualitative_analysis", "quantitative_analysis")
         workflow.add_edge("quantitative_analysis", "search_sentiment")
+        workflow.add_edge("search_sentiment", "trend_analysis")
         workflow.add_edge("trend_analysis", "aggregate_scores")
         
         workflow.add_edge("qualitative_analysis_mf", "quantitative_analysis_mf")
         workflow.add_edge("quantitative_analysis_mf", "search_sentiment_mf")
-        workflow.add_edge("trend_analysis_mf", "aggregate_scores")
-        
-        workflow.add_node("search_sentiment_mf", self.search_sentiment)
-        
-        workflow.add_edge("search_sentiment", "trend_analysis")
         workflow.add_edge("search_sentiment_mf", "trend_analysis_mf")
+        workflow.add_edge("trend_analysis_mf", "aggregate_scores")
         
         workflow.add_edge("aggregate_scores", "store_results")
         workflow.add_edge("store_results", END)

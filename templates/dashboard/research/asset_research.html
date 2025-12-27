@@ -112,12 +112,21 @@
                                 <p class="small text-muted mb-2">
                                     I-Score (Intelli Score) is our AI-powered rating system that analyzes:
                                 </p>
+                                {% if asset.key == 'mutual_funds' %}
+                                <ul class="small text-muted mb-0 ps-3">
+                                    <li><strong>Qualitative Analysis (15%)</strong>: Fund house, fund age, AMC reputation</li>
+                                    <li><strong>Performance Analysis (50%)</strong>: NAV, CAGR, Returns, Sharpe ratio</li>
+                                    <li><strong>Search Sentiment (10%)</strong>: Market trends, Perplexity search</li>
+                                    <li><strong>Trend Analysis (25%)</strong>: Recent returns, category comparison</li>
+                                </ul>
+                                {% else %}
                                 <ul class="small text-muted mb-0 ps-3">
                                     <li><strong>Qualitative Sentiment (15%)</strong>: News, social media, annual reports</li>
                                     <li><strong>Quantitative Sentiment (50%)</strong>: RSI, SuperTrend, EMA indicators</li>
                                     <li><strong>Search Sentiment (10%)</strong>: Google Trends, Perplexity search</li>
                                     <li><strong>Trend Analysis (25%)</strong>: Open Interest, PCR, VIX</li>
                                 </ul>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -849,8 +858,9 @@ function showComponentDetails(componentKey) {
     const data = currentAnalysisData;
     const component = data.components?.[componentKey] || {};
     const score = Math.round(component.score || 0);
+    const isMutualFund = ASSET_KEY === 'mutual_funds' || ASSET_KEY === 'mutual-funds';
     
-    const componentConfig = {
+    const stockComponentConfig = {
         qualitative: {
             name: 'Qualitative Sentiment Analysis',
             icon: 'fas fa-newspaper',
@@ -880,6 +890,39 @@ function showComponentDetails(componentKey) {
             indicators: ['Open Interest', 'Put-Call Ratio (PCR)', 'VIX Index', 'Delivery Volume']
         }
     };
+    
+    const mfComponentConfig = {
+        qualitative: {
+            name: 'Fund Qualitative Analysis',
+            icon: 'fas fa-building',
+            description: 'Analysis of fund house reputation, management quality, fund age, and expense ratio.',
+            weight: 15,
+            sources: ['Fund House Rating', 'Fund Age', 'AMC Reputation', 'Category Classification']
+        },
+        quantitative: {
+            name: 'Fund Performance Analysis',
+            icon: 'fas fa-chart-line',
+            description: 'Performance metrics including NAV, returns (1Y/3Y/5Y), CAGR, Sharpe ratio, and volatility.',
+            weight: 50,
+            indicators: ['NAV', 'CAGR', 'Sharpe Ratio', 'Standard Deviation', 'Returns (1Y/3Y/5Y)']
+        },
+        search: {
+            name: 'Search Sentiment Analysis',
+            icon: 'fas fa-search',
+            description: 'Real-time search trends and AI-powered market intelligence from Perplexity.',
+            weight: 10,
+            sources: ['Perplexity AI', 'Search Trends', 'Market Intelligence']
+        },
+        trend: {
+            name: 'Fund Trend Analysis',
+            icon: 'fas fa-arrow-trend-up',
+            description: 'Analysis of recent fund performance trends, category comparison, and momentum indicators.',
+            weight: 25,
+            indicators: ['Recent Returns (1M/3M/6M)', 'Trend Direction', 'Category Performance']
+        }
+    };
+    
+    const componentConfig = isMutualFund ? mfComponentConfig : stockComponentConfig;
     
     const config = componentConfig[componentKey];
     
@@ -934,23 +977,86 @@ function showComponentDetails(componentKey) {
 
 function renderComponentDetails(componentKey, details) {
     let html = '';
+    const isMutualFund = ASSET_KEY === 'mutual_funds' || ASSET_KEY === 'mutual-funds';
     
     if (componentKey === 'qualitative') {
-        if (details.findings && details.findings.length > 0) {
+        if (isMutualFund && details.fund_house) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Fund House</strong>
+                            <small class="text-muted d-block">Asset Management Company</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold">${details.fund_house}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.fund_age_years !== undefined) {
+            const ageSentiment = details.fund_age_years >= 5 ? 'bullish' : details.fund_age_years >= 3 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${ageSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Fund Age</strong>
+                            <small class="text-muted d-block">Years since inception</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${details.fund_age_years}</span>
+                            <span class="indicator-badge ${ageSentiment} ms-2">years</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.category) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Category</strong>
+                            <small class="text-muted d-block">Fund Classification</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-info">${details.category}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.scheme_name) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Scheme Name</strong>
+                            <small class="text-muted d-block">Full fund name</small>
+                        </div>
+                        <div class="text-end" style="max-width: 60%;">
+                            <span class="small">${details.scheme_name}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (!isMutualFund && details.findings && details.findings.length > 0) {
             html += `<div class="mb-3"><strong>Key Findings:</strong><ul class="mb-0 mt-2">`;
             details.findings.forEach(finding => {
                 html += `<li class="mb-1">${finding}</li>`;
             });
             html += `</ul></div>`;
         }
-        if (details.sources_analyzed && details.sources_analyzed.length > 0) {
+        if (!isMutualFund && details.sources_analyzed && details.sources_analyzed.length > 0) {
             html += `<div class="mb-3"><strong>Sources Analyzed:</strong><div class="d-flex flex-wrap gap-2 mt-2">`;
             details.sources_analyzed.forEach(source => {
                 html += `<span class="badge bg-light text-dark border">${formatDetailKey(source)}</span>`;
             });
             html += `</div></div>`;
         }
-        if (details.citations && details.citations.length > 0) {
+        if (!isMutualFund && details.citations && details.citations.length > 0) {
             html += `<div class="mb-3"><strong>Citations:</strong><ol class="small mb-0 mt-2">`;
             details.citations.slice(0, 5).forEach(citation => {
                 html += `<li><a href="${citation}" target="_blank" class="text-primary text-truncate d-inline-block" style="max-width: 400px;">${citation}</a></li>`;
@@ -960,7 +1066,80 @@ function renderComponentDetails(componentKey, details) {
     }
     
     else if (componentKey === 'quantitative') {
-        if (details.rsi) {
+        if (isMutualFund && details.nav) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Current NAV</strong>
+                            <small class="text-muted d-block">Net Asset Value (${details.nav.date || 'Latest'})</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-4 fw-bold">₹${parseFloat(details.nav.current || 0).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.cagr) {
+            const cagr3y = details.cagr['3y'] || 0;
+            const cagr5y = details.cagr['5y'] || 0;
+            const cagrSentiment = cagr3y >= 15 ? 'bullish' : cagr3y >= 8 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${cagrSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>CAGR</strong>
+                            <small class="text-muted d-block">Compound Annual Growth Rate</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-5 fw-bold">${cagr3y.toFixed(1)}%</span>
+                            <span class="text-muted small ms-2">(3Y)</span>
+                            ${cagr5y ? `<span class="ms-2">${cagr5y.toFixed(1)}% (5Y)</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.returns) {
+            const return1y = details.returns['1y'] || 0;
+            const return3y = details.returns['3y'] || 0;
+            const returnSentiment = return1y >= 20 ? 'bullish' : return1y >= 5 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${returnSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Absolute Returns</strong>
+                            <small class="text-muted d-block">Historical Returns</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge ${return1y >= 0 ? 'bg-success' : 'bg-danger'}">${return1y.toFixed(1)}% (1Y)</span>
+                            <span class="badge ${return3y >= 0 ? 'bg-success' : 'bg-danger'} ms-1">${return3y.toFixed(1)}% (3Y)</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.risk_metrics) {
+            const sharpe = details.risk_metrics.sharpe_ratio || 0;
+            const volatility = details.risk_metrics.volatility || 0;
+            const sharpeSentiment = sharpe >= 1 ? 'bullish' : sharpe >= 0.5 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${sharpeSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Risk Metrics</strong>
+                            <small class="text-muted d-block">Sharpe Ratio & Volatility</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${sharpeSentiment}">Sharpe: ${sharpe.toFixed(2)}</span>
+                            <span class="badge bg-light text-dark border ms-1">Vol: ${volatility.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (!isMutualFund && details.rsi) {
             const rsiSentiment = details.rsi.signal === 'oversold' ? 'bullish' : details.rsi.signal === 'overbought' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${rsiSentiment}">
@@ -977,7 +1156,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (details.supertrend) {
+        if (!isMutualFund && details.supertrend) {
             const trendSentiment = details.supertrend.direction === 'bullish' ? 'bullish' : 'bearish';
             html += `
                 <div class="detail-item ${trendSentiment}">
@@ -993,7 +1172,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (details.ema) {
+        if (!isMutualFund && details.ema) {
             const emaSentiment = details.ema.signal.includes('bullish') ? 'bullish' : details.ema.signal.includes('bearish') ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${emaSentiment}">
@@ -1012,12 +1191,14 @@ function renderComponentDetails(componentKey, details) {
         if (details.price_data) {
             const priceChange = details.price_data.change_pct || 0;
             const priceSentiment = priceChange > 0 ? 'bullish' : priceChange < 0 ? 'bearish' : 'neutral';
+            const priceLabel = isMutualFund ? 'NAV Change' : 'Price Action';
+            const priceSubLabel = isMutualFund ? 'Weekly NAV Movement' : 'Current vs Previous Close';
             html += `
                 <div class="detail-item ${priceSentiment}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>Price Action</strong>
-                            <small class="text-muted d-block">Current vs Previous Close</small>
+                            <strong>${priceLabel}</strong>
+                            <small class="text-muted d-block">${priceSubLabel}</small>
                         </div>
                         <div class="text-end">
                             <span class="fs-6">₹${details.price_data.current?.toFixed(2) || '-'}</span>
@@ -1063,7 +1244,59 @@ function renderComponentDetails(componentKey, details) {
     }
     
     else if (componentKey === 'trend') {
-        if (details.vix) {
+        if (isMutualFund && details.recent_returns) {
+            const return1m = details.recent_returns['1m'] || 0;
+            const return3m = details.recent_returns['3m'] || 0;
+            const return6m = details.recent_returns['6m'] || 0;
+            const returnSentiment = return1m >= 3 ? 'bullish' : return1m >= 0 ? 'neutral' : 'bearish';
+            html += `
+                <div class="detail-item ${returnSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Recent Performance</strong>
+                            <small class="text-muted d-block">Short-Term Returns</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge ${return1m >= 0 ? 'bg-success' : 'bg-danger'}">${return1m.toFixed(1)}% (1M)</span>
+                            <span class="badge ${return3m >= 0 ? 'bg-success' : 'bg-danger'} ms-1">${return3m.toFixed(1)}% (3M)</span>
+                            <span class="badge ${return6m >= 0 ? 'bg-success' : 'bg-danger'} ms-1">${return6m.toFixed(1)}% (6M)</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.trend_direction) {
+            const dirSentiment = details.trend_direction === 'accelerating' ? 'bullish' : details.trend_direction === 'decelerating' ? 'bearish' : 'neutral';
+            html += `
+                <div class="detail-item ${dirSentiment}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Trend Direction</strong>
+                            <small class="text-muted d-block">Performance Momentum</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="indicator-badge ${dirSentiment}">${formatDetailKey(details.trend_direction)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (isMutualFund && details.category) {
+            html += `
+                <div class="detail-item neutral">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Category</strong>
+                            <small class="text-muted d-block">Fund Classification</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-info">${details.category}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (!isMutualFund && details.vix) {
             const vixSentiment = details.vix.signal === 'low_volatility' ? 'bullish' : details.vix.signal === 'high_volatility' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${vixSentiment}">
@@ -1080,7 +1313,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (details.pcr) {
+        if (!isMutualFund && details.pcr) {
             const pcrSentiment = details.pcr.signal === 'bullish' ? 'bullish' : details.pcr.signal === 'bearish' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${pcrSentiment}">
@@ -1097,7 +1330,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (details.open_interest) {
+        if (!isMutualFund && details.open_interest) {
             const oiSentiment = details.open_interest.signal === 'significant_buildup' ? 'bullish' : details.open_interest.signal === 'unwinding' ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${oiSentiment}">
@@ -1114,7 +1347,7 @@ function renderComponentDetails(componentKey, details) {
                 </div>
             `;
         }
-        if (details.market_trend) {
+        if (!isMutualFund && details.market_trend) {
             const marketSentiment = details.market_trend.nifty_change > 0 ? 'bullish' : details.market_trend.nifty_change < 0 ? 'bearish' : 'neutral';
             html += `
                 <div class="detail-item ${marketSentiment}">
