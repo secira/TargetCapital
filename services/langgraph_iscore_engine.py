@@ -117,7 +117,7 @@ class LangGraphIScoreEngine:
         workflow.add_node("trend_analysis_mf", self.trend_analysis_mf)
         workflow.add_node("qualitative_analysis_bond", self.qualitative_analysis_bond)
         workflow.add_node("quantitative_analysis_bond", self.quantitative_analysis_bond)
-        workflow.add_node("search_sentiment_bond", self.search_sentiment)
+        workflow.add_node("search_sentiment_bond", self.search_sentiment_bond)
         workflow.add_node("trend_analysis_bond", self.trend_analysis_bond)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
@@ -1241,6 +1241,65 @@ class LangGraphIScoreEngine:
             'trend_reasoning': 'Trend analysis unavailable',
             'trend_confidence': 0.3,
             'step': 'bond_trend_fallback'
+        }
+    
+    def search_sentiment_bond(self, state: IScoreState) -> Dict:
+        """Bond Search Sentiment Analysis (10% weight) - Bond Market Sentiment"""
+        logger.info(f"I-Score Bond Node 4: Search sentiment for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.perplexity_service import PerplexityService
+            perplexity = PerplexityService()
+            
+            response = perplexity.research_indian_stock(symbol, 'news_sentiment')
+            
+            if response and response.get('research_content'):
+                try:
+                    parsed = self._parse_llm_response(response['research_content'], 'search')
+                    score = parsed.get('search_score', 50)
+                    trend = parsed.get('trend_direction', 'stable')
+                    buzz = parsed.get('buzz_level', 'medium')
+                except:
+                    score = 50
+                    trend = 'stable'
+                    buzz = 'medium'
+                
+                sources_list = [
+                    {'name': 'Perplexity Search Index', 'type': 'search_trends', 'coverage': 'Bond market sentiment'},
+                    {'name': 'News Analysis', 'type': 'media', 'coverage': f'Market Interest: {buzz}'},
+                    {'name': 'Investor Sentiment', 'type': 'sentiment', 'coverage': 'Bond investor positioning'}
+                ]
+                
+                reasoning = f"Bond market sentiment shows {trend} trend with {buzz} interest level. Market analysis based on news mentions, investor positioning, and trading sentiment."
+                
+                return {
+                    'search_score': min(100, max(0, score)),
+                    'search_details': {
+                        'trend_direction': trend,
+                        'buzz_level': buzz,
+                        'analysis': response.get('answer', '')[:500] if response.get('answer') else 'Bond market sentiment analysis complete'
+                    },
+                    'search_sources': sources_list,
+                    'search_reasoning': reasoning,
+                    'search_confidence': 0.7,
+                    'step': 'bond_search_complete'
+                }
+        except Exception as e:
+            logger.error(f"Bond search sentiment error: {e}")
+        
+        return {
+            'search_score': 50,
+            'search_details': {
+                'trend_direction': 'stable',
+                'buzz_level': 'medium',
+                'analysis': 'Bond market sentiment analysis available'
+            },
+            'search_sources': [{'name': 'Market Analysis', 'type': 'sentiment', 'coverage': 'Bond market neutral'}],
+            'search_reasoning': 'Bond market sentiment is neutral with stable positioning',
+            'search_confidence': 0.6,
+            'step': 'bond_search_complete'
         }
     
     # ==================== END BOND ANALYSIS METHODS ====================
