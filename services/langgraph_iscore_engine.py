@@ -2824,7 +2824,7 @@ class LangGraphIScoreEngine:
             'RELIANCE': {'current_price': 1559.20, 'previous_close': 1558.25, 'change_percent': 0.06},
             'TCS': {'current_price': 3280.00, 'previous_close': 3275.50, 'change_percent': 0.14},
             'HDFCBANK': {'current_price': 1615.50, 'previous_close': 1610.75, 'change_percent': 0.29},
-            'INFY': {'current_price': 1385.70, 'previous_close': 1392.10, 'change_percent': -0.46},
+            'INFY': {'current_price': 1656.10, 'previous_close': 1663.40, 'change_percent': -0.44},
             'ICICIBANK': {'current_price': 995.85, 'previous_close': 992.40, 'change_percent': 0.35},
             'SBIN': {'current_price': 512.40, 'previous_close': 508.80, 'change_percent': 0.71},
         }

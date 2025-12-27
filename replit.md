@@ -109,7 +109,7 @@ Implements defense-in-depth tenant isolation through three layers:
 - ✅ Detailed reasoning: Every component includes clear analysis reasoning explaining score and methodology
 - ✅ Transparency audit trail: API returns "Every recommendation comes with clear reasoning and audit trails for complete transparency"
 - ✅ API Response Structure: Enhanced with market_data and sources/reasoning fields for each component
-- ✅ Perplexity-Based Pricing: Accurate last close prices from Perplexity (RELIANCE: ₹1559.20, TCS: ₹3280.00, HDFCBANK: ₹1615.50, INFY: ₹1385.70, ICICIBANK: ₹995.85, SBIN: ₹512.40)
+- ✅ Live Price Fetching: Real-time prices from yfinance API with fallback chain (NSE API → yfinance → hardcoded last resort)
 - ✅ Next Step: NSE API integration for real-time live market data during trading hours
 
 **Key Files**:
