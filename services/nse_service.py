@@ -397,14 +397,87 @@ class NSEService:
 
     def _get_fallback_quote(self, symbol: str) -> Dict[str, Any]:
         """
-        Provide fallback demo data when NSE API is unavailable
-        Uses accurate last close prices from Perplexity
+        Fetch real prices using yfinance when NSE API is unavailable
+        Ensures latest actual prices, not hardcoded data
         Args:
             symbol: Stock symbol
         Returns:
-            Dictionary with demo stock data
+            Dictionary with actual stock data from yfinance
         """
-        # Accurate NSE stocks with last close prices from Perplexity (27 Dec 2025)
+        try:
+            # Try to fetch real data from yfinance (NSE prices)
+            yf_symbol = f"{symbol}.NS"
+            ticker = yf.Ticker(yf_symbol)
+            
+            # Get historical data (last 5 days to get previous close)
+            history = ticker.history(period="5d")
+            
+            if history.empty:
+                self.logger.warning(f"No yfinance data for {symbol}, using hardcoded fallback")
+                return self._get_hardcoded_fallback(symbol)
+            
+            # Get current/latest price (last row)
+            latest = history.iloc[-1]
+            current_price = float(latest['Close'])
+            
+            # Get previous close (second to last row if available)
+            if len(history) >= 2:
+                previous_close = float(history.iloc[-2]['Close'])
+            else:
+                previous_close = current_price
+            
+            # Get day high/low from latest data
+            day_high = float(latest['High'])
+            day_low = float(latest['Low'])
+            volume = int(latest['Volume']) if 'Volume' in latest and latest['Volume'] > 0 else 5000000
+            
+            # Get 52-week high/low
+            year_history = ticker.history(period="1y")
+            week_52_high = float(year_history['High'].max()) if not year_history.empty else current_price * 1.2
+            week_52_low = float(year_history['Low'].min()) if not year_history.empty else current_price * 0.8
+            
+            # Get company info
+            info = ticker.info or {}
+            company_name = info.get('longName', f'{symbol} Limited')
+            pe_ratio = info.get('trailingPE', 20.0)
+            
+            # Calculate change
+            change_amount = current_price - previous_close
+            change_percent = (change_amount / previous_close * 100) if previous_close != 0 else 0
+            
+            self.logger.info(f"✅ Got real price for {symbol} from yfinance: ₹{current_price}")
+            
+            return {
+                'symbol': symbol,
+                'company_name': company_name,
+                'current_price': current_price,
+                'previous_close': previous_close,
+                'change_amount': change_amount,
+                'change_percent': change_percent,
+                'volume': volume,
+                'day_high': day_high,
+                'day_low': day_low,
+                'week_52_high': week_52_high,
+                'week_52_low': week_52_low,
+                'market_cap': None,
+                'pe_ratio': pe_ratio,
+                'timestamp': dt.datetime.now(timezone.utc),
+                'data_source': 'yfinance'
+            }
+        
+        except Exception as e:
+            self.logger.warning(f"yfinance fetch failed for {symbol}: {e}")
+            return self._get_hardcoded_fallback(symbol)
+    
+    def _get_hardcoded_fallback(self, symbol: str) -> Dict[str, Any]:
+        """
+        Hardcoded fallback data (used only when yfinance also fails)
+        Args:
+            symbol: Stock symbol
+        Returns:
+            Dictionary with hardcoded data
+        """
+        # Last-resort hardcoded prices (updated 27 Dec 2025)
         fallback_data = {
             'RELIANCE': {
                 'company_name': 'Reliance Industries Limited',
@@ -491,6 +564,8 @@ class NSEService:
         change_amount = stock_data['current_price'] - stock_data['previous_close']
         change_percent = (change_amount / stock_data['previous_close']) * 100
         
+        self.logger.info(f"Using hardcoded fallback for {symbol}")
+        
         return {
             'symbol': symbol,
             'company_name': stock_data['company_name'],
@@ -505,7 +580,8 @@ class NSEService:
             'week_52_low': stock_data['week_52_low'],
             'market_cap': None,
             'pe_ratio': stock_data['pe_ratio'],
-            'timestamp': dt.datetime.now(timezone.utc)
+            'timestamp': dt.datetime.now(timezone.utc),
+            'data_source': 'hardcoded_fallback'
         }
 
     def _get_fallback_market_data(self) -> Dict[str, Any]:
