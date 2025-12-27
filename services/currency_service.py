@@ -5,6 +5,10 @@ Provides forex/currency data for trading analysis
 Data Sources:
 - Primary: TraderMade (real-time streaming with millisecond updates)
 - Backup: XE Currency Data API / ExchangeRate-API (reliable REST API access)
+
+API Integration:
+- TraderMade API: https://tradermade.com/ (requires API key)
+- ExchangeRate-API: https://exchangerate-api.com/ (requires API key)
 """
 
 import requests
@@ -25,6 +29,17 @@ class CurrencyService:
             'Accept': 'application/json',
             'User-Agent': 'TargetCapital/1.0'
         })
+        
+        self.tradermade_key = os.environ.get('TRADERMADE_API_KEY')
+        self.exchangerate_key = os.environ.get('EXCHANGERATE_API_KEY')
+        
+        self.tradermade_base = 'https://marketdata.tradermade.com/api/v1'
+        self.exchangerate_base = 'https://v6.exchangerate-api.com/v6'
+        
+        if self.tradermade_key:
+            logger.info("TraderMade API initialized for real-time forex data")
+        if self.exchangerate_key:
+            logger.info("ExchangeRate-API initialized for forex data")
         
         self.common_pairs = {
             'USDINR': {
@@ -316,6 +331,77 @@ class CurrencyService:
             'Safe Haven': ['USDCHF']
         }
     
+    def _fetch_from_tradermade(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch real-time forex data from TraderMade API (Primary)"""
+        if not self.tradermade_key:
+            return None
+        
+        try:
+            url = f"{self.tradermade_base}/live"
+            params = {'api_key': self.tradermade_key, 'currency': symbol}
+            response = self.session.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                quotes = data.get('quotes', [])
+                if quotes:
+                    quote = quotes[0]
+                    logger.info(f"TraderMade: Fetched real-time data for {symbol}")
+                    return {
+                        'symbol': quote.get('instrument', symbol),
+                        'current_rate': quote.get('mid', 0),
+                        'bid': quote.get('bid', 0),
+                        'ask': quote.get('ask', 0),
+                        'day_high': quote.get('high', 0),
+                        'day_low': quote.get('low', 0),
+                        'previous_close': quote.get('previous_close', 0),
+                        'data_source': 'TraderMade (Live)',
+                        'success': True
+                    }
+        except Exception as e:
+            logger.warning(f"TraderMade API error for {symbol}: {e}")
+        
+        return None
+    
+    def _fetch_from_exchangerate(self, base: str, quote: str) -> Optional[Dict[str, Any]]:
+        """Fetch forex data from ExchangeRate-API (Backup)"""
+        if not self.exchangerate_key:
+            return None
+        
+        try:
+            url = f"{self.exchangerate_base}/{self.exchangerate_key}/pair/{base}/{quote}"
+            response = self.session.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('result') == 'success':
+                    logger.info(f"ExchangeRate-API: Fetched data for {base}/{quote}")
+                    return {
+                        'symbol': f"{base}{quote}",
+                        'current_rate': data.get('conversion_rate', 0),
+                        'data_source': 'ExchangeRate-API',
+                        'success': True
+                    }
+        except Exception as e:
+            logger.warning(f"ExchangeRate-API error for {base}/{quote}: {e}")
+        
+        return None
+    
+    def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Attempt to fetch live data, fallback to sample data if APIs unavailable"""
+        live_data = self._fetch_from_tradermade(symbol)
+        if live_data:
+            return live_data
+        
+        if len(symbol) == 6:
+            base = symbol[:3]
+            quote = symbol[3:]
+            live_data = self._fetch_from_exchangerate(base, quote)
+            if live_data:
+                return live_data
+        
+        return None
+    
     def search_currency(self, query: str) -> List[Dict[str, Any]]:
         """Search for currency pairs by name or symbol"""
         query_upper = query.upper().strip().replace('/', '')
@@ -336,20 +422,32 @@ class CurrencyService:
         return results
     
     def get_currency_details(self, symbol: str) -> Dict[str, Any]:
-        """Get detailed currency pair information"""
+        """Get detailed currency pair information - tries live APIs first, falls back to sample data"""
         symbol_upper = symbol.upper().strip().replace('/', '')
+        
+        live_data = self._get_live_data(symbol_upper)
         
         if symbol_upper in self.common_pairs:
             currency = self.common_pairs[symbol_upper].copy()
             
+            if live_data:
+                currency['current_rate'] = live_data.get('current_rate', currency['current_rate'])
+                currency['bid'] = live_data.get('bid', currency.get('bid', 0))
+                currency['ask'] = live_data.get('ask', currency.get('ask', 0))
+                currency['day_high'] = live_data.get('day_high', currency.get('day_high', 0))
+                currency['day_low'] = live_data.get('day_low', currency.get('day_low', 0))
+                currency['previous_close'] = live_data.get('previous_close', currency.get('previous_close', 0))
+                currency['data_source'] = live_data.get('data_source', 'TraderMade (Live)')
+            else:
+                currency['data_source'] = 'TraderMade/ExchangeRate-API (Sample)'
+            
             rate_change = currency['current_rate'] - currency['previous_close']
-            rate_change_pct = (rate_change / currency['previous_close']) * 100
+            rate_change_pct = (rate_change / currency['previous_close']) * 100 if currency['previous_close'] else 0
             
             currency['rate_change'] = round(rate_change, 4)
             currency['rate_change_pct'] = round(rate_change_pct, 2)
             currency['last_updated'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             currency['success'] = True
-            currency['data_source'] = 'TraderMade/ExchangeRate-API'
             
             return currency
         

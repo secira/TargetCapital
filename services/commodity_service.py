@@ -3,8 +3,12 @@ Commodity Service for Target Capital
 Provides commodity data from MCX/NCDEX and global commodity markets
 
 Data Sources:
-- APIdatafeed: MCX/NCDEX real-time data for Indian commodity exchanges
-- Commodities-API: International commodity prices and cross-market analysis
+- APIdatafeed: MCX/NCDEX real-time data for Indian commodity exchanges (Primary)
+- Commodities-API: International commodity prices and cross-market analysis (Backup)
+
+API Integration:
+- APIdatafeed API: https://apidatafeed.com/ (requires API key)
+- Commodities-API: https://commodities-api.com/ (requires API key)
 """
 
 import requests
@@ -25,6 +29,17 @@ class CommodityService:
             'Accept': 'application/json',
             'User-Agent': 'TargetCapital/1.0'
         })
+        
+        self.apidatafeed_key = os.environ.get('APIDATAFEED_API_KEY')
+        self.commodities_api_key = os.environ.get('COMMODITIES_API_KEY')
+        
+        self.apidatafeed_base = 'https://api.apidatafeed.com/v1'
+        self.commodities_api_base = 'https://commodities-api.com/api'
+        
+        if self.apidatafeed_key:
+            logger.info("APIdatafeed API initialized for MCX/NCDEX data")
+        if self.commodities_api_key:
+            logger.info("Commodities-API initialized for global commodity data")
         
         self.common_commodities = {
             'GOLD': {
@@ -289,6 +304,86 @@ class CommodityService:
             'Agricultural': ['COTTON', 'MENTHAOIL']
         }
     
+    def _fetch_from_apidatafeed(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch real-time MCX/NCDEX data from APIdatafeed API (Primary)"""
+        if not self.apidatafeed_key:
+            return None
+        
+        try:
+            url = f"{self.apidatafeed_base}/commodity/{symbol}"
+            headers = {'Authorization': f'Bearer {self.apidatafeed_key}'}
+            response = self.session.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    logger.info(f"APIdatafeed: Fetched real-time data for {symbol}")
+                    return {
+                        'symbol': data.get('symbol', symbol),
+                        'name': data.get('name', symbol),
+                        'exchange': data.get('exchange', 'MCX'),
+                        'current_price': data.get('ltp', 0),
+                        'previous_close': data.get('previous_close', 0),
+                        'day_high': data.get('high', 0),
+                        'day_low': data.get('low', 0),
+                        'open_interest': data.get('open_interest', 0),
+                        'volume': data.get('volume', 0),
+                        'volatility': data.get('volatility', 15.0),
+                        'data_source': 'APIdatafeed (Live)',
+                        'success': True
+                    }
+        except Exception as e:
+            logger.warning(f"APIdatafeed API error for {symbol}: {e}")
+        
+        return None
+    
+    def _fetch_from_commodities_api(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Fetch global commodity data from Commodities-API (Backup)"""
+        if not self.commodities_api_key:
+            return None
+        
+        symbol_map = {
+            'GOLD': 'XAU', 'SILVER': 'XAG', 'CRUDEOIL': 'BRENT',
+            'NATURALGAS': 'NG', 'COPPER': 'XCU', 'ALUMINIUM': 'ALU'
+        }
+        api_symbol = symbol_map.get(symbol.upper(), symbol)
+        
+        try:
+            url = f"{self.commodities_api_base}/latest"
+            params = {'access_key': self.commodities_api_key, 'base': 'USD', 'symbols': api_symbol}
+            response = self.session.get(url, params=params, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    rates = data.get('rates', {})
+                    price = rates.get(api_symbol, 0)
+                    if price > 0:
+                        price = 1 / price
+                    logger.info(f"Commodities-API: Fetched global data for {symbol}")
+                    return {
+                        'symbol': symbol,
+                        'current_price': round(price, 2),
+                        'data_source': 'Commodities-API (Global)',
+                        'success': True
+                    }
+        except Exception as e:
+            logger.warning(f"Commodities-API error for {symbol}: {e}")
+        
+        return None
+    
+    def _get_live_data(self, symbol: str) -> Optional[Dict[str, Any]]:
+        """Attempt to fetch live data, fallback to sample data if APIs unavailable"""
+        live_data = self._fetch_from_apidatafeed(symbol)
+        if live_data:
+            return live_data
+        
+        live_data = self._fetch_from_commodities_api(symbol)
+        if live_data:
+            return live_data
+        
+        return None
+    
     def search_commodity(self, query: str) -> List[Dict[str, Any]]:
         """Search for commodities by name or symbol"""
         query_upper = query.upper().strip()
@@ -308,20 +403,32 @@ class CommodityService:
         return results
     
     def get_commodity_details(self, symbol: str) -> Dict[str, Any]:
-        """Get detailed commodity information"""
+        """Get detailed commodity information - tries live APIs first, falls back to sample data"""
         symbol_upper = symbol.upper().strip()
+        
+        live_data = self._get_live_data(symbol_upper)
         
         if symbol_upper in self.common_commodities:
             commodity = self.common_commodities[symbol_upper].copy()
             
+            if live_data:
+                commodity['current_price'] = live_data.get('current_price', commodity['current_price'])
+                commodity['previous_close'] = live_data.get('previous_close', commodity['previous_close'])
+                commodity['day_high'] = live_data.get('day_high', commodity.get('day_high', 0))
+                commodity['day_low'] = live_data.get('day_low', commodity.get('day_low', 0))
+                commodity['open_interest'] = live_data.get('open_interest', commodity.get('open_interest', 0))
+                commodity['volume'] = live_data.get('volume', commodity.get('volume', 0))
+                commodity['data_source'] = live_data.get('data_source', 'MCX/APIdatafeed (Live)')
+            else:
+                commodity['data_source'] = 'MCX/APIdatafeed (Sample)'
+            
             price_change = commodity['current_price'] - commodity['previous_close']
-            price_change_pct = (price_change / commodity['previous_close']) * 100
+            price_change_pct = (price_change / commodity['previous_close']) * 100 if commodity['previous_close'] else 0
             
             commodity['price_change'] = round(price_change, 2)
             commodity['price_change_pct'] = round(price_change_pct, 2)
             commodity['last_updated'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             commodity['success'] = True
-            commodity['data_source'] = 'MCX/APIdatafeed'
             
             return commodity
         
