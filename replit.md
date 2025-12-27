@@ -118,3 +118,20 @@ Implements defense-in-depth tenant isolation through three layers:
 - `services/nse_service.py`: NSE market data retrieval with fallback mechanism
 - `routes_research.py`: HTTP endpoints for stock analysis
 - `templates/dashboard/research/asset_research.html`: Frontend UI for I-Score display
+
+### Mutual Fund Data Sources (For Future Implementation)
+**Primary Data Sources**:
+- **MFapi.in**: Free REST API for real-time NAV data (updated 3x daily)
+  - Endpoint: `https://api.mfapi.in/mf/{scheme_code}`
+  - Returns: NAV history, scheme info, fund house details
+- **mftool Python Library**: Scheme information and performance metrics
+  - Install: `pip install mftool`
+  - Features: NAV, historical data, scheme details, fund comparisons
+- **AMFI Data**: Official verification and regulatory records
+  - Source: Association of Mutual Funds in India
+  - Use: Cross-verification of NAV and scheme information
+
+**Integration Notes**:
+- MFapi.in is free with no API key required
+- mftool wraps AMFI data with convenient Python interface
+- Combine sources for reliability: MFapi.in for real-time + AMFI for verification
