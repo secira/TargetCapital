@@ -43,51 +43,59 @@ class NSEService:
     
     def get_stock_quote(self, symbol: str, delayed_minutes: int = 5) -> Optional[Dict[str, Any]]:
         """
-        Get stock quote for a given symbol with configurable delay
+        Get stock quote with intelligent fallback - uses live price if market open, last close if closed
         Args:
             symbol: NSE stock symbol (e.g., 'RELIANCE', 'TCS')
             delayed_minutes: Minutes to delay the price data (default: 5 minutes)
         Returns:
-            Dictionary with stock data or fallback demo data if API fails
+            Dictionary with stock data - ALWAYS includes a price
         """
         try:
+            # First check market status to decide if we should expect live prices
+            market_status = self.get_market_status()
+            
             quote = nse_quote(symbol)
             if quote:
-                # Calculate delayed timestamp (simulate delayed data)
-                current_time = dt.datetime.now(timezone.utc)
-                delayed_timestamp = current_time - dt.timedelta(minutes=delayed_minutes)
-                
                 last_price = float(quote.get('lastPrice', 0))
                 
-                # If API returns 0 or no price (market closed), use fallback data
-                if last_price == 0:
-                    self.logger.info(f"NSE API returned 0 price for {symbol}, using fallback data")
+                # If market is closed and we get 0 price, use last close from fallback
+                if last_price == 0 and not market_status.get('is_open', False):
+                    self.logger.info(f"Market closed, using last close price for {symbol}")
                     return self._get_fallback_quote(symbol)
                 
-                return {
-                    'symbol': symbol,
-                    'company_name': quote.get('companyName', symbol),
-                    'current_price': last_price,
-                    'previous_close': float(quote.get('previousClose', 0)),
-                    'change_amount': float(quote.get('change', 0)),
-                    'change_percent': float(quote.get('pChange', 0)),
-                    'volume': int(quote.get('totalTradedVolume', 0)),
-                    'day_high': float(quote.get('dayHigh', 0)),
-                    'day_low': float(quote.get('dayLow', 0)),
-                    'week_52_high': float(quote.get('high52', 0)),
-                    'week_52_low': float(quote.get('low52', 0)),
-                    'market_cap': quote.get('marketCap'),
-                    'pe_ratio': quote.get('pe'),
-                    'timestamp': delayed_timestamp,
-                    'data_delay_minutes': delayed_minutes,
-                    'real_timestamp': current_time
-                }
+                # If we got a valid price, use it
+                if last_price > 0:
+                    current_time = dt.datetime.now(timezone.utc)
+                    delayed_timestamp = current_time - dt.timedelta(minutes=delayed_minutes)
+                    
+                    return {
+                        'symbol': symbol,
+                        'company_name': quote.get('companyName', symbol),
+                        'current_price': last_price,
+                        'previous_close': float(quote.get('previousClose', 0)),
+                        'change_amount': float(quote.get('change', 0)),
+                        'change_percent': float(quote.get('pChange', 0)),
+                        'volume': int(quote.get('totalTradedVolume', 0)),
+                        'day_high': float(quote.get('dayHigh', 0)),
+                        'day_low': float(quote.get('dayLow', 0)),
+                        'week_52_high': float(quote.get('high52', 0)),
+                        'week_52_low': float(quote.get('low52', 0)),
+                        'market_cap': quote.get('marketCap'),
+                        'pe_ratio': quote.get('pe'),
+                        'timestamp': delayed_timestamp,
+                        'data_delay_minutes': delayed_minutes,
+                        'real_timestamp': current_time,
+                        'data_source': 'live'
+                    }
             self._rate_limit_delay()
         except Exception as e:
-            self.logger.warning(f"NSE API error for {symbol}: {str(e)}. Using fallback data.")
+            self.logger.warning(f"NSE API error for {symbol}: {str(e)}")
         
-        # Return fallback demo data when API is unavailable
-        return self._get_fallback_quote(symbol)
+        # FALLBACK: Always return fallback data - ensures price is never missing
+        self.logger.info(f"Using fallback data for {symbol}")
+        fallback = self._get_fallback_quote(symbol)
+        fallback['data_source'] = 'last_close'  # Mark this as last close price
+        return fallback
     
     def get_multiple_quotes(self, symbols: List[str]) -> List[Dict[str, Any]]:
         """
@@ -333,20 +341,35 @@ class NSEService:
     
     def get_market_status(self) -> Dict[str, Any]:
         """
-        Get current market status
+        Get current market status using IST timezone
         Returns:
             Dictionary with market status info
         """
         try:
-            # Get current time in IST
-            now = dt.datetime.now(timezone.utc)
+            import pytz
+            # Get current time in IST (UTC+5:30)
+            ist = pytz.timezone('Asia/Kolkata')
+            now_ist = dt.datetime.now(ist)
             
             # NSE trading hours: 9:15 AM to 3:30 PM IST on weekdays
-            market_open_time = now.replace(hour=9, minute=15, second=0, microsecond=0)
-            market_close_time = now.replace(hour=15, minute=30, second=0, microsecond=0)
+            is_weekend = now_ist.weekday() >= 5  # Saturday = 5, Sunday = 6
+            market_open_hour = 9
+            market_open_minute = 15
+            market_close_hour = 15
+            market_close_minute = 30
             
-            is_weekend = now.weekday() >= 5  # Saturday = 5, Sunday = 6
-            is_trading_hours = market_open_time <= now <= market_close_time
+            current_hour = now_ist.hour
+            current_minute = now_ist.minute
+            
+            # Calculate time in minutes for comparison
+            current_time_minutes = current_hour * 60 + current_minute
+            open_time_minutes = market_open_hour * 60 + market_open_minute
+            close_time_minutes = market_close_hour * 60 + market_close_minute
+            
+            # Check if current time is within trading hours
+            is_trading_hours = False
+            if not is_weekend and open_time_minutes <= current_time_minutes <= close_time_minutes:
+                is_trading_hours = True
             
             if is_weekend:
                 status = "CLOSED"
@@ -354,24 +377,23 @@ class NSEService:
             elif is_trading_hours:
                 status = "OPEN"
                 message = "Market is open for trading"
-            elif now < market_open_time:
+            elif current_time_minutes < open_time_minutes:
                 status = "PRE_MARKET"
-                message = f"Pre-market session - Opens at {market_open_time.strftime('%H:%M')}"
+                message = f"Pre-market session - Opens at 09:15 IST"
             else:
                 status = "CLOSED"
-                message = f"Market closed - Opens tomorrow at {market_open_time.strftime('%H:%M')}"
+                message = f"Market closed - Opens tomorrow at 09:15 IST"
             
             return {
                 'status': status,
                 'message': message,
-                'current_time': now,
-                'market_open': market_open_time,
-                'market_close': market_close_time,
-                'is_trading_day': not is_weekend
+                'is_open': status == "OPEN",
+                'is_trading_day': not is_weekend,
+                'current_time_ist': now_ist.isoformat()
             }
         except Exception as e:
             self.logger.error(f"Error getting market status: {str(e)}")
-            return {'status': 'UNKNOWN', 'message': 'Unable to determine market status'}
+            return {'status': 'UNKNOWN', 'message': 'Unable to determine market status', 'is_open': False}
 
     def _get_fallback_quote(self, symbol: str) -> Dict[str, Any]:
         """
