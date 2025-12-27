@@ -119,6 +119,14 @@ class LangGraphIScoreEngine:
         workflow.add_node("quantitative_analysis_bond", self.quantitative_analysis_bond)
         workflow.add_node("search_sentiment_bond", self.search_sentiment_bond)
         workflow.add_node("trend_analysis_bond", self.trend_analysis_bond)
+        workflow.add_node("qualitative_analysis_commodity", self.qualitative_analysis_commodity)
+        workflow.add_node("quantitative_analysis_commodity", self.quantitative_analysis_commodity)
+        workflow.add_node("search_sentiment_commodity", self.search_sentiment_commodity)
+        workflow.add_node("trend_analysis_commodity", self.trend_analysis_commodity)
+        workflow.add_node("qualitative_analysis_currency", self.qualitative_analysis_currency)
+        workflow.add_node("quantitative_analysis_currency", self.quantitative_analysis_currency)
+        workflow.add_node("search_sentiment_currency", self.search_sentiment_currency)
+        workflow.add_node("trend_analysis_currency", self.trend_analysis_currency)
         workflow.add_node("aggregate_scores", self.aggregate_scores)
         workflow.add_node("store_results", self.store_results)
         
@@ -139,6 +147,8 @@ class LangGraphIScoreEngine:
             {
                 "mutual_funds": "qualitative_analysis_mf",
                 "bonds": "qualitative_analysis_bond",
+                "commodities": "qualitative_analysis_commodity",
+                "currency": "qualitative_analysis_currency",
                 "stocks": "qualitative_analysis"
             }
         )
@@ -158,6 +168,16 @@ class LangGraphIScoreEngine:
         workflow.add_edge("search_sentiment_bond", "trend_analysis_bond")
         workflow.add_edge("trend_analysis_bond", "aggregate_scores")
         
+        workflow.add_edge("qualitative_analysis_commodity", "quantitative_analysis_commodity")
+        workflow.add_edge("quantitative_analysis_commodity", "search_sentiment_commodity")
+        workflow.add_edge("search_sentiment_commodity", "trend_analysis_commodity")
+        workflow.add_edge("trend_analysis_commodity", "aggregate_scores")
+        
+        workflow.add_edge("qualitative_analysis_currency", "quantitative_analysis_currency")
+        workflow.add_edge("quantitative_analysis_currency", "search_sentiment_currency")
+        workflow.add_edge("search_sentiment_currency", "trend_analysis_currency")
+        workflow.add_edge("trend_analysis_currency", "aggregate_scores")
+        
         workflow.add_edge("aggregate_scores", "store_results")
         workflow.add_edge("store_results", END)
         
@@ -176,6 +196,10 @@ class LangGraphIScoreEngine:
             return "mutual_funds"
         if asset_type in ['bonds', 'bond']:
             return "bonds"
+        if asset_type in ['commodities', 'commodity']:
+            return "commodities"
+        if asset_type in ['currency', 'forex', 'fx']:
+            return "currency"
         return "stocks"
     
     def _get_trend_route(self, state: IScoreState) -> str:
@@ -1303,6 +1327,599 @@ class LangGraphIScoreEngine:
         }
     
     # ==================== END BOND ANALYSIS METHODS ====================
+    
+    # ==================== COMMODITY ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_commodity(self, state: IScoreState) -> Dict:
+        """Commodity Qualitative Analysis (15% weight) - Supply/Demand, Exchange Quality"""
+        logger.info(f"I-Score Commodity Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.commodity_service import commodity_service
+            commodity_data = commodity_service.analyze_for_iscore(symbol)
+            
+            if commodity_data.get('success'):
+                exchange = commodity_data.get('exchange', 'MCX')
+                category = commodity_data.get('category', 'Commodity')
+                supply_outlook = commodity_data.get('supply_outlook', 'balanced')
+                supply_score = commodity_data.get('supply_score', 50)
+                global_benchmark = commodity_data.get('global_benchmark', '')
+                seasonal_factor = commodity_data.get('seasonal_factor', '')
+                
+                score = supply_score
+                
+                if exchange == 'MCX':
+                    score = min(100, score + 5)
+                if category == 'Precious Metals':
+                    score = min(100, score + 3)
+                
+                sources_list = [
+                    {'name': 'MCX/APIdatafeed', 'type': 'exchange', 'coverage': f'Exchange: {exchange}'},
+                    {'name': 'Supply Analysis', 'type': 'fundamental', 'coverage': f'Outlook: {supply_outlook}'},
+                    {'name': 'Global Benchmark', 'type': 'reference', 'coverage': f'Benchmark: {global_benchmark}'}
+                ]
+                
+                reasoning = f"Commodity traded on {exchange} with {supply_outlook} supply outlook. Category: {category}. Global benchmark: {global_benchmark}. Seasonal factor: {seasonal_factor}."
+                
+                return {
+                    'qualitative_score': score,
+                    'qualitative_details': {
+                        'exchange': exchange,
+                        'category': category,
+                        'supply_outlook': supply_outlook,
+                        'supply_score': supply_score,
+                        'global_benchmark': global_benchmark,
+                        'seasonal_factor': seasonal_factor,
+                        'commodity_name': commodity_data.get('name', '')
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.8,
+                    'asset_name': commodity_data.get('name', symbol),
+                    'step': 'commodity_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Commodity Qualitative analysis error: {e}")
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Commodity data unavailable'},
+            'qualitative_sources': [{'name': 'MCX', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Qualitative analysis unavailable for this commodity',
+            'qualitative_confidence': 0.3,
+            'step': 'commodity_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_commodity(self, state: IScoreState) -> Dict:
+        """Commodity Quantitative Analysis (50% weight) - Price, Volatility, Volume"""
+        logger.info(f"I-Score Commodity Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.commodity_service import commodity_service
+            commodity_data = commodity_service.analyze_for_iscore(symbol)
+            
+            if commodity_data.get('success'):
+                current_price = commodity_data.get('current_price', 0)
+                previous_close = commodity_data.get('previous_close', 0)
+                price_change_pct = commodity_data.get('price_change_pct', 0)
+                volatility = commodity_data.get('volatility', 15)
+                volatility_score = commodity_data.get('volatility_score', 50)
+                volatility_risk = commodity_data.get('volatility_risk', 'Moderate')
+                open_interest = commodity_data.get('open_interest', 0)
+                volume = commodity_data.get('volume', 0)
+                liquidity_score = commodity_data.get('liquidity_score', 50)
+                margin_required = commodity_data.get('margin_required', 5)
+                lot_size = commodity_data.get('lot_size', 100)
+                unit = commodity_data.get('unit', '')
+                
+                score = (volatility_score * 0.4) + (liquidity_score * 0.35) + (55 * 0.25)
+                
+                if price_change_pct > 1:
+                    score += 5
+                elif price_change_pct < -1:
+                    score -= 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'MCX/APIdatafeed', 'type': 'price_data', 'coverage': f'Price: ₹{current_price:,.2f} {unit}'},
+                    {'name': 'Volatility Analysis', 'type': 'risk', 'coverage': f'Volatility: {volatility:.1f}% ({volatility_risk})'},
+                    {'name': 'Volume Data', 'type': 'liquidity', 'coverage': f'Volume: {volume:,}, OI: {open_interest:,}'}
+                ]
+                
+                reasoning = f"Commodity trading at ₹{current_price:,.2f} {unit} with {price_change_pct:.2f}% change. Volatility of {volatility:.1f}% indicates {volatility_risk.lower()} risk. Open Interest: {open_interest:,}, Volume: {volume:,}."
+                
+                return {
+                    'current_price': current_price,
+                    'previous_close': previous_close,
+                    'price_change_pct': price_change_pct,
+                    'market_status': 'live',
+                    'quantitative_score': score,
+                    'quantitative_details': {
+                        'price': {
+                            'current': current_price,
+                            'previous_close': previous_close,
+                            'change_pct': price_change_pct,
+                            'unit': unit
+                        },
+                        'volatility': {
+                            'value': volatility,
+                            'score': volatility_score,
+                            'risk': volatility_risk
+                        },
+                        'trading': {
+                            'open_interest': open_interest,
+                            'volume': volume,
+                            'liquidity_score': liquidity_score,
+                            'margin_required': margin_required,
+                            'lot_size': lot_size
+                        }
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.8,
+                    'step': 'commodity_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Commodity Quantitative analysis error: {e}")
+        
+        return {
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'Price data unavailable'},
+            'quantitative_sources': [{'name': 'MCX', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Quantitative analysis unavailable',
+            'quantitative_confidence': 0.3,
+            'step': 'commodity_quantitative_fallback'
+        }
+    
+    def search_sentiment_commodity(self, state: IScoreState) -> Dict:
+        """Commodity Search & Sentiment Analysis (10% weight)"""
+        logger.info(f"I-Score Commodity Node 4: Search sentiment for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.commodity_service import commodity_service
+            commodity_data = commodity_service.analyze_for_iscore(symbol)
+            commodity_name = commodity_data.get('name', symbol) if commodity_data.get('success') else symbol
+            category = commodity_data.get('category', 'Commodity') if commodity_data.get('success') else 'Commodity'
+            
+            if self.perplexity_service:
+                query = f"Current market sentiment and outlook for {commodity_name} commodity in Indian market MCX. Include supply-demand dynamics, global price trends, and trading outlook."
+                response = self.perplexity_service.ask_question(query)
+                
+                answer = response.get('answer', '').lower()
+                
+                if 'bullish' in answer or 'positive' in answer or 'strong demand' in answer:
+                    trend = 'bullish'
+                    score = 72
+                elif 'bearish' in answer or 'negative' in answer or 'oversupply' in answer:
+                    trend = 'bearish'
+                    score = 38
+                else:
+                    trend = 'neutral'
+                    score = 55
+                
+                if 'high demand' in answer:
+                    buzz = 'high'
+                    score += 8
+                elif 'low demand' in answer:
+                    buzz = 'low'
+                    score -= 5
+                else:
+                    buzz = 'medium'
+                
+                sources_list = [
+                    {'name': 'Perplexity Search', 'type': 'sentiment', 'coverage': f'Commodity: {commodity_name}'},
+                    {'name': 'Global Markets', 'type': 'market_data', 'coverage': f'Category: {category}'},
+                    {'name': 'MCX Analysis', 'type': 'exchange', 'coverage': 'Indian commodity market sentiment'}
+                ]
+                
+                reasoning = f"Commodity sentiment for {commodity_name} shows {trend} outlook with {buzz} market interest based on supply-demand analysis and global price trends."
+                
+                analysis = response.get('answer', f'Commodity sentiment is {trend}')[:500]
+                
+                return {
+                    'search_score': min(100, max(0, score)),
+                    'search_details': {
+                        'trend_direction': trend,
+                        'buzz_level': buzz,
+                        'analysis': analysis
+                    },
+                    'search_sources': sources_list,
+                    'search_reasoning': reasoning,
+                    'search_confidence': 0.7,
+                    'step': 'commodity_search_complete'
+                }
+        except Exception as e:
+            logger.error(f"Commodity search sentiment error: {e}", exc_info=True)
+        
+        return {
+            'search_score': 50,
+            'search_details': {'trend_direction': 'neutral', 'buzz_level': 'medium', 'analysis': 'Commodity sentiment analysis based on available market data.'},
+            'search_sources': [{'name': 'Market Data', 'type': 'sentiment', 'coverage': 'Commodity market analysis'}],
+            'search_reasoning': 'Commodity sentiment is neutral',
+            'search_confidence': 0.6,
+            'step': 'commodity_search_complete'
+        }
+    
+    def trend_analysis_commodity(self, state: IScoreState) -> Dict:
+        """Commodity Trend Analysis (25% weight) - Price trends, OI trends, Global correlation"""
+        logger.info(f"I-Score Commodity Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.commodity_service import commodity_service
+            commodity_data = commodity_service.analyze_for_iscore(symbol)
+            
+            if commodity_data.get('success'):
+                trend = commodity_data.get('trend', 'neutral')
+                trend_score = commodity_data.get('trend_score', 50)
+                correlation_usd = commodity_data.get('correlation_usd', 0)
+                volatility = commodity_data.get('volatility', 15)
+                open_interest = commodity_data.get('open_interest', 5000)
+                volume = commodity_data.get('volume', 2000)
+                
+                oi_trend = 'increasing' if open_interest > 5000 else 'stable' if open_interest > 2000 else 'decreasing'
+                volume_trend = 'high' if volume > 5000 else 'moderate' if volume > 2000 else 'low'
+                
+                if trend == 'bullish' and oi_trend == 'increasing':
+                    trend_score = min(100, trend_score + 8)
+                elif trend == 'bearish' and oi_trend == 'increasing':
+                    trend_score = max(0, trend_score - 5)
+                
+                if correlation_usd < -0.5:
+                    usd_impact = 'Inverse USD correlation - benefits from weak dollar'
+                elif correlation_usd > 0.3:
+                    usd_impact = 'Positive USD correlation - follows dollar strength'
+                else:
+                    usd_impact = 'Low USD correlation - independent price action'
+                
+                sources_list = [
+                    {'name': 'MCX/APIdatafeed', 'type': 'trend', 'coverage': f'Trend: {trend.capitalize()}'},
+                    {'name': 'OI Analysis', 'type': 'positioning', 'coverage': f'OI Trend: {oi_trend}'},
+                    {'name': 'USD Correlation', 'type': 'macro', 'coverage': f'Correlation: {correlation_usd:.2f}'}
+                ]
+                
+                reasoning = f"Commodity shows {trend} trend with {oi_trend} open interest and {volume_trend} volume. {usd_impact}. Volatility: {volatility:.1f}%."
+                
+                return {
+                    'trend_score': min(100, max(0, trend_score)),
+                    'trend_details': {
+                        'price_trend': trend,
+                        'oi_trend': oi_trend,
+                        'volume_trend': volume_trend,
+                        'correlation_usd': correlation_usd,
+                        'volatility': volatility,
+                        'usd_impact': usd_impact
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'commodity_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"Commodity Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'MCX', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'commodity_trend_fallback'
+        }
+    
+    # ==================== END COMMODITY ANALYSIS METHODS ====================
+    
+    # ==================== CURRENCY ANALYSIS METHODS ====================
+    
+    def qualitative_analysis_currency(self, state: IScoreState) -> Dict:
+        """Currency Qualitative Analysis (15% weight) - Central Bank Policy, Economic Fundamentals"""
+        logger.info(f"I-Score Currency Node 2: Qualitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.currency_service import currency_service
+            currency_data = currency_service.analyze_for_iscore(symbol)
+            
+            if currency_data.get('success'):
+                exchange = currency_data.get('exchange', 'Global')
+                category = currency_data.get('category', 'Major')
+                base_currency = currency_data.get('base_currency', '')
+                quote_currency = currency_data.get('quote_currency', '')
+                central_bank_stance = currency_data.get('central_bank_stance', 'neutral')
+                stance_score = currency_data.get('stance_score', 50)
+                interest_rate_diff = currency_data.get('interest_rate_diff', 0)
+                carry_trade_score = currency_data.get('carry_trade_score', 50)
+                
+                score = (stance_score * 0.4) + (carry_trade_score * 0.6)
+                
+                if exchange == 'NSE':
+                    score = min(100, score + 3)
+                if category == 'Major':
+                    score = min(100, score + 2)
+                
+                sources_list = [
+                    {'name': 'TraderMade/ExchangeRate-API', 'type': 'forex', 'coverage': f'Pair: {base_currency}/{quote_currency}'},
+                    {'name': 'Central Bank Policy', 'type': 'monetary', 'coverage': f'Stance: {central_bank_stance.capitalize()}'},
+                    {'name': 'Interest Rate Differential', 'type': 'carry', 'coverage': f'IRD: {interest_rate_diff:+.2f}%'}
+                ]
+                
+                reasoning = f"Currency pair {symbol} with {central_bank_stance} central bank stance. Interest rate differential: {interest_rate_diff:+.2f}%. Carry trade attractiveness: {carry_trade_score}/100."
+                
+                return {
+                    'qualitative_score': score,
+                    'qualitative_details': {
+                        'exchange': exchange,
+                        'category': category,
+                        'base_currency': base_currency,
+                        'quote_currency': quote_currency,
+                        'central_bank_stance': central_bank_stance,
+                        'stance_score': stance_score,
+                        'interest_rate_diff': interest_rate_diff,
+                        'carry_trade_score': carry_trade_score
+                    },
+                    'qualitative_sources': sources_list,
+                    'qualitative_reasoning': reasoning,
+                    'qualitative_confidence': 0.8,
+                    'asset_name': currency_data.get('name', symbol),
+                    'step': 'currency_qualitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Currency Qualitative analysis error: {e}")
+        
+        return {
+            'qualitative_score': 50,
+            'qualitative_details': {'error': 'Currency data unavailable'},
+            'qualitative_sources': [{'name': 'Forex', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'qualitative_reasoning': 'Qualitative analysis unavailable for this currency pair',
+            'qualitative_confidence': 0.3,
+            'step': 'currency_qualitative_fallback'
+        }
+    
+    def quantitative_analysis_currency(self, state: IScoreState) -> Dict:
+        """Currency Quantitative Analysis (50% weight) - Rate, Volatility, Spread, Liquidity"""
+        logger.info(f"I-Score Currency Node 3: Quantitative analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.currency_service import currency_service
+            currency_data = currency_service.analyze_for_iscore(symbol)
+            
+            if currency_data.get('success'):
+                current_rate = currency_data.get('current_rate', 0)
+                previous_close = currency_data.get('previous_close', 0)
+                rate_change_pct = currency_data.get('rate_change_pct', 0)
+                bid = currency_data.get('bid', 0)
+                ask = currency_data.get('ask', 0)
+                spread = currency_data.get('spread', 0)
+                spread_pct = currency_data.get('spread_pct', 0)
+                volatility = currency_data.get('volatility', 6)
+                volatility_score = currency_data.get('volatility_score', 50)
+                volatility_risk = currency_data.get('volatility_risk', 'Moderate')
+                volume = currency_data.get('volume', 0)
+                liquidity_score = currency_data.get('liquidity_score', 50)
+                margin_required = currency_data.get('margin_required', 3)
+                lot_size = currency_data.get('lot_size', 1000)
+                
+                score = (volatility_score * 0.35) + (liquidity_score * 0.45) + (55 * 0.20)
+                
+                if spread_pct < 0.02:
+                    score += 8
+                elif spread_pct > 0.1:
+                    score -= 5
+                
+                score = min(100, max(0, score))
+                
+                sources_list = [
+                    {'name': 'TraderMade/ExchangeRate-API', 'type': 'rate_data', 'coverage': f'Rate: {current_rate:.4f}'},
+                    {'name': 'Spread Analysis', 'type': 'cost', 'coverage': f'Spread: {spread:.4f} ({spread_pct:.4f}%)'},
+                    {'name': 'Volatility Analysis', 'type': 'risk', 'coverage': f'Volatility: {volatility:.1f}% ({volatility_risk})'}
+                ]
+                
+                reasoning = f"Currency pair trading at {current_rate:.4f} with {rate_change_pct:+.2f}% change. Spread: {spread:.4f} ({spread_pct:.4f}%). Volatility: {volatility:.1f}% ({volatility_risk} risk)."
+                
+                return {
+                    'current_price': current_rate,
+                    'previous_close': previous_close,
+                    'price_change_pct': rate_change_pct,
+                    'market_status': 'live',
+                    'quantitative_score': score,
+                    'quantitative_details': {
+                        'rate': {
+                            'current': current_rate,
+                            'previous_close': previous_close,
+                            'change_pct': rate_change_pct,
+                            'bid': bid,
+                            'ask': ask
+                        },
+                        'spread': {
+                            'value': spread,
+                            'percentage': spread_pct
+                        },
+                        'volatility': {
+                            'value': volatility,
+                            'score': volatility_score,
+                            'risk': volatility_risk
+                        },
+                        'trading': {
+                            'volume': volume,
+                            'liquidity_score': liquidity_score,
+                            'margin_required': margin_required,
+                            'lot_size': lot_size
+                        }
+                    },
+                    'quantitative_sources': sources_list,
+                    'quantitative_reasoning': reasoning,
+                    'quantitative_confidence': 0.85,
+                    'step': 'currency_quantitative_complete'
+                }
+        except Exception as e:
+            logger.error(f"Currency Quantitative analysis error: {e}")
+        
+        return {
+            'quantitative_score': 50,
+            'quantitative_details': {'error': 'Rate data unavailable'},
+            'quantitative_sources': [{'name': 'Forex', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'quantitative_reasoning': 'Quantitative analysis unavailable',
+            'quantitative_confidence': 0.3,
+            'step': 'currency_quantitative_fallback'
+        }
+    
+    def search_sentiment_currency(self, state: IScoreState) -> Dict:
+        """Currency Search & Sentiment Analysis (10% weight)"""
+        logger.info(f"I-Score Currency Node 4: Search sentiment for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.currency_service import currency_service
+            currency_data = currency_service.analyze_for_iscore(symbol)
+            currency_name = currency_data.get('name', symbol) if currency_data.get('success') else symbol
+            base_currency = currency_data.get('base_currency', '') if currency_data.get('success') else ''
+            quote_currency = currency_data.get('quote_currency', '') if currency_data.get('success') else ''
+            
+            if self.perplexity_service:
+                query = f"Current forex market outlook for {currency_name} ({symbol}). Include central bank policy impact, economic indicators, and short-term trading outlook."
+                response = self.perplexity_service.ask_question(query)
+                
+                answer = response.get('answer', '').lower()
+                
+                if 'bullish' in answer or 'strengthen' in answer or 'appreciate' in answer:
+                    trend = 'bullish'
+                    score = 70
+                elif 'bearish' in answer or 'weaken' in answer or 'depreciate' in answer:
+                    trend = 'bearish'
+                    score = 40
+                else:
+                    trend = 'neutral'
+                    score = 55
+                
+                if 'rate hike' in answer or 'hawkish' in answer:
+                    buzz = 'high'
+                    score += 5
+                elif 'rate cut' in answer or 'dovish' in answer:
+                    buzz = 'high'
+                    score -= 3
+                else:
+                    buzz = 'medium'
+                
+                sources_list = [
+                    {'name': 'Perplexity Search', 'type': 'sentiment', 'coverage': f'Currency: {currency_name}'},
+                    {'name': 'Central Bank Watch', 'type': 'policy', 'coverage': f'Base: {base_currency}'},
+                    {'name': 'Forex Analysis', 'type': 'market_data', 'coverage': 'Currency market sentiment'}
+                ]
+                
+                reasoning = f"Forex sentiment for {symbol} shows {trend} outlook with {buzz} market attention based on central bank policy and economic fundamentals."
+                
+                analysis = response.get('answer', f'Currency sentiment is {trend}')[:500]
+                
+                return {
+                    'search_score': min(100, max(0, score)),
+                    'search_details': {
+                        'trend_direction': trend,
+                        'buzz_level': buzz,
+                        'analysis': analysis
+                    },
+                    'search_sources': sources_list,
+                    'search_reasoning': reasoning,
+                    'search_confidence': 0.7,
+                    'step': 'currency_search_complete'
+                }
+        except Exception as e:
+            logger.error(f"Currency search sentiment error: {e}", exc_info=True)
+        
+        return {
+            'search_score': 50,
+            'search_details': {'trend_direction': 'neutral', 'buzz_level': 'medium', 'analysis': 'Currency sentiment analysis based on available market data.'},
+            'search_sources': [{'name': 'Forex Data', 'type': 'sentiment', 'coverage': 'Currency market analysis'}],
+            'search_reasoning': 'Currency sentiment is neutral',
+            'search_confidence': 0.6,
+            'step': 'currency_search_complete'
+        }
+    
+    def trend_analysis_currency(self, state: IScoreState) -> Dict:
+        """Currency Trend Analysis (25% weight) - Rate trends, DXY correlation, Carry trade"""
+        logger.info(f"I-Score Currency Node 5: Trend analysis for {state['symbol']}")
+        
+        symbol = state['symbol']
+        
+        try:
+            from services.currency_service import currency_service
+            currency_data = currency_service.analyze_for_iscore(symbol)
+            
+            if currency_data.get('success'):
+                trend = currency_data.get('trend', 'neutral')
+                trend_score = currency_data.get('trend_score', 50)
+                correlation_dxy = currency_data.get('correlation_dxy', 0)
+                volatility = currency_data.get('volatility', 6)
+                carry_trade_score = currency_data.get('carry_trade_score', 50)
+                interest_rate_diff = currency_data.get('interest_rate_diff', 0)
+                rbi_reference = currency_data.get('rbi_reference')
+                
+                if carry_trade_score > 65:
+                    carry_outlook = 'Favorable carry trade opportunity'
+                    trend_score = min(100, trend_score + 5)
+                elif carry_trade_score < 45:
+                    carry_outlook = 'Unfavorable carry trade conditions'
+                    trend_score = max(0, trend_score - 3)
+                else:
+                    carry_outlook = 'Neutral carry trade conditions'
+                
+                if abs(correlation_dxy) > 0.7:
+                    dxy_impact = f"Strong {'positive' if correlation_dxy > 0 else 'inverse'} DXY correlation"
+                else:
+                    dxy_impact = "Low DXY correlation - independent movement"
+                
+                sources_list = [
+                    {'name': 'TraderMade/ExchangeRate-API', 'type': 'trend', 'coverage': f'Trend: {trend.capitalize()}'},
+                    {'name': 'DXY Correlation', 'type': 'macro', 'coverage': f'Correlation: {correlation_dxy:.2f}'},
+                    {'name': 'Carry Trade Analysis', 'type': 'strategy', 'coverage': f'IRD: {interest_rate_diff:+.2f}%'}
+                ]
+                
+                if rbi_reference:
+                    sources_list.append({'name': 'RBI Reference', 'type': 'official', 'coverage': f'RBI Rate: {rbi_reference}'})
+                
+                reasoning = f"Currency shows {trend} trend. {dxy_impact}. {carry_outlook}. Interest rate differential: {interest_rate_diff:+.2f}%."
+                
+                return {
+                    'trend_score': min(100, max(0, trend_score)),
+                    'trend_details': {
+                        'price_trend': trend,
+                        'correlation_dxy': correlation_dxy,
+                        'dxy_impact': dxy_impact,
+                        'carry_trade_score': carry_trade_score,
+                        'carry_outlook': carry_outlook,
+                        'interest_rate_diff': interest_rate_diff,
+                        'volatility': volatility,
+                        'rbi_reference': rbi_reference
+                    },
+                    'trend_sources': sources_list,
+                    'trend_reasoning': reasoning,
+                    'trend_confidence': 0.75,
+                    'step': 'currency_trend_complete'
+                }
+        except Exception as e:
+            logger.error(f"Currency Trend analysis error: {e}")
+        
+        return {
+            'trend_score': 50,
+            'trend_details': {'error': 'Trend data unavailable'},
+            'trend_sources': [{'name': 'Forex', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
+            'trend_reasoning': 'Trend analysis unavailable',
+            'trend_confidence': 0.3,
+            'step': 'currency_trend_fallback'
+        }
+    
+    # ==================== END CURRENCY ANALYSIS METHODS ====================
     
     def aggregate_scores(self, state: IScoreState) -> Dict:
         """Node 6: Aggregate all component scores into I-Score"""
