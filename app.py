@@ -206,7 +206,7 @@ try:
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_size": database_config["pool_size"],
         "max_overflow": database_config["max_overflow"],
-        "pool_recycle": database_config["pool_recycle"],
+        "pool_recycle": min(database_config["pool_recycle"], 180),  # Reduce to prevent stale SSL connections
         "pool_pre_ping": True,
         "connect_args": {
             "sslmode": "prefer",
@@ -230,7 +230,7 @@ except (NameError, KeyError):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_size": 10,  # Optimize connection pool size
         "max_overflow": 20,  # Allow overflow connections
-        "pool_recycle": 300,
+        "pool_recycle": 180,  # Reduced to prevent stale SSL connections
         "pool_pre_ping": True,
         "pool_timeout": 30,  # Connection timeout
         "connect_args": {
