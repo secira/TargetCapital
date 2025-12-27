@@ -215,11 +215,32 @@ class LangGraphIScoreEngine:
         
         if cached:
             logger.info(f"Cache HIT for {state['symbol']}, using cached I-Score: {cached.overall_score}")
+            payload = cached.result_payload or {}
+            
+            qualitative = payload.get('qualitative', {})
+            quantitative = payload.get('quantitative', {})
+            search = payload.get('search', {})
+            trend = payload.get('trend', {})
+            
             return {
                 'cache_hit': True,
-                'cached_result': cached.result_payload,
+                'cached_result': payload,
                 'overall_score': float(cached.overall_score) if cached.overall_score else 0,
+                'overall_confidence': payload.get('overall_confidence', 0),
                 'recommendation': cached.recommendation,
+                'recommendation_summary': payload.get('recommendation_summary', ''),
+                'qualitative_score': qualitative.get('score', 0),
+                'qualitative_details': qualitative.get('details', {}),
+                'qualitative_confidence': qualitative.get('confidence', 0),
+                'quantitative_score': quantitative.get('score', 0),
+                'quantitative_details': quantitative.get('details', {}),
+                'quantitative_confidence': quantitative.get('confidence', 0),
+                'search_score': search.get('score', 0),
+                'search_details': search.get('details', {}),
+                'search_confidence': search.get('confidence', 0),
+                'trend_score': trend.get('score', 0),
+                'trend_details': trend.get('details', {}),
+                'trend_confidence': trend.get('confidence', 0),
                 'config': self._get_config(),
                 'step': 'cache_hit'
             }
