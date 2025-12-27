@@ -2916,6 +2916,21 @@ class LangGraphIScoreEngine:
         try:
             result = self.graph.invoke(initial_state)
             
+            # Extract price from quantitative_details if not in top-level state
+            current_price = result.get('current_price', 0)
+            previous_close = result.get('previous_close', 0)
+            price_change_pct = result.get('price_change_pct', 0)
+            
+            # Fallback: get price from quantitative_details if top-level is 0
+            quant_details = result.get('quantitative_details', {})
+            if current_price == 0 and quant_details:
+                price_data = quant_details.get('price_data', {})
+                if price_data:
+                    current_price = price_data.get('current', 0)
+                    previous_close = price_data.get('previous_close', previous_close)
+                    price_change_pct = price_data.get('change_pct', price_change_pct)
+                    logger.info(f"Using price from quantitative_details: ₹{current_price}")
+            
             return {
                 'success': True,
                 'symbol': symbol,
@@ -2926,9 +2941,9 @@ class LangGraphIScoreEngine:
                 'recommendation': result.get('recommendation', 'INCONCLUSIVE'),
                 'summary': result.get('recommendation_summary', ''),
                 'market_data': {
-                    'current_price': result.get('current_price', 0),
-                    'previous_close': result.get('previous_close', 0),
-                    'change_pct': result.get('price_change_pct', 0),
+                    'current_price': current_price,
+                    'previous_close': previous_close,
+                    'change_pct': price_change_pct,
                     'timestamp': result.get('data_timestamp', '')
                 },
                 'components': {
