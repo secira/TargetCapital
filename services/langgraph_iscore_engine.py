@@ -423,6 +423,10 @@ class LangGraphIScoreEngine:
                 reasoning = f"Technical analysis shows {ema_signal} crossover signal with RSI at {round(simulated_rsi, 2)}. Price moved {price_change_pct}% from previous close. SuperTrend indicates {('bullish' if price_change_pct > 0 else 'bearish')} momentum."
                 
                 return {
+                    'current_price': price,
+                    'previous_close': prev_close,
+                    'price_change_pct': price_change_pct,
+                    'market_status': 'live',
                     'quantitative_score': min(100, max(0, overall_quant_score)),
                     'quantitative_details': {
                         'rsi': {
@@ -454,7 +458,30 @@ class LangGraphIScoreEngine:
         except Exception as e:
             logger.error(f"Quantitative analysis error: {e}")
         
+        # Try to get fallback data to at least show something
+        try:
+            fallback = self._get_fallback_price_data(symbol)
+            if fallback:
+                return {
+                    'current_price': fallback.get('current_price', 0),
+                    'previous_close': fallback.get('previous_close', 0),
+                    'price_change_pct': fallback.get('change_percent', 0),
+                    'market_status': 'demo',
+                    'quantitative_score': 50,
+                    'quantitative_details': {'error': 'Technical data unavailable'},
+                    'quantitative_sources': [{'name': 'NSE Service', 'type': 'demo', 'coverage': 'Demo data for ' + symbol}],
+                    'quantitative_reasoning': 'Using demo data - technical analysis currently unavailable',
+                    'quantitative_confidence': 0.3,
+                    'step': 'quantitative_fallback'
+                }
+        except:
+            pass
+        
         return {
+            'current_price': 0,
+            'previous_close': 0,
+            'price_change_pct': 0,
+            'market_status': 'unknown',
             'quantitative_score': 50,
             'quantitative_details': {'error': 'Technical data unavailable'},
             'quantitative_sources': [{'name': 'NSE Service', 'type': 'error', 'coverage': 'Data temporarily unavailable'}],
@@ -848,6 +875,22 @@ class LangGraphIScoreEngine:
             logger.error(f"Error storing I-Score results: {e}")
             db.session.rollback()
             return {'step': 'storage_error', 'error': str(e)}
+    
+    def _get_fallback_price_data(self, symbol: str) -> Dict:
+        """Get fallback demo pricing data for a symbol"""
+        fallback_data = {
+            'RELIANCE': {'current_price': 2450.75, 'previous_close': 2435.55, 'change_percent': 0.62},
+            'TCS': {'current_price': 3890.40, 'previous_close': 3912.90, 'change_percent': -0.57},
+            'HDFCBANK': {'current_price': 1678.90, 'previous_close': 1670.10, 'change_percent': 0.53},
+            'INFY': {'current_price': 1456.30, 'previous_close': 1468.50, 'change_percent': -0.83},
+            'ICICIBANK': {'current_price': 1089.75, 'previous_close': 1071.15, 'change_percent': 1.74},
+            'SBIN': {'current_price': 542.85, 'previous_close': 537.60, 'change_percent': 0.97},
+        }
+        return fallback_data.get(symbol, {
+            'current_price': 1000.00, 
+            'previous_close': 995.50, 
+            'change_percent': 0.45
+        })
     
     def _parse_llm_response(self, response: str, response_type: str) -> Dict:
         """Parse LLM response to extract structured data"""
