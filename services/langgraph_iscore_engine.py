@@ -246,6 +246,30 @@ class LangGraphIScoreEngine:
         key_parts = f"iscore:{asset_type}:{symbol}:{analysis_date.isoformat()}"
         return hashlib.md5(key_parts.encode()).hexdigest()
     
+    def _calculate_trend_confidence(self, vix_source: str, pcr_source: str, oi_source: str) -> float:
+        """
+        Calculate trend confidence based on data sources
+        Higher confidence when all data is from live sources
+        """
+        confidence = 0.40
+        
+        if vix_source == 'NSE Live':
+            confidence += 0.25
+        elif 'fallback' not in vix_source.lower():
+            confidence += 0.15
+        
+        if pcr_source == 'NSE Option Chain' or pcr_source == 'Calculated from OI':
+            confidence += 0.20
+        elif 'fallback' not in pcr_source.lower():
+            confidence += 0.10
+        
+        if oi_source == 'NSE Option Chain':
+            confidence += 0.15
+        elif 'fallback' not in oi_source.lower():
+            confidence += 0.08
+        
+        return min(0.95, confidence)
+    
     def _get_config(self) -> Dict:
         """Get active configuration for weights and thresholds"""
         from models import ResearchWeightConfig, ResearchThresholdConfig
@@ -794,7 +818,7 @@ class LangGraphIScoreEngine:
                 },
                 'trend_sources': sources_list,
                 'trend_reasoning': reasoning,
-                'trend_confidence': 0.80 if vix_source == 'NSE Live' else 0.60,
+                'trend_confidence': self._calculate_trend_confidence(vix_source, pcr_source, oi_source),
                 'step': 'trend_complete'
             }
         except Exception as e:

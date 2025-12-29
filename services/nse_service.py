@@ -447,29 +447,50 @@ class NSEService:
             Dictionary with PCR value and related data
         """
         try:
-            pcr_value = pcr(symbol)
+            pcr_result = pcr(symbol)
             
-            if pcr_value is not None:
-                pcr_float = float(pcr_value) if isinstance(pcr_value, (int, float, str)) else 0.85
+            if pcr_result is not None:
+                if isinstance(pcr_result, (int, float)):
+                    pcr_float = float(pcr_result)
+                elif isinstance(pcr_result, str):
+                    pcr_float = float(pcr_result.replace(',', ''))
+                elif isinstance(pcr_result, dict):
+                    pcr_float = float(pcr_result.get('pcr', pcr_result.get('value', 0.85)))
+                else:
+                    pcr_float = 0.85
                 
                 self.logger.info(f"✅ Got live PCR for {symbol}: {pcr_float}")
                 
                 return {
                     'success': True,
-                    'pcr_value': pcr_float,
+                    'pcr_value': round(pcr_float, 2),
                     'symbol': symbol,
                     'source': 'NSE Option Chain',
                     'timestamp': dt.datetime.now(timezone.utc).isoformat()
                 }
+        except (ValueError, TypeError, AttributeError) as e:
+            self.logger.warning(f"Error parsing PCR for {symbol}: {str(e)}")
         except Exception as e:
             self.logger.warning(f"Error fetching PCR for {symbol}: {str(e)}")
+        
+        oi_data = self.get_option_chain_oi(symbol)
+        if oi_data.get('success') and oi_data.get('total_ce_oi', 0) > 0:
+            calculated_pcr = oi_data.get('oi_pcr', 0.85)
+            self.logger.info(f"✅ Calculated PCR from OI data for {symbol}: {calculated_pcr}")
+            return {
+                'success': True,
+                'pcr_value': round(calculated_pcr, 2),
+                'symbol': symbol,
+                'source': 'Calculated from OI',
+                'timestamp': dt.datetime.now(timezone.utc).isoformat()
+            }
         
         return {
             'success': False,
             'pcr_value': 0.85,
             'symbol': symbol,
-            'source': 'fallback',
-            'error': 'PCR data unavailable'
+            'source': 'fallback (market closed)',
+            'error': 'PCR data unavailable - market may be closed'
         }
     
     def get_option_chain_oi(self, symbol: str = 'NIFTY') -> Dict[str, Any]:
@@ -495,6 +516,18 @@ class NSEService:
                         total_ce_oi += item['CE'].get('openInterest', 0)
                     if 'PE' in item:
                         total_pe_oi += item['PE'].get('openInterest', 0)
+                
+                if total_ce_oi == 0 and total_pe_oi == 0:
+                    self.logger.warning(f"OI data for {symbol} is empty - market may be closed")
+                    return {
+                        'success': False,
+                        'total_ce_oi': 0,
+                        'total_pe_oi': 0,
+                        'oi_pcr': 1.0,
+                        'symbol': symbol,
+                        'source': 'fallback (market closed)',
+                        'error': 'No OI data available - market may be closed'
+                    }
                 
                 oi_pcr = total_pe_oi / total_ce_oi if total_ce_oi > 0 else 1.0
                 
