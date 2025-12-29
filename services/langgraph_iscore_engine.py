@@ -676,7 +676,7 @@ class LangGraphIScoreEngine:
         }
     
     def trend_analysis(self, state: IScoreState) -> Dict:
-        """Node 5: Trend Analysis (25% weight) - OI, PCR, VIX"""
+        """Node 5: Trend Analysis (25% weight) - OI, PCR, VIX - LIVE DATA"""
         logger.info(f"I-Score Node 5: Trend analysis for {state['symbol']}")
         
         symbol = state['symbol']
@@ -689,9 +689,13 @@ class LangGraphIScoreEngine:
             
             indices = nse.get_market_indices()
             
-            vix_value = 15.0
+            vix_data = nse.get_india_vix()
+            vix_value = vix_data.get('vix_value', 15.0)
+            vix_source = vix_data.get('source', 'fallback')
             vix_low = trend_params.get('vix_low', 15)
             vix_high = trend_params.get('vix_high', 25)
+            
+            logger.info(f"Live VIX data: {vix_value} (source: {vix_source})")
             
             if vix_value < vix_low:
                 vix_signal = 'low_volatility'
@@ -701,11 +705,15 @@ class LangGraphIScoreEngine:
                 vix_score = 30
             else:
                 vix_signal = 'moderate'
-                vix_score = 50
+                vix_score = 50 - ((vix_value - vix_low) / (vix_high - vix_low)) * 20
             
-            pcr_value = 0.85
+            pcr_data = nse.get_pcr('NIFTY')
+            pcr_value = pcr_data.get('pcr_value', 0.85)
+            pcr_source = pcr_data.get('source', 'fallback')
             pcr_bullish = trend_params.get('pcr_bullish_threshold', 0.7)
             pcr_bearish = trend_params.get('pcr_bearish_threshold', 1.3)
+            
+            logger.info(f"Live PCR data: {pcr_value} (source: {pcr_source})")
             
             if pcr_value < pcr_bullish:
                 pcr_signal = 'bearish'
@@ -717,15 +725,23 @@ class LangGraphIScoreEngine:
                 pcr_signal = 'neutral'
                 pcr_score = 50 + (pcr_value - 1.0) * 20
             
-            oi_change = 2.5
-            oi_threshold = trend_params.get('oi_change_threshold', 5)
+            oi_data = nse.get_option_chain_oi('NIFTY')
+            total_ce_oi = oi_data.get('total_ce_oi', 0)
+            total_pe_oi = oi_data.get('total_pe_oi', 0)
+            oi_pcr = oi_data.get('oi_pcr', 1.0)
+            oi_source = oi_data.get('source', 'fallback')
             
-            if abs(oi_change) > oi_threshold:
-                oi_signal = 'significant_buildup' if oi_change > 0 else 'unwinding'
-                oi_score = 65 if oi_change > 0 else 40
+            logger.info(f"Live OI data: CE={total_ce_oi}, PE={total_pe_oi}, PCR={oi_pcr} (source: {oi_source})")
+            
+            if oi_pcr > 1.2:
+                oi_signal = 'put_buildup'
+                oi_score = 65
+            elif oi_pcr < 0.8:
+                oi_signal = 'call_buildup'
+                oi_score = 40
             else:
-                oi_signal = 'stable'
-                oi_score = 50 + oi_change * 3
+                oi_signal = 'balanced'
+                oi_score = 50 + (oi_pcr - 1.0) * 25
             
             nifty_data = indices.get('nifty_50', {})
             market_trend = nifty_data.get('change_percent', 0)
@@ -740,31 +756,36 @@ class LangGraphIScoreEngine:
             overall_trend_score = (vix_score * 0.25) + (pcr_score * 0.30) + (oi_score * 0.25) + (market_score * 0.20)
             
             sources_list = [
-                {'name': 'India VIX', 'type': 'volatility', 'coverage': f'VIX Level: {vix_value} ({vix_signal})'},
-                {'name': 'Put-Call Ratio', 'type': 'options_sentiment', 'coverage': f'PCR: {round(pcr_value, 2)} ({pcr_signal})'},
-                {'name': 'Open Interest', 'type': 'futures_sentiment', 'coverage': f'OI Change: {oi_change}% ({oi_signal})'},
+                {'name': 'India VIX', 'type': 'volatility', 'coverage': f'VIX Level: {round(vix_value, 2)} ({vix_signal})', 'source': vix_source},
+                {'name': 'Put-Call Ratio', 'type': 'options_sentiment', 'coverage': f'PCR: {round(pcr_value, 2)} ({pcr_signal})', 'source': pcr_source},
+                {'name': 'Open Interest', 'type': 'futures_sentiment', 'coverage': f'OI PCR: {oi_pcr} ({oi_signal})', 'source': oi_source},
                 {'name': 'NIFTY 50', 'type': 'market_index', 'coverage': f'Index Change: {market_trend}%'}
             ]
             
-            reasoning = f"Market trend analysis shows VIX at {vix_value} indicating {vix_signal} volatility. Put-Call Ratio of {round(pcr_value, 2)} suggests {pcr_signal} sentiment. Open Interest {oi_signal} with {oi_change}% change. NIFTY 50 showing {market_trend}% movement."
+            reasoning = f"Market trend analysis shows VIX at {round(vix_value, 2)} indicating {vix_signal} volatility. Put-Call Ratio of {round(pcr_value, 2)} suggests {pcr_signal} sentiment. Open Interest {oi_signal} with PCR {oi_pcr}. NIFTY 50 showing {market_trend}% movement."
             
             return {
                 'trend_score': min(100, max(0, overall_trend_score)),
                 'trend_details': {
                     'vix': {
-                        'value': vix_value,
+                        'value': round(vix_value, 2),
                         'signal': vix_signal,
-                        'score': round(vix_score, 2)
+                        'score': round(vix_score, 2),
+                        'source': vix_source
                     },
                     'pcr': {
                         'value': round(pcr_value, 2),
                         'signal': pcr_signal,
-                        'score': round(pcr_score, 2)
+                        'score': round(pcr_score, 2),
+                        'source': pcr_source
                     },
                     'open_interest': {
-                        'change_pct': oi_change,
+                        'total_ce_oi': total_ce_oi,
+                        'total_pe_oi': total_pe_oi,
+                        'oi_pcr': oi_pcr,
                         'signal': oi_signal,
-                        'score': round(oi_score, 2)
+                        'score': round(oi_score, 2),
+                        'source': oi_source
                     },
                     'market_trend': {
                         'nifty_change': market_trend,
@@ -773,7 +794,7 @@ class LangGraphIScoreEngine:
                 },
                 'trend_sources': sources_list,
                 'trend_reasoning': reasoning,
-                'trend_confidence': 0.75,
+                'trend_confidence': 0.80 if vix_source == 'NSE Live' else 0.60,
                 'step': 'trend_complete'
             }
         except Exception as e:
