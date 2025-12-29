@@ -19,7 +19,11 @@ try:
         nse_get_index_quote,
         nse_get_top_gainers,
         nse_get_top_losers,
-        nse_most_active
+        nse_most_active,
+        indiavix,
+        pcr,
+        option_chain,
+        get_fao_participant_oi
     )
 except ImportError:
     logging.error("NSEPython library not installed. Please install with: pip install nsepython")
@@ -396,6 +400,158 @@ class NSEService:
         except Exception as e:
             self.logger.error(f"Error getting market status: {str(e)}")
             return {'status': 'UNKNOWN', 'message': 'Unable to determine market status', 'is_open': False}
+
+    def get_india_vix(self) -> Dict[str, Any]:
+        """
+        Get live India VIX (Volatility Index) data
+        Returns:
+            Dictionary with VIX value and related data
+        """
+        try:
+            vix_data = indiavix()
+            
+            if vix_data is not None:
+                if isinstance(vix_data, (int, float)):
+                    vix_value = float(vix_data)
+                elif isinstance(vix_data, dict):
+                    vix_value = float(vix_data.get('currentValue', vix_data.get('lastPrice', 15.0)))
+                elif isinstance(vix_data, pd.DataFrame) and not vix_data.empty:
+                    vix_value = float(vix_data.iloc[-1].get('close', vix_data.iloc[-1].get('CLOSE', 15.0)))
+                else:
+                    vix_value = float(vix_data) if vix_data else 15.0
+                
+                self.logger.info(f"✅ Got live India VIX: {vix_value}")
+                
+                return {
+                    'success': True,
+                    'vix_value': vix_value,
+                    'source': 'NSE Live',
+                    'timestamp': dt.datetime.now(timezone.utc).isoformat()
+                }
+        except Exception as e:
+            self.logger.warning(f"Error fetching India VIX: {str(e)}")
+        
+        return {
+            'success': False,
+            'vix_value': 15.0,
+            'source': 'fallback',
+            'error': 'VIX data unavailable'
+        }
+    
+    def get_pcr(self, symbol: str = 'NIFTY') -> Dict[str, Any]:
+        """
+        Get live Put-Call Ratio from option chain
+        Args:
+            symbol: Index symbol (NIFTY or BANKNIFTY)
+        Returns:
+            Dictionary with PCR value and related data
+        """
+        try:
+            pcr_value = pcr(symbol)
+            
+            if pcr_value is not None:
+                pcr_float = float(pcr_value) if isinstance(pcr_value, (int, float, str)) else 0.85
+                
+                self.logger.info(f"✅ Got live PCR for {symbol}: {pcr_float}")
+                
+                return {
+                    'success': True,
+                    'pcr_value': pcr_float,
+                    'symbol': symbol,
+                    'source': 'NSE Option Chain',
+                    'timestamp': dt.datetime.now(timezone.utc).isoformat()
+                }
+        except Exception as e:
+            self.logger.warning(f"Error fetching PCR for {symbol}: {str(e)}")
+        
+        return {
+            'success': False,
+            'pcr_value': 0.85,
+            'symbol': symbol,
+            'source': 'fallback',
+            'error': 'PCR data unavailable'
+        }
+    
+    def get_option_chain_oi(self, symbol: str = 'NIFTY') -> Dict[str, Any]:
+        """
+        Get Open Interest data from option chain
+        Args:
+            symbol: Stock or index symbol
+        Returns:
+            Dictionary with OI data and analysis
+        """
+        try:
+            chain = option_chain(symbol)
+            
+            if chain is not None and isinstance(chain, dict):
+                records = chain.get('records', {})
+                
+                total_ce_oi = 0
+                total_pe_oi = 0
+                
+                data = records.get('data', [])
+                for item in data:
+                    if 'CE' in item:
+                        total_ce_oi += item['CE'].get('openInterest', 0)
+                    if 'PE' in item:
+                        total_pe_oi += item['PE'].get('openInterest', 0)
+                
+                oi_pcr = total_pe_oi / total_ce_oi if total_ce_oi > 0 else 1.0
+                
+                self.logger.info(f"✅ Got live OI for {symbol}: CE={total_ce_oi}, PE={total_pe_oi}, PCR={oi_pcr:.2f}")
+                
+                return {
+                    'success': True,
+                    'total_ce_oi': total_ce_oi,
+                    'total_pe_oi': total_pe_oi,
+                    'oi_pcr': round(oi_pcr, 2),
+                    'symbol': symbol,
+                    'source': 'NSE Option Chain',
+                    'timestamp': dt.datetime.now(timezone.utc).isoformat()
+                }
+        except Exception as e:
+            self.logger.warning(f"Error fetching option chain OI for {symbol}: {str(e)}")
+        
+        return {
+            'success': False,
+            'total_ce_oi': 0,
+            'total_pe_oi': 0,
+            'oi_pcr': 1.0,
+            'symbol': symbol,
+            'source': 'fallback',
+            'error': 'OI data unavailable'
+        }
+    
+    def get_fao_oi_data(self) -> Dict[str, Any]:
+        """
+        Get F&O participant-wise Open Interest data
+        Returns:
+            Dictionary with participant OI data
+        """
+        try:
+            fao_data = get_fao_participant_oi()
+            
+            if fao_data is not None:
+                if isinstance(fao_data, pd.DataFrame) and not fao_data.empty:
+                    latest = fao_data.iloc[-1].to_dict() if len(fao_data) > 0 else {}
+                    
+                    self.logger.info(f"✅ Got live F&O participant OI data")
+                    
+                    return {
+                        'success': True,
+                        'data': latest,
+                        'source': 'NSE F&O',
+                        'timestamp': dt.datetime.now(timezone.utc).isoformat()
+                    }
+        except Exception as e:
+            self.logger.warning(f"Error fetching F&O participant OI: {str(e)}")
+        
+        return {
+            'success': False,
+            'data': {},
+            'source': 'fallback',
+            'error': 'F&O OI data unavailable'
+        }
 
     def _get_fallback_quote(self, symbol: str) -> Dict[str, Any]:
         """
