@@ -1,0 +1,67 @@
+Date	S.No	Trade	Script	Buying Price	"1st
+Target"	"2nd
+Target"	SL	Profit Point	Loss Points	Final Points	"Trade 
+Outcome"	Mode													
+1-Dec	1	Nifty	26200 CE	143			125		-18	-18	Stop Loss Hit														
+	2	Nifty	26200 PE	49			43		-6	-6	Early Exit														
+	3	Nifty	26200 PE	72			62		-10	-10	Early Exit														
+	4	Nifty	26200 PE	72	82	89		17	0	17	1st Target														
+2-Dec	5	Nifty	26200 PE	74	100	100		26	0	26	1st Target														
+	6	Nifty	26300 PE	169	187	197		28	0	28	1st Target														
+	7	Nifty	26000 CE	100			85		-15	-15	Stop Loss Hit														
+	8	Nifty	26050 PE	22	43	43		21	0	21	1st Target														
+3-Dec	9	Nifty	25900 PE	111			104		-7	-7	Early Exit														
+	10	Nifty	25900 PE	106			104		-2	-2	Early Exit														
+	11	Nifty	25900 CE	171	187	187		16	0	16	1st Target														
+	12	Nifty	25900 CE	178			162		-16	-16	Early Exit														
+4-Dec	13	Sensex	85100 PE	172	272	272		100	0	100	1st Target														
+	14	Nifty	26000 CE	142	178	188		46	0	46	1st Target														
+5-Dec	13	Nifty	26000 CE	142			126		-16	-16	Stop Loss Hit														
+	14	Nifty	26000 CE	153	185	199		46	0	46	1st Target														
+             WEEK-2																									
+8-Dec	15	Nifty	26100 PE	65	76	90		25	0	25	1st Target and 2nd target hit														
+	16	Nifty	25950 PE	41	51	75		34	0	34	1st Target and 2nd target hit														
+	17	Nifty	25900 PE	40	67	100		60	0	60	1st Target and 2nd target hit														
+9-Dec	18	Nifty	25800 PE	64	92	92		28	0	28	1st Target and 2nd target hit														
+	19	Nifty	25900 CE	25	37	37		12	0	12	1st Target and 2nd target hit														
+	20	Nifty	25900 CE	25	47	56		31	0	31	1st Target and 2nd target hit														
+10-Dec	21	Nifty	25900 CE	150	158	158		8	0	8	Early Exit														
+	22	Nifty	25900 PE	125	139	140		15	0	15	1st Target and 2nd target hit														
+	23	Nifty	25800 PE	92	102	102		10	0	10	1st Target and 2nd target hit														
+	24	Nifty	25800 PE	100	120	120		20	0	20	1st Target and 2nd target hit														
+	25	Nifty	25800 PE	111	135	140		29	0	29	1st Target and 2nd target hit														
+11-Dec	26	Nifty	25900 PE	155	191	201		46	0	46	Early Exit														
+	27	Nifty	25700 CE	171	186	191		20	0	20	1st Target and 2nd target hit														
+	28	Sensex	84900 CE	60			30		-30	-30	Stop Loss Hit														
+	29	Sensex	84900 CE	27	60	80		53	0	53	1st Target and 2nd target hit														
+12-Dec	30	Nifty	26000 CE	67	100	105		38	0	38	1st Target and 2nd target hit														
+	31	Nifty	26100 PE	128	146	146		18	0	18	1st Target hit														
+	32	Nifty	26600 CE	102	117	117		15	0	15	1st Target hit														
+             WEEK-3																									
+15-Dec	33	Nifty	25800 CE	174	192	202		28	0	28	1st Target and 2nd target hit														
+16-Dec	34	Nifty	25800 CE	138			120		-18	-18	Stop Loss Hit														
+	35	Nifty	25900 PE	47			47		0	0	Cost to Cost Exit														
+17-Dec	36	Nifty	26000 PE	156	174	184		28	0	28	1st Target and 2nd target hit														
+	37	Nifty	25800 PE	100	107	107		7	0	7	Early Exit														
+18-Dec	38	Nifty	25700 CE	169	187	197		28	0	28	Early Exit														
+	39	Sensex	84900 CE	37	37	37		0	0	0	Cost to Cost Exit														
+19-Dec	40	Nifty	26100 PE	170	184	184		14	0	14	1st Target hit														
+	41	Nifty	26100 PE	169	187	197		28	0	28	1st Target and 2nd target hit														
+	42	Nifty	26000 PE	104	114	114		10	0	10	1st Target hit														
+             WEEK-3																									
+22-Dec	43	Nifty	26000 CE	157	170	173		16	0	16	1st Target and 2nd target hit														
+23-Dec	44	Nifty	26150 CE	153	168	178		25	0	25	1st Target and 2nd target hit														
+	45	Nifty	26000 CE	150	168	178		28	0	28	1st Target and 2nd target hit														
+	46	Nifty	26200 CE	31			23		-8	0	Early Exit														
+	47	Nifty	26100 CE	98	118	128		30	0	30	1st Target and 2nd target hit														
+24-Dec	48	Nifty	26300 PE	134			117		-17	0	Stop Loss Hit														
+	49	Nifty	26300 PE	131	148	158		27	0	27	1st Target and 2nd target hit														
+26-Dec	50	Nifty	26200 PE	149	163	173		24	0	24	1st Target and 2nd target hit														
+             WEEK-3																									
+29-Dec	51	Nifty	26200 PE	146	164	174		28	0	28	1st Target and 2nd target hit														
+	52	Nifty	26000 PE	55	63	75		20	0	20	1st Target and 2nd target hit														
+30-Dec	53	Nifty	25800 CE	123	141	151		28	0	28	1st Target and 2nd target hit														
+31-Dec	54	Nifty	25900 PE	198	216	226		28	0	28	1st Target and 2nd target hit														
+	55	Sensex	85200 CE	132	175	196		64	0	64	1st Target and 2nd target hit														
+1-Jan	56	Nifty	26100 CE	154			136		-18	0	Stop Loss Hit														
+2-Jan	57	Nifty	26100 CE	203	221	231		28	0	28	1st Target and 2nd target hit														
