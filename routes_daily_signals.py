@@ -17,6 +17,11 @@ logger = logging.getLogger(__name__)
 def dashboard_daily_signals():
     """Daily trading signals page for users"""
     
+    # Check subscription access
+    if not current_user.is_authenticated or not current_user.can_access_menu('dashboard_trading_signals'):
+        flash("This feature requires a Target Plus or higher subscription.", "warning")
+        return redirect(url_for('pricing'))
+        
     selected_date_str = request.args.get('date')
     asset_type_filter = request.args.get('asset_type', 'all')
     duration_filter = request.args.get('duration', 'all')
