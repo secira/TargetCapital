@@ -37,7 +37,20 @@
 
     <!-- Navigation Menu -->
     <div class="sidebar-menu">
-        <!-- Research and Signals Section (Trader+ only) -->
+        <div class="menu-section">
+            <ul class="nav-list">
+                <!-- 1. Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
+                       href="{{ url_for('dashboard') }}">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 2. Research and Signals Section (Trader+ only) -->
         {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
         <div class="menu-section">
             <div class="section-header collapsible-header" onclick="toggleResearchSignals()">
@@ -105,16 +118,7 @@
 
         <div class="menu-section">
             <ul class="nav-list">
-                <!-- Dashboard -->
-                <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
-                       href="{{ url_for('dashboard') }}">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <span class="nav-text">Dashboard</span>
-                    </a>
-                </li>
-
-                <!-- Portfolio (Trader+ only) -->
+                <!-- 3. Portfolio (Trader+ only) -->
                 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
                 <li class="nav-item">
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" 
@@ -125,7 +129,7 @@
                 </li>
                 {% endif %}
 
-                <!-- Trade Now (Trader only) -->
+                <!-- 4. Trade Now (Trader only) -->
                 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
                 <li class="nav-item">
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" 
@@ -138,7 +142,7 @@
             </ul>
         </div>
 
-        <!-- Portfolio Hub Section -->
+        <!-- 5. Portfolio Hub Section -->
         <div class="menu-section">
             <div class="section-header collapsible-header" onclick="togglePortfolioHub()">
                 <h3 class="section-title">
