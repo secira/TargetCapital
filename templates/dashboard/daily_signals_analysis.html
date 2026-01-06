@@ -1,0 +1,461 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Daily Signals Analysis - Target Capital Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+.analysis-card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    height: 100%;
+}
+
+.analysis-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.analysis-label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.points-positive {
+    color: #059669 !important;
+}
+
+.points-negative {
+    color: #dc2626 !important;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+.breakdown-table {
+    width: 100%;
+}
+
+.breakdown-table th,
+.breakdown-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.breakdown-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a5568;
+    text-align: left;
+}
+
+.breakdown-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.date-range-form {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.signal-row {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+}
+
+.signal-row:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.asset-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #f3f4f6;
+}
+
+.duration-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.duration-day { background: #fee2e2; color: #991b1b; }
+.duration-week { background: #fef3c7; color: #92400e; }
+.duration-month { background: #dcfce7; color: #166534; }
+
+.outcome-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.outcome-target-hit { background: #dcfce7; color: #166534; }
+.outcome-sl-hit { background: #fee2e2; color: #991b1b; }
+.outcome-early-exit { background: #fef3c7; color: #92400e; }
+.outcome-active { background: #dbeafe; color: #1e40af; }
+
+.progress-bar-custom {
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.success { background: #10b981; }
+.progress-fill.danger { background: #ef4444; }
+</style>
+{% endblock %}
+
+{% block dashboard_title %}Signals Analysis{% endblock %}
+{% block dashboard_subtitle %}Historical performance analysis of trading signals{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-0">
+    <div class="date-range-form">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">Start Date</label>
+                <input type="date" class="form-control" name="start_date" value="{{ start_date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">End Date</label>
+                <input type="date" class="form-control" name="end_date" value="{{ end_date.strftime('%Y-%m-%d') }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100" style="background: #00091a; border-color: #00091a;">
+                    <i class="fas fa-chart-bar me-2"></i>Analyze Period
+                </button>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('dashboard_daily_signals') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Signals
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="analysis-card text-center">
+                <div class="analysis-value">{{ analysis_data.total_signals }}</div>
+                <div class="analysis-label">Total Signals</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="analysis-card text-center">
+                <div class="analysis-value {{ 'points-positive' if analysis_data.success_rate >= 50 else 'points-negative' }}">
+                    {{ analysis_data.success_rate }}%
+                </div>
+                <div class="analysis-label">Success Rate</div>
+                <div class="progress-bar-custom mt-3">
+                    <div class="progress-fill {{ 'success' if analysis_data.success_rate >= 50 else 'danger' }}" 
+                         style="width: {{ analysis_data.success_rate }}%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="analysis-card text-center">
+                <div class="analysis-value {{ 'points-positive' if analysis_data.net_points >= 0 else 'points-negative' }}">
+                    {{ '+' if analysis_data.net_points > 0 else '' }}{{ analysis_data.net_points }}
+                </div>
+                <div class="analysis-label">Net Points</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="analysis-card text-center">
+                <div class="analysis-value {{ 'points-positive' if analysis_data.avg_points_per_trade >= 0 else 'points-negative' }}">
+                    {{ '+' if analysis_data.avg_points_per_trade > 0 else '' }}{{ analysis_data.avg_points_per_trade }}
+                </div>
+                <div class="analysis-label">Avg Points/Trade</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="analysis-card">
+                <h6 class="mb-3"><i class="fas fa-chart-pie text-primary me-2"></i>By Asset Type</h6>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Count</th>
+                            <th>Net Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset_type, data in analysis_data.by_asset_type.items() %}
+                        <tr>
+                            <td><span class="asset-badge">{{ asset_type }}</span></td>
+                            <td>{{ data.count }}</td>
+                            <td class="{{ 'points-positive' if data.net_points >= 0 else 'points-negative' }}">
+                                {{ '+' if data.net_points > 0 else '' }}{{ data.net_points|round(2) }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="analysis-card">
+                <h6 class="mb-3"><i class="fas fa-layer-group text-primary me-2"></i>By Sub Type</h6>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Count</th>
+                            <th>Net Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub_type, data in analysis_data.by_sub_type.items() %}
+                        <tr>
+                            <td>
+                                {% if sub_type == 'CE' %}Call Option
+                                {% elif sub_type == 'PE' %}Put Option
+                                {% elif sub_type == 'FUT' %}Futures
+                                {% else %}{{ sub_type }}{% endif %}
+                            </td>
+                            <td>{{ data.count }}</td>
+                            <td class="{{ 'points-positive' if data.net_points >= 0 else 'points-negative' }}">
+                                {{ '+' if data.net_points > 0 else '' }}{{ data.net_points|round(2) }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="analysis-card">
+                <h6 class="mb-3"><i class="fas fa-clock text-primary me-2"></i>By Duration</h6>
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Duration</th>
+                            <th>Count</th>
+                            <th>Net Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for duration, data in analysis_data.by_duration.items() %}
+                        <tr>
+                            <td>
+                                <span class="duration-badge duration-{{ duration|lower }}">
+                                    {% if duration == 'DAY' %}Day Trading
+                                    {% elif duration == 'WEEK' %}Swing
+                                    {% elif duration == 'MONTH' %}Long Term
+                                    {% else %}{{ duration }}{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ data.count }}</td>
+                            <td class="{{ 'points-positive' if data.net_points >= 0 else 'points-negative' }}">
+                                {{ '+' if data.net_points > 0 else '' }}{{ data.net_points|round(2) }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3">No data available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if analysis_data.best_trade or analysis_data.worst_trade %}
+    <div class="row g-4 mb-4">
+        {% if analysis_data.best_trade %}
+        <div class="col-md-6">
+            <div class="analysis-card border-success" style="border-left: 4px solid #10b981;">
+                <h6 class="mb-3"><i class="fas fa-trophy text-success me-2"></i>Best Performing Trade</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">{{ analysis_data.best_trade.script }}</div>
+                        <small class="text-muted">{{ analysis_data.best_trade.signal_date.strftime('%d %b %Y') }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="analysis-value points-positive" style="font-size: 24px;">
+                            +{{ analysis_data.best_trade.final_points }}
+                        </div>
+                        <small class="text-muted">points</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if analysis_data.worst_trade %}
+        <div class="col-md-6">
+            <div class="analysis-card border-danger" style="border-left: 4px solid #ef4444;">
+                <h6 class="mb-3"><i class="fas fa-exclamation-triangle text-danger me-2"></i>Worst Performing Trade</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold">{{ analysis_data.worst_trade.script }}</div>
+                        <small class="text-muted">{{ analysis_data.worst_trade.signal_date.strftime('%d %b %Y') }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="analysis-value points-negative" style="font-size: 24px;">
+                            {{ analysis_data.worst_trade.final_points }}
+                        </div>
+                        <small class="text-muted">points</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if daily_breakdown %}
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header py-3 bg-white border-bottom">
+            <h5 class="mb-0" style="font-size: 16px; font-weight: 600;">
+                <i class="fas fa-calendar-alt text-primary me-2"></i>Daily Breakdown
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Signals</th>
+                            <th>Profitable</th>
+                            <th>Loss</th>
+                            <th>Total Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day in daily_breakdown %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('dashboard_daily_signals', date=day.date.strftime('%Y-%m-%d')) }}">
+                                    {{ day.date.strftime('%d %b %Y') }}
+                                </a>
+                            </td>
+                            <td>{{ day.total_signals }}</td>
+                            <td class="text-success">{{ day.profitable }}</td>
+                            <td class="text-danger">{{ day.loss }}</td>
+                            <td class="{{ 'points-positive' if day.total_points >= 0 else 'points-negative' }}">
+                                {{ '+' if day.total_points > 0 else '' }}{{ day.total_points|round(2) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if signals %}
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header py-3 bg-white border-bottom">
+            <h5 class="mb-0" style="font-size: 16px; font-weight: 600;">
+                <i class="fas fa-list text-primary me-2"></i>All Signals ({{ signals|length }})
+            </h5>
+        </div>
+        <div class="card-body">
+            {% for signal in signals %}
+            <div class="signal-row">
+                <div class="row align-items-center">
+                    <div class="col-md-1">
+                        <small class="text-muted">{{ signal.signal_date.strftime('%d %b') }}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="asset-badge">{{ signal.asset_type }}</span>
+                            <div>
+                                <div class="fw-bold">{{ signal.script }}</div>
+                                <small class="text-muted">{{ signal.sub_type_display }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="badge {{ 'bg-success' if signal.action == 'BUY' else 'bg-danger' }} me-2">{{ signal.action }}</span>
+                        <span class="duration-badge duration-{{ signal.trade_duration|lower }}">{{ signal.duration_display }}</span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Entry:</small> <span class="fw-bold">{{ signal.buy_above }}</span>
+                        <span class="mx-2">|</span>
+                        <small class="text-muted">SL:</small> <span class="text-danger">{{ signal.stop_loss }}</span>
+                    </div>
+                    <div class="col-md-2">
+                        {% if signal.final_points %}
+                        <span class="fw-bold {{ 'points-positive' if signal.final_points > 0 else 'points-negative' }}">
+                            {{ '+' if signal.final_points > 0 else '' }}{{ signal.final_points }} pts
+                        </span>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-1 text-end">
+                        {% if signal.trade_outcome %}
+                            {% if 'Target' in signal.trade_outcome %}
+                            <span class="outcome-badge outcome-target-hit">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            {% elif 'Stop Loss' in signal.trade_outcome %}
+                            <span class="outcome-badge outcome-sl-hit">
+                                <i class="fas fa-times"></i>
+                            </span>
+                            {% else %}
+                            <span class="outcome-badge outcome-early-exit">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </span>
+                            {% endif %}
+                        {% else %}
+                        <span class="outcome-badge outcome-active">
+                            <i class="fas fa-clock"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+            <h5>No Signals Found</h5>
+            <p class="text-muted">There are no trading signals for the selected period.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
