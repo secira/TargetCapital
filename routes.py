@@ -1502,6 +1502,21 @@ def dashboard_trade_now():
                              'recommendations': []
                          })
 
+@app.route('/dashboard/trade-assist')
+@login_required  
+def trade_assist():
+    """Trade Assist page - helps users execute trades based on signals"""
+    symbol = request.args.get('symbol', '')
+    
+    # Check subscription access
+    from models import PricingPlan
+    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        flash('Trade Assist is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
+        return redirect(url_for('pricing'))
+    
+    # Redirect to trade-now page with the symbol pre-selected
+    return redirect(url_for('dashboard_trade_now', symbol=symbol))
+
 @app.route('/admin/trading-signals/create', methods=['GET', 'POST'])
 @login_required
 @admin_required
