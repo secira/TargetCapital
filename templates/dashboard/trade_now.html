@@ -95,12 +95,17 @@
                         </div>
                         
                         <!-- Order Parameters -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Entry Price</label>
+                            <input type="number" class="form-control" name="entry_price" id="entryPriceInput" step="0.01" placeholder="₹">
+                        </div>
+                        
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Quantity</label>
                             <input type="number" class="form-control" name="quantity" id="quantityInput" min="1" required>
                         </div>
                         
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Order Type</label>
                             <select class="form-select" name="order_type" required>
                                 <option value="MARKET">Market Order</option>
@@ -108,7 +113,7 @@
                             </select>
                         </div>
                         
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Product Type</label>
                             <select class="form-select" name="product_type" required>
                                 <option value="MIS">MIS (Intraday)</option>
@@ -436,11 +441,14 @@ document.addEventListener('DOMContentLoaded', function() {
             optionsFields.style.display = 'none';
         }
         
-        // Set suggested quantity based on asset
-        if (assetClass === 'futures') {
-            quantityInput.value = 1; // Lot size
+        // Set default quantity based on asset type
+        // 3 lots for options, 100 for stocks
+        if (assetClass === 'options') {
+            quantityInput.value = 3; // 3 lots for options
+        } else if (assetClass === 'futures') {
+            quantityInput.value = 1; // 1 lot for futures
         } else {
-            quantityInput.value = 10;
+            quantityInput.value = 100; // 100 shares for stocks
         }
         
         recommendBtn.disabled = false;
@@ -651,8 +659,24 @@ function prePopulateForm(urlParams) {
     }
     
     // Pre-populate form fields
-    if (quantity && quantityInput) {
+    // Set entry price
+    if (price) {
+        const entryPriceInput = document.getElementById('entryPriceInput');
+        if (entryPriceInput) entryPriceInput.value = price;
+    }
+    
+    // Set quantity based on asset type - 3 lots for options, 100 for stocks
+    if (quantity) {
         quantityInput.value = quantity;
+    } else if (type) {
+        // Default quantity based on type
+        if (type.toLowerCase() === 'options' || type.toLowerCase() === 'option') {
+            quantityInput.value = 3; // 3 lots for options
+        } else if (type.toLowerCase() === 'futures' || type.toLowerCase() === 'future') {
+            quantityInput.value = 1; // 1 lot for futures
+        } else {
+            quantityInput.value = 100; // 100 shares for stocks
+        }
     }
     
     // Set target and stop loss if coming from signal
@@ -735,9 +759,9 @@ function showTradeConfirmation() {
     const symbol = urlParams.get('symbol') || document.getElementById('assetSelect').value;
     const script = urlParams.get('script') || symbol;
     const action = urlParams.get('action') || 'BUY';
-    const price = urlParams.get('price') || '';
-    const stopLoss = urlParams.get('stop_loss') || document.getElementById('stopLossInput')?.value || '';
-    const target = urlParams.get('target') || document.getElementById('targetPriceInput')?.value || '';
+    const price = document.getElementById('entryPriceInput')?.value || urlParams.get('price') || '';
+    const stopLoss = document.getElementById('stopLossInput')?.value || urlParams.get('stop_loss') || '';
+    const target = document.getElementById('targetPriceInput')?.value || urlParams.get('target') || '';
     const quantity = document.getElementById('quantityInput')?.value || 1;
     const orderType = document.querySelector('select[name="order_type"]')?.value || 'MARKET';
     const productType = document.querySelector('select[name="product_type"]')?.value || 'MIS';
