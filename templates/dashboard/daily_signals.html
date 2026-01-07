@@ -272,7 +272,7 @@
                     <option value="STOCK" {{ 'selected' if asset_type_filter == 'STOCK' else '' }}>Stocks</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label small text-muted mb-1">Duration</label>
                 <select class="form-select" id="durationFilter">
                     <option value="all" {{ 'selected' if duration_filter == 'all' else '' }}>All Durations</option>
@@ -281,35 +281,10 @@
                     <option value="MONTH" {{ 'selected' if duration_filter == 'MONTH' else '' }}>Long Term</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label small text-muted mb-1">Status</label>
-                <select class="form-select" id="statusFilter">
-                    <option value="all" {{ 'selected' if status_filter == 'all' else '' }}>All Status</option>
-                    <option value="ACTIVE" {{ 'selected' if status_filter == 'ACTIVE' else '' }}>Active</option>
-                    <option value="TARGET_1_HIT" {{ 'selected' if status_filter == 'TARGET_1_HIT' else '' }}>Target 1 Hit</option>
-                    <option value="TARGET_2_HIT" {{ 'selected' if status_filter == 'TARGET_2_HIT' else '' }}>Target 2 Hit</option>
-                    <option value="SL_HIT" {{ 'selected' if status_filter == 'SL_HIT' else '' }}>SL Hit</option>
-                </select>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <button class="btn btn-primary w-100" onclick="applyFilters()" style="background: #00091a; border-color: #00091a;">
                     <i class="fas fa-filter me-2"></i>Apply Filters
                 </button>
-            </div>
-        </div>
-        
-        <div class="mt-3">
-            <label class="form-label small text-muted mb-2">Quick Date Selection</label>
-            <div class="date-nav">
-                {% for d in date_range[:7] %}
-                <button class="date-btn {{ 'active' if d == selected_date else '' }}" 
-                        onclick="selectDate('{{ d.strftime('%Y-%m-%d') }}')">
-                    {{ d.strftime('%d %b') }}
-                    {% if loop.index == 1 %}
-                    <small class="ms-1">(Today)</small>
-                    {% endif %}
-                </button>
-                {% endfor %}
             </div>
         </div>
     </div>
@@ -375,16 +350,16 @@
                 <table class="signal-table">
                     <thead>
                         <tr>
-                            <th style="width: 50px;">#</th>
-                            <th>Script</th>
-                            <th>Type</th>
-                            <th>Duration</th>
-                            <th>Entry</th>
-                            <th>SL</th>
+                            <th>Asset Type</th>
+                            <th>Asset Name</th>
+                            <th>Expiry Date</th>
+                            <th>Current Price</th>
+                            <th>Entry Price</th>
                             <th>Target 1</th>
                             <th>Target 2</th>
-                            <th>P&L Points</th>
-                            <th>Outcome</th>
+                            <th>Stop Loss</th>
+                            <th>Duration</th>
+                            <th>Risk Level</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -392,21 +367,37 @@
                         {% for signal in signals %}
                         <tr>
                             <td>
-                                <span class="fw-bold text-muted">{{ signal.signal_number }}</span>
+                                <span class="asset-badge">{{ signal.asset_type }}</span>
                             </td>
                             <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="asset-badge">{{ signal.asset_type }}</span>
-                                    <div>
-                                        <div class="fw-bold">{{ signal.script }}</div>
-                                        <small class="text-muted">{{ signal.sub_type_display }}</small>
-                                    </div>
-                                </div>
+                                <div class="fw-bold">{{ signal.script }}</div>
+                                <small class="text-muted">{{ signal.sub_type_display }}</small>
                             </td>
                             <td>
-                                <span class="badge {{ 'bg-success' if signal.action == 'BUY' else 'bg-danger' }}">
-                                    {{ signal.action }}
-                                </span>
+                                <span class="text-muted">{{ signal.expiry_date.strftime('%d %b %Y') if signal.expiry_date else 'N/A' }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary">₹{{ signal.current_price or '0.00' }}</span>
+                            </td>
+                            <td>
+                                <span class="price-tag entry">₹{{ signal.buy_above }}</span>
+                            </td>
+                            <td>
+                                {% if signal.target_1 %}
+                                <span class="price-tag target">₹{{ signal.target_1 }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signal.target_2 %}
+                                <span class="price-tag target">₹{{ signal.target_2 }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="price-tag sl">₹{{ signal.stop_loss }}</span>
                             </td>
                             <td>
                                 <span class="duration-badge duration-{{ signal.trade_duration|lower }}">
@@ -414,67 +405,19 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="price-tag entry">
-                                    <i class="fas fa-arrow-right"></i>
-                                    {{ signal.buy_above }}
+                                <span class="fw-bold risk-{{ (signal.risk_level or 'medium')|lower }}">
+                                    {{ signal.risk_level or 'Medium' }}
                                 </span>
                             </td>
                             <td>
-                                <span class="price-tag sl">
-                                    <i class="fas fa-shield-alt"></i>
-                                    {{ signal.stop_loss }}
-                                </span>
-                            </td>
-                            <td>
-                                {% if signal.target_1 %}
-                                <span class="price-tag target">{{ signal.target_1 }}</span>
-                                {% else %}
-                                <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if signal.target_2 %}
-                                <span class="price-tag target">{{ signal.target_2 }}</span>
-                                {% else %}
-                                <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if signal.final_points %}
-                                <span class="fw-bold {{ 'points-positive' if signal.final_points > 0 else 'points-negative' }}">
-                                    {{ '+' if signal.final_points > 0 else '' }}{{ signal.final_points }}
-                                </span>
-                                {% else %}
-                                <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if signal.trade_outcome %}
-                                    {% if 'Target' in signal.trade_outcome %}
-                                    <span class="outcome-badge outcome-target-hit">
-                                        <i class="fas fa-check-circle me-1"></i>{{ signal.trade_outcome }}
-                                    </span>
-                                    {% elif 'Stop Loss' in signal.trade_outcome %}
-                                    <span class="outcome-badge outcome-sl-hit">
-                                        <i class="fas fa-times-circle me-1"></i>SL Hit
-                                    </span>
-                                    {% elif 'Early Exit' in signal.trade_outcome %}
-                                    <span class="outcome-badge outcome-early-exit">
-                                        <i class="fas fa-sign-out-alt me-1"></i>Early Exit
-                                    </span>
-                                    {% else %}
-                                    <span class="outcome-badge">{{ signal.trade_outcome }}</span>
-                                    {% endif %}
-                                {% else %}
-                                <span class="outcome-badge outcome-active">
-                                    <i class="fas fa-clock me-1"></i>Active
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetail({{ signal.id }})" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetail({{ signal.id }})">
+                                        View
+                                    </button>
+                                    <a href="{{ url_for('trade_assist', symbol=signal.symbol) }}" class="btn btn-sm btn-primary" style="background: #00091a; border-color: #00091a;">
+                                        Trade
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -527,12 +470,10 @@ function applyFilters() {
     const date = document.getElementById('signalDate').value;
     const assetType = document.getElementById('assetTypeFilter').value;
     const duration = document.getElementById('durationFilter').value;
-    const status = document.getElementById('statusFilter').value;
     
     let url = `{{ url_for('dashboard_daily_signals') }}?date=${date}`;
     if (assetType !== 'all') url += `&asset_type=${assetType}`;
     if (duration !== 'all') url += `&duration=${duration}`;
-    if (status !== 'all') url += `&status=${status}`;
     
     window.location.href = url;
 }
