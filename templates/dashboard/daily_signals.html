@@ -225,7 +225,7 @@
     min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .signal-table thead th {
@@ -238,6 +238,19 @@
     border-bottom: 2px solid #e5e7eb;
     white-space: nowrap;
 }
+
+/* Column width distribution */
+.signal-table thead th:nth-child(1) { width: 8%; }   /* Asset Type */
+.signal-table thead th:nth-child(2) { width: 14%; }  /* Asset Name */
+.signal-table thead th:nth-child(3) { width: 9%; }   /* Expiry Date */
+.signal-table thead th:nth-child(4) { width: 10%; }  /* Current Price */
+.signal-table thead th:nth-child(5) { width: 9%; }   /* Entry Price */
+.signal-table thead th:nth-child(6) { width: 9%; }   /* Target 1 */
+.signal-table thead th:nth-child(7) { width: 9%; }   /* Target 2 */
+.signal-table thead th:nth-child(8) { width: 9%; }   /* Stop Loss */
+.signal-table thead th:nth-child(9) { width: 9%; }   /* Duration */
+.signal-table thead th:nth-child(10) { width: 7%; }  /* Risk Level */
+.signal-table thead th:nth-child(11) { width: 7%; }  /* Action */
 
 .signal-table tbody td {
     padding: 12px 10px;
