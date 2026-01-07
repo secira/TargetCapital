@@ -10,18 +10,27 @@
 
 {% block extra_css %}
 <style>
-/* Override dashboard content container to allow full width */
+/* Override all container width constraints for full-width table */
+.content-container,
+.dashboard-content .content-container,
 .dashboard-main .dashboard-content .content-container {
-    max-width: none !important;
+    max-width: 100% !important;
     width: 100% !important;
     margin: 0 !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 16px !important;
 }
 
-.dashboard-main .dashboard-content .content-container > .container-fluid {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+.container-fluid,
+.daily-signals-page.container-fluid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+.table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto;
 }
 
 .daily-signals-page,
