@@ -261,7 +261,7 @@
                        value="{{ selected_date.strftime('%Y-%m-%d') }}"
                        max="{{ date_range[0].strftime('%Y-%m-%d') if date_range else '' }}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label small text-muted mb-1">Asset Type</label>
                 <select class="form-select" id="assetTypeFilter">
                     <option value="all" {{ 'selected' if asset_type_filter == 'all' else '' }}>All Assets</option>
@@ -281,7 +281,7 @@
                     <option value="MONTH" {{ 'selected' if duration_filter == 'MONTH' else '' }}>Long Term</option>
                 </select>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <button class="btn btn-primary w-100" onclick="applyFilters()" style="background: #00091a; border-color: #00091a;">
                     <i class="fas fa-filter me-2"></i>Apply Filters
                 </button>
@@ -367,7 +367,9 @@
                         {% for signal in signals %}
                         <tr>
                             <td>
-                                <span class="asset-badge">{{ signal.asset_type }}</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="asset-badge">{{ signal.asset_type }}</span>
+                                </div>
                             </td>
                             <td>
                                 <div class="fw-bold">{{ signal.script }}</div>
