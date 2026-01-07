@@ -2,12 +2,20 @@
 
 {% block title %}Daily Signals - Target Capital Dashboard{% endblock %}
 
+{% block extra_head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block extra_css %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+.daily-signals-page,
+.daily-signals-page * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
 
 .daily-signals-page {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     letter-spacing: -0.01em;
 }
@@ -423,7 +431,7 @@
                                     <button class="btn btn-sm btn-outline-primary" onclick="viewSignalDetail({{ signal.id }})">
                                         View
                                     </button>
-                                    <a href="{{ url_for('trade_assist', symbol=signal.symbol, script=signal.script, asset_type=signal.asset_type, sub_type=signal.sub_type, action=signal.action, buy_above=signal.buy_above, stop_loss=signal.stop_loss, target_1=signal.target_1, target_2=signal.target_2, target_3=signal.target_3, trade_duration=signal.trade_duration, risk_level=signal.risk_level, signal_id=signal.id) }}" class="btn btn-sm btn-primary" style="background: #00091a; border-color: #00091a;">
+                                    <a href="{{ url_for('trade_assist', symbol=signal.symbol, script=signal.script, asset_type=signal.asset_type, sub_type=signal.sub_type, action=signal.action, price=signal.buy_above, stop_loss=signal.stop_loss, target=signal.target_1, target_2=signal.target_2, target_3=signal.target_3, trade_duration=signal.trade_duration, risk_level=signal.risk_level, signal_id=signal.id, source='daily_signals') }}" class="btn btn-sm btn-primary" style="background: #00091a; border-color: #00091a;">
                                         Trade
                                     </a>
                                 </div>
