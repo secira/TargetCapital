@@ -339,49 +339,6 @@
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value">{{ summary_stats.total_signals }}</div>
-                <div class="summary-label">Total Signals</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value">{{ summary_stats.active }}</div>
-                <div class="summary-label">Active</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value text-success">{{ summary_stats.target_1_hit + summary_stats.target_2_hit }}</div>
-                <div class="summary-label">Targets Hit</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value text-danger">{{ summary_stats.sl_hit }}</div>
-                <div class="summary-label">SL Hit</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value {{ 'points-positive' if summary_stats.net_points >= 0 else 'points-negative' }}">
-                    {{ summary_stats.net_points }}
-                </div>
-                <div class="summary-label">Net Points</div>
-            </div>
-        </div>
-        <div class="col-6 col-md-2">
-            <div class="summary-card">
-                <div class="summary-value {{ 'points-positive' if summary_stats.success_rate >= 50 else 'points-negative' }}">
-                    {{ summary_stats.success_rate }}%
-                </div>
-                <div class="summary-label">Success Rate</div>
-            </div>
-        </div>
-    </div>
-
     {% if signals %}
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-header py-3 bg-white border-bottom">
