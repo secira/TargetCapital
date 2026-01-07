@@ -245,6 +245,32 @@
         margin-bottom: 12px;
     }
 }
+
+#signalDetailModal {
+    z-index: 1055 !important;
+}
+
+#signalDetailModal .modal-backdrop {
+    z-index: 1050 !important;
+}
+
+#signalDetailModal .modal-dialog {
+    z-index: 1060 !important;
+}
+
+#signalDetailModal .modal-content {
+    position: relative;
+    z-index: 1060 !important;
+}
+
+#signalDetailModal .modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+#signalDetailModal .modal-footer .btn {
+    min-width: 100px;
+}
 </style>
 {% endblock %}
 
@@ -442,12 +468,12 @@
     {% endif %}
 </div>
 
-<div class="modal fade" id="signalDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="modal fade" id="signalDetailModal" tabindex="-1" aria-labelledby="signalDetailTitle" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="z-index: 1060;">
             <div class="modal-header signal-header">
                 <h5 class="modal-title text-white" id="signalDetailTitle">Signal Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="signalDetailBody">
                 <div class="text-center py-5">
