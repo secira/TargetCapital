@@ -48,16 +48,6 @@
         </div>
     </div>
 </div>
-{% elif current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
-<div class="alert border-0 rounded-3 shadow-sm mb-4" style="background: rgba(49, 130, 206, 0.1); border-left: 4px solid #3182ce !important;">
-    <div class="d-flex align-items-center">
-        <i class="fas fa-rocket fa-2x me-3" style="color: #3182ce;"></i>
-        <div>
-            <h5 class="alert-heading mb-1" style="color: #2c5282;"><i class="fas fa-check-circle me-1"></i>Trade Plus Enabled</h5>
-            <p class="mb-2" style="color: #4a5568;">Click the <strong><i class="fas fa-rocket"></i> rocket button</strong> on any signal to launch the 6-stage validation pipeline and execute trades through your primary broker.</p>
-        </div>
-    </div>
-</div>
 {% endif %}
 
 <!-- Trade Recommendation Engine -->
