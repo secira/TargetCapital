@@ -150,26 +150,16 @@
                             </div>
                         </div>
                         
-                        <!-- Market Analysis Display -->
-                        <div class="col-12">
-                            <div id="marketAnalysis" class="alert alert-info" style="display: none;">
-                                <h6 class="fw-bold mb-2">Market Analysis</h6>
-                                <div id="analysisContent"></div>
-                            </div>
-                        </div>
-                        
                         <!-- Action Buttons -->
                         <div class="col-12">
                             <div class="d-flex gap-2 flex-wrap">
-                                <button type="button" class="btn btn-outline-primary" id="analyzeBtn">
-                                    <i class="fas fa-chart-line me-2"></i>Analyze Market
-                                </button>
-                                <button type="submit" class="btn btn-success" id="recommendBtn" disabled>
-                                    <i class="fas fa-lightbulb me-2"></i>Get Recommendation
-                                </button>
                                 {% if primary_broker and current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
-                                <button type="button" class="btn btn-primary" id="tradeNowBtn" onclick="showTradeConfirmation()" style="background: #00091a; border-color: #00091a;">
+                                <button type="button" class="btn btn-success btn-lg" id="tradeNowBtn" onclick="showTradeConfirmation()" style="background: #00091a; border-color: #00091a;">
                                     <i class="fas fa-rocket me-2"></i>Trade Now
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-secondary btn-lg" disabled>
+                                    <i class="fas fa-lock me-2"></i>Trade Now (Upgrade Required)
                                 </button>
                                 {% endif %}
                             </div>
@@ -371,10 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const strategySelect = document.getElementById('strategySelect');
     const optionsFields = document.getElementById('optionsFields');
     const quantityInput = document.getElementById('quantityInput');
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    const recommendBtn = document.getElementById('recommendBtn');
-    const marketAnalysis = document.getElementById('marketAnalysis');
-    const analysisContent = document.getElementById('analysisContent');
     
     // Available strategies data
     const strategies = {{ strategies | tojson }};
@@ -420,114 +406,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             quantityInput.value = 100; // 100 shares for stocks
         }
-        
-        recommendBtn.disabled = false;
-    });
-    
-    // Market analysis
-    analyzeBtn.addEventListener('click', function() {
-        const symbol = assetSelect.value;
-        if (!symbol) {
-            alert('Please select an asset first');
-            return;
-        }
-        
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
-        
-        fetch(`/api/market/analyze/${symbol}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    displayMarketAnalysis(data.data);
-                } else {
-                    alert('Failed to get market analysis: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error);
-            })
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-chart-line me-2"></i>Analyze Market';
-            });
-    });
-    
-    // Trade recommendation form
-    document.getElementById('tradeRecommendationForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData);
-        
-        recommendBtn.disabled = true;
-        recommendBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating...';
-        
-        fetch('/api/trade/recommend', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Trade recommendation created successfully!');
-                location.reload(); // Refresh to show new recommendation
-            } else {
-                alert('Failed to create recommendation: ' + data.error);
-            }
-        })
-        .catch(error => {
-            alert('Error: ' + error);
-        })
-        .finally(() => {
-            recommendBtn.disabled = false;
-            recommendBtn.innerHTML = '<i class="fas fa-lightbulb me-2"></i>Get Recommendation';
-        });
     });
 });
-
-function displayMarketAnalysis(analysis) {
-    const content = `
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="fw-bold text-${analysis.trend_direction === 'BULLISH' ? 'success' : analysis.trend_direction === 'BEARISH' ? 'danger' : 'warning'}">${analysis.trend_direction}</div>
-                    <small class="text-muted">Trend</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="fw-bold">${analysis.confidence_level}%</div>
-                    <small class="text-muted">Confidence</small>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="fw-bold">${analysis.rsi_value.toFixed(1)}</div>
-                    <small class="text-muted">RSI</small>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row g-3 mt-2">
-            <div class="col-md-6">
-                <small class="text-muted">Support: </small>
-                <span class="fw-bold">₹${analysis.support_level.toFixed(2)}</span>
-            </div>
-            <div class="col-md-6">
-                <small class="text-muted">Resistance: </small>
-                <span class="fw-bold">₹${analysis.resistance_level.toFixed(2)}</span>
-            </div>
-        </div>
-    `;
-    
-    analysisContent.innerHTML = content;
-    marketAnalysis.style.display = 'block';
-}
 
 function deployTrade(recommendationId) {
     if (!confirm('Deploy this trade to your broker?')) return;
