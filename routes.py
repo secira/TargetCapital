@@ -1506,7 +1506,22 @@ def dashboard_trade_now():
 @login_required  
 def trade_assist():
     """Trade Assist page - helps users execute trades based on signals"""
-    symbol = request.args.get('symbol', '')
+    # Get all signal data from query parameters
+    signal_data = {
+        'symbol': request.args.get('symbol', ''),
+        'script': request.args.get('script', ''),
+        'asset_type': request.args.get('asset_type', ''),
+        'sub_type': request.args.get('sub_type', ''),
+        'action': request.args.get('action', 'BUY'),
+        'buy_above': request.args.get('buy_above', ''),
+        'stop_loss': request.args.get('stop_loss', ''),
+        'target_1': request.args.get('target_1', ''),
+        'target_2': request.args.get('target_2', ''),
+        'target_3': request.args.get('target_3', ''),
+        'trade_duration': request.args.get('trade_duration', ''),
+        'risk_level': request.args.get('risk_level', ''),
+        'signal_id': request.args.get('signal_id', '')
+    }
     
     # Check subscription access
     from models import PricingPlan
@@ -1514,8 +1529,8 @@ def trade_assist():
         flash('Trade Assist is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
-    # Redirect to trade-now page with the symbol pre-selected
-    return redirect(url_for('dashboard_trade_now', symbol=symbol))
+    # Redirect to trade-now page with all signal data
+    return redirect(url_for('dashboard_trade_now', **signal_data))
 
 @app.route('/admin/trading-signals/create', methods=['GET', 'POST'])
 @login_required
