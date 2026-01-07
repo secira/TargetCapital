@@ -10,6 +10,20 @@
 
 {% block extra_css %}
 <style>
+/* Override dashboard content container to allow full width */
+.dashboard-main .dashboard-content .content-container {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.dashboard-main .dashboard-content .content-container > .container-fluid {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
 .daily-signals-page,
 .daily-signals-page * {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
