@@ -62,7 +62,7 @@
 
 <!-- Trade Recommendation Engine -->
 <div class="row mb-4">
-    <div class="col-lg-8">
+    <div class="col-12">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header text-white" style="background: linear-gradient(135deg, #00091a 0%, #1a365d 100%);">
                 <h5 class="mb-0">
@@ -186,25 +186,6 @@
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Strategy Information Panel -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white">
-                <h6 class="fw-bold mb-0">
-                    <i class="fas fa-info-circle me-2"></i>Strategy Information
-                </h6>
-            </div>
-            <div class="card-body">
-                <div id="strategyInfo">
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-hand-point-left fa-2x mb-3"></i>
-                        <p>Select a strategy to view details</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -404,7 +385,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const recommendBtn = document.getElementById('recommendBtn');
     const marketAnalysis = document.getElementById('marketAnalysis');
     const analysisContent = document.getElementById('analysisContent');
-    const strategyInfo = document.getElementById('strategyInfo');
     
     // Available strategies data
     const strategies = {{ strategies | tojson }};
@@ -452,16 +432,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         recommendBtn.disabled = false;
-    });
-    
-    // Handle strategy selection
-    strategySelect.addEventListener('change', function() {
-        if (this.value) {
-            const strategyData = JSON.parse(this.options[this.selectedIndex].dataset.strategyData);
-            displayStrategyInfo(strategyData);
-        } else {
-            strategyInfo.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-hand-point-left fa-2x mb-3"></i><p>Select a strategy to view details</p></div>';
-        }
     });
     
     // Market analysis
@@ -529,43 +499,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
-function displayStrategyInfo(strategy) {
-    const info = `
-        <div class="mb-3">
-            <h6 class="fw-bold text-primary">${strategy.name}</h6>
-            <p class="text-muted small">${strategy.description}</p>
-        </div>
-        
-        <div class="row g-2 mb-3">
-            <div class="col-6">
-                <div class="text-center p-2 bg-light rounded">
-                    <div class="fw-bold text-${strategy.risk_level === 'LOW' ? 'success' : strategy.risk_level === 'MEDIUM' ? 'warning' : 'danger'}">${strategy.risk_level}</div>
-                    <small class="text-muted">Risk Level</small>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="text-center p-2 bg-light rounded">
-                    <div class="fw-bold text-success">${strategy.success_rate}%</div>
-                    <small class="text-muted">Success Rate</small>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row g-2">
-            <div class="col-6">
-                <small class="text-muted">Max Loss:</small>
-                <div class="fw-bold text-danger">${strategy.max_loss_percentage}%</div>
-            </div>
-            <div class="col-6">
-                <small class="text-muted">Max Profit:</small>
-                <div class="fw-bold text-success">${strategy.max_profit_percentage}%</div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('strategyInfo').innerHTML = info;
-}
 
 function displayMarketAnalysis(analysis) {
     const content = `
