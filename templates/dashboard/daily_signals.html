@@ -13,11 +13,14 @@
 .daily-signals-page,
 .daily-signals-page * {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-weight: 300;
 }
 
 .daily-signals-page {
     font-size: 14px;
     letter-spacing: -0.01em;
+    max-width: 100%;
+    padding: 0 !important;
 }
 
 .daily-signals-page h1, 
@@ -26,7 +29,7 @@
 .daily-signals-page h4, 
 .daily-signals-page h5, 
 .daily-signals-page h6 {
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: -0.02em;
 }
 
@@ -34,6 +37,15 @@
 .daily-signals-page .form-select,
 .daily-signals-page .btn {
     font-family: 'Inter', sans-serif;
+    font-weight: 400;
+}
+
+.daily-signals-page .card {
+    width: 100%;
+}
+
+.daily-signals-page .table-responsive {
+    width: 100%;
 }
 
 .signal-card {
@@ -190,22 +202,26 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
+    table-layout: auto;
 }
 
 .signal-table thead th {
     background: #f8fafc;
-    padding: 14px 16px;
+    padding: 12px 10px;
     text-align: left;
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: 12px;
     color: #4a5568;
     border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
 }
 
 .signal-table tbody td {
-    padding: 16px;
+    padding: 12px 10px;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
+    font-weight: 300;
+    font-size: 13px;
 }
 
 .signal-table tbody tr:hover {
