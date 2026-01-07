@@ -19,8 +19,10 @@
 .daily-signals-page {
     font-size: 14px;
     letter-spacing: -0.01em;
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 !important;
 }
 
 .daily-signals-page h1, 
@@ -41,11 +43,17 @@
 }
 
 .daily-signals-page .card {
-    width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 .daily-signals-page .table-responsive {
-    width: 100%;
+    width: 100% !important;
+    overflow-x: auto;
+}
+
+.daily-signals-page .filter-section {
+    width: 100% !important;
 }
 
 .signal-card {
@@ -199,10 +207,11 @@
 }
 
 .signal-table {
-    width: 100%;
+    width: 100% !important;
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 .signal-table thead th {
