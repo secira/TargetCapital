@@ -1506,31 +1506,17 @@ def dashboard_trade_now():
 @login_required  
 def trade_assist():
     """Trade Assist page - helps users execute trades based on signals"""
-    # Get all signal data from query parameters
-    signal_data = {
-        'symbol': request.args.get('symbol', ''),
-        'script': request.args.get('script', ''),
-        'asset_type': request.args.get('asset_type', ''),
-        'sub_type': request.args.get('sub_type', ''),
-        'action': request.args.get('action', 'BUY'),
-        'buy_above': request.args.get('buy_above', ''),
-        'stop_loss': request.args.get('stop_loss', ''),
-        'target_1': request.args.get('target_1', ''),
-        'target_2': request.args.get('target_2', ''),
-        'target_3': request.args.get('target_3', ''),
-        'trade_duration': request.args.get('trade_duration', ''),
-        'risk_level': request.args.get('risk_level', ''),
-        'signal_id': request.args.get('signal_id', '')
-    }
-    
     # Check subscription access
     from models import PricingPlan
     if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
         flash('Trade Assist is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
-    # Redirect to trade-now page with all signal data
-    return redirect(url_for('dashboard_trade_now', **signal_data))
+    # Pass ALL query parameters exactly as received to the trade-now page
+    signal_params = request.args.to_dict(flat=True)
+    
+    # Redirect to trade-now page with all signal data preserved
+    return redirect(url_for('dashboard_trade_now', **signal_params))
 
 @app.route('/admin/trading-signals/create', methods=['GET', 'POST'])
 @login_required
@@ -4689,6 +4675,78 @@ def api_trade_execute_confirmed():
             'status': order_result.order_status,
             'message': 'Order placed successfully'
         })
+        
+    except Exception as e:
+        logger.error(f"Trade execution error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Trade execution failed: {str(e)}'
+        }), 500
+
+@app.route('/api/trade/execute-signal', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_trade_execute_signal():
+    """Execute trade from a daily trading signal"""
+    try:
+        from services.broker_service import BrokerService
+        from models_broker import BrokerAccount, BrokerOrder
+        from models import PricingPlan
+        
+        # Check subscription access
+        if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+            return jsonify({
+                'success': False, 
+                'error': 'Trade execution requires TARGET PRO or HNI subscription'
+            }), 403
+        
+        data = request.get_json()
+        
+        # Get primary broker account
+        primary_broker = BrokerAccount.query.filter_by(
+            user_id=current_user.id,
+            is_primary=True
+        ).first()
+        
+        if not primary_broker:
+            return jsonify({
+                'success': False, 
+                'error': 'No primary broker connected. Please connect a broker first.'
+            }), 400
+        
+        # Prepare order data
+        order_data = {
+            'symbol': data.get('symbol'),
+            'trading_symbol': data.get('symbol'),
+            'quantity': int(data.get('quantity', 1)),
+            'price': float(data.get('price')) if data.get('price') else None,
+            'transaction_type': data.get('action', 'BUY'),
+            'order_type': data.get('order_type', 'MARKET'),
+            'product_type': data.get('product_type', 'MIS'),
+            'exchange': 'NSE',
+            'trigger_price': float(data.get('stop_loss')) if data.get('stop_loss') else None
+        }
+        
+        # Log the trade attempt
+        logger.info(f"Executing trade for user {current_user.id}: {order_data}")
+        
+        # Execute order through broker
+        try:
+            order_result = BrokerService.place_order_via_broker(primary_broker, order_data)
+            
+            return jsonify({
+                'success': True,
+                'order_id': order_result.id if hasattr(order_result, 'id') else None,
+                'broker_order_id': order_result.broker_order_id if hasattr(order_result, 'broker_order_id') else 'PENDING',
+                'status': order_result.order_status if hasattr(order_result, 'order_status') else 'SUBMITTED',
+                'message': f'Order placed successfully with {primary_broker.broker_name}'
+            })
+        except Exception as broker_error:
+            logger.error(f"Broker execution error: {str(broker_error)}")
+            return jsonify({
+                'success': False,
+                'error': f'Broker error: {str(broker_error)}'
+            }), 500
         
     except Exception as e:
         logger.error(f"Trade execution error: {str(e)}")
