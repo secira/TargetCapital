@@ -6,7 +6,7 @@ import logging
 from flask import Blueprint, request, jsonify, g
 from werkzeug.security import check_password_hash
 from app import db
-from models import User, Portfolio, ResearchList
+from models import User, Portfolio, TradingSignal
 from models_broker import BrokerAccount
 from services.jwt_service import jwt_service, jwt_required, jwt_optional
 from services.otp_service import otp_service

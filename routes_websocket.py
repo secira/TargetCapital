@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timezone
 from services.nse_service import NSEService
 from services.ai_agent_service import AgenticAICoordinator
-from models import Portfolio, ResearchList, User
+from models import Portfolio, TradingSignal, User
 from app import db
 
 # Configure logging

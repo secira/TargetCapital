@@ -279,6 +279,31 @@ class PortfolioOptimizationReport(db.Model):
     tenant = db.relationship('Tenant', backref='optimization_reports')
 
 
+class LangGraphSignal(db.Model):
+    """Store generated trading signals from LangGraph pipeline"""
+    __tablename__ = 'trading_signal'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    signal_date = db.Column(db.Date, nullable=False)
+    symbol = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # BUY/SELL
+    entry_price = db.Column(db.Float, nullable=True)
+    target_price = db.Column(db.Float, nullable=True)
+    stop_loss = db.Column(db.Float, nullable=True)
+    timeframe = db.Column(db.String(20), nullable=True)  # Intraday/Swing/Positional
+    rationale = db.Column(db.Text, nullable=True)
+    risk_reward_ratio = db.Column(db.Float, nullable=True)
+    signal_data = db.Column(db.JSON, nullable=False)  # Complete signal object
+    pipeline_metadata = db.Column(db.JSON, nullable=True)  # Pipeline execution details
+    status = db.Column(db.String(20), default='active')  # active, executed, expired, cancelled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    tenant = db.relationship('Tenant', backref='langgraph_signals')
+    
+    def __repr__(self):
+        return f'<LangGraphSignal {self.symbol} {self.action} @ {self.entry_price}>'
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
@@ -2066,6 +2091,114 @@ class Admin(UserMixin, db.Model):
         return self.username
 
 
+# Enhanced Trading Signal Model
+class TradingSignal(db.Model):
+    __tablename__ = 'trading_signals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    signal_type = db.Column(db.String(20), nullable=False)  # 'stock', 'strategy', 'index_future', 'option'
+    symbol = db.Column(db.String(50), nullable=False)
+    company_name = db.Column(db.String(200), nullable=True)
+    action = db.Column(db.String(10), nullable=False)  # 'BUY', 'SELL', 'HOLD'
+    entry_price = db.Column(db.Numeric(10, 2), nullable=True)
+    target_price = db.Column(db.Numeric(10, 2), nullable=True)
+    stop_loss = db.Column(db.Numeric(10, 2), nullable=True)
+    quantity = db.Column(db.Integer, nullable=True)
+    risk_level = db.Column(db.String(10), nullable=True)  # 'LOW', 'MEDIUM', 'HIGH'
+    time_frame = db.Column(db.String(20), nullable=True)  # 'INTRADAY', 'SWING', 'POSITIONAL'
+    strategy_name = db.Column(db.String(100), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), default='ACTIVE')  # 'ACTIVE', 'EXPIRED', 'ACHIEVED', 'STOPPED'
+    
+    # Filtering and categorization
+    sector = db.Column(db.String(100), nullable=True)  # 'Technology', 'Banking', 'Pharma', etc.
+    category = db.Column(db.String(50), nullable=True)  # 'Large Cap', 'Mid Cap', 'Small Cap'
+    
+    # Admin who created the signal
+    created_by = db.Column(db.Integer, db.ForeignKey('admins.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    expires_at = db.Column(db.DateTime, nullable=True)
+    
+    # WhatsApp/Telegram sharing
+    shared_whatsapp = db.Column(db.Boolean, default=False)
+    shared_telegram = db.Column(db.Boolean, default=False)
+    whatsapp_shared_at = db.Column(db.DateTime, nullable=True)
+    telegram_shared_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    admin = db.relationship('Admin', backref='trading_signals')
+    
+    @property
+    def potential_return(self):
+        """Calculate potential return percentage"""
+        if self.entry_price and self.target_price:
+            return ((float(self.target_price) - float(self.entry_price)) / float(self.entry_price)) * 100
+        return 0
+    
+    @property
+    def risk_amount(self):
+        """Calculate risk amount per share"""
+        if self.entry_price and self.stop_loss:
+            return float(self.entry_price) - float(self.stop_loss)
+        return 0
+    
+    @property
+    def is_expired(self):
+        """Check if signal is expired"""
+        if self.expires_at:
+            return datetime.utcnow() > self.expires_at
+        return False
+
+
+# Enhanced Broker Management - Update existing UserBroker model
+# Note: We'll modify the existing UserBroker to add primary broker functionality
+# Add these fields to the existing UserBroker model:
+# - is_primary = db.Column(db.Boolean, default=False)
+# - connection_status = db.Column(db.String(20), default='DISCONNECTED')
+
+# Trade Execution Models
+class ExecutedTrade(db.Model):
+    __tablename__ = 'executed_trades'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    trading_signal_id = db.Column(db.Integer, db.ForeignKey('trading_signals.id'), nullable=False)
+    broker_id = db.Column(db.Integer, db.ForeignKey('user_brokers.id'), nullable=False)
+    
+    # Trade details
+    symbol = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(10), nullable=False)  # 'BUY', 'SELL'
+    quantity = db.Column(db.Integer, nullable=False)
+    executed_price = db.Column(db.Numeric(10, 2), nullable=False)
+    total_amount = db.Column(db.Numeric(12, 2), nullable=False)
+    
+    # Broker order details
+    broker_order_id = db.Column(db.String(100), nullable=True)
+    order_status = db.Column(db.String(20), default='PENDING')  # 'PENDING', 'EXECUTED', 'CANCELLED', 'REJECTED'
+    
+    # P&L tracking
+    current_price = db.Column(db.Numeric(10, 2), nullable=True)
+    unrealized_pnl = db.Column(db.Numeric(10, 2), default=0.0)
+    realized_pnl = db.Column(db.Numeric(10, 2), default=0.0)
+    
+    executed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='executed_trades')
+    trading_signal = db.relationship('TradingSignal', backref='executions')
+    broker = db.relationship('BrokerAccount', backref='executed_trades')
+    
+    @property
+    def current_value(self):
+        """Calculate current value of the position"""
+        if self.current_price:
+            return float(self.current_price) * self.quantity
+        return float(self.executed_price) * self.quantity
+
+
 # Payment Tracking for Admin Dashboard
 class UserPayment(db.Model):
     __tablename__ = 'user_payments'
@@ -2402,6 +2535,7 @@ class ResearchRun(db.Model):
     
     # Relationships
     user = db.relationship('User', backref='research_runs')
+    components = db.relationship('ResearchSignalComponent', backref='research_run', lazy='dynamic', cascade='all, delete-orphan')
     
     @property
     def duration_seconds(self):
@@ -2418,6 +2552,74 @@ class ResearchRun(db.Model):
     
     def __repr__(self):
         return f'<ResearchRun {self.id} {self.symbol} Score:{self.overall_score} {self.recommendation}>'
+
+
+class ResearchSignalComponent(db.Model):
+    """Individual sentiment component scores for a research run"""
+    __tablename__ = 'research_signal_component'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    run_id = db.Column(db.Integer, db.ForeignKey('research_run.id'), nullable=False, index=True)
+    
+    # Component type
+    component_type = db.Column(db.String(30), nullable=False)  # ResearchComponentType value
+    
+    # Scoring
+    weight_pct = db.Column(db.Integer, nullable=False)    # Weight applied (e.g., 50 for 50%)
+    raw_score = db.Column(db.Numeric(5, 2), nullable=True)   # Score out of 100
+    weighted_score = db.Column(db.Numeric(5, 2), nullable=True)  # raw_score * (weight_pct/100)
+    confidence = db.Column(db.Numeric(3, 2), nullable=True)   # 0-1 confidence
+    
+    # Signal direction
+    signal = db.Column(db.String(20), nullable=True)  # bullish, bearish, neutral
+    
+    # Detailed breakdown (JSON)
+    breakdown = db.Column(db.JSON, nullable=True)  # Sub-scores and details
+    
+    # Evidence reference
+    evidence_count = db.Column(db.Integer, default=0)
+    
+    # Metadata
+    metadata_json = db.Column(db.JSON, nullable=True)
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to evidence
+    evidence = db.relationship('ResearchEvidence', backref='component', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<ResearchSignalComponent {self.component_type} Score:{self.raw_score} Weight:{self.weight_pct}%>'
+
+
+class ResearchEvidence(db.Model):
+    """Evidence collected during research analysis"""
+    __tablename__ = 'research_evidence'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    component_id = db.Column(db.Integer, db.ForeignKey('research_signal_component.id'), nullable=False, index=True)
+    
+    # Source information
+    source_name = db.Column(db.String(100), nullable=False)   # e.g., 'Moneycontrol', 'Twitter', 'NSE'
+    source_type = db.Column(db.String(50), nullable=False)    # news, social, technical, trend
+    source_url = db.Column(db.String(500), nullable=True)
+    
+    # Content
+    title = db.Column(db.String(300), nullable=True)
+    snippet = db.Column(db.Text, nullable=True)               # Relevant text snippet
+    
+    # Sentiment analysis
+    sentiment_score = db.Column(db.Numeric(5, 2), nullable=True)  # -100 to +100
+    sentiment_label = db.Column(db.String(20), nullable=True)     # positive, negative, neutral
+    
+    # Vector embedding reference (for RAG)
+    embedding_id = db.Column(db.String(100), nullable=True)
+    
+    # Metadata
+    collected_at = db.Column(db.DateTime, default=datetime.utcnow)
+    published_at = db.Column(db.DateTime, nullable=True)          # When the source was published
+    
+    def __repr__(self):
+        return f'<ResearchEvidence {self.source_name}: {self.sentiment_label}>'
 
 
 class ResearchCache(db.Model):
@@ -2589,5 +2791,139 @@ class ResearchList(db.Model):
         return f'<ResearchList {self.symbol} I-Score:{self.i_score} Rec:{self.recommendation}>'
 
 
+class DailyTradingSignal(db.Model):
+    """
+    Daily Trading Signals generated by analysts
+    Covers Options, Futures, and Stocks for Day Trading, Swing Trading, and Long Term
+    """
+    __tablename__ = 'daily_trading_signals'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    # Signal identification
+    signal_number = db.Column(db.Integer, nullable=False)  # S.No from Excel
+    signal_date = db.Column(db.Date, nullable=False, index=True)  # Date of the signal
+    
+    # Asset information
+    asset_type = db.Column(db.String(20), nullable=False)  # 'NIFTY', 'BANKNIFTY', 'SENSEX', 'FINNIFTY', 'STOCK'
+    sub_type = db.Column(db.String(20), nullable=False)  # 'CE' (Call), 'PE' (Put), 'FUT' (Futures), 'EQ' (Equity)
+    symbol = db.Column(db.String(50), nullable=False)  # e.g., 'NIFTY', 'RELIANCE'
+    strike_price = db.Column(db.Numeric(12, 2), nullable=True)  # Strike price for options
+    strike_type = db.Column(db.String(10), nullable=True)  # 'ATM', 'OTM', 'ITM'
+    script = db.Column(db.String(100), nullable=False)  # Full script name e.g., 'NIFTY-26300-PE'
+    
+    # Trading duration
+    trade_duration = db.Column(db.String(20), nullable=False)  # 'DAY', 'WEEK', 'MONTH' (Day/Swing/Long Term)
+    
+    # Signal action
+    action = db.Column(db.String(10), nullable=False, default='BUY')  # 'BUY', 'SELL'
+    
+    # Price levels
+    buy_above = db.Column(db.Numeric(12, 2), nullable=False)  # Entry price / Buy Above
+    stop_loss = db.Column(db.Numeric(12, 2), nullable=False)  # Stop Loss
+    target_1 = db.Column(db.Numeric(12, 2), nullable=True)  # First target
+    target_2 = db.Column(db.Numeric(12, 2), nullable=True)  # Second target
+    target_3 = db.Column(db.Numeric(12, 2), nullable=True)  # Third target (optional)
+    
+    # Trade outcome tracking (updated after trade completion)
+    profit_points = db.Column(db.Numeric(12, 2), nullable=True, default=0)
+    loss_points = db.Column(db.Numeric(12, 2), nullable=True, default=0)
+    final_points = db.Column(db.Numeric(12, 2), nullable=True, default=0)
+    trade_outcome = db.Column(db.String(50), nullable=True)  # '1st Target', '2nd Target', 'Stop Loss Hit', 'Early Exit'
+    
+    # Status
+    status = db.Column(db.String(20), default='ACTIVE')  # 'ACTIVE', 'TARGET_1_HIT', 'TARGET_2_HIT', 'SL_HIT', 'EXPIRED', 'CLOSED'
+    
+    # Risk level
+    risk_level = db.Column(db.String(10), nullable=True, default='MEDIUM')  # 'LOW', 'MEDIUM', 'HIGH'
+    
+    # Notes and additional info
+    notes = db.Column(db.Text, nullable=True)
+    disclaimer = db.Column(db.Text, nullable=True, default="Trading involves risk. Please use responsibly and at your own discretion.")
+    
+    # Analyst information
+    created_by = db.Column(db.Integer, db.ForeignKey('admins.id'), nullable=True)
+    analyst_name = db.Column(db.String(100), nullable=True)
+    
+    # Sharing status
+    shared_whatsapp = db.Column(db.Boolean, default=False)
+    shared_telegram = db.Column(db.Boolean, default=False)
+    whatsapp_shared_at = db.Column(db.DateTime, nullable=True)
+    telegram_shared_at = db.Column(db.DateTime, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    closed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    admin = db.relationship('Admin', backref='daily_signals')
+    
+    @property
+    def formatted_signal(self):
+        """Return formatted signal message"""
+        targets = f"{self.target_1}"
+        if self.target_2:
+            targets += f"/{self.target_2}"
+        if self.target_3:
+            targets += f"/{self.target_3}"
+        
+        return f"""{self.action} {self.script}
+
+Buy Above: {self.buy_above}
+
+SL: {self.stop_loss}
+
+Targets: {targets}
+
+Place SL-Limit Order to Avoid Slippage and fast movement.
+
+⚠️Disclaimer: {self.disclaimer}"""
+    
+    @property
+    def potential_return_pct(self):
+        """Calculate potential return to first target"""
+        if self.buy_above and self.target_1 and float(self.buy_above) > 0:
+            return ((float(self.target_1) - float(self.buy_above)) / float(self.buy_above)) * 100
+        return 0
+    
+    @property
+    def risk_pct(self):
+        """Calculate risk percentage to stop loss"""
+        if self.buy_above and self.stop_loss and float(self.buy_above) > 0:
+            return ((float(self.buy_above) - float(self.stop_loss)) / float(self.buy_above)) * 100
+        return 0
+    
+    @property
+    def risk_reward_ratio(self):
+        """Calculate risk-reward ratio"""
+        if self.risk_pct > 0:
+            return self.potential_return_pct / self.risk_pct
+        return 0
+    
+    @property
+    def duration_display(self):
+        """Return human-readable duration"""
+        duration_map = {
+            'DAY': 'Day Trading',
+            'WEEK': 'Swing Trading',
+            'MONTH': 'Long Term'
+        }
+        return duration_map.get(self.trade_duration, self.trade_duration)
+    
+    @property
+    def sub_type_display(self):
+        """Return human-readable sub type"""
+        type_map = {
+            'CE': 'Call Option',
+            'PE': 'Put Option',
+            'FUT': 'Futures',
+            'EQ': 'Equity'
+        }
+        return type_map.get(self.sub_type, self.sub_type)
+    
+    def __repr__(self):
+        return f'<DailyTradingSignal {self.script} {self.action} @{self.buy_above}>'
 
 

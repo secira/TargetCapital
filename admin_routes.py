@@ -9,8 +9,15 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
 from app import db
-from models import Admin, User, PricingPlan, ResearchList, UserPayment
+from models import Admin, User, PricingPlan, DailyTradingSignal, ResearchList
 from models_broker import BrokerAccount
+# Import with safe fallback for optional models
+try:
+    from models import TradingSignal, UserPayment, ExecutedTrade
+    TRADING_SIGNALS_AVAILABLE = True
+except ImportError:
+    TRADING_SIGNALS_AVAILABLE = False
+    TradingSignal = UserPayment = ExecutedTrade = None
 
 # Create admin blueprint
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -60,14 +67,18 @@ def logout():
 @admin_required
 def dashboard():
     """Admin dashboard with overview statistics"""
+    # Get statistics for dashboard
     total_users = User.query.count()
-    research_stocks = ResearchList.query.filter_by(is_active=True).count()
-    analyzed_stocks = ResearchList.query.filter(ResearchList.i_score.isnot(None), ResearchList.is_active == True).count()
+    active_signals = TradingSignal.query.filter_by(status='ACTIVE').count()
     today_payments = UserPayment.query.filter(
         func.date(UserPayment.created_at) == datetime.utcnow().date(),
         UserPayment.status == 'COMPLETED'
     ).count()
     
+    # Recent trading signals
+    recent_signals = TradingSignal.query.order_by(desc(TradingSignal.created_at)).limit(5).all()
+    
+    # Payment summary for current month
     current_month = datetime.utcnow().replace(day=1)
     monthly_revenue = db.session.query(func.sum(UserPayment.amount)).filter(
         UserPayment.created_at >= current_month,
@@ -76,9 +87,9 @@ def dashboard():
     
     return render_template('admin/dashboard.html',
                          total_users=total_users,
-                         research_stocks=research_stocks,
-                         analyzed_stocks=analyzed_stocks,
+                         active_signals=active_signals,
                          today_payments=today_payments,
+                         recent_signals=recent_signals,
                          monthly_revenue=monthly_revenue)
 
 @admin_bp.route('/users')
@@ -96,14 +107,16 @@ def users(page=1):
 @admin_bp.route('/user/<int:user_id>')
 @admin_required
 def user_detail(user_id):
-    """User detail page with payment history"""
+    """User detail page with payment and trade history"""
     user = User.query.get_or_404(user_id)
     payments = UserPayment.query.filter_by(user_id=user_id).order_by(desc(UserPayment.created_at)).limit(10).all()
-    brokers = BrokerAccount.query.filter_by(user_id=user_id).all()
+    executed_trades = ExecutedTrade.query.filter_by(user_id=user_id).order_by(desc(ExecutedTrade.executed_at)).limit(10).all()
+    brokers = UserBroker.query.filter_by(user_id=user_id).all()
     
     return render_template('admin/user_detail.html',
                          user=user,
                          payments=payments,
+                         executed_trades=executed_trades,
                          brokers=brokers)
 
 @admin_bp.route('/research-list')
@@ -623,3 +636,227 @@ def admin_save_trend_params():
     return redirect(url_for('admin.research_config'))
 
 
+# ============================================================================
+# DAILY TRADING SIGNALS MANAGEMENT
+# ============================================================================
+
+@admin_bp.route('/daily-signals')
+@admin_bp.route('/daily-signals/<int:page>')
+@admin_required
+def daily_signals(page=1):
+    """List and manage daily trading signals"""
+    per_page = 20
+    
+    # Get filter parameters
+    date_filter = request.args.get('date')
+    asset_type_filter = request.args.get('asset_type', 'all')
+    status_filter = request.args.get('status', 'all')
+    
+    # Build query
+    query = DailyTradingSignal.query
+    
+    if date_filter:
+        from datetime import datetime as dt
+        try:
+            filter_date = dt.strptime(date_filter, '%Y-%m-%d').date()
+            query = query.filter(DailyTradingSignal.signal_date == filter_date)
+        except ValueError:
+            pass
+    
+    if asset_type_filter != 'all':
+        query = query.filter(DailyTradingSignal.asset_type == asset_type_filter)
+    
+    if status_filter != 'all':
+        query = query.filter(DailyTradingSignal.status == status_filter)
+    
+    # Order by date descending, then signal number
+    signals = query.order_by(
+        desc(DailyTradingSignal.signal_date),
+        DailyTradingSignal.signal_number
+    ).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('admin/daily_signals.html',
+                          signals=signals,
+                          date_filter=date_filter,
+                          asset_type_filter=asset_type_filter,
+                          status_filter=status_filter)
+
+
+@admin_bp.route('/daily-signals/add', methods=['GET', 'POST'])
+@admin_required
+def add_daily_signal():
+    """Add new daily trading signal"""
+    if request.method == 'POST':
+        try:
+            # Parse form data
+            signal_date_str = request.form.get('signal_date')
+            signal_date = datetime.strptime(signal_date_str, '%Y-%m-%d').date() if signal_date_str else datetime.utcnow().date()
+            
+            # Get next signal number for this date
+            last_signal = DailyTradingSignal.query.filter_by(signal_date=signal_date).order_by(
+                desc(DailyTradingSignal.signal_number)
+            ).first()
+            signal_number = (last_signal.signal_number + 1) if last_signal else 1
+            
+            # Build script name based on asset type
+            asset_type = request.form.get('asset_type')
+            sub_type = request.form.get('sub_type')
+            symbol = request.form.get('symbol', '').upper()
+            strike_price = request.form.get('strike_price')
+            
+            if asset_type in ['NIFTY', 'BANKNIFTY', 'SENSEX', 'FINNIFTY']:
+                if sub_type in ['CE', 'PE']:
+                    script = f"{asset_type}-{strike_price}-{sub_type}"
+                else:
+                    script = f"{asset_type}-FUT"
+            else:
+                if sub_type in ['CE', 'PE']:
+                    script = f"{symbol}-{strike_price}-{sub_type}"
+                elif sub_type == 'FUT':
+                    script = f"{symbol}-FUT"
+                else:
+                    script = symbol
+            
+            # Create new signal
+            new_signal = DailyTradingSignal(
+                signal_number=signal_number,
+                signal_date=signal_date,
+                asset_type=asset_type,
+                sub_type=sub_type,
+                symbol=symbol if asset_type == 'STOCK' else asset_type,
+                strike_price=float(strike_price) if strike_price else None,
+                strike_type=request.form.get('strike_type'),
+                script=script,
+                trade_duration=request.form.get('trade_duration'),
+                action=request.form.get('action', 'BUY'),
+                buy_above=float(request.form.get('buy_above')),
+                stop_loss=float(request.form.get('stop_loss')),
+                target_1=float(request.form.get('target_1')) if request.form.get('target_1') else None,
+                target_2=float(request.form.get('target_2')) if request.form.get('target_2') else None,
+                target_3=float(request.form.get('target_3')) if request.form.get('target_3') else None,
+                risk_level=request.form.get('risk_level', 'MEDIUM'),
+                notes=request.form.get('notes'),
+                created_by=session.get('admin_id'),
+                analyst_name=session.get('admin_username'),
+                status='ACTIVE'
+            )
+            
+            db.session.add(new_signal)
+            db.session.commit()
+            
+            flash(f'Daily Signal #{signal_number} created successfully for {signal_date}!', 'success')
+            return redirect(url_for('admin.daily_signals'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating signal: {str(e)}', 'error')
+    
+    # Get today's date for default
+    today = datetime.utcnow().date()
+    
+    return render_template('admin/add_daily_signal.html', today=today)
+
+
+@admin_bp.route('/daily-signals/edit/<int:signal_id>', methods=['GET', 'POST'])
+@admin_required
+def edit_daily_signal(signal_id):
+    """Edit existing daily trading signal"""
+    signal = DailyTradingSignal.query.get_or_404(signal_id)
+    
+    if request.method == 'POST':
+        try:
+            # Update signal fields
+            signal.asset_type = request.form.get('asset_type')
+            signal.sub_type = request.form.get('sub_type')
+            signal.symbol = request.form.get('symbol', '').upper()
+            signal.strike_price = float(request.form.get('strike_price')) if request.form.get('strike_price') else None
+            signal.strike_type = request.form.get('strike_type')
+            signal.trade_duration = request.form.get('trade_duration')
+            signal.action = request.form.get('action', 'BUY')
+            signal.buy_above = float(request.form.get('buy_above'))
+            signal.stop_loss = float(request.form.get('stop_loss'))
+            signal.target_1 = float(request.form.get('target_1')) if request.form.get('target_1') else None
+            signal.target_2 = float(request.form.get('target_2')) if request.form.get('target_2') else None
+            signal.target_3 = float(request.form.get('target_3')) if request.form.get('target_3') else None
+            signal.risk_level = request.form.get('risk_level', 'MEDIUM')
+            signal.notes = request.form.get('notes')
+            signal.status = request.form.get('status', signal.status)
+            
+            # Rebuild script name
+            asset_type = signal.asset_type
+            sub_type = signal.sub_type
+            strike_price = signal.strike_price
+            symbol = signal.symbol
+            
+            if asset_type in ['NIFTY', 'BANKNIFTY', 'SENSEX', 'FINNIFTY']:
+                if sub_type in ['CE', 'PE']:
+                    signal.script = f"{asset_type}-{strike_price}-{sub_type}"
+                else:
+                    signal.script = f"{asset_type}-FUT"
+            else:
+                if sub_type in ['CE', 'PE']:
+                    signal.script = f"{symbol}-{strike_price}-{sub_type}"
+                elif sub_type == 'FUT':
+                    signal.script = f"{symbol}-FUT"
+                else:
+                    signal.script = symbol
+            
+            db.session.commit()
+            flash(f'Signal #{signal.signal_number} updated successfully!', 'success')
+            return redirect(url_for('admin.daily_signals'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating signal: {str(e)}', 'error')
+    
+    return render_template('admin/edit_daily_signal.html', signal=signal)
+
+
+@admin_bp.route('/daily-signals/delete/<int:signal_id>', methods=['POST'])
+@admin_required
+def delete_daily_signal(signal_id):
+    """Delete a daily trading signal"""
+    signal = DailyTradingSignal.query.get_or_404(signal_id)
+    
+    try:
+        db.session.delete(signal)
+        db.session.commit()
+        flash(f'Signal #{signal.signal_number} deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting signal: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.daily_signals'))
+
+
+@admin_bp.route('/daily-signals/update-status/<int:signal_id>', methods=['POST'])
+@admin_required
+def update_signal_status(signal_id):
+    """Update signal status (target hit, stop loss, etc.)"""
+    signal = DailyTradingSignal.query.get_or_404(signal_id)
+    
+    try:
+        new_status = request.form.get('status')
+        trade_outcome = request.form.get('trade_outcome')
+        profit_points = request.form.get('profit_points')
+        loss_points = request.form.get('loss_points')
+        
+        signal.status = new_status
+        signal.trade_outcome = trade_outcome
+        
+        if profit_points:
+            signal.profit_points = float(profit_points)
+        if loss_points:
+            signal.loss_points = float(loss_points)
+        
+        if new_status in ['TARGET_1_HIT', 'TARGET_2_HIT', 'SL_HIT', 'CLOSED', 'EXPIRED']:
+            signal.closed_at = datetime.utcnow()
+        
+        db.session.commit()
+        flash(f'Signal #{signal.signal_number} status updated to {new_status}!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating status: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.daily_signals'))
