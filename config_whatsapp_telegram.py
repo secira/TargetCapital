@@ -1,5 +1,5 @@
 """
-WhatsApp and Telegram Configuration for tCapital Trading Platform
+WhatsApp and Telegram Configuration for Target Capital Trading Platform
 Configure group/channel settings for sharing trading signals
 """
 
@@ -32,7 +32,7 @@ class WhatsAppService:
     
     def format_signal_message(self, signal):
         """Format trading signal for WhatsApp"""
-        message = f"🔔 *tCapital Trading Signal*\n\n"
+        message = f"🔔 *Target Capital Trading Signal*\n\n"
         message += f"📈 *{signal.symbol}*"
         if signal.company_name:
             message += f" ({signal.company_name})"
@@ -61,7 +61,7 @@ class WhatsAppService:
                 message += "..."
         
         message += f"\n\n⏰ Signal Time: {signal.created_at.strftime('%d/%m/%Y %I:%M %p')}"
-        message += f"\n\n_Join tCapital for more signals: https://tcapital.com_"
+        message += f"\n\n_Join Target Capital for more signals: https://tcapital.com_"
         
         return message
     
@@ -111,7 +111,7 @@ class TelegramService:
     
     def format_signal_message(self, signal):
         """Format trading signal for Telegram with HTML formatting"""
-        message = f"🔔 <b>tCapital Trading Signal</b>\n\n"
+        message = f"🔔 <b>Target Capital Trading Signal</b>\n\n"
         message += f"📈 <b>{signal.symbol}</b>"
         if signal.company_name:
             message += f" ({signal.company_name})"
@@ -146,7 +146,7 @@ class TelegramService:
             message += "</i>"
         
         message += f"\n\n⏰ <i>Signal Time: {signal.created_at.strftime('%d/%m/%Y %I:%M %p')}</i>"
-        message += f"\n\n<a href='https://tcapital.com'>Join tCapital for more signals</a>"
+        message += f"\n\n<a href='https://tcapital.com'>Join Target Capital for more signals</a>"
         
         return message
     

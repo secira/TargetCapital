@@ -1,5 +1,5 @@
 """
-Real-time NSE data service for tCapital
+Real-time NSE data service for Target Capital
 Fetches live market data from NSE API and other sources
 """
 

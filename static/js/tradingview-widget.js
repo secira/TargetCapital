@@ -1,5 +1,5 @@
 /**
- * TradingView Widget Integration for tCapital
+ * TradingView Widget Integration for Target Capital
  * Provides embedded TradingView charts without requiring API credentials
  */
 

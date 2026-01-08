@@ -1,5 +1,5 @@
 """
-Payment Routes for tCapital
+Payment Routes for Target Capital
 Handles Razorpay integration, subscription payments, and billing
 """
 

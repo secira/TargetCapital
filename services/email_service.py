@@ -54,7 +54,7 @@ class EmailService:
         html_content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background-color: #00091a; color: white; padding: 20px; text-align: center;">
-                <h1>New Contact Message - tCapital</h1>
+                <h1>New Contact Message - Target Capital</h1>
             </div>
             
             <div style="padding: 20px; background-color: #f8f9fa;">
@@ -97,7 +97,7 @@ class EmailService:
         """
         
         text_content = f"""
-        New Contact Message - tCapital
+        New Contact Message - Target Capital
         
         Contact Information:
         Name: {contact_message.name}
@@ -118,7 +118,7 @@ class EmailService:
     
     def send_contact_confirmation(self, contact_message):
         """Send confirmation email to user who submitted contact form"""
-        subject = "Thank you for contacting tCapital"
+        subject = "Thank you for contacting Target Capital"
         
         html_content = f"""
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -129,7 +129,7 @@ class EmailService:
             <div style="padding: 20px; background-color: #f8f9fa;">
                 <p>Dear {contact_message.name},</p>
                 
-                <p>Thank you for reaching out to tCapital. We have received your message and our team will review it shortly.</p>
+                <p>Thank you for reaching out to Target Capital. We have received your message and our team will review it shortly.</p>
                 
                 <div style="background-color: white; padding: 15px; border-left: 4px solid #00091a; margin: 20px 0;">
                     <h3 style="margin-top: 0; color: #00091a;">Your Message Summary:</h3>
@@ -152,7 +152,7 @@ class EmailService:
                 </div>
                 
                 <p>Best regards,<br>
-                <strong>The tCapital Team</strong></p>
+                <strong>The Target Capital Team</strong></p>
                 
                 <div style="margin-top: 30px; padding: 15px; background-color: #e9ecef; border-radius: 5px; text-align: center;">
                     <p style="margin: 0; color: #666; font-size: 14px;">
@@ -164,11 +164,11 @@ class EmailService:
         """
         
         text_content = f"""
-        Thank You for Contacting tCapital!
+        Thank You for Contacting Target Capital!
         
         Dear {contact_message.name},
         
-        Thank you for reaching out to tCapital. We have received your message and our team will review it shortly.
+        Thank you for reaching out to Target Capital. We have received your message and our team will review it shortly.
         
         Your Message Summary:
         Subject: {contact_message.subject or 'General Inquiry'}
@@ -185,7 +185,7 @@ class EmailService:
         Or explore our Trading Plans: https://tcapital.com/pricing
         
         Best regards,
-        The tCapital Team
+        The Target Capital Team
         
         This is an automated message. Please do not reply to this email.
         """

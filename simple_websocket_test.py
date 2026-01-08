@@ -116,7 +116,7 @@ class SimpleWebSocketServer:
         """Send initial market data to new client"""
         initial_data = {
             'type': 'welcome',
-            'message': 'Connected to tCapital WebSocket',
+            'message': 'Connected to Target Capital WebSocket',
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
         

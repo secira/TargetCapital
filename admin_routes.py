@@ -1,5 +1,5 @@
 """
-Admin Routes for tCapital Trading Platform
+Admin Routes for Target Capital Trading Platform
 Separate admin module with authentication and management features
 """
 
@@ -47,7 +47,7 @@ def login():
             admin.last_login = datetime.utcnow()
             db.session.commit()
             
-            flash('Welcome to tCapital Admin Dashboard!', 'success')
+            flash('Welcome to Target Capital Admin Dashboard!', 'success')
             return redirect(url_for('admin.dashboard'))
         else:
             flash('Invalid credentials. Please try again.', 'error')

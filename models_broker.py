@@ -118,7 +118,7 @@ class BrokerAccount(db.Model):
                 if environment == "production":
                     raise ValueError("BROKER_ENCRYPTION_KEY is required in production")
                 # Use a fixed development key for testing (NEVER use in production)
-                key = "tCapital_Dev_Key_32_Chars_Long_123="
+                key = "Target Capital_Dev_Key_32_Chars_Long_123="
                 # Convert to proper Fernet key format
                 import base64
                 key = base64.urlsafe_b64encode(key.encode()[:32].ljust(32, b'0'))

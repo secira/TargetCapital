@@ -1,4 +1,4 @@
-// tCapital Service Worker for PWA functionality
+// Target Capital Service Worker for PWA functionality
 const CACHE_NAME = 'tcapital-v1.0.0';
 const STATIC_CACHE = 'tcapital-static-v1.0.0';
 const DYNAMIC_CACHE = 'tcapital-dynamic-v1.0.0';
@@ -253,7 +253,7 @@ self.addEventListener('push', function(event) {
     console.log('📨 Push notification received');
     
     let notificationData = {
-        title: 'tCapital',
+        title: 'Target Capital',
         body: 'You have a new trading alert',
         icon: '/static/img/icons/icon-192x192.png',
         badge: '/static/img/icons/badge-72x72.png',
@@ -339,4 +339,4 @@ self.addEventListener('unhandledrejection', function(event) {
     console.error('Service Worker unhandled rejection:', event.reason);
 });
 
-console.log('🚀 tCapital Service Worker loaded successfully');
+console.log('🚀 Target Capital Service Worker loaded successfully');

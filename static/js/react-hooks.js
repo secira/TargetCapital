@@ -1,5 +1,5 @@
 /**
- * React-style Hooks for tCapital Trading Platform
+ * React-style Hooks for Target Capital Trading Platform
  * Provides React-like state management and effects for enhanced scalability
  */
 
@@ -448,7 +448,7 @@ function useConnectionStatus() {
 }
 
 // Export hooks and utilities
-window.tCapitalHooks = {
+window.Target CapitalHooks = {
     useState,
     useEffect,
     useMarketDataStream,

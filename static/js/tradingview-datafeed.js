@@ -1,9 +1,9 @@
 /**
- * TradingView Datafeed Implementation for tCapital
+ * TradingView Datafeed Implementation for Target Capital
  * Connects NSE data to TradingView charts
  */
 
-class tCapitalDatafeed {
+class Target CapitalDatafeed {
     constructor() {
         this.baseUrl = '/api/tradingview';
         this.debug = true;
@@ -216,4 +216,4 @@ class tCapitalDatafeed {
 }
 
 // Export for use
-window.tCapitalDatafeed = tCapitalDatafeed;
+window.Target CapitalDatafeed = Target CapitalDatafeed;

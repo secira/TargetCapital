@@ -19,7 +19,7 @@ class MFApiService:
         self.session = requests.Session()
         self.session.headers.update({
             'Accept': 'application/json',
-            'User-Agent': 'TargetCapital/1.0'
+            'User-Agent': 'TargeTarget Capital/1.0'
         })
     
     def search_fund(self, query: str) -> List[Dict[str, Any]]:

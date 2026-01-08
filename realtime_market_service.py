@@ -1,5 +1,5 @@
 """
-Real-time Market Data Service for tCapital
+Real-time Market Data Service for Target Capital
 High-performance market data streaming with WebSocket support and caching
 """
 

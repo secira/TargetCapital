@@ -8,7 +8,7 @@ import os
 from config_whatsapp_telegram import get_platform_status, whatsapp_service, telegram_service
 
 def main():
-    print("🔧 tCapital Messaging Configuration Test")
+    print("🔧 Target Capital Messaging Configuration Test")
     print("=" * 50)
     
     # Check environment variables

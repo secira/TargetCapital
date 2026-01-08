@@ -1,5 +1,5 @@
 """
-Razorpay Payment Service for tCapital
+Razorpay Payment Service for Target Capital
 Handles subscription payments, upgrades, and payment verification
 """
 

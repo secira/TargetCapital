@@ -143,7 +143,7 @@ Risk Level: {signal.risk_level or 'Medium'}
 
 ⚠️ Trade at your own risk. This is for educational purposes only.
 
-- tCapital Team
+- Target Capital Team
 Generated: {datetime.now(timezone.utc).strftime('%d/%m/%Y %I:%M %p')}"""
 
         # Send to both platforms
@@ -169,7 +169,7 @@ Generated: {datetime.now(timezone.utc).strftime('%d/%m/%Y %I:%M %p')}"""
 
 def test_messaging_setup():
     """Test messaging configuration"""
-    test_message = "🧪 Test message from tCapital Admin\n\nThis is a test to verify messaging setup is working correctly."
+    test_message = "🧪 Test message from Target Capital Admin\n\nThis is a test to verify messaging setup is working correctly."
     
     print("Testing messaging setup...")
     

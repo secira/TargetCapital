@@ -1,5 +1,5 @@
 /**
- * React-style Components for tCapital using Vanilla JavaScript
+ * React-style Components for Target Capital using Vanilla JavaScript
  * Provides React-like component architecture with WebSocket integration
  * Optimized for production scalability and real-time updates
  */
@@ -785,7 +785,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Export for global access - cache refresh v2
-window.tCapitalComponents = {
+window.Target CapitalComponents = {
     RealTimeMarketData,
     TradingInterface,
     Portfolio,

@@ -74,7 +74,7 @@ class DatabaseManager:
             return {
                 "server_settings": {
                     "jit": "off",  # Disable JIT for better performance on small queries
-                    "application_name": "tCapital-API",
+                    "application_name": "Target Capital-API",
                     "tcp_keepalives_idle": "300",
                     "tcp_keepalives_interval": "30",
                     "tcp_keepalives_count": "3"

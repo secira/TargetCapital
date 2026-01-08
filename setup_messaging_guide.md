@@ -64,7 +64,7 @@ This will show you which platforms are properly configured.
 
 **WhatsApp Message Example:**
 ```
-🔔 *tCapital Trading Signal*
+🔔 *Target Capital Trading Signal*
 
 📈 *RELIANCE* (Reliance Industries Ltd)
 
@@ -81,12 +81,12 @@ Strong breakout above resistance level with high volume...
 
 ⏰ Signal Time: 20/08/2024 02:30 PM
 
-_Join tCapital for more signals: https://tcapital.com_
+_Join Target Capital for more signals: https://tcapital.com_
 ```
 
 **Telegram Message Example:**
 ```
-🔔 tCapital Trading Signal
+🔔 Target Capital Trading Signal
 
 📈 RELIANCE (Reliance Industries Ltd)
 
@@ -104,7 +104,7 @@ Strong breakout above resistance level with high volume...
 
 ⏰ Signal Time: 20/08/2024 02:30 PM
 
-Join tCapital for more signals
+Join Target Capital for more signals
 ```
 
 ## Admin Dashboard Integration

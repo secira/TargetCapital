@@ -1,5 +1,5 @@
 /**
- * React Integration Test for tCapital
+ * React Integration Test for Target Capital
  * Tests WebSocket connectivity and React-style components
  */
 
@@ -83,7 +83,7 @@ function testStateManagement() {
     console.log('🔄 Testing React-style state management...');
     
     // Test useState functionality
-    const [getValue, setValue] = window.tCapitalHooks.useState('initial');
+    const [getValue, setValue] = window.Target CapitalHooks.useState('initial');
     
     // Test initial value
     if (getValue() === 'initial') {
@@ -119,7 +119,7 @@ function testStateManagement() {
 function testPerformanceMonitoring() {
     console.log('📈 Testing performance monitoring...');
     
-    const metrics = window.tCapitalHooks.usePerformanceMonitor();
+    const metrics = window.Target CapitalHooks.usePerformanceMonitor();
     
     setTimeout(() => {
         console.log('📊 Performance metrics:', metrics);
@@ -135,7 +135,7 @@ function testPerformanceMonitoring() {
 function testNotificationSystem() {
     console.log('🔔 Testing notification system...');
     
-    const { addNotification, notifications } = window.tCapitalHooks.useNotifications();
+    const { addNotification, notifications } = window.Target CapitalHooks.useNotifications();
     
     // Test adding notification
     const notificationId = addNotification('Test notification', 'success', 3000);
@@ -177,7 +177,7 @@ function displayTestResults() {
         console.log('🎉 All React integration tests PASSED!');
         
         // Show success notification
-        if (window.tCapitalComponents?.componentManager) {
+        if (window.Target CapitalComponents?.componentManager) {
             showSuccessMessage();
         }
     } else {

@@ -1,5 +1,5 @@
 """
-Payment and Subscription Models for tCapital
+Payment and Subscription Models for Target Capital
 Tracks payments, subscriptions, and billing history
 """
 

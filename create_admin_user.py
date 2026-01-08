@@ -1,5 +1,5 @@
 """
-Script to create an admin user for tCapital Trading Platform
+Script to create an admin user for Target Capital Trading Platform
 Run this script to create the first admin user
 """
 
@@ -11,7 +11,7 @@ from models import Admin
 def create_admin_user():
     """Create an admin user interactively"""
     with app.app_context():
-        print("🔐 tCapital Admin User Creation")
+        print("🔐 Target Capital Admin User Creation")
         print("=" * 40)
         
         # Check if admin table exists and has users

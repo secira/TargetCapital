@@ -2220,7 +2220,7 @@ class GrowwBrokerClient(BaseBrokerClient):
         return {
             'Authorization': f'Bearer {access_token}',
             'Content-Type': 'application/json',
-            'User-Agent': 'tCapital/1.0'
+            'User-Agent': 'Target Capital/1.0'
         }
     
     def _normalize_groww_holdings(self, holdings: List) -> List[Dict]:

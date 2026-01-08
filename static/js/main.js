@@ -1,5 +1,5 @@
 /**
- * tCapital - Main JavaScript File
+ * Target Capital - Main JavaScript File
  * Handles client-side interactions and enhancements
  */
 

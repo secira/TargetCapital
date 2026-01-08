@@ -1,5 +1,5 @@
 /**
- * Progressive Web App (PWA) Handler for tCapital
+ * Progressive Web App (PWA) Handler for Target Capital
  * Provides app-like experience on mobile devices
  */
 
@@ -25,7 +25,7 @@ class PWAHandler {
         
         if (this.isStandalone) {
             document.body.classList.add('pwa-standalone');
-            console.log('🚀 tCapital running in PWA mode');
+            console.log('🚀 Target Capital running in PWA mode');
         }
     }
 
@@ -62,7 +62,7 @@ class PWAHandler {
 
         // Handle successful installation
         window.addEventListener('appinstalled', () => {
-            console.log('✅ tCapital PWA installed successfully');
+            console.log('✅ Target Capital PWA installed successfully');
             this.hideInstallBanner();
             this.trackInstallation();
         });
@@ -77,7 +77,7 @@ class PWAHandler {
             banner.innerHTML = `
                 <div class="pwa-banner-content">
                     <div class="pwa-banner-text">
-                        <strong>Install tCapital</strong>
+                        <strong>Install Target Capital</strong>
                         <small>Get faster access and offline features</small>
                     </div>
                     <button class="btn btn-primary btn-sm pwa-install-btn">Install</button>
@@ -380,7 +380,7 @@ class PWAHandler {
         notification.innerHTML = `
             <div class="update-content">
                 <strong>Update Available</strong>
-                <p>A new version of tCapital is available</p>
+                <p>A new version of Target Capital is available</p>
                 <button class="btn btn-primary btn-sm" onclick="window.location.reload()">Update Now</button>
             </div>
         `;

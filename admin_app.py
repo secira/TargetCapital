@@ -1,5 +1,5 @@
 """
-Separate Admin Module for tCapital
+Separate Admin Module for Target Capital
 Provides independent admin interface for managing trading signals, users, and payments
 """
 import os
@@ -259,7 +259,7 @@ Risk Level: {signal.risk_level}
 
 ⚠️ Trade at your own risk. This is for educational purposes only.
 
-- tCapital Team
+- Target Capital Team
         """
         
         # Import messaging services

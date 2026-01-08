@@ -654,11 +654,11 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Export for global access
-window.TargetCapitalDashboard = {
+window.TargeTarget CapitalDashboard = {
     DashboardApp,
     RealTimeStatus,
     PerformanceMetrics
 };
 
 // Backward compatibility alias
-window.tCapitalDashboard = window.TargetCapitalDashboard;
+window.Target CapitalDashboard = window.TargeTarget CapitalDashboard;

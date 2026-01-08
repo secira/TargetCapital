@@ -41,7 +41,7 @@ class InvestmentChatbot:
             
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the AI investment chatbot"""
-        return """You are an AI Investment Advisor powered by Perplexity for tCapital, India's leading AI-powered trading platform.
+        return """You are an AI Investment Advisor powered by Perplexity for Target Capital, India's leading AI-powered trading platform.
 
 Your expertise includes:
 1. Real-time market analysis and current Indian stock market insights

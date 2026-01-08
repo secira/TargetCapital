@@ -369,7 +369,7 @@ except ImportError as e:
     logging.warning(f"WebSocket API routes not available: {e}")
 
 # Start WebSocket servers on app initialization
-logging.info("🚀 Starting tCapital application with WebSocket support...")
+logging.info("🚀 Starting Target Capital application with WebSocket support...")
 try:
     from start_websockets import start_websockets_in_background
     websocket_thread = start_websockets_in_background()

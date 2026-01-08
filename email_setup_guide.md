@@ -12,7 +12,7 @@
 1. In SendGrid dashboard, go to **Settings** > **API Keys**
 2. Click **Create API Key**
 3. Choose **Restricted Access**
-4. Give it a name like "tCapital Contact Form"
+4. Give it a name like "Target Capital Contact Form"
 5. Under **Mail Send**, select **Full Access**
 6. Click **Create & View**
 7. **Copy the API key immediately** (you won't see it again)
@@ -21,10 +21,10 @@
 1. Go to **Settings** > **Sender Authentication**
 2. Click **Verify a Single Sender**
 3. Fill in your business details:
-   - From Name: "tCapital Support"
+   - From Name: "Target Capital Support"
    - From Email: "noreply@tcapital.com" (use your domain)
    - Reply To: "support@tcapital.com"
-   - Company: "tCapital"
+   - Company: "Target Capital"
    - Address: Your business address
 4. Click **Create**
 5. Check your email and verify the sender

@@ -426,7 +426,7 @@ class MobilePerformanceManager {
         installBanner.innerHTML = `
             <div class="install-prompt-content">
                 <div class="install-prompt-text">
-                    <strong>Install tCapital</strong>
+                    <strong>Install Target Capital</strong>
                     <small>Get the full app experience</small>
                 </div>
                 <button class="btn-touch btn-outline install-btn">Install</button>

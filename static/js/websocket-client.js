@@ -1,5 +1,5 @@
 /**
- * Advanced WebSocket Client for tCapital
+ * Advanced WebSocket Client for Target Capital
  * React-style WebSocket management with automatic reconnection and state management
  */
 
@@ -338,7 +338,7 @@ function useState(initialValue) {
 }
 
 // Export for global usage
-window.tCapitalWebSocket = {
+window.Target CapitalWebSocket = {
     WebSocketClient,
     useWebSocket,
     useMarketData,
