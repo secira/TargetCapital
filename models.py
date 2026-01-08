@@ -2927,3 +2927,104 @@ Place SL-Limit Order to Avoid Slippage and fast movement.
         return f'<DailyTradingSignal {self.script} {self.action} @{self.buy_above}>'
 
 
+class AccountManager(db.Model):
+    """
+    Account Manager model for HNI users.
+    Stores information about dedicated account managers assigned to users.
+    """
+    __tablename__ = 'account_managers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Manager Information
+    name = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(100), nullable=False, default='Account Manager')
+    email = db.Column(db.String(200), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    whatsapp = db.Column(db.String(20), nullable=True)
+    
+    # Experience and Stats
+    experience_years = db.Column(db.Integer, nullable=True)
+    success_rate = db.Column(db.Numeric(5, 2), nullable=True)  # e.g., 85.20
+    average_return = db.Column(db.Numeric(5, 2), nullable=True)  # e.g., 12.30
+    risk_management = db.Column(db.String(50), nullable=True, default='Moderate')
+    
+    # Avatar (initials or image URL)
+    avatar_initials = db.Column(db.String(5), nullable=True)  # e.g., 'RK'
+    avatar_url = db.Column(db.String(500), nullable=True)
+    avatar_color = db.Column(db.String(20), nullable=True, default='#4299e1')
+    
+    # Working hours
+    working_hours = db.Column(db.String(100), nullable=True, default='Mon-Fri, 9:00 AM - 6:00 PM')
+    
+    # Status
+    is_active = db.Column(db.Boolean, default=True)
+    is_default = db.Column(db.Boolean, default=False)  # Default manager for new HNI users
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    @property
+    def display_experience(self):
+        """Return formatted experience string"""
+        if self.experience_years:
+            return f"{self.experience_years}+ Years Experience"
+        return None
+    
+    @property
+    def display_success_rate(self):
+        """Return formatted success rate"""
+        if self.success_rate:
+            return f"{self.success_rate}%"
+        return None
+    
+    @property
+    def display_average_return(self):
+        """Return formatted average return"""
+        if self.average_return:
+            sign = '+' if self.average_return >= 0 else ''
+            return f"{sign}{self.average_return}%"
+        return None
+    
+    @property
+    def avatar_svg(self):
+        """Generate SVG avatar with initials"""
+        initials = self.avatar_initials or self.name[:2].upper()
+        color = self.avatar_color or '#4299e1'
+        return f"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='{color.replace('#', '%23')}'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='32'>{initials}</text></svg>"
+    
+    @classmethod
+    def get_default_manager(cls):
+        """Get the default account manager"""
+        return cls.query.filter_by(is_active=True, is_default=True).first()
+    
+    @classmethod
+    def get_or_create_default(cls):
+        """Get or create the default account manager"""
+        manager = cls.get_default_manager()
+        if not manager:
+            manager = cls(
+                name='Rajesh Kumar',
+                title='Senior Account Manager',
+                email='rajesh.kumar@targetcapital.com',
+                phone='+91 98765 43210',
+                whatsapp='+919876543210',
+                experience_years=8,
+                success_rate=85.2,
+                average_return=12.3,
+                risk_management='Moderate',
+                avatar_initials='RK',
+                avatar_color='#4299e1',
+                working_hours='Mon-Fri, 9:00 AM - 6:00 PM',
+                is_active=True,
+                is_default=True
+            )
+            db.session.add(manager)
+            db.session.commit()
+        return manager
+    
+    def __repr__(self):
+        return f'<AccountManager {self.name}>'
+
+
