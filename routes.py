@@ -207,6 +207,11 @@ def trading_signals():
     """Public Trading Signals page route"""
     return render_template('trading_signals.html')
 
+@app.route('/features/daily-signals')
+def daily_signals_feature():
+    """Static feature page for Daily Signals"""
+    return render_template('daily_signals_feature.html')
+
 @app.route('/stock-research')
 def stock_research():
     """Stock Research service page route"""
