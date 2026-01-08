@@ -6,7 +6,7 @@ from services.perplexity_service import PerplexityService
 from models import (BlogPost, TeamMember, Testimonial, User, WatchlistItem, StockAnalysis, 
                    AIStockPick, Portfolio,
                    PricingPlan, SubscriptionStatus, Payment, Referral, ContactMessage,
-                   ChatConversation, ChatMessage, ChatbotKnowledgeBase, TradingSignal,
+                   ChatConversation, ChatMessage, ChatbotKnowledgeBase, ResearchList,
                    RiskProfile, Admin)
 from models_broker import BrokerAccount
 from middleware.tenant_middleware import get_current_tenant_id, TenantQuery, create_for_tenant

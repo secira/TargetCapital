@@ -5,7 +5,7 @@ Provides in-depth research pages for each asset class with I-Score analysis
 from flask import render_template, jsonify, request
 from flask_login import login_required, current_user
 from app import app, db
-from models import TradingSignal, ResearchCache, ResearchRun
+from models import ResearchList, ResearchCache, ResearchRun
 from datetime import datetime, timezone, date
 import logging
 

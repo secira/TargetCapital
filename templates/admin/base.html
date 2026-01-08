@@ -143,9 +143,6 @@
                         <a href="{{ url_for('admin.research_list') }}" class="nav-link admin-nav-link {{ 'active' if 'research' in request.endpoint else '' }}">
                             <i class="fas fa-microscope me-2"></i>Research List
                         </a>
-                        <a href="{{ url_for('admin.daily_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'daily_signals' in request.endpoint else '' }}">
-                            <i class="fas fa-calendar-day me-2"></i>Daily Signals
-                        </a>
                         <a href="{{ url_for('admin.payments') }}" class="nav-link admin-nav-link {{ 'active' if 'payments' in request.endpoint else '' }}">
                             <i class="fas fa-credit-card me-2"></i>Payment Management
                         </a>
