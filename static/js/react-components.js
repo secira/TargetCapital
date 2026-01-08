@@ -392,6 +392,9 @@ class TradingInterface extends Component {
     }
     
     showNotification(message, type) {
+        // Suppress "Market Data Connected" notifications
+        if (message.includes('Market Data Connected')) return;
+        
         // React-style notification system
         const notification = document.createElement('div');
         notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;

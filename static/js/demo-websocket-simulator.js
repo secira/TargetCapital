@@ -37,7 +37,7 @@ class DemoWebSocketSimulator {
         // Show initial notification
         // this.showDemoNotification();
         
-        // Initialize UI components if they exist
+        // Initial state
         this.updateRealtimeStatus('Connected', 'success');
     }
     

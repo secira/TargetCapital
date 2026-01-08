@@ -376,6 +376,9 @@ class DashboardApp {
         
         this.setState({ tradingSignals: signals });
         
+        // Suppress initial connection signal if it contains specific text
+        if (signal.message === 'Market Data Connected') return;
+        
         // Send to non-intrusive signal manager instead of popup
         if (signal.confidence >= 80 && window.signalManager) {
             window.signalManager.handleNewSignal(signal);
@@ -383,6 +386,10 @@ class DashboardApp {
     }
     
     addNotification(message, type = 'info', duration = 5000) {
+        // Suppress "Market Data Connected" and "Market data updated" notifications
+        if (message.includes('Market Data Connected') || message.includes('Market data updated')) {
+            return;
+        }
         const notification = {
             id: Date.now(),
             message,
