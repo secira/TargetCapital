@@ -1200,12 +1200,25 @@ def dashboard():
 
 # Stock Analysis route removed as requested by user
 
-# Real-time market data API endpoints
+# Real-time market data API endpoints with caching
 @app.route('/api/realtime/indices')
 def api_realtime_indices():
-    """API endpoint for real-time NSE indices data"""
+    """API endpoint for real-time NSE indices data with caching"""
     try:
+        from caching.redis_cache import get_cache
+        cache = get_cache()
+        
+        if cache.is_available():
+            cached_data = cache.get_market_indices()
+            if cached_data:
+                cached_data['cached'] = True
+                return jsonify(cached_data)
+        
         data = get_live_market_data()
+        
+        if cache.is_available():
+            cache.set_market_indices(data, expiry=60)
+        data['cached'] = False
         return jsonify(data)
     except Exception as e:
         return jsonify({
@@ -1216,9 +1229,24 @@ def api_realtime_indices():
 
 @app.route('/api/realtime/stock/<symbol>')
 def api_realtime_stock(symbol):
-    """API endpoint for real-time stock data"""
+    """API endpoint for real-time stock data with caching"""
     try:
-        data = get_stock_quote(symbol.upper())
+        from caching.redis_cache import get_cache
+        cache = get_cache()
+        
+        symbol_upper = symbol.upper()
+        
+        if cache.is_available():
+            cached_data = cache.get_market_data(symbol_upper)
+            if cached_data:
+                cached_data['cached'] = True
+                return jsonify(cached_data)
+        
+        data = get_stock_quote(symbol_upper)
+        
+        if cache.is_available():
+            cache.set_market_data(symbol_upper, data, expiry=60)
+        data['cached'] = False
         return jsonify(data)
     except Exception as e:
         return jsonify({
@@ -4119,13 +4147,31 @@ def api_get_stock(symbol):
 
 @app.route('/api/market/indices')
 def api_market_indices():
-    """Get market indices"""
+    """Get market indices with caching"""
     try:
+        from caching.redis_cache import get_cache
+        cache = get_cache()
+        
+        cache_key = 'market_indices_full'
+        if cache.is_available():
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                return jsonify({
+                    'success': True,
+                    'data': cached_data,
+                    'last_updated': datetime.now(timezone.utc).isoformat(),
+                    'cached': True
+                })
+        
         indices = market_data_service.get_market_indices()
+        
+        if cache.is_available():
+            cache.set(cache_key, indices, expiry=120)
         return jsonify({
             'success': True,
             'data': indices,
-            'last_updated': datetime.now(timezone.utc).isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat(),
+            'cached': False
         })
     except Exception as e:
         logging.error(f"API error for market indices: {str(e)}")

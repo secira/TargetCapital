@@ -402,7 +402,9 @@ def enable_caching_and_security(response):
     return response
 
 # Import request for the after_request function
-from flask import request
+from flask import request, jsonify
+from datetime import datetime
+from sqlalchemy import text
 
 # Service worker route for PWA support
 @app.route('/sw.js')
@@ -423,9 +425,6 @@ def health_check():
 @app.route('/health/ready')
 def readiness_check():
     """Readiness check - verifies database and Redis connectivity"""
-    from flask import jsonify
-    from datetime import datetime
-    
     checks = {
         'database': False,
         'redis': False,
@@ -439,8 +438,8 @@ def readiness_check():
         checks['database_error'] = str(e)
     
     try:
-        from caching.redis_cache import RedisCache
-        cache = RedisCache()
+        from caching.redis_cache import get_cache
+        cache = get_cache()
         checks['redis'] = cache.is_available()
     except Exception as e:
         checks['redis_error'] = str(e)
@@ -461,11 +460,6 @@ def readiness_check():
 def liveness_check():
     """Liveness check - simple ping for container orchestrators"""
     return 'OK', 200
-
-# Import jsonify and datetime for health endpoints
-from flask import jsonify
-from datetime import datetime
-from sqlalchemy import text
 
 # Import routes
 import routes
