@@ -1,0 +1,231 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Signal #{{ signal.signal_number }} - Admin{% endblock %}
+
+{% block page_title %}Edit Signal #{{ signal.signal_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card admin-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-edit me-2"></i>Edit Trading Signal</span>
+                <span class="badge bg-primary">Signal #{{ signal.signal_number }} - {{ signal.signal_date.strftime('%d %b %Y') }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin.edit_daily_signal', signal_id=signal.id) }}" id="signalForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Signal Date</label>
+                            <input type="text" class="form-control" value="{{ signal.signal_date.strftime('%d %b %Y') }}" disabled>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Asset Type <span class="text-danger">*</span></label>
+                            <select name="asset_type" id="assetType" class="form-select" required onchange="updateFormFields()">
+                                <option value="">Select Asset Type</option>
+                                <option value="NIFTY" {{ 'selected' if signal.asset_type == 'NIFTY' else '' }}>Nifty</option>
+                                <option value="BANKNIFTY" {{ 'selected' if signal.asset_type == 'BANKNIFTY' else '' }}>BankNifty</option>
+                                <option value="SENSEX" {{ 'selected' if signal.asset_type == 'SENSEX' else '' }}>Sensex</option>
+                                <option value="FINNIFTY" {{ 'selected' if signal.asset_type == 'FINNIFTY' else '' }}>FinNifty</option>
+                                <option value="STOCK" {{ 'selected' if signal.asset_type == 'STOCK' else '' }}>Stock</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Instrument Type <span class="text-danger">*</span></label>
+                            <select name="sub_type" id="subType" class="form-select" required onchange="updateFormFields()">
+                                <option value="">Select Type</option>
+                                <option value="CE" {{ 'selected' if signal.sub_type == 'CE' else '' }}>Call Option (CE)</option>
+                                <option value="PE" {{ 'selected' if signal.sub_type == 'PE' else '' }}>Put Option (PE)</option>
+                                <option value="FUT" {{ 'selected' if signal.sub_type == 'FUT' else '' }}>Futures</option>
+                                <option value="EQ" {{ 'selected' if signal.sub_type == 'EQ' else '' }}>Equity</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="stockSymbolRow" style="{{ 'display: flex;' if signal.asset_type == 'STOCK' else 'display: none;' }}">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stock Symbol <span class="text-danger">*</span></label>
+                            <input type="text" name="symbol" id="symbol" class="form-control" value="{{ signal.symbol }}" placeholder="e.g., RELIANCE, TCS, INFY">
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="optionFields" style="{{ 'display: flex;' if signal.sub_type in ['CE', 'PE'] else 'display: none;' }}">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Strike Price <span class="text-danger">*</span></label>
+                            <input type="number" step="0.05" name="strike_price" id="strikePrice" class="form-control" value="{{ signal.strike_price }}" placeholder="e.g., 24500">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Strike Type</label>
+                            <select name="strike_type" class="form-select">
+                                <option value="">Select</option>
+                                <option value="ATM" {{ 'selected' if signal.strike_type == 'ATM' else '' }}>ATM (At The Money)</option>
+                                <option value="ITM" {{ 'selected' if signal.strike_type == 'ITM' else '' }}>ITM (In The Money)</option>
+                                <option value="OTM" {{ 'selected' if signal.strike_type == 'OTM' else '' }}>OTM (Out of The Money)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Trade Duration <span class="text-danger">*</span></label>
+                            <select name="trade_duration" class="form-select" required>
+                                <option value="">Select Duration</option>
+                                <option value="DAY" {{ 'selected' if signal.trade_duration == 'DAY' else '' }}>Day Trading (Intraday)</option>
+                                <option value="WEEK" {{ 'selected' if signal.trade_duration == 'WEEK' else '' }}>Swing Trading (1-5 Days)</option>
+                                <option value="MONTH" {{ 'selected' if signal.trade_duration == 'MONTH' else '' }}>Long Term (1+ Month)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Action <span class="text-danger">*</span></label>
+                            <select name="action" class="form-select" required>
+                                <option value="BUY" {{ 'selected' if signal.action == 'BUY' else '' }}>BUY</option>
+                                <option value="SELL" {{ 'selected' if signal.action == 'SELL' else '' }}>SELL</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Risk Level</label>
+                            <select name="risk_level" class="form-select">
+                                <option value="LOW" {{ 'selected' if signal.risk_level == 'LOW' else '' }}>Low Risk</option>
+                                <option value="MEDIUM" {{ 'selected' if signal.risk_level == 'MEDIUM' else '' }}>Medium Risk</option>
+                                <option value="HIGH" {{ 'selected' if signal.risk_level == 'HIGH' else '' }}>High Risk</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="ACTIVE" {{ 'selected' if signal.status == 'ACTIVE' else '' }}>Active</option>
+                                <option value="TARGET_1_HIT" {{ 'selected' if signal.status == 'TARGET_1_HIT' else '' }}>Target 1 Hit</option>
+                                <option value="TARGET_2_HIT" {{ 'selected' if signal.status == 'TARGET_2_HIT' else '' }}>Target 2 Hit</option>
+                                <option value="SL_HIT" {{ 'selected' if signal.status == 'SL_HIT' else '' }}>Stop Loss Hit</option>
+                                <option value="EXPIRED" {{ 'selected' if signal.status == 'EXPIRED' else '' }}>Expired</option>
+                                <option value="CLOSED" {{ 'selected' if signal.status == 'CLOSED' else '' }}>Closed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h5 class="mb-3"><i class="fas fa-chart-area me-2"></i>Price Levels</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Entry Price (Buy Above) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.05" name="buy_above" class="form-control" value="{{ signal.buy_above }}" required placeholder="Entry price">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stop Loss <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.05" name="stop_loss" class="form-control" value="{{ signal.stop_loss }}" required placeholder="Stop loss">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Target 1</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.05" name="target_1" class="form-control" value="{{ signal.target_1 }}" placeholder="First target">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Target 2</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.05" name="target_2" class="form-control" value="{{ signal.target_2 }}" placeholder="Second target">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Target 3</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.05" name="target_3" class="form-control" value="{{ signal.target_3 }}" placeholder="Third target (optional)">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Notes / Analysis</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Additional notes or analysis for this signal...">{{ signal.notes or '' }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('admin.daily_signals') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Signals
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card admin-card mt-4">
+            <div class="card-header bg-light">
+                <i class="fas fa-info-circle me-2"></i>Signal Information
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <small class="text-muted">Created By</small>
+                        <p class="mb-2">{{ signal.analyst_name or 'Unknown' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">Created At</small>
+                        <p class="mb-2">{{ signal.created_at.strftime('%d %b %Y, %I:%M %p') if signal.created_at else 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted">Last Updated</small>
+                        <p class="mb-2">{{ signal.updated_at.strftime('%d %b %Y, %I:%M %p') if signal.updated_at else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateFormFields() {
+    const assetType = document.getElementById('assetType').value;
+    const subType = document.getElementById('subType').value;
+    const stockSymbolRow = document.getElementById('stockSymbolRow');
+    const optionFields = document.getElementById('optionFields');
+    const symbolInput = document.getElementById('symbol');
+    const strikePriceInput = document.getElementById('strikePrice');
+    
+    if (assetType === 'STOCK') {
+        stockSymbolRow.style.display = 'flex';
+        symbolInput.required = true;
+    } else {
+        stockSymbolRow.style.display = 'none';
+        symbolInput.required = false;
+    }
+    
+    if (subType === 'CE' || subType === 'PE') {
+        optionFields.style.display = 'flex';
+        strikePriceInput.required = true;
+    } else {
+        optionFields.style.display = 'none';
+        strikePriceInput.required = false;
+    }
+}
+</script>
+{% endblock %}

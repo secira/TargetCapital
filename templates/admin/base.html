@@ -143,6 +143,9 @@
                         <a href="{{ url_for('admin.trading_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'trading_signals' in request.endpoint else '' }}">
                             <i class="fas fa-chart-line me-2"></i>Trading Signals
                         </a>
+                        <a href="{{ url_for('admin.daily_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'daily_signals' in request.endpoint else '' }}">
+                            <i class="fas fa-calendar-day me-2"></i>Daily Signals
+                        </a>
                         <a href="{{ url_for('admin.payments') }}" class="nav-link admin-nav-link {{ 'active' if 'payments' in request.endpoint else '' }}">
                             <i class="fas fa-credit-card me-2"></i>Payment Management
                         </a>
