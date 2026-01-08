@@ -274,7 +274,7 @@ def account_handling(page=1):
     
     # Get premium users (Target Pro and HNI plans)
     premium_users = User.query.filter(
-        User.pricing_plan.in_(['target_pro', 'hni'])
+        User.pricing_plan.in_(['TARGET_PRO', 'HNI'])
     ).paginate(page=page, per_page=per_page, error_out=False)
     
     # Calculate daily P&L for each user
