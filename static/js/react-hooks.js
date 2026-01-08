@@ -448,7 +448,7 @@ function useConnectionStatus() {
 }
 
 // Export hooks and utilities
-window.Target CapitalHooks = {
+window.CapitalHooks = {
     useState,
     useEffect,
     useMarketDataStream,

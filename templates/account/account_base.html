@@ -38,11 +38,6 @@
                                 <span class="badge bg-warning ms-1">Expired</span>
                                 {% endif %}
                             </li>
-                            {% if current_user.is_admin %}
-                            <li><a class="dropdown-item py-2" href="{{ url_for('admin_dashboard') }}" style="font-size: 14px;">
-                                <i class="fas fa-cog me-2 text-muted"></i>Admin Panel
-                            </a></li>
-                            {% endif %}
                             <li><hr class="dropdown-divider my-1"></li>
                             <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('logout') }}" style="font-size: 14px;">
                                 <i class="fas fa-sign-out-alt me-2"></i>Logout

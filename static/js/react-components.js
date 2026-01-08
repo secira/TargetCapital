@@ -417,8 +417,17 @@ class TradingInterface extends Component {
     }
 }
 
+// Export components - fix for broken naming
+window.CapitalComponents = {
+    RealTimeMarketData,
+    TradingInterface,
+    Portfolio,
+    AITradingSignals
+};
+
+window.TargetCapitalComponents = window.CapitalComponents;
+
 // Portfolio Component with Real-time Updates
-class Portfolio extends Component {
     init() {
         this.state = {
             holdings: {},
