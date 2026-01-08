@@ -10,7 +10,7 @@
         <div class="admin-stat-card">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-0">{{ total_users }}</h3>
+                    <h3 class="mb-0">{{ total_users|default(0) }}</h3>
                     <p class="mb-0">Total Users</p>
                 </div>
                 <i class="fas fa-users fa-2x"></i>
@@ -22,7 +22,7 @@
         <div class="admin-stat-card success">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-0">{{ active_signals }}</h3>
+                    <h3 class="mb-0">{{ active_signals|default(0) }}</h3>
                     <p class="mb-0">Active Signals</p>
                 </div>
                 <i class="fas fa-chart-line fa-2x"></i>
@@ -34,7 +34,7 @@
         <div class="admin-stat-card warning">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-0">{{ today_payments }}</h3>
+                    <h3 class="mb-0">{{ today_payments|default(0) }}</h3>
                     <p class="mb-0">Today's Payments</p>
                 </div>
                 <i class="fas fa-credit-card fa-2x"></i>
@@ -46,7 +46,7 @@
         <div class="admin-stat-card danger">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h3 class="mb-0">₹{{ "{:,.0f}".format(monthly_revenue) }}</h3>
+                    <h3 class="mb-0">₹{{ "{:,.0f}".format(monthly_revenue|default(0)) }}</h3>
                     <p class="mb-0">Monthly Revenue</p>
                 </div>
                 <i class="fas fa-rupee-sign fa-2x"></i>
