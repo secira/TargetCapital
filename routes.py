@@ -1179,6 +1179,15 @@ def dashboard():
     # Use mock data for market overview
     market_data = generate_mock_market_data()
     
+    # Get account manager for HNI users
+    account_manager = None
+    if current_user.can_access_menu('dashboard_account_handling'):
+        try:
+            from models import AccountManager
+            account_manager = AccountManager.get_or_create_default()
+        except Exception:
+            account_manager = None
+    
     return render_template('dashboard/dashboard_improved.html', 
                          portfolio_summary=portfolio_summary,
                          top_performers=top_performers,
@@ -1187,7 +1196,8 @@ def dashboard():
                          days_active=days_active,
                          user_level=user_level,
                          level_progress=level_progress,
-                         broker_accounts=broker_accounts)
+                         broker_accounts=broker_accounts,
+                         account_manager=account_manager)
 
 # Stock Analysis route removed as requested by user
 

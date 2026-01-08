@@ -260,62 +260,80 @@
     </div>
 </div>
 
-{% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') %}
+{% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') and account_manager %}
 <!-- HNI Account Manager Section -->
 <div class="dashboard-grid cols-1" style="margin-top: 24px;">
     <div class="dashboard-card account-manager-card">
         <div class="card-header">
             <h3><i class="fas fa-crown me-2"></i>Your Dedicated Account Manager</h3>
-            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.location.href='tel:+919876543210'">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.location.href='tel:{{ account_manager.phone|replace(' ', '') }}'">
                 <i class="fas fa-phone me-1"></i>Contact Manager
             </button>
         </div>
         <div class="card-body">
             <div class="account-manager-content">
                 <div class="manager-profile">
-                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><circle cx='40' cy='40' r='40' fill='%234299e1'/><text x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-family='Arial' font-size='32'>RK</text></svg>" 
+                    <img src="{{ account_manager.avatar_svg }}" 
                          alt="Account Manager" class="manager-avatar">
                     <div class="manager-info">
-                        <h4 class="manager-name">Rajesh Kumar</h4>
-                        <p class="manager-title">Senior Account Manager</p>
+                        <h4 class="manager-name">{{ account_manager.name }}</h4>
+                        <p class="manager-title">{{ account_manager.title }}</p>
+                        {% if account_manager.display_experience %}
                         <div class="manager-experience">
                             <i class="fas fa-award text-warning me-1"></i>
-                            <span>8+ Years Experience</span>
+                            <span>{{ account_manager.display_experience }}</span>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
                 
                 <div class="manager-stats">
+                    {% if account_manager.display_success_rate %}
                     <div class="stat-item">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <div class="stat-details">
                             <div class="stat-label">Success Rate</div>
-                            <div class="stat-value">85.2%</div>
+                            <div class="stat-value">{{ account_manager.display_success_rate }}</div>
                         </div>
                     </div>
+                    {% endif %}
                     
+                    {% if account_manager.display_average_return %}
                     <div class="stat-item">
                         <div class="stat-icon">
                             <i class="fas fa-percentage"></i>
                         </div>
                         <div class="stat-details">
                             <div class="stat-label">Average Return</div>
-                            <div class="stat-value text-success">+12.3%</div>
+                            <div class="stat-value text-success">{{ account_manager.display_average_return }}</div>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
                 
                 <div class="manager-contact">
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
-                        <a href="mailto:rajesh.kumar@targetcapital.com">rajesh.kumar@targetcapital.com</a>
+                        <a href="mailto:{{ account_manager.email }}">{{ account_manager.email }}</a>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-phone"></i>
-                        <a href="tel:+919876543210">+91 98765 43210</a>
+                        <a href="tel:{{ account_manager.phone|replace(' ', '') }}">{{ account_manager.phone }}</a>
                     </div>
+                    {% if account_manager.whatsapp %}
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <a href="https://wa.me/{{ account_manager.whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank">WhatsApp Chat</a>
+                    </div>
+                    {% endif %}
+                    {% if account_manager.working_hours %}
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ account_manager.working_hours }}</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
