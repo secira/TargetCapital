@@ -270,7 +270,14 @@ with app.app_context():
     import models_broker  # Import broker models too
     import models_vector  # Import vector database models for RAG
     import routes_mobile  # Import mobile OTP routes
-    db.create_all()
+    
+    # Only create tables in development mode
+    # Production should use Alembic migrations
+    if not is_production:
+        db.create_all()
+        logging.info("✅ Database tables created (development mode)")
+    else:
+        logging.info("⚠️ Skipping db.create_all() in production - use Alembic migrations")
     
     # Initialize default 'live' tenant (Target Capital)
     models.Tenant.get_or_create_default()
@@ -402,6 +409,63 @@ from flask import request
 def service_worker():
     """Serve the service worker for PWA functionality"""
     return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
+# Health check endpoints for production monitoring
+@app.route('/health')
+def health_check():
+    """Basic health check - returns 200 if app is running"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.utcnow().isoformat(),
+        'environment': environment
+    }), 200
+
+@app.route('/health/ready')
+def readiness_check():
+    """Readiness check - verifies database and Redis connectivity"""
+    from flask import jsonify
+    from datetime import datetime
+    
+    checks = {
+        'database': False,
+        'redis': False,
+        'status': 'unhealthy'
+    }
+    
+    try:
+        db.session.execute(text('SELECT 1'))
+        checks['database'] = True
+    except Exception as e:
+        checks['database_error'] = str(e)
+    
+    try:
+        from caching.redis_cache import RedisCache
+        cache = RedisCache()
+        checks['redis'] = cache.is_available()
+    except Exception as e:
+        checks['redis_error'] = str(e)
+    
+    checks['timestamp'] = datetime.utcnow().isoformat()
+    checks['environment'] = environment
+    
+    if checks['database']:
+        checks['status'] = 'healthy' if checks['redis'] else 'degraded'
+        status_code = 200
+    else:
+        checks['status'] = 'unhealthy'
+        status_code = 503
+    
+    return jsonify(checks), status_code
+
+@app.route('/health/live')
+def liveness_check():
+    """Liveness check - simple ping for container orchestrators"""
+    return 'OK', 200
+
+# Import jsonify and datetime for health endpoints
+from flask import jsonify
+from datetime import datetime
+from sqlalchemy import text
 
 # Import routes
 import routes

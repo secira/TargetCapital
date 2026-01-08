@@ -28,18 +28,21 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Razorpay configuration
-RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_dummy_key')
-RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'dummy_secret')
+# Razorpay configuration - require proper env vars
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
 
 # Initialize Razorpay client when keys are available
 razorpay_client = None
-if RAZORPAY_KEY_ID != 'rzp_test_dummy_key' and RAZORPAY_KEY_SECRET != 'dummy_secret':
+if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
     try:
         import razorpay
         razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        logging.info("✅ Razorpay client initialized")
     except ImportError:
-        logging.warning("Razorpay library not installed")
+        logging.warning("⚠️ Razorpay library not installed")
+else:
+    logging.info("⚠️ Razorpay not configured - payment features disabled")
 
 # Template Context Processor
 # Clean OAuth integration coming soon
