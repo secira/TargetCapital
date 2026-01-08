@@ -70,6 +70,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 15px; color: #374151 !important;">Features</a>
                         <ul class="dropdown-menu shadow border-0" style="border-radius: 8px; padding: 8px 0;">
+                            <li><a class="dropdown-item py-2" href="{{ url_for('daily_signals_feature') }}" style="font-size: 14px;">Daily Signals</a></li>
                             <li><a class="dropdown-item py-2" href="{{ url_for('stock_research') }}" style="font-size: 14px;">AI Research Co-Pilot</a></li>
                             <li><a class="dropdown-item py-2" href="{{ url_for('portfolio_analysis') }}" style="font-size: 14px;">Portfolio Analysis</a></li>
                             <li><a class="dropdown-item py-2" href="{{ url_for('trading_signals') }}" style="font-size: 14px;">Trading Support</a></li>
@@ -269,6 +270,7 @@
                 <div class="col-lg-2 col-md-6 mb-4">
                     <h6>Features</h6>
                     <ul class="list-unstyled">
+                        <li><a href="{{ url_for('daily_signals_feature') }}">Daily Signals</a></li>
                         <li><a href="{{ url_for('stock_research') }}">AI Research Co-Pilot</a></li>
                         <li><a href="{{ url_for('portfolio_analysis') }}">Portfolio Analysis</a></li>
                         <li><a href="{{ url_for('trading_signals') }}">Trading Support</a></li>
