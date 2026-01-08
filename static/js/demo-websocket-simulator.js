@@ -34,8 +34,11 @@ class DemoWebSocketSimulator {
         // Start performance monitoring
         this.startPerformanceMonitoring();
         
-        // Demo notification disabled - was causing recurring popup
+        // Show initial notification
         // this.showDemoNotification();
+        
+        // Initialize UI components if they exist
+        this.updateRealtimeStatus('Connected', 'success');
     }
     
     stop() {
@@ -309,32 +312,6 @@ class DemoWebSocketSimulator {
                 <small class="text-muted">Updated: ${metrics.lastUpdate}</small>
             </div>
         `;
-    }
-    
-    showDemoNotification() {
-        // Create demo notification
-        const notification = document.createElement('div');
-        notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
-        notification.style.cssText = 'top: 80px; right: 20px; z-index: 9999; max-width: 350px;';
-        notification.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-info-circle me-2"></i>
-                <div>
-                    <strong>Market Data Connected</strong><br>
-                    <small>Real-time market data and trading signals available</small>
-                </div>
-                <button type="button" class="btn-close ms-2" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Auto-remove after 10 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 10000);
     }
     
     // Event system for React-style component communication
