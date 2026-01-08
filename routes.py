@@ -208,9 +208,22 @@ def trading_signals():
     return render_template('trading_signals.html')
 
 @app.route('/stock-research')
+@login_required
 def stock_research():
-    """Stock Research service page route"""
-    return render_template('stock_research.html')
+    """Enhanced Stock Research landing page with Daily Signals and Research Co-Pilot"""
+    from models import DailyTradingSignal, ResearchList
+    from datetime import datetime
+    
+    # Get active daily signals for the landing page
+    signals = DailyTradingSignal.query.filter_by(status='ACTIVE').order_by(DailyTradingSignal.created_at.desc()).limit(5).all()
+    
+    # Get top research assets by I-Score for Co-Pilot section
+    top_research = ResearchList.query.filter(ResearchList.i_score.isnot(None)).order_by(ResearchList.i_score.desc()).limit(5).all()
+    
+    return render_template('dashboard/research/stock_research_landing.html', 
+                         active_section='stock_research',
+                         signals=signals,
+                         top_research=top_research)
 
 @app.route('/portfolio-analysis')
 def portfolio_analysis():

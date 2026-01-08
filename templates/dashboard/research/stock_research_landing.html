@@ -1,0 +1,158 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Stock Research - Target Capital{% endblock %}
+
+{% block dashboard_title %}Stock Research{% endblock %}
+{% block dashboard_subtitle %}AI-powered insights and curated trading signals{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid p-0">
+    <div class="row g-4">
+        <!-- Section 1: Daily Signals -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-bolt me-2 text-warning"></i>Daily Signals
+                    </h5>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Paid Members</span>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Curated signals in Stock and Options on a daily basis, providing precise entry and exit points for high-probability trades.</p>
+                    
+                    {% if current_user.pricing_plan.value == 'free' %}
+                    <div class="text-center py-5 border rounded-3 bg-light">
+                        <div class="mb-3">
+                            <i class="fas fa-lock fa-3x text-muted"></i>
+                        </div>
+                        <h6 class="fw-bold">Exclusive for Target Plus & Pro</h6>
+                        <p class="text-muted small px-4">Unlock professional-grade trading signals across multiple timeframes.</p>
+                        <a href="{{ url_for('pricing') }}" class="btn btn-primary btn-sm mt-2">Upgrade Now</a>
+                    </div>
+                    {% else %}
+                    <div class="list-group list-group-flush">
+                        {% if signals %}
+                            {% for signal in signals %}
+                            <div class="list-group-item px-0 py-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark">{{ signal.script }}</h6>
+                                        <small class="text-muted">{{ signal.duration_display }} | {{ signal.sub_type_display }}</small>
+                                    </div>
+                                    <span class="badge {% if signal.action == 'BUY' %}bg-success{% else %}bg-danger{% endif %}">{{ signal.action }}</span>
+                                </div>
+                                <div class="row g-2 text-center">
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Entry</small>
+                                            <span class="fw-bold">₹{{ signal.buy_above }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">Target</small>
+                                            <span class="fw-bold text-success">₹{{ signal.target_1 }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block" style="font-size: 0.7rem;">SL</small>
+                                            <span class="fw-bold text-danger">₹{{ signal.stop_loss }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="text-center mt-4">
+                                <a href="{{ url_for('asset_research', asset_type='stocks') }}" class="btn btn-outline-primary btn-sm">View All Signals</a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <p class="text-muted mb-0">No active signals at the moment. Check back during market hours.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Research Co-Pilot -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-robot me-2 text-primary"></i>Research Co-Pilot
+                    </h5>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">Agentic AI</span>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-4">Our Agentic AI platform analyzes assets across Qualitative, Quantitative, Trend, and Technical parameters to provide a comprehensive I-Score (Intelli Score).</p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small">Search & Analyze Any Asset</label>
+                        <form action="{{ url_for('asset_research', asset_type='stocks') }}" method="GET" class="input-group">
+                            <input type="text" name="symbol" class="form-control" placeholder="Enter Symbol (e.g. RELIANCE)" style="text-transform: uppercase;">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-1"></i> Analyze
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 h-100 bg-light">
+                                <h6 class="fw-bold small mb-2"><i class="fas fa-chart-line text-primary me-2"></i>I-Score Engine</h6>
+                                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Empirical values derived from multi-step LangGraph workflows for data-driven decisions.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 h-100 bg-light">
+                                <h6 class="fw-bold small mb-2"><i class="fas fa-shield-alt text-success me-2"></i>Risk Guard</h6>
+                                <p class="mb-0 text-muted" style="font-size: 0.75rem;">Real-time technical indicators and sentiment analysis to protect your capital.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <h6 class="fw-bold small mb-3">Top Research Assets</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle">
+                                <thead>
+                                    <tr class="text-muted" style="font-size: 0.7rem;">
+                                        <th>SYMBOL</th>
+                                        <th>SECTOR</th>
+                                        <th class="text-end">I-SCORE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in top_research %}
+                                    <tr>
+                                        <td class="fw-bold py-2">{{ item.symbol }}</td>
+                                        <td class="small text-muted">{{ item.sector or 'Diversified' }}</td>
+                                        <td class="text-end">
+                                            <span class="badge {% if item.i_score >= 80 %}bg-success{% elif item.i_score >= 65 %}bg-primary{% elif item.i_score >= 45 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ "%.1f"|format(item.i_score) if item.i_score else 'N/A' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('asset_research', asset_type='stocks') }}" class="btn btn-link btn-sm text-decoration-none">Explore Research Database <i class="fas fa-arrow-right ms-1"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary-subtle { background-color: rgba(0, 123, 255, 0.1); }
+    .bg-info-subtle { background-color: rgba(23, 162, 184, 0.1); }
+    .list-group-item:last-child { border-bottom: none !important; }
+</style>
+{% endblock %}
