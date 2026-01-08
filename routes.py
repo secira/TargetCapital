@@ -1176,9 +1176,6 @@ def dashboard():
         user_level = "New User"
         level_progress = 10
     
-    # Use mock data for market overview
-    market_data = generate_mock_market_data()
-    
     # Get account manager for HNI users
     account_manager = None
     if current_user.can_access_menu('dashboard_account_handling'):
@@ -1192,7 +1189,6 @@ def dashboard():
                          portfolio_summary=portfolio_summary,
                          top_performers=top_performers,
                          trading_signals_count=trading_signals_count,
-                         market_data=market_data,
                          days_active=days_active,
                          user_level=user_level,
                          level_progress=level_progress,
