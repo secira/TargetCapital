@@ -1079,15 +1079,11 @@ def profile():
         return redirect(url_for('profile'))
     
     # Get user statistics with safe imports
-    try:
-        from models import TradingSignal
-        trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
-    except (ImportError, AttributeError):
-        trading_signals_count = 0
+    research_list_count = ResearchList.query.count()
     analyses_count = StockAnalysis.query.count()  # Could be user-specific in future
     
     return render_template('auth/profile.html', 
-                         trading_signals_count=trading_signals_count,
+                         trading_signals_count=research_list_count,
                          analyses_count=analyses_count)
 
 # OAuth success redirect routes (handled by google_auth blueprint for Google)
@@ -1113,12 +1109,8 @@ def dashboard():
     portfolio_summary = portfolio_service.get_complete_portfolio_summary()
     top_performers = portfolio_service.get_top_performers(limit=3)
     
-    # Get trading signals count
-    try:
-        from models import TradingSignal
-        trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
-    except (ImportError, AttributeError):
-        trading_signals_count = 0
+    # Get research list count
+    research_list_count = ResearchList.query.count()
     
     # Get connected brokers
     broker_accounts = BrokerAccount.query.filter_by(
@@ -1365,24 +1357,12 @@ def dashboard_trading_signals():
     else:
         selected_date = datetime.utcnow().date()
     
-    # Get active trading signals from admin
-    try:
-        from models import TradingSignal
-        from sqlalchemy import func, desc
-        
-        # Filter by selected date or default to last 7 days
-        if selected_date_str:
-            signals = TradingSignal.query.filter(
-                TradingSignal.status == 'ACTIVE',
-                func.date(TradingSignal.created_at) == selected_date
-            ).order_by(desc(TradingSignal.created_at)).all()
-        else:
-            signals = TradingSignal.query.filter(
-                TradingSignal.status == 'ACTIVE',
-                func.date(TradingSignal.created_at) >= selected_date - timedelta(days=7)
-            ).order_by(desc(TradingSignal.created_at)).all()
-    except ImportError:
-        signals = []  # Fallback if TradingSignal not available
+    # Get research list stocks with active recommendations
+    from sqlalchemy import func, desc
+    
+    signals = ResearchList.query.filter(
+        ResearchList.is_active == True
+    ).order_by(desc(ResearchList.updated_at)).limit(20).all()
     
     # Get AI stock picks for the selected date (merged functionality)
     try:
@@ -1408,44 +1388,21 @@ def dashboard_trade_now():
     """Trade Now page for executing live trades"""
     from datetime import date
     
-    # Import TradingSignal with safe fallback
-    try:
-        from models import TradingSignal
-        signals_available = True
-    except ImportError:
-        signals_available = False
-        TradingSignal = None
-    
     # Get filter parameters
     selected_date_str = request.args.get('date', date.today().strftime('%Y-%m-%d'))
     selected_date = date.today()  # Use date object for template
     symbol_type = request.args.get('symbol_type', 'all')
     signal_status = request.args.get('status', 'all')
     
-    # Build query for trading signals if available
-    if signals_available and TradingSignal:
-        query = TradingSignal.query
-    else:
-        query = None
+    # Get research list stocks for trading
+    query = ResearchList.query.filter(ResearchList.is_active == True)
     
-    # Handle trading signals data
-    if query is not None:
-        # Filter by date
-        if selected_date_str:
-            query = query.filter(TradingSignal.created_at >= selected_date_str)
-        
-        # Filter by symbol type
-        if symbol_type != 'all':
-            query = query.filter(TradingSignal.signal_type == symbol_type)
-        
-        # Filter by status
-        if signal_status != 'all':
-            query = query.filter(TradingSignal.status == signal_status)
-        
-        # Get signals ordered by creation date
-        trading_signals = query.order_by(TradingSignal.created_at.desc()).all()
-    else:
-        trading_signals = []
+    # Filter by asset type
+    if symbol_type != 'all':
+        query = query.filter(ResearchList.asset_type == symbol_type)
+    
+    # Get stocks ordered by I-Score
+    trading_signals = query.order_by(ResearchList.i_score.desc()).limit(20).all()
     
     # Calculate summary statistics
     total_signals = len(trading_signals)
@@ -4525,40 +4482,18 @@ def api_portfolio_search_assets():
 @login_required
 @csrf.exempt
 def api_signals_generate_langgraph():
-    """Generate trading signals using LangGraph pipeline"""
+    """Generate I-Score analysis using LangGraph pipeline"""
     try:
         from services.langgraph_signal_pipeline import LangGraphSignalPipeline
-        from models import TradingSignal
         from datetime import date
         
         pipeline = LangGraphSignalPipeline()
         result = pipeline.generate_daily_signals()
         
-        # Store signals in database
-        signals_created = []
-        for signal_data in result.get('signals', []):
-            signal = TradingSignal(
-                signal_date=date.today(),
-                symbol=signal_data.get('symbol', 'UNKNOWN'),
-                action=signal_data.get('action', 'BUY'),
-                entry_price=signal_data.get('entry_price'),
-                target_price=signal_data.get('target_price'),
-                stop_loss=signal_data.get('stop_loss'),
-                timeframe=signal_data.get('timeframe'),
-                rationale=signal_data.get('rationale'),
-                risk_reward_ratio=signal_data.get('risk_reward_ratio'),
-                signal_data=signal_data,
-                pipeline_metadata=result.get('pipeline_metadata', {})
-            )
-            db.session.add(signal)
-            signals_created.append(signal)
-        
-        db.session.commit()
-        
         return jsonify({
             'success': True,
             'signals': result.get('signals', []),
-            'signals_count': len(signals_created),
+            'signals_count': len(result.get('signals', [])),
             'pipeline_metadata': result.get('pipeline_metadata', {}),
             'market_scan': result.get('market_scan', {}),
             'powered_by': 'LangGraph Signal Pipeline'
