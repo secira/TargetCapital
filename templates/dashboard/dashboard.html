@@ -52,7 +52,7 @@
     </div>
 
     <!-- AI Trading Signals -->
-    <div class="dashboard-card clickable-card" onclick="window.location.href='/dashboard/daily-signals'">
+    <a href="/dashboard/daily-signals" class="dashboard-card clickable-card" style="text-decoration: none; color: inherit; display: block;">
         <div class="card-body">
             <div class="flex-between mb-3">
                 <div class="metric-icon">
@@ -67,11 +67,11 @@
             <div class="metric-trend">
                 <small class="text-muted">3 new signals today</small>
             </div>
-            <button class="btn btn-sm btn-outline-success mt-2" onclick="event.stopPropagation(); showHighConfidenceSignals()">
+            <button class="btn btn-sm btn-outline-success mt-2" onclick="event.preventDefault(); event.stopPropagation(); showHighConfidenceSignals()">
                 <i class="fas fa-star me-1"></i>High-Confidence Alerts
             </button>
         </div>
-    </div>
+    </a>
 
     <!-- Active Strategies -->
     <div class="dashboard-card">
