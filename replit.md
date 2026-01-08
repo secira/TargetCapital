@@ -119,6 +119,36 @@ Implements defense-in-depth tenant isolation through three layers:
 - `routes_research.py`: HTTP endpoints for stock analysis
 - `templates/dashboard/research/asset_research.html`: Frontend UI for I-Score display
 
+### Production Readiness (January 2026)
+
+**Health Check Endpoints**:
+- `/health` - Basic health check, returns 200 if app is running
+- `/health/ready` - Readiness check, verifies database and Redis connectivity
+- `/health/live` - Liveness check for container orchestrators
+
+**Security Hardening**:
+- ✅ CSRF protection enabled with CSRFProtect and template_global csrf_token()
+- ✅ Tenant RLS initialized via setup_tenant_sqlalchemy at startup
+- ✅ Session cookie security: SameSite=Lax, Secure in production, HttpOnly
+- ✅ API endpoints protected with @login_required or @jwt_required
+- ✅ Placeholder secrets removed, env vars required for production
+
+**Scalability Improvements**:
+- ✅ Redis caching for market data APIs with graceful degradation
+- ✅ Singleton cache pattern via get_cache() to avoid connection overhead
+- ✅ db.create_all() disabled in production (use Alembic migrations)
+- ✅ Database indexes for multi-tenant queries (migration 0003)
+- ✅ Connection pooling configured (pool_size=20, max_overflow=30)
+
+**Environment Variables Required for Production**:
+- `ENVIRONMENT=production`
+- `SESSION_SECRET` (min 32 characters)
+- `DATABASE_URL` (PostgreSQL)
+- `REDIS_URL` (for caching and rate limiting)
+- `BROKER_ENCRYPTION_KEY` (Fernet key for broker credentials)
+- `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (for payments)
+- `OPENAI_API_KEY` and `PERPLEXITY_API_KEY` (for AI features)
+
 ### Mutual Fund Data Sources (For Future Implementation)
 **Primary Data Sources**:
 - **MFapi.in**: Free REST API for real-time NAV data (updated 3x daily)
