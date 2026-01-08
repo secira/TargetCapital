@@ -208,11 +208,15 @@ def trading_signals():
     return render_template('trading_signals.html')
 
 @app.route('/stock-research')
-@login_required
 def stock_research():
-    """Enhanced Stock Research landing page with Daily Signals and Research Co-Pilot"""
+    """Stock Research service page route"""
+    return render_template('stock_research.html')
+
+@app.route('/dashboard/stock-research')
+@login_required
+def dashboard_stock_research():
+    """Enhanced Stock Research landing page for logged-in users"""
     from models import DailyTradingSignal, ResearchList
-    from datetime import datetime
     
     # Get active daily signals for the landing page
     signals = DailyTradingSignal.query.filter_by(status='ACTIVE').order_by(DailyTradingSignal.created_at.desc()).limit(5).all()
