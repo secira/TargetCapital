@@ -140,8 +140,8 @@
                         <a href="{{ url_for('admin.users') }}" class="nav-link admin-nav-link {{ 'active' if 'users' in request.endpoint else '' }}">
                             <i class="fas fa-users me-2"></i>User Management
                         </a>
-                        <a href="{{ url_for('admin.trading_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'trading_signals' in request.endpoint else '' }}">
-                            <i class="fas fa-chart-line me-2"></i>Trading Signals
+                        <a href="{{ url_for('admin.research_list') }}" class="nav-link admin-nav-link {{ 'active' if 'research' in request.endpoint else '' }}">
+                            <i class="fas fa-microscope me-2"></i>Research List
                         </a>
                         <a href="{{ url_for('admin.daily_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'daily_signals' in request.endpoint else '' }}">
                             <i class="fas fa-calendar-day me-2"></i>Daily Signals

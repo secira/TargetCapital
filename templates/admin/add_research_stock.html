@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Add Stock - Research List - Target Capital Admin{% endblock %}
+{% block page_title %}Add Stock to Research List{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Stock
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Symbol <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="symbol" required 
+                                   placeholder="e.g., RELIANCE" style="text-transform: uppercase;">
+                            <small class="text-muted">NSE symbol (will be converted to uppercase)</small>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Asset Type <span class="text-danger">*</span></label>
+                            <select class="form-select" name="asset_type" required>
+                                <option value="stocks" selected>Stocks</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="usd_inr">USD/INR</option>
+                                <option value="crude">Crude</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" class="form-control" name="company_name" 
+                                   placeholder="e.g., Reliance Industries Ltd">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Sector</label>
+                            <input type="text" class="form-control" name="sector" 
+                                   placeholder="e.g., Oil & Gas, IT, Banking">
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.research_list') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success admin-btn">
+                            <i class="fas fa-plus me-2"></i>Add Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card admin-card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Information</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>After adding a stock, click "Compute I-Score" to run AI analysis</li>
+                    <li>I-Scores are automatically refreshed nightly</li>
+                    <li>Research List supports up to 500 stocks</li>
+                    <li>Future assets include Gold, Silver, USD/INR, and Crude</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

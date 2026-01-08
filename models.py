@@ -2671,6 +2671,126 @@ class ResearchCache(db.Model):
         return f'<ResearchCache {self.symbol} Score:{self.overall_score} Hits:{self.hit_count}>'
 
 
+class ResearchList(db.Model):
+    """
+    Pre-computed I-Score research for top 500 stocks.
+    Updated nightly via scheduled job. Used by Research Co-Pilot for quick access.
+    Each row represents one stock/asset with detailed AI analysis.
+    """
+    __tablename__ = 'research_list'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), db.ForeignKey('tenants.id'), nullable=True, default='live', index=True)
+    
+    # Asset identification (unique per symbol)
+    symbol = db.Column(db.String(50), nullable=False, unique=True, index=True)
+    company_name = db.Column(db.String(200), nullable=True)
+    asset_type = db.Column(db.String(30), nullable=False, default='stocks')  # stocks, gold, silver, usd_inr, crude
+    sector = db.Column(db.String(100), nullable=True)
+    
+    # I-Score and Recommendation
+    i_score = db.Column(db.Numeric(5, 2), nullable=True)  # 0-100
+    recommendation = db.Column(db.String(30), nullable=True)  # STRONG_BUY, BUY, HOLD, SELL, STRONG_SELL
+    confidence = db.Column(db.Numeric(5, 2), nullable=True)  # 0-100 confidence percentage
+    
+    # Component Scores (stored separately for display)
+    qualitative_score = db.Column(db.Numeric(5, 2), nullable=True)  # 15% weight
+    quantitative_score = db.Column(db.Numeric(5, 2), nullable=True)  # 50% weight
+    search_score = db.Column(db.Numeric(5, 2), nullable=True)  # 10% weight
+    trend_score = db.Column(db.Numeric(5, 2), nullable=True)  # 25% weight
+    
+    # Detailed Analysis (JSON for flexibility)
+    qualitative_details = db.Column(db.JSON, nullable=True)  # findings, sources, reasoning
+    quantitative_details = db.Column(db.JSON, nullable=True)  # RSI, EMA, price data
+    search_details = db.Column(db.JSON, nullable=True)  # buzz, trends, sentiment
+    trend_details = db.Column(db.JSON, nullable=True)  # VIX, PCR, market indicators
+    
+    # Market Data Snapshot
+    current_price = db.Column(db.Numeric(12, 2), nullable=True)
+    previous_close = db.Column(db.Numeric(12, 2), nullable=True)
+    price_change_pct = db.Column(db.Numeric(8, 4), nullable=True)
+    
+    # Future extensibility
+    future_parameters = db.Column(db.JSON, nullable=True)  # For adding new analysis types
+    
+    # Recommendation summary
+    recommendation_summary = db.Column(db.Text, nullable=True)  # AI-generated summary
+    
+    # Status and tracking
+    is_active = db.Column(db.Boolean, default=True)
+    last_computed_at = db.Column(db.DateTime, nullable=True)  # When I-Score was calculated
+    last_requested_at = db.Column(db.DateTime, nullable=True)  # Last user request for this stock
+    computation_source = db.Column(db.String(50), default='nightly')  # nightly, manual, real_time
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    @property
+    def score_age_hours(self):
+        """Return how many hours old the I-Score is"""
+        if self.last_computed_at:
+            delta = datetime.utcnow() - self.last_computed_at
+            return round(delta.total_seconds() / 3600, 1)
+        return None
+    
+    @property
+    def is_stale(self):
+        """Check if I-Score is older than 24 hours"""
+        return self.score_age_hours and self.score_age_hours > 24
+    
+    @property
+    def recommendation_badge_class(self):
+        """Return Bootstrap badge class based on recommendation"""
+        mapping = {
+            'STRONG_BUY': 'success',
+            'BUY': 'success',
+            'HOLD': 'warning',
+            'SELL': 'danger',
+            'STRONG_SELL': 'danger'
+        }
+        return mapping.get(self.recommendation, 'secondary')
+    
+    @classmethod
+    def get_by_symbol(cls, symbol, tenant_id='live'):
+        """Get research entry by symbol"""
+        return cls.query.filter_by(symbol=symbol.upper(), tenant_id=tenant_id, is_active=True).first()
+    
+    @classmethod
+    def get_all_active(cls, tenant_id='live', asset_type=None):
+        """Get all active research entries, optionally filtered by asset type"""
+        query = cls.query.filter_by(tenant_id=tenant_id, is_active=True)
+        if asset_type:
+            query = query.filter_by(asset_type=asset_type)
+        return query.order_by(cls.i_score.desc().nullslast()).all()
+    
+    def update_from_iscore_result(self, result):
+        """Update this entry from LangGraph I-Score engine result"""
+        self.i_score = result.get('overall_score', 0)
+        self.recommendation = result.get('recommendation', 'HOLD')
+        self.confidence = result.get('overall_confidence', 0) * 100 if result.get('overall_confidence', 0) <= 1 else result.get('overall_confidence', 0)
+        
+        self.qualitative_score = result.get('qualitative_score', 0)
+        self.quantitative_score = result.get('quantitative_score', 0)
+        self.search_score = result.get('search_score', 0)
+        self.trend_score = result.get('trend_score', 0)
+        
+        self.qualitative_details = result.get('qualitative_details', {})
+        self.quantitative_details = result.get('quantitative_details', {})
+        self.search_details = result.get('search_details', {})
+        self.trend_details = result.get('trend_details', {})
+        
+        self.current_price = result.get('current_price')
+        self.previous_close = result.get('previous_close')
+        self.price_change_pct = result.get('price_change_pct')
+        
+        self.recommendation_summary = result.get('recommendation_summary', '')
+        self.last_computed_at = datetime.utcnow()
+        
+    def __repr__(self):
+        return f'<ResearchList {self.symbol} I-Score:{self.i_score} Rec:{self.recommendation}>'
+
+
 class DailyTradingSignal(db.Model):
     """
     Daily Trading Signals generated by analysts

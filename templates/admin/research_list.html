@@ -1,0 +1,345 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Research List - Target Capital Admin{% endblock %}
+{% block page_title %}Research List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <p class="text-muted mb-0">Pre-computed I-Score analysis for top 500 stocks. Updated nightly.</p>
+    </div>
+    <a href="{{ url_for('admin.add_research_stock') }}" class="btn btn-success admin-btn">
+        <i class="fas fa-plus me-2"></i>Add Stock
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card admin-stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_count }}</h3>
+                    <p class="mb-0 small">Total Stocks</p>
+                </div>
+                <i class="fas fa-list fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card admin-stat-card success">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ analyzed_count }}</h3>
+                    <p class="mb-0 small">Analyzed</p>
+                </div>
+                <i class="fas fa-check-circle fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card admin-stat-card warning">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">{{ total_count - analyzed_count }}</h3>
+                    <p class="mb-0 small">Pending Analysis</p>
+                </div>
+                <i class="fas fa-clock fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card admin-stat-card" style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="mb-0">500</h3>
+                    <p class="mb-0 small">Max Capacity</p>
+                </div>
+                <i class="fas fa-chart-pie fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card admin-card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control" name="search" value="{{ search_query }}" placeholder="Symbol or Company">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Asset Type</label>
+                <select class="form-select" name="asset_type">
+                    <option value="">All Types</option>
+                    <option value="stocks" {{ 'selected' if asset_type_filter == 'stocks' }}>Stocks</option>
+                    <option value="gold" {{ 'selected' if asset_type_filter == 'gold' }}>Gold</option>
+                    <option value="silver" {{ 'selected' if asset_type_filter == 'silver' }}>Silver</option>
+                    <option value="usd_inr" {{ 'selected' if asset_type_filter == 'usd_inr' }}>USD/INR</option>
+                    <option value="crude" {{ 'selected' if asset_type_filter == 'crude' }}>Crude</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Recommendation</label>
+                <select class="form-select" name="recommendation">
+                    <option value="">All</option>
+                    <option value="STRONG_BUY" {{ 'selected' if recommendation_filter == 'STRONG_BUY' }}>Strong Buy</option>
+                    <option value="BUY" {{ 'selected' if recommendation_filter == 'BUY' }}>Buy</option>
+                    <option value="HOLD" {{ 'selected' if recommendation_filter == 'HOLD' }}>Hold</option>
+                    <option value="SELL" {{ 'selected' if recommendation_filter == 'SELL' }}>Sell</option>
+                    <option value="STRONG_SELL" {{ 'selected' if recommendation_filter == 'STRONG_SELL' }}>Strong Sell</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-filter me-1"></i>Filter
+                </button>
+                <a href="{{ url_for('admin.research_list') }}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Research List Table -->
+<div class="card admin-card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-microscope me-2"></i>Research List ({{ stocks.total }} stocks)
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if stocks.items %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Company</th>
+                            <th>Type</th>
+                            <th class="text-center">I-Score</th>
+                            <th>Recommendation</th>
+                            <th>Confidence</th>
+                            <th>Last Updated</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in stocks.items %}
+                        <tr>
+                            <td>
+                                <strong class="text-primary">{{ stock.symbol }}</strong>
+                            </td>
+                            <td>
+                                {{ stock.company_name or '-' }}
+                                {% if stock.sector %}
+                                    <br><small class="text-muted">{{ stock.sector }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ stock.asset_type | title }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% if stock.i_score is not none %}
+                                    <span class="badge bg-{{ 'success' if stock.i_score >= 65 else ('warning' if stock.i_score >= 45 else 'danger') }} fs-6">
+                                        {{ "%.1f"|format(stock.i_score) }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if stock.recommendation %}
+                                    <span class="badge bg-{{ stock.recommendation_badge_class }}">
+                                        {{ stock.recommendation | replace('_', ' ') }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Not analyzed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if stock.confidence is not none %}
+                                    {{ "%.0f"|format(stock.confidence) }}%
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if stock.last_computed_at %}
+                                    <small>
+                                        {{ stock.last_computed_at.strftime('%d %b %Y') }}<br>
+                                        <span class="{{ 'text-danger' if stock.is_stale else 'text-success' }}">
+                                            {{ stock.score_age_hours }}h ago
+                                        </span>
+                                    </small>
+                                {% else %}
+                                    <span class="text-muted">Never</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-info" onclick="showDetails({{ stock.id }})" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <form method="POST" action="{{ url_for('admin.refresh_research_stock', stock_id=stock.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-primary" title="Compute I-Score">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin.delete_research_stock', stock_id=stock.id) }}" class="d-inline" onsubmit="return confirmDelete('stock')">
+                                        <button type="submit" class="btn btn-outline-danger" title="Remove">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if stocks.pages > 1 %}
+                <nav class="p-3">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if stocks.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.research_list', page=stocks.prev_num, asset_type=asset_type_filter, recommendation=recommendation_filter, search=search_query) }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for page_num in stocks.iter_pages() %}
+                            {% if page_num %}
+                                <li class="page-item {{ 'active' if page_num == stocks.page }}">
+                                    <a class="page-link" href="{{ url_for('admin.research_list', page=page_num, asset_type=asset_type_filter, recommendation=recommendation_filter, search=search_query) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if stocks.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.research_list', page=stocks.next_num, asset_type=asset_type_filter, recommendation=recommendation_filter, search=search_query) }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-microscope fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No Stocks in Research List</h4>
+                <p class="text-muted">Start by adding stocks for I-Score analysis.</p>
+                <a href="{{ url_for('admin.add_research_stock') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Add First Stock
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-chart-bar me-2"></i>I-Score Breakdown</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Loading details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showDetails(stockId) {
+    const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    const content = document.getElementById('detailsContent');
+    
+    content.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p class="mt-2">Loading details...</p></div>';
+    modal.show();
+    
+    fetch(`/admin/research-list/${stockId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold">${data.symbol}</h6>
+                        <p class="text-muted mb-2">${data.company_name || 'N/A'}</p>
+                        <p><strong>Sector:</strong> ${data.sector || 'N/A'}</p>
+                        <p><strong>Asset Type:</strong> ${data.asset_type}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="display-4 fw-bold text-${data.i_score !== null && data.i_score >= 65 ? 'success' : (data.i_score !== null && data.i_score >= 45 ? 'warning' : 'danger')}">
+                            ${data.i_score !== null ? data.i_score.toFixed(1) : '-'}
+                        </div>
+                        <span class="badge bg-${data.recommendation === 'STRONG_BUY' || data.recommendation === 'BUY' ? 'success' : (data.recommendation === 'HOLD' ? 'warning' : 'danger')} fs-6">
+                            ${data.recommendation ? data.recommendation.replace('_', ' ') : 'N/A'}
+                        </span>
+                        <p class="mt-2 text-muted">Confidence: ${data.confidence !== null ? data.confidence.toFixed(0) + '%' : 'N/A'}</p>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="fw-bold mb-3">Component Scores</h6>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="card text-center p-3">
+                            <small class="text-muted">Qualitative (15%)</small>
+                            <h4 class="mb-0">${data.qualitative_score !== null ? data.qualitative_score.toFixed(1) : '-'}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center p-3">
+                            <small class="text-muted">Quantitative (50%)</small>
+                            <h4 class="mb-0">${data.quantitative_score !== null ? data.quantitative_score.toFixed(1) : '-'}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center p-3">
+                            <small class="text-muted">Search (10%)</small>
+                            <h4 class="mb-0">${data.search_score !== null ? data.search_score.toFixed(1) : '-'}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center p-3">
+                            <small class="text-muted">Trend (25%)</small>
+                            <h4 class="mb-0">${data.trend_score !== null ? data.trend_score.toFixed(1) : '-'}</h4>
+                        </div>
+                    </div>
+                </div>
+                ${data.current_price !== null ? `
+                <hr>
+                <h6 class="fw-bold mb-3">Market Data</h6>
+                <p><strong>Current Price:</strong> ₹${data.current_price.toFixed(2)}</p>
+                <p><strong>Previous Close:</strong> ₹${data.previous_close !== null ? data.previous_close.toFixed(2) : 'N/A'}</p>
+                <p><strong>Change:</strong> <span class="${data.price_change_pct >= 0 ? 'text-success' : 'text-danger'}">${data.price_change_pct !== null ? data.price_change_pct.toFixed(2) + '%' : 'N/A'}</span></p>
+                ` : ''}
+                ${data.recommendation_summary ? `
+                <hr>
+                <h6 class="fw-bold mb-3">AI Summary</h6>
+                <p>${data.recommendation_summary}</p>
+                ` : ''}
+                <hr>
+                <small class="text-muted">
+                    Last computed: ${data.last_computed_at ? new Date(data.last_computed_at).toLocaleString() : 'Never'} 
+                    ${data.is_stale ? '<span class="badge bg-warning">Stale</span>' : ''}
+                </small>
+            `;
+            content.innerHTML = html;
+        })
+        .catch(error => {
+            content.innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle fa-3x mb-3"></i><p>Error loading details</p></div>';
+        });
+}
+</script>
+{% endblock %}

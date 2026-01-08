@@ -9,7 +9,7 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
 from app import db
-from models import Admin, User, PricingPlan, DailyTradingSignal
+from models import Admin, User, PricingPlan, DailyTradingSignal, ResearchList
 from models_broker import BrokerAccount
 # Import with safe fallback for optional models
 try:
@@ -119,123 +119,152 @@ def user_detail(user_id):
                          executed_trades=executed_trades,
                          brokers=brokers)
 
-@admin_bp.route('/trading-signals')
-@admin_bp.route('/trading-signals/<int:page>')
+@admin_bp.route('/research-list')
+@admin_bp.route('/research-list/<int:page>')
 @admin_required
-def trading_signals(page=1):
-    """Trading signals management page"""
-    per_page = 20
-    signals = TradingSignal.query.order_by(desc(TradingSignal.created_at)).paginate(
+def research_list(page=1):
+    """Research List management - Pre-computed I-Score for top 500 stocks"""
+    per_page = 25
+    asset_type_filter = request.args.get('asset_type', '')
+    recommendation_filter = request.args.get('recommendation', '')
+    search_query = request.args.get('search', '')
+    
+    query = ResearchList.query.filter_by(is_active=True)
+    
+    if asset_type_filter:
+        query = query.filter(ResearchList.asset_type == asset_type_filter)
+    if recommendation_filter:
+        query = query.filter(ResearchList.recommendation == recommendation_filter)
+    if search_query:
+        query = query.filter(
+            (ResearchList.symbol.ilike(f'%{search_query}%')) | 
+            (ResearchList.company_name.ilike(f'%{search_query}%'))
+        )
+    
+    stocks = query.order_by(ResearchList.i_score.desc().nullslast()).paginate(
         page=page, per_page=per_page, error_out=False
     )
     
-    return render_template('admin/trading_signals.html', signals=signals)
+    total_count = ResearchList.query.filter_by(is_active=True).count()
+    analyzed_count = ResearchList.query.filter(ResearchList.i_score.isnot(None), ResearchList.is_active==True).count()
+    
+    return render_template('admin/research_list.html', 
+                          stocks=stocks,
+                          total_count=total_count,
+                          analyzed_count=analyzed_count,
+                          asset_type_filter=asset_type_filter,
+                          recommendation_filter=recommendation_filter,
+                          search_query=search_query)
 
-@admin_bp.route('/trading-signals/add', methods=['GET', 'POST'])
+@admin_bp.route('/research-list/add', methods=['GET', 'POST'])
 @admin_required
-def add_trading_signal():
-    """Add new trading signal"""
+def add_research_stock():
+    """Add new stock to Research List"""
     if request.method == 'POST':
         try:
-            signal = TradingSignal(
-                signal_type=request.form.get('signal_type'),
-                symbol=request.form.get('symbol').upper(),
-                company_name=request.form.get('company_name'),
-                action=request.form.get('action'),
-                entry_price=float(request.form.get('entry_price')) if request.form.get('entry_price') else None,
-                target_price=float(request.form.get('target_price')) if request.form.get('target_price') else None,
-                stop_loss=float(request.form.get('stop_loss')) if request.form.get('stop_loss') else None,
-                quantity=int(request.form.get('quantity')) if request.form.get('quantity') else None,
-                risk_level=request.form.get('risk_level'),
-                time_frame=request.form.get('time_frame'),
-                strategy_name=request.form.get('strategy_name'),
-                notes=request.form.get('notes'),
-                created_by=session['admin_id']
+            symbol = request.form.get('symbol', '').upper().strip()
+            
+            existing = ResearchList.query.filter_by(symbol=symbol).first()
+            if existing:
+                flash(f'{symbol} already exists in Research List!', 'warning')
+                return redirect(url_for('admin.research_list'))
+            
+            stock = ResearchList(
+                symbol=symbol,
+                company_name=request.form.get('company_name', ''),
+                asset_type=request.form.get('asset_type', 'stocks'),
+                sector=request.form.get('sector', ''),
+                is_active=True,
+                tenant_id='live'
             )
             
-            # Set expiration if provided
-            expires_date = request.form.get('expires_date')
-            if expires_date:
-                signal.expires_at = datetime.strptime(expires_date, '%Y-%m-%d')
-            
-            db.session.add(signal)
+            db.session.add(stock)
             db.session.commit()
             
-            flash(f'Trading signal for {signal.symbol} created successfully!', 'success')
-            
-            # Handle WhatsApp/Telegram sharing
-            if request.form.get('share_whatsapp'):
-                # TODO: Implement WhatsApp sharing
-                signal.shared_whatsapp = True
-                signal.whatsapp_shared_at = datetime.utcnow()
-            
-            if request.form.get('share_telegram'):
-                # TODO: Implement Telegram sharing
-                signal.shared_telegram = True
-                signal.telegram_shared_at = datetime.utcnow()
-            
-            db.session.commit()
-            
-            return redirect(url_for('admin.trading_signals'))
+            flash(f'{symbol} added to Research List! Click "Compute I-Score" to analyze.', 'success')
+            return redirect(url_for('admin.research_list'))
             
         except Exception as e:
             db.session.rollback()
-            flash(f'Error creating trading signal: {str(e)}', 'error')
+            flash(f'Error adding stock: {str(e)}', 'error')
     
-    return render_template('admin/add_trading_signal.html')
+    return render_template('admin/add_research_stock.html')
 
-@admin_bp.route('/trading-signals/<int:signal_id>/edit', methods=['GET', 'POST'])
+@admin_bp.route('/research-list/<int:stock_id>/refresh', methods=['POST'])
 @admin_required
-def edit_trading_signal(signal_id):
-    """Edit existing trading signal"""
-    signal = TradingSignal.query.get_or_404(signal_id)
-    
-    if request.method == 'POST':
-        try:
-            signal.signal_type = request.form.get('signal_type')
-            signal.symbol = request.form.get('symbol').upper()
-            signal.company_name = request.form.get('company_name')
-            signal.action = request.form.get('action')
-            signal.entry_price = float(request.form.get('entry_price')) if request.form.get('entry_price') else None
-            signal.target_price = float(request.form.get('target_price')) if request.form.get('target_price') else None
-            signal.stop_loss = float(request.form.get('stop_loss')) if request.form.get('stop_loss') else None
-            signal.quantity = int(request.form.get('quantity')) if request.form.get('quantity') else None
-            signal.risk_level = request.form.get('risk_level')
-            signal.time_frame = request.form.get('time_frame')
-            signal.strategy_name = request.form.get('strategy_name')
-            signal.notes = request.form.get('notes')
-            signal.status = request.form.get('status')
-            signal.updated_at = datetime.utcnow()
-            
-            expires_date = request.form.get('expires_date')
-            if expires_date:
-                signal.expires_at = datetime.strptime(expires_date, '%Y-%m-%d')
-            
-            db.session.commit()
-            flash(f'Trading signal for {signal.symbol} updated successfully!', 'success')
-            return redirect(url_for('admin.trading_signals'))
-            
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating trading signal: {str(e)}', 'error')
-    
-    return render_template('admin/edit_trading_signal.html', signal=signal)
-
-@admin_bp.route('/trading-signals/<int:signal_id>/delete', methods=['POST'])
-@admin_required
-def delete_trading_signal(signal_id):
-    """Delete trading signal"""
-    signal = TradingSignal.query.get_or_404(signal_id)
+def refresh_research_stock(stock_id):
+    """Refresh I-Score for a stock using LangGraph engine"""
+    stock = ResearchList.query.get_or_404(stock_id)
     
     try:
-        db.session.delete(signal)
-        db.session.commit()
-        flash(f'Trading signal for {signal.symbol} deleted successfully!', 'success')
+        from services.langgraph_iscore_engine import IScoreEngine
+        engine = IScoreEngine()
+        
+        result = engine.compute_iscore(
+            symbol=stock.symbol,
+            asset_type=stock.asset_type
+        )
+        
+        if result and result.get('overall_score') is not None:
+            stock.update_from_iscore_result(result)
+            stock.computation_source = 'manual'
+            db.session.commit()
+            flash(f'I-Score updated for {stock.symbol}: {result.get("overall_score", 0):.1f}', 'success')
+        else:
+            flash(f'Could not compute I-Score for {stock.symbol}', 'warning')
+            
     except Exception as e:
         db.session.rollback()
-        flash(f'Error deleting trading signal: {str(e)}', 'error')
+        flash(f'Error computing I-Score: {str(e)}', 'error')
     
-    return redirect(url_for('admin.trading_signals'))
+    return redirect(url_for('admin.research_list'))
+
+@admin_bp.route('/research-list/<int:stock_id>/details')
+@admin_required
+def research_stock_details(stock_id):
+    """Get detailed I-Score breakdown for a stock (AJAX)"""
+    stock = ResearchList.query.get_or_404(stock_id)
+    
+    return jsonify({
+        'symbol': stock.symbol,
+        'company_name': stock.company_name,
+        'asset_type': stock.asset_type,
+        'sector': stock.sector,
+        'i_score': float(stock.i_score) if stock.i_score else None,
+        'recommendation': stock.recommendation,
+        'confidence': float(stock.confidence) if stock.confidence else None,
+        'qualitative_score': float(stock.qualitative_score) if stock.qualitative_score else None,
+        'quantitative_score': float(stock.quantitative_score) if stock.quantitative_score else None,
+        'search_score': float(stock.search_score) if stock.search_score else None,
+        'trend_score': float(stock.trend_score) if stock.trend_score else None,
+        'qualitative_details': stock.qualitative_details or {},
+        'quantitative_details': stock.quantitative_details or {},
+        'search_details': stock.search_details or {},
+        'trend_details': stock.trend_details or {},
+        'current_price': float(stock.current_price) if stock.current_price else None,
+        'previous_close': float(stock.previous_close) if stock.previous_close else None,
+        'price_change_pct': float(stock.price_change_pct) if stock.price_change_pct else None,
+        'recommendation_summary': stock.recommendation_summary,
+        'last_computed_at': stock.last_computed_at.isoformat() if stock.last_computed_at else None,
+        'score_age_hours': stock.score_age_hours,
+        'is_stale': stock.is_stale
+    })
+
+@admin_bp.route('/research-list/<int:stock_id>/delete', methods=['POST'])
+@admin_required
+def delete_research_stock(stock_id):
+    """Delete stock from Research List"""
+    stock = ResearchList.query.get_or_404(stock_id)
+    
+    try:
+        db.session.delete(stock)
+        db.session.commit()
+        flash(f'{stock.symbol} removed from Research List!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error removing stock: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.research_list'))
 
 @admin_bp.route('/payments')
 @admin_bp.route('/payments/<view_type>')
