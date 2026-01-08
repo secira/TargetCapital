@@ -1137,8 +1137,15 @@ def dashboard():
     
     # Get trading signals count
     try:
-        from models import TradingSignal
-        trading_signals_count = TradingSignal.query.filter(TradingSignal.status == 'ACTIVE').count()
+        from models import DailyTradingSignal
+        from datetime import date
+        trading_signals_count = DailyTradingSignal.query.filter(
+            DailyTradingSignal.status == 'ACTIVE',
+            DailyTradingSignal.signal_date == date.today()
+        ).count()
+        # Fallback to total active if none today
+        if trading_signals_count == 0:
+            trading_signals_count = DailyTradingSignal.query.filter_by(status='ACTIVE').count()
     except (ImportError, AttributeError):
         trading_signals_count = 0
     
