@@ -46,12 +46,12 @@ class LangGraphSignalPipeline:
     """
     
     def __init__(self):
-        api_key = os.environ.get("OPENAI_API_KEY", "")
+        api_key = os.environ.get("OPENAI_API_KEY")
         
         self.llm = ChatOpenAI(
             model="gpt-4-turbo-preview",
             temperature=0.3,
-            api_key=api_key
+            openai_api_key=api_key # type: ignore
         )
         
         self.perplexity_service = PerplexityService()

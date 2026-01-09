@@ -44,6 +44,16 @@ if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
 else:
     logging.info("⚠️ Razorpay not configured - payment features disabled")
 
+def admin_required(f):
+    """Decorator to require admin access"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash('Admin access required.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route('/api/test-notifications', methods=['POST'])
 @login_required
 @admin_required
