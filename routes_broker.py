@@ -38,7 +38,7 @@ BROKER_CATALOG = [
         'type': BrokerType.ANGEL_BROKING,
         'name': 'Angel One',
         'logo': 'https://angelone.in/logo.png',
-        'status': 'active',
+        'status': 'coming_soon',
         'description': 'Full-service broker with research',
         'fields': ['client_id', 'access_token', 'totp_secret']
     },
@@ -46,7 +46,7 @@ BROKER_CATALOG = [
         'type': BrokerType.GROWW,
         'name': 'Groww',
         'logo': 'https://groww.in/logo.png',
-        'status': 'active',
+        'status': 'coming_soon',
         'description': 'Simple and intuitive trading platform',
         'fields': ['client_id', 'access_token']
     },
