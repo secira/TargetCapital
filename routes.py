@@ -2189,8 +2189,8 @@ def dashboard_equities():
         })
     
     # Calculate summary
-    total_investment = sum(h['total_investment'] for h in combined_holdings)
-    current_value = sum(h['current_value'] or h['total_investment'] for h in combined_holdings)
+    total_investment = sum((h.get('total_investment') or 0) for h in combined_holdings)
+    current_value = sum((h.get('current_value') or h.get('total_investment') or 0) for h in combined_holdings)
     total_pnl = current_value - total_investment
     holdings_count = len(combined_holdings)
     
