@@ -22,13 +22,14 @@
 <!-- Add Equity Form (Initially Hidden) -->
 <div class="card mb-4" id="addEquityFormCard" style="display: none;">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Add Equity Holding</h5>
+        <h5 class="mb-0" id="formTitle">Add Equity Holding</h5>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleAddEquityForm()">
             <i class="fas fa-times"></i> Cancel
         </button>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ url_for('dashboard_equities') }}">
+        <form id="equityForm" onsubmit="submitEquityForm(event)">
+            <input type="hidden" id="holding_id" name="holding_id">
             <div class="row">
                 <!-- Stock Details -->
                 <div class="col-md-6 mb-3">
@@ -102,7 +103,7 @@
             </div>
             <div class="d-flex gap-2 justify-content-end">
                 <button type="button" class="btn btn-secondary" onclick="toggleAddEquityForm()">Cancel</button>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <i class="fas fa-save me-2"></i>Save Equity
                 </button>
             </div>
@@ -248,21 +249,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function toggleAddEquityForm() {
     const formCard = document.getElementById('addEquityFormCard');
+    const form = document.getElementById('equityForm');
+    const formTitle = document.getElementById('formTitle');
+    const submitBtn = document.getElementById('submitBtn');
+    
     if (formCard) {
         if (formCard.style.display === 'none') {
+            // Reset for "Add" mode by default
+            form.reset();
+            document.getElementById('holding_id').value = '';
+            formTitle.innerText = 'Add Equity Holding';
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Equity';
+            
             formCard.style.display = 'block';
-            // Scroll to the form
             formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            // Focus on first input
             setTimeout(() => {
                 const firstInput = formCard.querySelector('input[type="text"]');
-                if (firstInput) {
-                    firstInput.focus();
-                }
+                if (firstInput) firstInput.focus();
             }, 300);
         } else {
             formCard.style.display = 'none';
         }
+    }
+}
+
+async function submitEquityForm(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const holdingId = data.holding_id;
+    
+    const url = holdingId ? `/api/equities/${holdingId}` : '/dashboard/equities';
+    const method = holdingId ? 'PUT' : 'POST';
+    
+    try {
+        if (holdingId) {
+            // For updates, use JSON and PUT
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+            if (result.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } else {
+            // For new entries, use standard form submission
+            form.method = 'POST';
+            form.action = '/dashboard/equities';
+            form.submit();
+        }
+    } catch (error) {
+        console.error('Error submitting form:', error);
+        alert('An unexpected error occurred.');
     }
 }
 
@@ -277,8 +320,47 @@ function filterHoldings(type) {
     });
 }
 
-function editHolding(id) {
-    alert('Edit functionality coming soon!');
+async function editHolding(id) {
+    try {
+        const response = await fetch(`/api/equities/${id}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const h = data.holding;
+            const formCard = document.getElementById('addEquityFormCard');
+            const form = document.getElementById('equityForm');
+            const formTitle = document.getElementById('formTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Populate form
+            document.getElementById('holding_id').value = h.id;
+            document.getElementById('symbol').value = h.symbol;
+            document.getElementById('company_name').value = h.company_name;
+            document.getElementById('isin').value = h.isin;
+            document.getElementById('transaction_type').value = h.transaction_type;
+            document.getElementById('purchase_date').value = h.purchase_date;
+            document.getElementById('quantity').value = h.quantity;
+            document.getElementById('purchase_price').value = h.purchase_price;
+            document.getElementById('brokerage').value = h.brokerage;
+            document.getElementById('stt').value = h.stt;
+            document.getElementById('transaction_charges').value = h.transaction_charges;
+            document.getElementById('gst').value = h.gst;
+            document.getElementById('stamp_duty').value = h.stamp_duty;
+            document.getElementById('portfolio_name').value = h.portfolio_name;
+            document.getElementById('notes').value = h.notes;
+            
+            formTitle.innerText = 'Edit Equity Holding';
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Holding';
+            
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            alert('Error fetching holding: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to fetch holding details.');
+    }
 }
 
 function deleteHolding(id) {

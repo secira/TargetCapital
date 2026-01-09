@@ -2201,6 +2201,82 @@ def dashboard_equities():
                          total_pnl=total_pnl,
                          holdings_count=holdings_count)
 
+@app.route('/api/equities/<int:holding_id>', methods=['GET'])
+@login_required
+def get_equity_holding(holding_id):
+    """Get manual equity holding details"""
+    from models import ManualEquityHolding
+    
+    holding = ManualEquityHolding.query.filter_by(
+        id=holding_id,
+        user_id=current_user.id
+    ).first()
+    
+    if not holding:
+        return jsonify({'success': False, 'error': 'Holding not found'}), 404
+        
+    return jsonify({
+        'success': True,
+        'holding': {
+            'id': holding.id,
+            'symbol': holding.symbol,
+            'company_name': holding.company_name,
+            'isin': holding.isin,
+            'transaction_type': holding.transaction_type,
+            'purchase_date': holding.purchase_date.strftime('%Y-%m-%d'),
+            'quantity': holding.quantity,
+            'purchase_price': holding.purchase_price,
+            'brokerage': holding.brokerage,
+            'stt': holding.stt,
+            'transaction_charges': holding.transaction_charges,
+            'gst': holding.gst,
+            'stamp_duty': holding.stamp_duty,
+            'portfolio_name': holding.portfolio_name,
+            'notes': holding.notes
+        }
+    })
+
+@app.route('/api/equities/<int:holding_id>', methods=['PUT'])
+@login_required
+def update_equity_holding(holding_id):
+    """Update a manual equity holding"""
+    from models import ManualEquityHolding
+    from datetime import datetime
+    
+    try:
+        holding = ManualEquityHolding.query.filter_by(
+            id=holding_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not holding:
+            return jsonify({'success': False, 'error': 'Holding not found'}), 404
+            
+        data = request.json
+        holding.symbol = data.get('symbol', holding.symbol).upper()
+        holding.company_name = data.get('company_name', holding.company_name)
+        holding.isin = data.get('isin', holding.isin)
+        holding.transaction_type = data.get('transaction_type', holding.transaction_type)
+        holding.purchase_date = datetime.strptime(data.get('purchase_date'), '%Y-%m-%d').date()
+        holding.quantity = float(data.get('quantity', holding.quantity))
+        holding.purchase_price = float(data.get('purchase_price', holding.purchase_price))
+        holding.brokerage = float(data.get('brokerage') or 0)
+        holding.stt = float(data.get('stt') or 0)
+        holding.transaction_charges = float(data.get('transaction_charges') or 0)
+        holding.gst = float(data.get('gst') or 0)
+        holding.stamp_duty = float(data.get('stamp_duty') or 0)
+        holding.portfolio_name = data.get('portfolio_name', 'Default')
+        holding.notes = data.get('notes', holding.notes)
+        
+        # Recalculate totals
+        holding.calculate_totals()
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Holding updated successfully'})
+    except Exception as e:
+        logger.error(f"Error updating equity holding: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/equities/<int:holding_id>', methods=['DELETE'])
 @login_required
 def delete_equity_holding(holding_id):
