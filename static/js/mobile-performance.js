@@ -392,13 +392,6 @@ class MobilePerformanceManager {
                 });
         }
         
-        // Add to homescreen prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            this.deferredPrompt = e;
-            this.showInstallPrompt();
-        });
-        
         // Handle installed event
         window.addEventListener('appinstalled', () => {
             console.log('✅ PWA installed successfully');
@@ -418,42 +411,7 @@ class MobilePerformanceManager {
             });
         });
     }
-    
-    showInstallPrompt() {
-        // Show custom install prompt
-        const installBanner = document.createElement('div');
-        installBanner.className = 'install-prompt';
-        installBanner.innerHTML = `
-            <div class="install-prompt-content">
-                <div class="install-prompt-text">
-                    <strong>Install Target Capital</strong>
-                    <small>Get the full app experience</small>
-                </div>
-                <button class="btn-touch btn-outline install-btn">Install</button>
-                <button class="btn-touch btn-secondary dismiss-btn">×</button>
-            </div>
-        `;
-        
-        document.body.appendChild(installBanner);
-        
-        // Handle install button click
-        installBanner.querySelector('.install-btn').addEventListener('click', () => {
-            if (this.deferredPrompt) {
-                this.deferredPrompt.prompt();
-                this.deferredPrompt.userChoice.then((choiceResult) => {
-                    console.log('Install choice:', choiceResult.outcome);
-                    this.deferredPrompt = null;
-                    installBanner.remove();
-                });
-            }
-        });
-        
-        // Handle dismiss button
-        installBanner.querySelector('.dismiss-btn').addEventListener('click', () => {
-            installBanner.remove();
-        });
-    }
-    
+
     showUpdatePrompt() {
         // Show update notification
         const updateNotification = document.createElement('div');
