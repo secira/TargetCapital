@@ -44,6 +44,18 @@ if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
 else:
     logging.info("⚠️ Razorpay not configured - payment features disabled")
 
+@app.route('/api/test-notifications', methods=['POST'])
+@login_required
+@admin_required
+def test_notifications():
+    """Test WhatsApp and Telegram notifications"""
+    from services.messaging_service import test_messaging_setup
+    whatsapp_ok, telegram_ok = test_messaging_setup()
+    return jsonify({
+        'whatsapp': 'Success' if whatsapp_ok else 'Failed',
+        'telegram': 'Success' if telegram_ok else 'Failed'
+    })
+
 # Template Context Processor
 # Clean OAuth integration coming soon
 
