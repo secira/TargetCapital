@@ -325,7 +325,7 @@ Output as enhanced signal objects with execution_plan field."""
         
         try:
             # Run the pipeline
-            final_state = self.graph.invoke(initial_state)
+            final_state = self.graph.invoke(initial_state) # type: ignore
             
             # Extract final signals
             signals = final_state.get("final_signals", [])

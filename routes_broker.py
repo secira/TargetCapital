@@ -35,6 +35,14 @@ BROKER_CATALOG = [
         'fields': ['client_id', 'access_token', 'api_secret']
     },
     {
+        'type': BrokerType.UPSTOX,
+        'name': 'Upstox',
+        'logo': 'https://upstox.com/logo.png',
+        'status': 'active',
+        'description': 'Technology-driven discount broker',
+        'fields': ['client_id', 'access_token', 'api_secret']
+    },
+    {
         'type': BrokerType.ANGEL_BROKING,
         'name': 'Angel One',
         'logo': 'https://angelone.in/logo.png',
@@ -49,14 +57,6 @@ BROKER_CATALOG = [
         'status': 'coming_soon',
         'description': 'Simple and intuitive trading platform',
         'fields': ['client_id', 'access_token']
-    },
-    {
-        'type': BrokerType.UPSTOX,
-        'name': 'Upstox',
-        'logo': 'https://upstox.com/logo.png',
-        'status': 'active',
-        'description': 'Technology-driven discount broker',
-        'fields': ['client_id', 'access_token', 'api_secret']
     },
     {
         'type': BrokerType.FYERS,
