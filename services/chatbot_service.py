@@ -18,24 +18,38 @@ class InvestmentChatbot:
     """AI-Powered Investment Explanation Chatbot using Perplexity Sonar"""
     
     def __init__(self):
-        self.perplexity_api_key = os.environ.get('PERPLEXITY_API_KEY')
+        self._perplexity_api_key = None
+        self._initialized = False
         self.base_url = "https://api.perplexity.ai/chat/completions"
-        self.system_prompt = self._get_system_prompt()
-        self._initialize_perplexity_api()
+        self._system_prompt = None
+    
+    @property
+    def perplexity_api_key(self):
+        """Lazy-load the API key"""
+        if self._perplexity_api_key is None:
+            self._perplexity_api_key = os.environ.get('PERPLEXITY_API_KEY')
+            if not self._perplexity_api_key:
+                logger.warning("PERPLEXITY_API_KEY not found - chatbot features will be limited")
+        return self._perplexity_api_key
+    
+    @property
+    def system_prompt(self):
+        """Lazy-load the system prompt"""
+        if self._system_prompt is None:
+            self._system_prompt = self._get_system_prompt()
+        return self._system_prompt
         
     def _initialize_perplexity_api(self):
-        """Initialize Perplexity API"""
+        """Initialize Perplexity API (lazy initialization)"""
+        if self._initialized:
+            return
+        
         if not self.perplexity_api_key:
-            logger.error("PERPLEXITY_API_KEY not found in environment variables")
             return
             
         try:
-            # Test connection with a simple call
-            headers = {
-                'Authorization': f'Bearer {self.perplexity_api_key}',
-                'Content-Type': 'application/json'
-            }
             logger.info("Perplexity API initialized successfully")
+            self._initialized = True
         except Exception as e:
             logger.error(f"Failed to initialize Perplexity API: {e}")
             

@@ -5,4 +5,4 @@ nixPkgs = ["python311", "postgresql"]
 cmds = ["pip install -r requirements.txt"]
 
 [start]
-cmd = "python railway_migrate.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread --timeout 120 main:app"
+cmd = "python railway_migrate.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 main:app"
