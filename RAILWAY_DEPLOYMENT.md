@@ -92,14 +92,105 @@ Railway uses the following health check endpoints:
 - `/health/ready` - Readiness check (verifies database connectivity)
 - `/health/live` - Liveness check for container orchestrators
 
-## Database Migrations
+## Database Setup & Data Migration
+
+### Step 1: Export Data from Replit (Before Deploying)
+
+Run the export script on Replit to create a backup of your critical data:
+
+```bash
+python scripts/db_export.py
+```
+
+This creates `database_export.sql` containing:
+- Users and authentication data
+- Broker configurations
+- Portfolios and manual holdings
+- Subscriptions and payments
+- Knowledge base articles
+- AI stock picks
+
+### Step 2: Deploy to Railway
+
+1. **Add PostgreSQL Database**
+   - In Railway project, click "New" > "Database" > "PostgreSQL"
+   - Railway automatically sets `DATABASE_URL`
+
+2. **Deploy Application**
+   - Railway auto-detects Procfile and deploys
+   - `railway_migrate.py` runs automatically to create tables
+
+### Step 3: Import Data to Railway
+
+After the first deployment creates the tables, import your data:
+
+**Option A: Using Railway CLI**
+```bash
+# Install Railway CLI if not already installed
+npm install -g @railway/cli
+
+# Login to Railway
+railway login
+
+# Connect to your project
+railway link
+
+# Run the import
+railway run python scripts/db_import.py
+```
+
+**Option B: Direct psql import**
+```bash
+# Get DATABASE_URL from Railway dashboard
+psql $RAILWAY_DATABASE_URL < database_export.sql
+```
+
+**Option C: Using Railway Shell**
+1. Go to your service in Railway dashboard
+2. Click "Shell" tab
+3. Run: `python scripts/db_import.py`
+
+### What Gets Exported
+
+| Table | Description |
+|-------|-------------|
+| `tenants` | Multi-tenant configuration |
+| `user` | User accounts and profiles |
+| `admins` | Admin accounts |
+| `user_brokers` | Broker connections |
+| `portfolio` | Portfolio holdings |
+| `subscriptions` | Active subscriptions |
+| `payments` | Payment history |
+| `blog_posts` | Knowledge base articles |
+| `ai_stock_picks` | AI recommendations |
+| `watchlist_item` | User watchlists |
+| `user_risk_profile` | Risk assessments |
+| `manual_*_holdings` | All manual asset holdings |
+
+### What Gets Skipped
+
+Temporary/regeneratable data is excluded:
+- Research cache (regenerated on demand)
+- Vector embeddings (regenerated automatically)
+- Chat history (optional, can be included if needed)
+- Sync logs (operational data)
+
+### Important Warnings
+
+1. **Stop the Replit app before exporting** to ensure data consistency
+2. **Backup Railway database first** if importing to an existing database
+3. **ON CONFLICT DO NOTHING** - existing records with matching IDs will NOT be overwritten
+4. **Data merge behavior** - the import adds new records but won't update existing ones
+5. **Run migrations first** - tables must exist before importing data
+
+## Automatic Database Migrations
 
 The `railway_migrate.py` script runs automatically before the app starts:
 
 1. Connects to the PostgreSQL database
 2. Runs Alembic migrations if available
 3. Falls back to direct table creation if migrations fail
-4. Initializes the default tenant
+4. Initializes the default tenant ('live')
 
 ## Troubleshooting
 
