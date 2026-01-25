@@ -96,12 +96,29 @@ class LangGraphIScoreEngine:
     """
     
     def __init__(self):
-        self.llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.1,
-            api_key=os.environ.get("OPENAI_API_KEY")
-        )
-        self.graph = self._build_graph()
+        self._llm = None
+        self._graph = None
+    
+    @property
+    def llm(self):
+        """Lazy-load the LLM to avoid startup failures when API key is not set"""
+        if self._llm is None:
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                logger.warning("OPENAI_API_KEY not set - LLM features will be limited")
+            self._llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.1,
+                api_key=api_key
+            )
+        return self._llm
+    
+    @property
+    def graph(self):
+        """Lazy-load the graph"""
+        if self._graph is None:
+            self._graph = self._build_graph()
+        return self._graph
     
     def _build_graph(self) -> StateGraph:
         """Build the LangGraph workflow for I-Score calculation"""

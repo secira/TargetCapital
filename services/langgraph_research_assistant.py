@@ -44,17 +44,42 @@ class LangGraphResearchAssistant:
     """
     
     def __init__(self):
-        self.llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.2,
-            api_key=os.environ.get("OPENAI_API_KEY")
-        )
-        
-        self.research_service = ResearchAssistantService()
-        self.perplexity_service = PerplexityService()
-        
-        # Build the graph
-        self.graph = self._build_graph()
+        self._llm = None
+        self._research_service = None
+        self._perplexity_service = None
+        self._graph = None
+    
+    @property
+    def llm(self):
+        """Lazy-load the LLM"""
+        if self._llm is None:
+            self._llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.2,
+                api_key=os.environ.get("OPENAI_API_KEY")
+            )
+        return self._llm
+    
+    @property
+    def research_service(self):
+        """Lazy-load research service"""
+        if self._research_service is None:
+            self._research_service = ResearchAssistantService()
+        return self._research_service
+    
+    @property
+    def perplexity_service(self):
+        """Lazy-load perplexity service"""
+        if self._perplexity_service is None:
+            self._perplexity_service = PerplexityService()
+        return self._perplexity_service
+    
+    @property
+    def graph(self):
+        """Lazy-load the graph"""
+        if self._graph is None:
+            self._graph = self._build_graph()
+        return self._graph
     
     def _build_graph(self) -> StateGraph:
         """Build the LangGraph workflow"""

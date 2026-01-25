@@ -83,19 +83,43 @@ class LangGraphAIResearchPipeline:
     """
     
     def __init__(self):
-        api_key = os.environ.get("OPENAI_API_KEY", "")
-        
-        self.llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.2,
-            api_key=api_key
-        )
-        
-        self.perplexity_service = PerplexityService()
-        self.market_service = MarketDataService()
-        
-        # Build the graph
-        self.graph = self._build_graph()
+        self._llm = None
+        self._perplexity_service = None
+        self._market_service = None
+        self._graph = None
+    
+    @property
+    def llm(self):
+        """Lazy-load the LLM"""
+        if self._llm is None:
+            api_key = os.environ.get("OPENAI_API_KEY", "")
+            self._llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.2,
+                api_key=api_key
+            )
+        return self._llm
+    
+    @property
+    def perplexity_service(self):
+        """Lazy-load perplexity service"""
+        if self._perplexity_service is None:
+            self._perplexity_service = PerplexityService()
+        return self._perplexity_service
+    
+    @property
+    def market_service(self):
+        """Lazy-load market service"""
+        if self._market_service is None:
+            self._market_service = MarketDataService()
+        return self._market_service
+    
+    @property
+    def graph(self):
+        """Lazy-load the graph"""
+        if self._graph is None:
+            self._graph = self._build_graph()
+        return self._graph
     
     def _build_graph(self):
         """Build the research pipeline state machine"""

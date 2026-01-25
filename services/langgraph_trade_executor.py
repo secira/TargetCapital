@@ -58,17 +58,27 @@ class LangGraphTradeExecutor:
     """
     
     def __init__(self):
-        api_key = os.environ.get("OPENAI_API_KEY", "")
-        
-        # Conservative LLM for risk calculations
-        self.llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.1,
-            api_key=api_key
-        )
-        
-        # Build the pipeline
-        self.graph = self._build_pipeline()
+        self._llm = None
+        self._graph = None
+    
+    @property
+    def llm(self):
+        """Lazy-load the LLM to avoid startup failures when API key is not set"""
+        if self._llm is None:
+            api_key = os.environ.get("OPENAI_API_KEY", "")
+            self._llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.1,
+                api_key=api_key
+            )
+        return self._llm
+    
+    @property
+    def graph(self):
+        """Lazy-load the graph"""
+        if self._graph is None:
+            self._graph = self._build_pipeline()
+        return self._graph
     
     def _build_pipeline(self):
         """Build the 6-stage conditional execution pipeline"""

@@ -45,29 +45,54 @@ class LangGraphPortfolioOptimizer:
     """
     
     def __init__(self):
-        # Different LLM configurations for different agents
-        api_key = os.environ.get("OPENAI_API_KEY", "")
-        
-        self.risk_llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.1,  # Conservative for risk analysis
-            api_key=api_key
-        )
-        
-        self.creative_llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.7,  # Creative for opportunities
-            api_key=api_key
-        )
-        
-        self.balanced_llm = ChatOpenAI(
-            model="gpt-4-turbo-preview",
-            temperature=0.4,  # Balanced for analysis
-            api_key=api_key
-        )
-        
-        # Build the graph
-        self.graph = self._build_graph()
+        self._risk_llm = None
+        self._creative_llm = None
+        self._balanced_llm = None
+        self._graph = None
+    
+    def _get_api_key(self):
+        """Get API key lazily"""
+        return os.environ.get("OPENAI_API_KEY", "")
+    
+    @property
+    def risk_llm(self):
+        """Lazy-load risk LLM"""
+        if self._risk_llm is None:
+            self._risk_llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.1,
+                api_key=self._get_api_key()
+            )
+        return self._risk_llm
+    
+    @property
+    def creative_llm(self):
+        """Lazy-load creative LLM"""
+        if self._creative_llm is None:
+            self._creative_llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.7,
+                api_key=self._get_api_key()
+            )
+        return self._creative_llm
+    
+    @property
+    def balanced_llm(self):
+        """Lazy-load balanced LLM"""
+        if self._balanced_llm is None:
+            self._balanced_llm = ChatOpenAI(
+                model="gpt-4-turbo-preview",
+                temperature=0.4,
+                api_key=self._get_api_key()
+            )
+        return self._balanced_llm
+    
+    @property
+    def graph(self):
+        """Lazy-load the graph"""
+        if self._graph is None:
+            self._graph = self._build_graph()
+        return self._graph
     
     def _build_graph(self):
         """Build the multi-agent coordination graph"""
