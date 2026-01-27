@@ -1574,6 +1574,10 @@ def dashboard_trade_now():
     
     # Get available assets and strategies
     assets = trading_service.get_all_assets()
+    
+    # Filter out crypto assets as per user request
+    assets = [a for a in assets if a.get('asset_class') not in ['crypto', 'cryptocurrency']]
+    
     strategies = trading_service.get_all_strategies()
     
     # Get user's current trades
