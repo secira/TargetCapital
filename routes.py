@@ -1591,10 +1591,12 @@ def dashboard_trade_now():
     assets = [a for a in assets if a.get('asset_class', '').lower() in allowed_classes]
     
     # Get available strategies
-    strategies = trading_service.get_all_strategies()
-    
-    # Get available strategies
-    strategies = trading_service.get_strategies()
+    try:
+        strategies = trading_service.get_strategies()
+    except Exception as e:
+        from flask import current_app
+        current_app.logger.error(f"Error getting strategies: {str(e)}")
+        strategies = []
     
     # Get user's current trades
     user_trades = trading_service.get_user_trades(current_user.id)
