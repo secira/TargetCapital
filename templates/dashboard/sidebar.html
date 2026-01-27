@@ -92,102 +92,120 @@
             </li>
             {% endif %}
 
-            <!-- 5. Portfolio Hub -->
-            <li class="nav-item">
-                <div class="nav-link collapsible-header" onclick="togglePortfolioHub()">
-                    <i class="nav-icon fas fa-layer-group"></i>
-                    <span class="nav-text">Portfolio Hub</span>
-                    <i class="fas fa-chevron-down toggle-icon ms-auto" id="portfolioHubToggle"></i>
-                </div>
-                
-                <ul class="nav-list submenu-list" id="portfolioHubMenu" style="display: none;">
-                    <!-- Broker Management -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" 
-                           href="{{ url_for('dashboard_broker_accounts') }}">
-                            <i class="nav-icon fas fa-link"></i>
-                            <span class="nav-text">Broker Management</span>
-                            {% set connected_brokers = broker_accounts|selectattr('connection_status', 'equalto', 'connected')|list if broker_accounts else [] %}
-                            {% if connected_brokers %}
-                            <span class="nav-count">{{ connected_brokers|length }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    
-                    <!-- Banks (FDs & Cash) -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_banks' else '' }}" 
-                           href="{{ url_for('dashboard_banks') }}">
-                            <i class="nav-icon fas fa-university"></i>
-                            <span class="nav-text">Banks</span>
-                            <span class="nav-badge-sm">FD & Cash</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Insurance -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_insurance' else '' }}" 
-                           href="{{ url_for('dashboard_insurance') }}">
-                            <i class="nav-icon fas fa-shield-alt"></i>
-                            <span class="nav-text">Insurance</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Equities -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}" 
-                           href="{{ url_for('dashboard_equities') }}">
-                            <i class="nav-icon fas fa-chart-line"></i>
-                            <span class="nav-text">Equities</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Mutual Funds -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_mutual_funds' else '' }}" 
-                           href="{{ url_for('dashboard_mutual_funds') }}">
-                            <i class="nav-icon fas fa-coins"></i>
-                            <span class="nav-text">Mutual Funds</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Fixed Income -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_fixed_deposits' else '' }}" 
-                           href="{{ url_for('dashboard_fixed_deposits') }}">
-                            <i class="nav-icon fas fa-landmark"></i>
-                            <span class="nav-text">Fixed Income</span>
-                        </a>
-                    </li>
-                    
-                    <!-- F&O -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_futures_options' else '' }}" 
-                           href="{{ url_for('dashboard_futures_options') }}">
-                            <i class="nav-icon fas fa-chart-area"></i>
-                            <span class="nav-text">F&O</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Real Estate -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}" 
-                           href="{{ url_for('dashboard_real_estate') }}">
-                            <i class="nav-icon fas fa-building"></i>
-                            <span class="nav-text">Real Estate</span>
-                        </a>
-                    </li>
-                    
-                    <!-- Gold & Commodities -->
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_commodities' else '' }}" 
-                           href="{{ url_for('dashboard_commodities') }}">
-                            <i class="nav-icon fas fa-gem"></i>
-                            <span class="nav-text">Gold & Commodities</span>
-                        </a>
-                    </li>
-                </ul>
+    <!-- 5. Portfolio Hub -->
+    <li class="nav-item">
+        <div class="nav-link collapsible-header" onclick="togglePortfolioHub()">
+            <i class="nav-icon fas fa-layer-group"></i>
+            <span class="nav-text">Portfolio Hub</span>
+            <i class="fas fa-chevron-down toggle-icon ms-auto" id="portfolioHubToggle"></i>
+        </div>
+        
+        <ul class="nav-list submenu-list" id="portfolioHubMenu" style="display: none;">
+            <!-- Broker Management -->
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" 
+                   href="{{ url_for('dashboard_broker_accounts') }}">
+                    <i class="nav-icon fas fa-link"></i>
+                    <span class="nav-text">Broker Management</span>
+                    {% set connected_brokers = broker_accounts|selectattr('connection_status', 'equalto', 'connected')|list if broker_accounts else [] %}
+                    {% if connected_brokers %}
+                    <span class="nav-count">{{ connected_brokers|length }}</span>
+                    {% endif %}
+                </a>
             </li>
+            
+            {% set portfolio_flags = tenant_config.get('portfolio_hub', {}) if tenant_config else {} %}
+            
+            <!-- Banks (FDs & Cash) -->
+            {% if portfolio_flags.get('show_banks', false) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_banks' else '' }}" 
+                   href="{{ url_for('dashboard_banks') }}">
+                    <i class="nav-icon fas fa-university"></i>
+                    <span class="nav-text">Banks</span>
+                    <span class="nav-badge-sm">FD & Cash</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Insurance -->
+            {% if portfolio_flags.get('show_insurance', false) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_insurance' else '' }}" 
+                   href="{{ url_for('dashboard_insurance') }}">
+                    <i class="nav-icon fas fa-shield-alt"></i>
+                    <span class="nav-text">Insurance</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Equities -->
+            {% if portfolio_flags.get('show_equities', true) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}" 
+                   href="{{ url_for('dashboard_equities') }}">
+                    <i class="nav-icon fas fa-chart-line"></i>
+                    <span class="nav-text">Equities</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Mutual Funds -->
+            {% if portfolio_flags.get('show_mutual_funds', true) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_mutual_funds' else '' }}" 
+                   href="{{ url_for('dashboard_mutual_funds') }}">
+                    <i class="nav-icon fas fa-coins"></i>
+                    <span class="nav-text">Mutual Funds</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Fixed Income -->
+            {% if portfolio_flags.get('show_fixed_deposits', false) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_fixed_deposits' else '' }}" 
+                   href="{{ url_for('dashboard_fixed_deposits') }}">
+                    <i class="nav-icon fas fa-landmark"></i>
+                    <span class="nav-text">Fixed Income</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- F&O -->
+            {% if portfolio_flags.get('show_futures_options', false) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_futures_options' else '' }}" 
+                   href="{{ url_for('dashboard_futures_options') }}">
+                    <i class="nav-icon fas fa-chart-area"></i>
+                    <span class="nav-text">F&O</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Real Estate -->
+            {% if portfolio_flags.get('show_real_estate', false) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}" 
+                   href="{{ url_for('dashboard_real_estate') }}">
+                    <i class="nav-icon fas fa-building"></i>
+                    <span class="nav-text">Real Estate</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            <!-- Gold & Commodities -->
+            {% if portfolio_flags.get('show_commodities', true) %}
+            <li class="nav-item submenu-item">
+                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_commodities' else '' }}" 
+                   href="{{ url_for('dashboard_commodities') }}">
+                    <i class="nav-icon fas fa-gem"></i>
+                    <span class="nav-text">Gold & Commodities</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </li>
         </ul>
     </div>
 </nav>

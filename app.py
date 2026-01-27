@@ -463,3 +463,9 @@ def liveness_check():
 
 # Import routes
 import routes
+
+@app.context_processor
+def inject_tenant_config():
+    from models import Tenant
+    tenant = Tenant.query.get('live')
+    return dict(tenant_config=tenant.config if tenant else {})

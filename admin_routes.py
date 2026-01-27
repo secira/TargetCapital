@@ -384,10 +384,17 @@ def research_config():
     
     tenant = Tenant.query.get('live')
     research_flags = tenant.config.get('research_co_pilot', {}) if tenant and tenant.config else {}
+    portfolio_flags = tenant.config.get('portfolio_hub', {}) if tenant and tenant.config else {}
     
     # Define all possible asset keys from routes_research
     from routes_research import ASSET_TYPES
     all_asset_keys = ASSET_TYPES.keys()
+    
+    # Portfolio hub sections
+    portfolio_sections = [
+        'banks', 'insurance', 'equities', 'mutual_funds', 
+        'fixed_deposits', 'futures_options', 'real_estate', 'commodities'
+    ]
     
     weight_config = ResearchWeightConfig.get_active_config() or ResearchWeightConfig()
     threshold_config = ResearchThresholdConfig.get_active_config() or ResearchThresholdConfig()
@@ -428,7 +435,47 @@ def research_config():
                           trend_params=trend_params,
                           qualitative_sources=qualitative_sources,
                           research_flags=research_flags,
+                          portfolio_flags=portfolio_flags,
+                          portfolio_sections=portfolio_sections,
                           all_asset_keys=all_asset_keys)
+
+@admin_bp.route('/save-portfolio-flags', methods=['POST'])
+@admin_required
+def save_portfolio_flags():
+    """Save asset visibility flags for Portfolio Hub"""
+    from models import Tenant
+    
+    # Portfolio hub sections mapping
+    PORTFOLIO_SECTIONS = [
+        'banks', 'insurance', 'equities', 'mutual_funds', 
+        'fixed_deposits', 'futures_options', 'real_estate', 'commodities'
+    ]
+    
+    try:
+        tenant = Tenant.query.get('live')
+        if not tenant:
+            flash('Default tenant not found', 'error')
+            return redirect(url_for('admin.research_config'))
+            
+        new_flags = {}
+        for key in PORTFOLIO_SECTIONS:
+            new_flags[f'show_{key}'] = (request.form.get(f'show_{key}') == 'on')
+            
+        if not tenant.config:
+            tenant.config = {}
+            
+        # Ensure deep update
+        config = dict(tenant.config)
+        config['portfolio_hub'] = new_flags
+        tenant.config = config
+        
+        db.session.commit()
+        flash('Portfolio Hub visibility updated!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating flags: {str(e)}', 'error')
+        
+    return redirect(url_for('admin.research_config'))
 
 @admin_bp.route('/save-research-flags', methods=['POST'])
 @admin_required
