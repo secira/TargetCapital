@@ -1,0 +1,52 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}Research Co-Pilot - Target Capital{% endblock %}
+
+{% block dashboard_title %}Research Co-Pilot{% endblock %}
+{% block dashboard_subtitle %}AI-powered intelligence for all your investments{% endblock %}
+
+{% block dashboard_content %}
+<div class="research-dashboard">
+    <div class="row g-4">
+        {% for key in allowed_assets %}
+            {% if key in asset_types %}
+                {% set asset = asset_types[key] %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="asset-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                                    <i class="{{ asset.icon }} fa-2x"></i>
+                                </div>
+                                <h5 class="card-title mb-0 fw-bold">{{ asset.name }}</h5>
+                            </div>
+                            <p class="card-text text-muted small mb-4">{{ asset.description }}</p>
+                            <div class="features-list mb-4">
+                                {% for feature in asset.features[:2] %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="{{ feature.icon }} text-primary me-2" style="font-size: 0.8rem;"></i>
+                                        <span class="small text-muted">{{ feature.title }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <a href="{{ url_for('research_' ~ key.replace('-', '_')) }}" class="btn btn-primary w-100">
+                                Start Research
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+.transition {
+    transition: all 0.3s ease;
+}
+</style>
+{% endblock %}

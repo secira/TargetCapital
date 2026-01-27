@@ -146,6 +146,30 @@ def get_signals_for_asset(signal_type):
     return signals
 
 
+@app.route('/dashboard/research')
+@login_required
+def research_dashboard():
+    """Main research dashboard with asset selection"""
+    # Get tenant to check feature flags
+    from models import Tenant
+    tenant = Tenant.query.get('live')
+    
+    # Default to requested assets if no config
+    allowed_keys = ['stocks', 'mutual_funds', 'commodities']
+    
+    if tenant and tenant.config:
+        research_config = tenant.config.get('research_co_pilot', {})
+        if research_config:
+            allowed_keys = [k for k in ASSET_TYPES if research_config.get(f'show_{k}', False)]
+    
+    # If allowed_keys is empty after filtering (e.g. all flags false), default to stocks
+    if not allowed_keys:
+        allowed_keys = ['stocks']
+        
+    return render_template('dashboard/research/index.html', 
+                         asset_types=ASSET_TYPES,
+                         allowed_assets=allowed_keys)
+
 @app.route('/dashboard/research/stocks')
 @login_required
 def research_stocks():

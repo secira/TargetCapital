@@ -62,63 +62,11 @@
             <!-- 3. Research Co-Pilot (Trader+ only) -->
             {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
             <li class="nav-item">
-                <div class="nav-link collapsible-header" onclick="toggleResearchSignals()">
-                    <i class="nav-icon fas fa-chart-line"></i>
+                <a class="nav-link {{ 'active' if 'research' in request.endpoint }}" 
+                   href="{{ url_for('research_dashboard') }}">
+                    <i class="nav-icon fas fa-search-dollar"></i>
                     <span class="nav-text">Research Co-Pilot</span>
-                    <i class="fas fa-chevron-down toggle-icon ms-auto" id="researchSignalsToggle"></i>
-                </div>
-                
-                <ul class="nav-list submenu-list" id="researchSignalsMenu" style="display: none;">
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_stocks' else '' }}" 
-                           href="{{ url_for('research_stocks') }}">
-                            <i class="nav-icon fas fa-chart-bar"></i>
-                            <span class="nav-text">Stocks</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_futures' else '' }}" 
-                           href="{{ url_for('research_futures') }}">
-                            <i class="nav-icon fas fa-calendar-alt"></i>
-                            <span class="nav-text">Futures</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_options' else '' }}" 
-                           href="{{ url_for('research_options') }}">
-                            <i class="nav-icon fas fa-layer-group"></i>
-                            <span class="nav-text">Options</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_commodities' else '' }}" 
-                           href="{{ url_for('research_commodities') }}">
-                            <i class="nav-icon fas fa-cubes"></i>
-                            <span class="nav-text">Commodities</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_currency' else '' }}" 
-                           href="{{ url_for('research_currency') }}">
-                            <i class="nav-icon fas fa-rupee-sign"></i>
-                            <span class="nav-text">Currency</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_bonds' else '' }}" 
-                           href="{{ url_for('research_bonds') }}">
-                            <i class="nav-icon fas fa-file-contract"></i>
-                            <span class="nav-text">Bonds</span>
-                        </a>
-                    </li>
-                    <li class="nav-item submenu-item">
-                        <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'research_mutual_funds' else '' }}" 
-                           href="{{ url_for('research_mutual_funds') }}">
-                            <i class="nav-icon fas fa-piggy-bank"></i>
-                            <span class="nav-text">Mutual Funds</span>
-                        </a>
-                    </li>
-                </ul>
+                </a>
             </li>
             {% endif %}
 

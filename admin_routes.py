@@ -380,7 +380,14 @@ def api_share_signal(signal_id):
 @admin_required
 def research_config():
     """I-Score research configuration page"""
-    from models import ResearchWeightConfig, ResearchThresholdConfig
+    from models import ResearchWeightConfig, ResearchThresholdConfig, Tenant
+    
+    tenant = Tenant.query.get('live')
+    research_flags = tenant.config.get('research_co_pilot', {}) if tenant and tenant.config else {}
+    
+    # Define all possible asset keys from routes_research
+    from routes_research import ASSET_TYPES
+    all_asset_keys = ASSET_TYPES.keys()
     
     weight_config = ResearchWeightConfig.get_active_config() or ResearchWeightConfig()
     threshold_config = ResearchThresholdConfig.get_active_config() or ResearchThresholdConfig()
@@ -419,7 +426,42 @@ def research_config():
                           threshold_config=threshold_config,
                           tech_params=tech_params,
                           trend_params=trend_params,
-                          qualitative_sources=qualitative_sources)
+                          qualitative_sources=qualitative_sources,
+                          research_flags=research_flags,
+                          all_asset_keys=all_asset_keys)
+
+@admin_bp.route('/save-research-flags', methods=['POST'])
+@admin_required
+def save_research_flags():
+    """Save asset visibility flags for Research Co-Pilot"""
+    from models import Tenant
+    from routes_research import ASSET_TYPES
+    
+    try:
+        tenant = Tenant.query.get('live')
+        if not tenant:
+            flash('Default tenant not found', 'error')
+            return redirect(url_for('admin.research_config'))
+            
+        new_flags = {}
+        for key in ASSET_TYPES.keys():
+            new_flags[f'show_{key}'] = (request.form.get(f'show_{key}') == 'on')
+            
+        if not tenant.config:
+            tenant.config = {}
+            
+        # Ensure deep update
+        config = dict(tenant.config)
+        config['research_co_pilot'] = new_flags
+        tenant.config = config
+        
+        db.session.commit()
+        flash('Research asset visibility updated!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating flags: {str(e)}', 'error')
+        
+    return redirect(url_for('admin.research_config'))
 
 
 @admin_bp.route('/save-research-weights', methods=['POST'])

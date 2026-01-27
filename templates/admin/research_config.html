@@ -141,6 +141,35 @@
     <div class="col-lg-6">
         <div class="admin-card">
             <div class="admin-card-header">
+                <h6 class="mb-0"><i class="fas fa-eye me-2"></i>Research Asset Visibility</h6>
+            </div>
+            <div class="admin-card-body">
+                <form method="POST" action="{{ url_for('admin.save_research_flags') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <p class="text-muted mb-3">Enable/disable asset classes in Research Co-Pilot:</p>
+                    
+                    <div class="row">
+                        {% for key in all_asset_keys %}
+                        <div class="col-6 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="show_{{ key }}" 
+                                       id="show_{{ key }}" {{ 'checked' if research_flags.get('show_' ~ key, key in ['stocks', 'mutual_funds', 'commodities']) else '' }}>
+                                <label class="form-check-label fw-semibold" for="show_{{ key }}">{{ key|replace('_', ' ')|title }}</label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-admin w-100 mt-2">
+                        <i class="fas fa-save me-2"></i>Save Visibility Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-header">
                 <h6 class="mb-0"><i class="fas fa-bullseye me-2"></i>Recommendation Thresholds</h6>
             </div>
             <div class="admin-card-body">
