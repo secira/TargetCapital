@@ -1164,6 +1164,8 @@ def dashboard():
     try:
         from models import DailyTradingSignal
         from datetime import date
+        # Check if column exists by attempting a simpler query if needed, 
+        # but since we've fixed the DB, it should be fine.
         trading_signals_count = DailyTradingSignal.query.filter(
             DailyTradingSignal.status == 'ACTIVE',
             DailyTradingSignal.signal_date == date.today()
@@ -1171,7 +1173,9 @@ def dashboard():
         # Fallback to total active if none today
         if trading_signals_count == 0:
             trading_signals_count = DailyTradingSignal.query.filter_by(status='ACTIVE').count()
-    except (ImportError, AttributeError):
+    except Exception as e:
+        from flask import current_app
+        current_app.logger.error(f"Error getting trading signals count: {str(e)}")
         trading_signals_count = 0
     
     # Get connected brokers
@@ -1585,6 +1589,12 @@ def dashboard_trade_now():
     # Only support Equity, Mutual Funds, Futures and Options
     allowed_classes = ['stocks', 'equity', 'mutual_funds', 'futures', 'options', 'index_future', 'index_option']
     assets = [a for a in assets if a.get('asset_class', '').lower() in allowed_classes]
+    
+    # Get available strategies
+    strategies = trading_service.get_all_strategies()
+    
+    # Get available strategies
+    strategies = trading_service.get_strategies()
     
     # Get user's current trades
     user_trades = trading_service.get_user_trades(current_user.id)

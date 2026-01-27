@@ -75,6 +75,7 @@
                         <th>Date</th>
                         <th>Script</th>
                         <th>Duration</th>
+                        <th>Strategy</th>
                         <th>Entry</th>
                         <th>SL</th>
                         <th>Targets</th>
@@ -97,6 +98,7 @@
                                 {{ signal.duration_display }}
                             </span>
                         </td>
+                        <td>{{ signal.strategy_name or 'Trend Following' }}</td>
                         <td>₹{{ signal.buy_above }}</td>
                         <td class="text-danger">₹{{ signal.stop_loss }}</td>
                         <td class="text-success">
