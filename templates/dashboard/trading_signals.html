@@ -153,7 +153,19 @@ h5, h6 {
                                         <option value="futures">Index Futures</option>
                                         <option value="options">Stock Options</option>
                                         <option value="commodities">Commodities</option>
-                                        <option value="crypto">Cryptocurrency</option>
+                                        <option value="mutual_funds">Mutual Funds</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted mb-1">Trading Strategy</label>
+                                    <select class="form-select" id="strategyType" name="strategy">
+                                        {% for strategy in strategies %}
+                                        <option value="{{ strategy.id }}">{{ strategy.name }}</option>
+                                        {% else %}
+                                        <option value="1">Trend Following</option>
+                                        <option value="2">Mean Reversion</option>
+                                        <option value="3">Breakout</option>
+                                        {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -453,6 +465,7 @@ h5, h6 {
                                     </div>
                                     <div>
                                         <div class="fw-bold">{{ signal.symbol }}</div>
+                                        <small class="text-muted d-block" style="font-size: 10px;">Strategy: {{ signal.strategy_name or 'Trend Following' }}</small>
                                         {% if signal.company_name %}
                                         <small class="text-muted">{{ signal.company_name[:25] }}{% if signal.company_name|length > 25 %}...{% endif %}</small>
                                         {% endif %}
@@ -546,7 +559,7 @@ h5, h6 {
                                 <div class="btn-group">
                                     {% if current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
                                     <button class="btn btn-success btn-sm" 
-                                            onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 100 }}, '{{ signal.signal_type }}', {{ signal.id }})"
+                                            onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 100 }}, '{{ signal.signal_type }}', {{ signal.id }}, '{{ signal.strategy_name or 'Trend Following' }}')"
                                             title="Execute Trade">
                                         <i class="fas fa-rocket"></i>
                                     </button>
@@ -1206,96 +1219,9 @@ let tradeExecutionWorkflow;
 let currentExecutionPlan = null;
 
 async function tradeSignal(symbol, action, entryPrice, quantity, signalType, signalId = null) {
-    // Check subscription access - only TARGET_PRO and HNI can trade
-    {% if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
-        showUpgradeToProAlert();
-        return;
-    {% endif %}
-    
-    // Initialize workflow if not already done
-    if (!tradeExecutionWorkflow) {
-        await loadTradeExecutionWorkflow();
-    }
-    
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('tradeExecutionModal'));
-    modal.show();
-    
-    // Update signal details in modal
-    document.getElementById('tradeExecutionSignal').textContent = `${symbol} - ${action} @ ₹${entryPrice}`;
-    document.getElementById('tradeExecutionDetails').textContent = 'Validating trade through 6-stage pipeline...';
-    
-    // Reset modal states
-    document.getElementById('tradeExecutionErrors').style.display = 'none';
-    document.getElementById('tradeExecutionPlan').style.display = 'none';
-    document.getElementById('confirmTradeBtn').style.display = 'none';
-    
-    // Reset workflow visual
-    tradeExecutionWorkflow.reset();
-    
-    // Get signal data (either from table or from button click)
-    const signalRow = document.querySelector(`[data-signal-id="${signalId}"]`);
-    let targetPrice = 0;
-    let stopLoss = 0;
-    
-    if (signalRow) {
-        // Extract from table
-        const targetCell = signalRow.querySelector('td:nth-child(6)');
-        const stopCell = signalRow.querySelector('td:nth-child(7)');
-        targetPrice = targetCell ? parseFloat(targetCell.textContent.replace('₹', '').replace(',', '')) : 0;
-        stopLoss = stopCell ? parseFloat(stopCell.textContent.replace('₹', '').replace(',', '')) : 0;
-    }
-    
-    // Prepare validation request
-    const validationData = {
-        symbol: symbol,
-        action: action,
-        entry_price: parseFloat(entryPrice),
-        target_price: targetPrice,
-        stop_loss: stopLoss,
-        quantity: parseInt(quantity) || 100,
-        timeframe: signalType === 'stock' ? 'Swing' : 'Intraday'
-    };
-    
-    if (signalId) {
-        validationData.signal_id = signalId;
-    }
-    
-    try {
-        // Call validation API
-        const response = await fetch('/api/trade/validate-execution', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(validationData)
-        });
-        
-        const result = await response.json();
-        
-        // Update visual workflow with stage statuses
-        if (result.stage_status) {
-            tradeExecutionWorkflow.runPipeline(result.stage_status);
-        }
-        
-        // Show results
-        if (result.success && result.execution_plan) {
-            // All stages passed - show execution plan
-            currentExecutionPlan = result.execution_plan;
-            displayExecutionPlan(result.execution_plan);
-            document.getElementById('confirmTradeBtn').style.display = 'block';
-            document.getElementById('tradeExecutionDetails').textContent = '✓ All validations passed! Review and confirm trade.';
-        } else {
-            // Validation failed - show errors
-            displayValidationErrors(result.validation_errors || ['Unknown error occurred']);
-            document.getElementById('tradeExecutionDetails').textContent = '✗ Validation failed. Please review errors below.';
-        }
-        
-    } catch (error) {
-        console.error('Trade validation error:', error);
-        displayValidationErrors([`System error: ${error.message}`]);
-        document.getElementById('tradeExecutionDetails').textContent = '✗ System error occurred.';
-    }
+    // Redirect to Trade Now page with prefilled data
+    const url = `/dashboard/trade-now?symbol=${encodeURIComponent(symbol)}&action=${action}&price=${entryPrice}&quantity=${quantity}&type=${signalType}&source=daily_signals${signalId ? '&signal_id=' + signalId : ''}`;
+    window.location.href = url;
 }
 
 function displayExecutionPlan(plan) {

@@ -824,6 +824,7 @@ def add_daily_signal():
                 target_2=float(request.form.get('target_2')) if request.form.get('target_2') else None,
                 target_3=float(request.form.get('target_3')) if request.form.get('target_3') else None,
                 risk_level=request.form.get('risk_level', 'MEDIUM'),
+                strategy_name=request.form.get('strategy_name', 'Trend Following'),
                 notes=request.form.get('notes'),
                 created_by=session.get('admin_id'),
                 analyst_name=session.get('admin_username'),
@@ -868,6 +869,7 @@ def edit_daily_signal(signal_id):
             signal.target_2 = float(request.form.get('target_2')) if request.form.get('target_2') else None
             signal.target_3 = float(request.form.get('target_3')) if request.form.get('target_3') else None
             signal.risk_level = request.form.get('risk_level', 'MEDIUM')
+            signal.strategy_name = request.form.get('strategy_name', 'Trend Following')
             signal.notes = request.form.get('notes')
             signal.status = request.form.get('status', signal.status)
             

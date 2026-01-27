@@ -2819,6 +2819,9 @@ class DailyTradingSignal(db.Model):
     # Signal action
     action = db.Column(db.String(10), nullable=False, default='BUY')  # 'BUY', 'SELL'
     
+    # Strategy information
+    strategy_name = db.Column(db.String(100), nullable=True, default='Trend Following')
+    
     # Price levels
     buy_above = db.Column(db.Numeric(12, 2), nullable=False)  # Entry price / Buy Above
     stop_loss = db.Column(db.Numeric(12, 2), nullable=False)  # Stop Loss

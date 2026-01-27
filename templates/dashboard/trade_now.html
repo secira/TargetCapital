@@ -60,12 +60,11 @@
                             </select>
                         </div>
                         
-                        <!-- Strategy Selection -->
+                        <!-- Signal Source Information (Previously Strategy) -->
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">Trading Strategy</label>
-                            <select class="form-select" id="strategySelect" name="strategy_id" required>
-                                <option value="">Select Asset First...</option>
-                            </select>
+                            <label class="form-label fw-bold">Signal Source</label>
+                            <input type="text" class="form-control bg-light" id="signalSourceDisplay" readonly value="Manual Entry">
+                            <input type="hidden" id="strategySelect" name="strategy_id" value="1">
                         </div>
                         
                         <!-- Order Parameters -->
@@ -238,21 +237,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle asset selection
     assetSelect.addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
+        if (!selectedOption) return;
+        
         const assetClass = selectedOption.dataset.assetClass;
-        const price = selectedOption.dataset.price;
-        
-        // Filter strategies by asset class
-        strategySelect.innerHTML = '<option value="">Choose Strategy...</option>';
-        
-        strategies.forEach(strategy => {
-            if (strategy.asset_classes.includes(assetClass)) {
-                const option = document.createElement('option');
-                option.value = strategy.id;
-                option.textContent = `${strategy.name} (${strategy.risk_level} Risk)`;
-                option.dataset.strategyData = JSON.stringify(strategy);
-                strategySelect.appendChild(option);
-            }
-        });
         
         // Show/hide options fields for options trading
         if (assetClass === 'options') {
@@ -262,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Set default quantity based on asset type
-        // 3 lots for options, 100 for stocks
         if (assetClass === 'options') {
             quantityInput.value = 3; // 3 lots for options
         } else if (assetClass === 'futures') {
@@ -271,6 +257,26 @@ document.addEventListener('DOMContentLoaded', function() {
             quantityInput.value = 100; // 100 shares for stocks
         }
     });
+
+    // Set Signal Source if pre-populated from signal
+    if (urlParams.has('source')) {
+        const source = urlParams.get('source');
+        const strategy = urlParams.get('strategy');
+        const sourceInfo = {
+            'trading_signals': 'Admin Trading Signal',
+            'stock_picker': 'AI Stock Recommendation',
+            'my_portfolio': 'Portfolio Holding',
+            'daily_signals': 'Daily Trading Signal'
+        };
+        const signalSourceDisplay = document.getElementById('signalSourceDisplay');
+        if (signalSourceDisplay) {
+            let displayText = sourceInfo[source] || 'Trading Signal';
+            if (strategy) {
+                displayText += ` - Strategy: ${strategy}`;
+            }
+            signalSourceDisplay.value = displayText;
+        }
+    }
 });
 
 function deployTrade(recommendationId) {
@@ -365,6 +371,11 @@ function prePopulateForm(urlParams) {
             'my_portfolio': 'Portfolio Holding',
             'daily_signals': 'Daily Trading Signal'
         };
+        
+        const signalSourceDisplay = document.getElementById('signalSourceDisplay');
+        if (signalSourceDisplay) {
+            signalSourceDisplay.value = sourceInfo[source] || 'Trading Signal';
+        }
         
         // Create info alert with full signal details
         const alertDiv = document.createElement('div');

@@ -1474,13 +1474,20 @@ def dashboard_trading_signals():
     
     # Get AI stock picks for the selected date (merged functionality)
     try:
+        from models import AIStockPick
         ai_picks = AIStockPick.query.filter_by(pick_date=selected_date).all()
     except:
         ai_picks = []  # Fallback if AIStockPick not available
+
+    # Get available strategies for the dropdown
+    from services.trading_service import get_trading_service
+    trading_service = get_trading_service()
+    strategies = trading_service.get_strategies()
     
     return render_template('dashboard/trading_signals.html', 
                          signals=signals, 
                          ai_picks=ai_picks,
+                         strategies=strategies,
                          today=selected_date,
                          selected_date=selected_date_str,
                          timedelta=timedelta)
@@ -1572,13 +1579,12 @@ def dashboard_trade_now():
         except:
             primary_broker = None
     
-    # Get available assets and strategies
+    # Fetch supported assets
     assets = trading_service.get_all_assets()
     
-    # Filter out crypto assets as per user request
-    assets = [a for a in assets if a.get('asset_class') not in ['crypto', 'cryptocurrency']]
-    
-    strategies = trading_service.get_all_strategies()
+    # Only support Equity, Mutual Funds, Futures and Options
+    allowed_classes = ['stocks', 'equity', 'mutual_funds', 'futures', 'options', 'index_future', 'index_option']
+    assets = [a for a in assets if a.get('asset_class', '').lower() in allowed_classes]
     
     # Get user's current trades
     user_trades = trading_service.get_user_trades(current_user.id)

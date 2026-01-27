@@ -108,6 +108,17 @@
                                 <option value="CLOSED" {{ 'selected' if signal.status == 'CLOSED' else '' }}>Closed</option>
                             </select>
                         </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Trading Strategy</label>
+                            <select name="strategy_name" class="form-select">
+                                <option value="Trend Following" {{ 'selected' if signal.strategy_name == 'Trend Following' else '' }}>Trend Following</option>
+                                <option value="Mean Reversion" {{ 'selected' if signal.strategy_name == 'Mean Reversion' else '' }}>Mean Reversion</option>
+                                <option value="Momentum Breakout" {{ 'selected' if signal.strategy_name == 'Momentum Breakout' else '' }}>Momentum Breakout</option>
+                                <option value="Scalping" {{ 'selected' if signal.strategy_name == 'Scalping' else '' }}>Scalping</option>
+                                <option value="Positional" {{ 'selected' if signal.strategy_name == 'Positional' else '' }}>Positional</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <hr class="my-4">
