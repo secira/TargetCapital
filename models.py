@@ -373,9 +373,9 @@ class User(UserMixin, db.Model):
         if self.pricing_plan == PricingPlan.FREE:
             return menu_item in ['dashboard', 'ai_advisor', 'dashboard_trading_signals']
         
-        # Target Plus users can access Trade Now but have limited broker features
+        # Target Plus users can access Portfolio Hub but NOT Trade Assist (Trade Now)
         elif self.pricing_plan == PricingPlan.TARGET_PLUS:
-            return menu_item not in []  # Target Plus can access all menus now
+            return menu_item not in ['dashboard_trade_now', 'trade_assist']
         
         # Target Pro and HNI users can access everything
         elif self.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:

@@ -190,27 +190,13 @@ def api_add_broker_account():
         from models import PricingPlan
         existing_brokers_count = BrokerAccount.query.filter_by(user_id=current_user.id).count()
         
-        if current_user.pricing_plan == PricingPlan.TARGET_PLUS:
-            # Target Plus users can only have one broker
-            if existing_brokers_count >= 1:
-                return jsonify({
-                    'success': False,
-                    'message': 'Target Plus plan allows only one broker connection. Upgrade to Target Pro for multiple brokers.'
-                }), 400
-        elif current_user.pricing_plan == PricingPlan.TARGET_PRO:
-            # Target Pro users can have up to 3 brokers
-            if existing_brokers_count >= 3:
-                return jsonify({
-                    'success': False,
-                    'message': 'Target Pro plan allows up to 3 broker connections. You have reached the limit.'
-                }), 400
-        elif current_user.pricing_plan == PricingPlan.HNI:
-            # HNI users can have up to 3 brokers
-            if existing_brokers_count >= 3:
-                return jsonify({
-                    'success': False,
-                    'message': 'HNI plan allows up to 3 broker connections. You have reached the limit.'
-                }), 400
+        # All plans now allow only one broker connection
+        if existing_brokers_count >= 1:
+            plan_name = current_user.get_plan_display_name()
+            return jsonify({
+                'success': False,
+                'message': f'{plan_name} plan allows only one broker connection.'
+            }), 400
         
         # Step 1: Save broker credentials (DO NOT CONNECT YET)
         # Create broker account in 'disconnected' state
