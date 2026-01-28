@@ -244,6 +244,14 @@ except (NameError, KeyError):
 # Initialize the app with the extension
 db.init_app(app)
 
+# Mail configuration for notifications
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'notifications@targetcapital.ai')
+
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)

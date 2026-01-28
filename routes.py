@@ -1070,6 +1070,13 @@ def register():
         db.session.add(user)
         db.session.commit()
         
+        # Send signup notification to admin
+        try:
+            from services.messaging_service import send_signup_notification
+            send_signup_notification(user)
+        except Exception as e:
+            logging.error(f"Failed to send signup notification: {e}")
+        
         flash('Registration successful! You can now log in.', 'success')
         return redirect(url_for('login'))
     

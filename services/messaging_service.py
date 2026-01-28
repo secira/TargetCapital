@@ -167,6 +167,30 @@ Generated: {datetime.now(timezone.utc).strftime('%d/%m/%Y %I:%M %p')}"""
         logger.error(f"Error sending signal notification: {e}")
         return False
 
+def send_signup_notification(user):
+    """Send notification email for new user signup"""
+    try:
+        from app import app
+        from flask_mail import Message, Mail
+        
+        # Check if mail is configured
+        if not app.config.get('MAIL_SERVER'):
+            logger.warning("Mail server not configured for signup notifications")
+            return False
+            
+        mail = Mail(app)
+        msg = Message(
+            subject="New User Signup: Target Capital",
+            recipients=["uday@targetcapital.ai"],
+            body=f"Hello Uday,\n\nA new user has just signed up on Target Capital!\n\nUser Details:\nName: {user.first_name} {user.last_name}\nUsername: {user.username}\nEmail: {user.email}\nSignup Time: {datetime.now(timezone.utc).strftime('%d/%m/%Y %I:%M %p')}\n\nBest regards,\nTarget Capital System"
+        )
+        mail.send(msg)
+        logger.info(f"Signup notification sent for user {user.email}")
+        return True
+    except Exception as e:
+        logger.error(f"Error sending signup notification: {e}")
+        return False
+
 def test_messaging_setup():
     """Test messaging configuration"""
     test_message = "🧪 Test message from Target Capital Admin\n\nThis is a test to verify messaging setup is working correctly."
