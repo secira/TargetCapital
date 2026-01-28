@@ -64,12 +64,12 @@
                         </div>
                         
                         {% if current_user.is_authenticated %}
-                            {% if current_subscription and current_subscription.plan == 'FREE' %}
-                                <a href="{{ url_for('subscribe', plan_type='target_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
-                            {% elif current_subscription and current_subscription.plan == 'TARGET_PLUS' %}
+                            {% if current_subscription and current_subscription.plan == 'TARGET_PLUS' %}
                                 <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                            {% elif current_subscription and current_subscription.plan in ['TARGET_PRO', 'HNI'] %}
+                                <span class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-semibold disabled">Included in Plan</span>
                             {% else %}
-                                <a href="{{ url_for('subscribe', plan_type='target_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Select Plan</a>
+                                <a href="{{ url_for('subscribe', plan_type='target_plus') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
                             {% endif %}
                         {% else %}
                             <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">Get Started</a>
@@ -111,6 +111,8 @@
                         {% if current_user.is_authenticated %}
                             {% if current_subscription and current_subscription.plan == 'TARGET_PRO' %}
                                 <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                            {% elif current_subscription and current_subscription.plan == 'HNI' %}
+                                <span class="btn btn-outline-secondary w-100 py-3 rounded-pill fw-semibold disabled">Included in Plan</span>
                             {% else %}
                                 <a href="{{ url_for('subscribe', plan_type='target_pro') }}" class="btn btn-primary w-100 py-3 rounded-pill fw-semibold">Upgrade Now</a>
                             {% endif %}
@@ -147,9 +149,19 @@
                             </ul>
                         </div>
                         
-                        <a href="{{ url_for('contact') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">
-                            Contact Sales
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            {% if current_subscription and current_subscription.plan == 'HNI' %}
+                                <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
+                            {% else %}
+                                <a href="{{ url_for('contact') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">
+                                    Contact Sales
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('contact') }}" class="btn btn-outline-primary w-100 py-3 rounded-pill fw-semibold">
+                                Contact Sales
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

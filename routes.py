@@ -194,16 +194,26 @@ def blog_post(post_id):
 @app.route('/pricing')
 def pricing():
     """Pricing page with subscription plans"""
-    from services.razorpay_service import razorpay_service
-    
-    plans = razorpay_service.get_subscription_plans()
+    try:
+        from services.razorpay_service import razorpay_service
+        plans = razorpay_service.get_subscription_plans()
+    except Exception as e:
+        logging.error(f"Error fetching subscription plans: {e}")
+        plans = {}
     
     # Get user's current subscription if logged in
     current_subscription = None
     if current_user.is_authenticated:
+        # Map PricingPlan enum to string plan names used in templates
+        # Using .name to get the string representation of the Enum member
+        try:
+            current_plan_name = current_user.pricing_plan.name
+        except AttributeError:
+            current_plan_name = 'FREE'
+            
         current_subscription = {
-            'plan': current_user.pricing_plan.value if current_user.pricing_plan else 'FREE',
-            'expires_at': getattr(current_user, 'subscription_expires_at', None)
+            'plan': current_plan_name,
+            'expires_at': getattr(current_user, 'subscription_expires_at', None) or getattr(current_user, 'subscription_end_date', None)
         }
     
     return render_template('pricing.html', 
