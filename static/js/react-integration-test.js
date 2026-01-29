@@ -213,16 +213,8 @@ function showSuccessMessage() {
 
 // Auto-run tests when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for other components to initialize
-    setTimeout(() => {
-        testReactComponents();
-        
-        // Display results after a short delay
-        setTimeout(() => {
-            displayTestResults();
-        }, 3000);
-        
-    }, 2000);
+    // Integration tests disabled to prevent automatic data fetching
+    console.log('🧪 Integration tests disabled');
 });
 
 // Clean up test WebSocket on page unload

@@ -154,31 +154,12 @@ class WebSocketClient {
     }
     
     scheduleReconnect() {
-        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error(`❌ Max reconnection attempts reached for ${this.url}`);
-            this.emit('maxReconnectAttemptsReached');
-            return;
-        }
-        
-        const delay = this.reconnectInterval * Math.pow(2, Math.min(this.reconnectAttempts, 5));
-        
-        setTimeout(() => {
-            this.reconnectAttempts++;
-            console.log(`🔄 Reconnecting to ${this.url} (attempt ${this.reconnectAttempts})`);
-            this.connect().catch(() => {
-                // Reconnection failed, will be handled by onclose
-            });
-        }, delay);
+        // Auto-reconnect disabled to ensure connections are user-driven
+        console.log('🔄 Auto-reconnect disabled');
     }
     
     startHeartbeat() {
-        this.stopHeartbeat();
-        
-        this.heartbeatTimer = setInterval(() => {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.send({ type: 'ping', timestamp: Date.now() });
-            }
-        }, this.heartbeatInterval);
+        // Heartbeat disabled
     }
     
     stopHeartbeat() {

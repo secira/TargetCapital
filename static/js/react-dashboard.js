@@ -43,120 +43,16 @@ class DashboardApp {
         }
     }
     
-    async initializeWebSockets() {
-        try {
-            // Market data WebSocket
-            const marketWS = new WebSocketClient({
-                url: 'ws://localhost:8001',
-                autoReconnect: true,
-                maxReconnectAttempts: 5
-            });
-            
-            marketWS.on('open', () => {
-                this.updateConnectionStatus('market', 'connected');
-                console.log('✅ Market data WebSocket connected');
-                // Subscribe to major indices and popular stocks
-                marketWS.send({
-                    type: 'subscribe',
-                    symbols: ['NIFTY', 'BANKNIFTY', 'SENSEX', 'RELIANCE', 'TCS', 'INFY']
-                });
-            });
-            
-            marketWS.on('message', (data) => {
-                if (data.type === 'market_data') {
-                    this.setState({
-                        marketData: { ...this.state.marketData, ...data.data }
-                    });
-                    console.log('📊 Market data updated via WebSocket');
-                }
-            });
-            
-            marketWS.on('close', () => {
-                this.updateConnectionStatus('market', 'disconnected');
-                console.log('🔌 Market WebSocket disconnected');
-            });
-            
-            marketWS.on('error', () => {
-                this.updateConnectionStatus('market', 'error');
-                console.log('❌ Market WebSocket error - switching to demo mode');
-                this.enableDemoMode();
-            });
-            
-            this.websockets.set('market', marketWS);
-            
-            // Trading updates WebSocket (optional for demo)
-            const tradingWS = new WebSocketClient({
-                url: 'ws://localhost:8002',
-                autoReconnect: true,
-                maxReconnectAttempts: 3
-            });
-            
-            tradingWS.on('open', () => {
-                this.updateConnectionStatus('trading', 'connected');
-                console.log('✅ Trading WebSocket connected');
-            });
-            
-            tradingWS.on('close', () => {
-                this.updateConnectionStatus('trading', 'disconnected');
-            });
-            
-            tradingWS.on('error', () => {
-                this.updateConnectionStatus('trading', 'demo');
-                console.log('🎭 Trading WebSocket in demo mode');
-            });
-            
-            tradingWS.on('message', (data) => {
-                switch (data.type) {
-                    case 'order_update':
-                        this.handleOrderUpdate(data.order);
-                        break;
-                    case 'portfolio_update':
-                        this.setState({ portfolio: data.portfolio });
-                        break;
-                    case 'trading_signal':
-                        this.handleTradingSignal(data.signal);
-                        break;
-                }
-            });
-            
-            this.websockets.set('trading', tradingWS);
-            
-            // Try to connect - if it fails, use demo mode
-            try {
-                await Promise.all([
-                    marketWS.connect().catch(() => console.log('Market WS demo mode')),
-                    tradingWS.connect().catch(() => console.log('Trading WS demo mode'))
-                ]);
-            } catch (error) {
-                console.log('🎭 WebSocket connections failed - enabling enhanced demo mode');
-                this.enableDemoMode();
-            }
-            
-        } catch (error) {
-            console.log('🎭 WebSocket initialization failed - using demo mode');
-            this.enableDemoMode();
-        }
+    initializeWebSockets() {
+        console.log('🔌 WebSocket connections disabled - waiting for user interaction');
+        // Initial state update
+        this.updateConnectionStatus('market', 'disconnected');
+        this.updateConnectionStatus('trading', 'disconnected');
     }
     
     enableDemoMode() {
-        console.log('🎭 Enabling enhanced demo mode with simulated real-time data');
-        
-        // Simulate market data updates
-        setInterval(() => {
-            const demoMarketData = this.generateDemoMarketData();
-            this.setState({ marketData: demoMarketData });
-            console.log('📊 Demo market data updated');
-        }, 5000);
-        
-        // Simulate trading signals
-        setInterval(() => {
-            const demoSignal = this.generateDemoSignal();
-            this.handleTradingSignal(demoSignal);
-        }, 15000);
-        
-        // Update connection status
-        this.updateConnectionStatus('market', 'demo');
-        this.updateConnectionStatus('trading', 'demo');
+        // Demo mode disabled to prevent unsolicited data polling
+        console.log('🎭 Demo mode is available but not auto-started');
     }
     
     generateDemoMarketData() {
@@ -272,17 +168,8 @@ class DashboardApp {
     }
     
     startRealTimeUpdates() {
-        // Refresh critical data every 30 seconds
-        setInterval(() => {
-            this.refreshCriticalData();
-        }, 30000);
-        
-        // Refresh market data every 10 seconds during market hours
-        setInterval(() => {
-            if (this.isMarketOpen()) {
-                this.refreshMarketData();
-            }
-        }, 10000);
+        // Disabled auto-polling to ensure all requests are user-driven
+        console.log('⏱️ Auto-polling disabled');
     }
     
     async refreshCriticalData() {
