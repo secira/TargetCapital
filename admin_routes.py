@@ -3,6 +3,7 @@ Admin Routes for Target Capital Trading Platform
 Separate admin module with authentication and management features
 """
 
+import os
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
@@ -39,6 +40,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
+        # Try finding in database first
         admin = Admin.query.filter_by(username=username, active=True).first()
         
         if admin and admin.check_password(password):
@@ -49,8 +51,19 @@ def login():
             
             flash('Welcome to Target Capital Admin Dashboard!', 'success')
             return redirect(url_for('admin.dashboard'))
-        else:
-            flash('Invalid credentials. Please try again.', 'error')
+            
+        # Fallback to hardcoded credentials if not in database
+        ADMIN_CREDENTIALS = {
+            'admin': os.environ.get('ADMIN_PASSWORD', 'admin123'),
+            'tcapital_admin': os.environ.get('ADMIN_PASSWORD', 'tcapital2025')
+        }
+        if username in ADMIN_CREDENTIALS and ADMIN_CREDENTIALS[username] == password:
+            session['admin_id'] = 0  # Special ID for hardcoded admin
+            session['admin_username'] = username
+            flash('Logged in via emergency credentials', 'warning')
+            return redirect(url_for('admin.dashboard'))
+            
+        flash('Invalid credentials. Please try again.', 'error')
     
     return render_template('admin/login.html')
 
