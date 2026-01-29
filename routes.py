@@ -1024,6 +1024,11 @@ def login():
             user.last_login = datetime.utcnow()
             db.session.commit()
             flash('Logged in successfully!', 'success')
+            
+            # Redirect admins to admin dashboard
+            if user.is_admin:
+                return redirect(url_for('admin.dashboard'))
+                
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
