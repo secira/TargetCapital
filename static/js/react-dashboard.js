@@ -50,66 +50,6 @@ class DashboardApp {
         this.updateConnectionStatus('trading', 'disconnected');
     }
     
-    enableDemoMode() {
-        // Demo mode disabled to prevent unsolicited data polling
-        console.log('🎭 Demo mode is available but not auto-started');
-    }
-    
-    generateDemoMarketData() {
-        const baseValues = {
-            'NIFTY': 25041.10,
-            'BANKNIFTY': 51234.80,
-            'SENSEX': 81523.45,
-            'RELIANCE': 2845.60,
-            'TCS': 4125.30,
-            'INFY': 1756.25
-        };
-        
-        const marketData = { indices: {}, stocks: {} };
-        
-        Object.entries(baseValues).forEach(([symbol, baseValue]) => {
-            const change = (Math.random() - 0.5) * 4; // -2% to +2%
-            const newValue = baseValue * (1 + change / 100);
-            
-            if (['NIFTY', 'BANKNIFTY', 'SENSEX'].includes(symbol)) {
-                marketData.indices[symbol] = {
-                    value: newValue.toFixed(2),
-                    change: change.toFixed(2)
-                };
-            } else {
-                marketData.stocks[symbol] = {
-                    price: newValue.toFixed(2),
-                    change: change.toFixed(2),
-                    volume: `${(Math.random() * 5 + 1).toFixed(1)}M`
-                };
-            }
-        });
-        
-        return marketData;
-    }
-    
-    generateDemoSignal() {
-        const symbols = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'SBIN', 'ITC'];
-        const actions = ['BUY', 'SELL', 'HOLD'];
-        const reasons = [
-            'Strong momentum detected',
-            'Technical breakout pattern',
-            'Volume spike observed',
-            'Support level holding',
-            'Resistance broken',
-            'AI pattern recognition'
-        ];
-        
-        return {
-            id: Date.now(),
-            symbol: symbols[Math.floor(Math.random() * symbols.length)],
-            action: actions[Math.floor(Math.random() * actions.length)],
-            confidence: Math.floor(Math.random() * 40) + 60, // 60-100%
-            reason: reasons[Math.floor(Math.random() * reasons.length)],
-            timestamp: new Date()
-        };
-    }
-    
     async loadInitialData() {
         // Data loading disabled - all requests must be user-initiated
         console.log('📋 Initial data loading disabled - waiting for user interaction');
@@ -360,119 +300,27 @@ class RealTimeStatus {
     }
 }
 
-// Performance Metrics Component
+// Performance Metrics Component (simplified)
 class PerformanceMetrics {
     constructor(element) {
         this.element = element;
-        this.metrics = {};
-        this.startMonitoring();
-    }
-    
-    startMonitoring() {
-        // Auto-monitoring disabled
-        this.collectMetrics();
-        this.render();
-    }
-    
-    collectMetrics() {
-        // Collect various performance metrics
-        this.metrics = {
-            pageLoadTime: this.getPageLoadTime(),
-            memoryUsage: this.getMemoryUsage(),
-            connectionLatency: this.getConnectionLatency(),
-            wsConnections: this.getWebSocketCount(),
-            lastUpdate: new Date().toLocaleTimeString()
-        };
-    }
-    
-    getPageLoadTime() {
-        if (performance.timing) {
-            return performance.timing.loadEventEnd - performance.timing.navigationStart;
-        }
-        return 0;
-    }
-    
-    getMemoryUsage() {
-        if (performance.memory) {
-            return {
-                used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-                total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024)
-            };
-        }
-        return null;
-    }
-    
-    getConnectionLatency() {
-        // Simplified latency calculation
-        return Math.random() * 50 + 10; // 10-60ms simulation
-    }
-    
-    getWebSocketCount() {
-        return window.dashboardApp ? window.dashboardApp.websockets.size : 0;
-    }
-    
-    render() {
-        if (!this.element) return;
-        
-        const { pageLoadTime, memoryUsage, connectionLatency, wsConnections, lastUpdate } = this.metrics;
-        
-        this.element.innerHTML = `
-            <div class="performance-metrics">
-                <h6 class="mb-3">⚡ Performance Metrics</h6>
-                
-                <div class="row">
-                    <div class="col-6 mb-2">
-                        <div class="metric-item">
-                            <small class="text-muted">Page Load</small>
-                            <div class="fw-bold">${pageLoadTime}ms</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-2">
-                        <div class="metric-item">
-                            <small class="text-muted">Latency</small>
-                            <div class="fw-bold">${Math.round(connectionLatency)}ms</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-2">
-                        <div class="metric-item">
-                            <small class="text-muted">Memory</small>
-                            <div class="fw-bold">${memoryUsage ? `${memoryUsage.used}MB` : 'N/A'}</div>
-                        </div>
-                    </div>
-                    <div class="col-6 mb-2">
-                        <div class="metric-item">
-                            <small class="text-muted">WS Conn</small>
-                            <div class="fw-bold">${wsConnections}</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-end mt-2">
-                    <small class="text-muted">Updated: ${lastUpdate}</small>
-                </div>
-            </div>
-        `;
     }
 }
 
-// Initialize Dashboard App when DOM is ready
+// Initialize Dashboard App only on dashboard pages
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize main dashboard app
+    // Only initialize on dashboard pages (not landing page)
+    const isDashboardPage = window.location.pathname.startsWith('/dashboard');
+    if (!isDashboardPage) {
+        return;
+    }
+    
     window.dashboardApp = new DashboardApp();
     
-    // Initialize status component
     const statusElement = document.querySelector('[data-component="realtime-status"]');
     if (statusElement) {
         new RealTimeStatus(statusElement);
     }
-    
-    // Initialize performance metrics
-    const metricsElement = document.querySelector('[data-component="performance-metrics"]');
-    if (metricsElement) {
-        new PerformanceMetrics(metricsElement);
-    }
-    
-    // Visibility change handling disabled - no auto-refresh
 });
 
 // Cleanup on page unload
@@ -483,11 +331,8 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Export for global access
-window.TargeTarget CapitalDashboard = {
+window.TargetCapitalDashboard = {
     DashboardApp,
     RealTimeStatus,
     PerformanceMetrics
 };
-
-// Backward compatibility alias
-window.Target CapitalDashboard = window.TargeTarget CapitalDashboard;

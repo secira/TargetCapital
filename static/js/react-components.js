@@ -41,151 +41,40 @@ class Component {
 window.Component = Component;
 }
 
-// WebSocket Hook for React-like data management
+// WebSocket Manager (disabled for production - user-initiated data only)
 if (!window.WebSocketManager) {
 class WebSocketManager {
     constructor() {
         this.connections = new Map();
-        this.subscribers = new Map();
-        this.reconnectAttempts = new Map();
-        this.maxReconnectAttempts = 5;
-        this.reconnectDelay = 1000; // Start with 1 second
     }
     
     connect(url, onMessage, options = {}) {
-        const connectionId = `${url}_${Date.now()}`;
-        
-        try {
-            const ws = new WebSocket(url);
-            
-            ws.onopen = () => {
-                console.log(`✅ WebSocket connected: ${url}`);
-                this.reconnectAttempts.set(connectionId, 0);
-                this.reconnectDelay = 1000; // Reset delay
-                
-                if (options.onOpen) options.onOpen();
-            };
-            
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    onMessage(data);
-                } catch (error) {
-                    console.error('WebSocket message parse error:', error);
-                }
-            };
-            
-            ws.onclose = (event) => {
-                console.log(`🔌 WebSocket disconnected: ${url}`);
-                this.connections.delete(connectionId);
-                
-                // Attempt reconnection if not manually closed
-                if (!event.wasClean && options.autoReconnect !== false) {
-                    this.reconnect(url, onMessage, options, connectionId);
-                }
-                
-                if (options.onClose) options.onClose(event);
-            };
-            
-            ws.onerror = (error) => {
-                console.error(`❌ WebSocket error: ${url}`, error);
-                if (options.onError) options.onError(error);
-            };
-            
-            this.connections.set(connectionId, ws);
-            return connectionId;
-            
-        } catch (error) {
-            console.error('WebSocket connection failed:', error);
-            return null;
-        }
+        console.log('WebSocket connections disabled');
+        return null;
     }
     
-    reconnect(url, onMessage, options, connectionId) {
-        const attempts = this.reconnectAttempts.get(connectionId) || 0;
-        
-        if (attempts >= this.maxReconnectAttempts) {
-            console.error(`❌ Max reconnection attempts reached for ${url}`);
-            return;
-        }
-        
-        const delay = this.reconnectDelay * Math.pow(2, attempts); // Exponential backoff
-        
-        setTimeout(() => {
-            console.log(`🔄 Reconnecting to ${url} (attempt ${attempts + 1})`);
-            this.reconnectAttempts.set(connectionId, attempts + 1);
-            this.connect(url, onMessage, options);
-        }, delay);
-    }
-    
-    disconnect(connectionId) {
-        const ws = this.connections.get(connectionId);
-        if (ws) {
-            ws.close();
-            this.connections.delete(connectionId);
-        }
-    }
-    
-    send(connectionId, data) {
-        const ws = this.connections.get(connectionId);
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify(data));
-            return true;
-        }
-        return false;
-    }
-    
-    disconnectAll() {
-        for (const [id, ws] of this.connections) {
-            ws.close();
-        }
-        this.connections.clear();
-    }
+    disconnect(connectionId) {}
+    send(connectionId, data) { return false; }
+    disconnectAll() { this.connections.clear(); }
 }
 window.WebSocketManager = WebSocketManager;
 }
 
-// Global WebSocket manager instance (avoid duplicate declaration error)
 if (!window.wsManager) {
     window.wsManager = new WebSocketManager();
 }
 var wsManager = window.wsManager;
 
-// Real-time Market Data Component
+// Real-time Market Data Component (user-initiated data only)
 class RealTimeMarketData extends Component {
     init() {
         this.state = {
             marketData: {},
             isConnected: false,
             lastUpdate: null,
-            connectionStatus: 'connecting'
+            connectionStatus: 'ready'
         };
-        
-        this.connectWebSocket();
         this.render();
-    }
-    
-    connectWebSocket() {
-        this.wsConnection = wsManager.connect(
-            'ws://localhost:8001',
-            (data) => this.handleMarketData(data),
-            {
-                onOpen: () => this.setState({ isConnected: true, connectionStatus: 'connected' }),
-                onClose: () => this.setState({ isConnected: false, connectionStatus: 'disconnected' }),
-                onError: () => this.setState({ connectionStatus: 'error' }),
-                autoReconnect: true
-            }
-        );
-    }
-    
-    handleMarketData(data) {
-        if (data.type === 'market_data') {
-            this.setState({
-                marketData: { ...this.state.marketData, ...data.data },
-                lastUpdate: new Date().toLocaleTimeString(),
-                connectionStatus: 'connected'
-            });
-        }
     }
     
     render() {
@@ -757,27 +646,26 @@ class ComponentManager {
 // Global component manager
 const componentManager = new ComponentManager();
 
-// Auto-mount components when DOM is ready
+// Auto-mount components only on dashboard pages
 document.addEventListener('DOMContentLoaded', () => {
-    // Mount real-time market data component
+    const isDashboardPage = window.location.pathname.startsWith('/dashboard');
+    if (!isDashboardPage) return;
+    
     const marketDataElement = document.querySelector('[data-component="realtime-market"]');
     if (marketDataElement) {
         componentManager.mount('[data-component="realtime-market"]', RealTimeMarketData);
     }
     
-    // Mount trading interface
     const tradingElement = document.querySelector('[data-component="trading-interface"]');
     if (tradingElement) {
         componentManager.mount('[data-component="trading-interface"]', TradingInterface);
     }
     
-    // Mount portfolio component
     const portfolioElement = document.querySelector('[data-component="portfolio"]');
     if (portfolioElement) {
         componentManager.mount('[data-component="portfolio"]', Portfolio);
     }
     
-    // Mount AI signals component
     const signalsElement = document.querySelector('[data-component="ai-signals"]');
     if (signalsElement) {
         componentManager.mount('[data-component="ai-signals"]', AITradingSignals);
@@ -790,8 +678,8 @@ window.addEventListener('beforeunload', () => {
     wsManager.disconnectAll();
 });
 
-// Export for global access - cache refresh v2
-window.Target CapitalComponents = {
+// Export for global access
+window.TargetCapitalComponents = {
     RealTimeMarketData,
     TradingInterface,
     Portfolio,

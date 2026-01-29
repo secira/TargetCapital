@@ -9,26 +9,14 @@ class Target CapitalDatafeed {
         this.debug = true;
     }
 
-    // Required method - provides datafeed configuration
+    // Required method - provides datafeed configuration (no network call)
     onReady(callback) {
-        this.log('onReady called');
-        
-        fetch(`${this.baseUrl}/config`)
-            .then(response => response.json())
-            .then(config => {
-                this.log('Configuration received', config);
-                callback(config);
-            })
-            .catch(error => {
-                this.log('Configuration error', error);
-                // Fallback configuration
-                callback({
-                    supported_resolutions: ['1', '5', '15', '30', '60', '1D', '1W', '1M'],
-                    supports_marks: false,
-                    supports_timescale_marks: false,
-                    supports_time: true
-                });
-            });
+        callback({
+            supported_resolutions: ['1', '5', '15', '30', '60', '1D', '1W', '1M'],
+            supports_marks: false,
+            supports_timescale_marks: false,
+            supports_time: true
+        });
     }
 
     // Symbol search
@@ -159,18 +147,9 @@ class Target CapitalDatafeed {
         }
     }
 
-    // Real-time update polling
+    // Real-time update polling disabled - user must manually refresh
     startRealTimeUpdates(subscribeUID) {
-        const subscription = this.subscriptions[subscribeUID];
-        if (!subscription) return;
-
-        // Poll for updates every 10 seconds
-        subscription.pollInterval = setInterval(() => {
-            this.updateRealTimeData(subscribeUID);
-        }, 10000);
-
-        // Get initial update immediately
-        this.updateRealTimeData(subscribeUID);
+        console.log('Real-time polling disabled - data refreshes on user action only');
     }
 
     // Update real-time data
