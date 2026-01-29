@@ -1,8 +1,11 @@
 # Railway Nixpacks configuration for Target Capital
-# Uses Python auto-detection with custom start command
+# Uses Python 3.11 with PostgreSQL
 
 [phases.setup]
-nixPkgs = ["postgresql"]
+nixPkgs = ["python311", "postgresql"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
 
 [start]
 cmd = "python railway_migrate.py && gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --worker-class gthread --timeout 120 --keep-alive 5 --max-requests 1000 --max-requests-jitter 100 main:app"
