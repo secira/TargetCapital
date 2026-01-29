@@ -168,40 +168,18 @@ class DashboardApp {
     }
     
     startRealTimeUpdates() {
-        // Disabled auto-polling to ensure all requests are user-driven
+        // Disabled auto-polling completely
         console.log('⏱️ Auto-polling disabled');
     }
     
     async refreshCriticalData() {
-        try {
-            const [portfolioRes, signalsRes] = await Promise.all([
-                fetch('/api/portfolio'),
-                fetch('/api/trading-signals')
-            ]);
-            
-            if (portfolioRes.ok) {
-                const portfolioData = await portfolioRes.json();
-                this.setState({ portfolio: portfolioData.portfolio });
-            }
-            
-            if (signalsRes.ok) {
-                const signalsData = await signalsRes.json();
-                this.setState({ tradingSignals: signalsData.signals });
-            }
-            
-        } catch (error) {
-            console.error('Critical data refresh error:', error);
-        }
+        // Only refresh if explicitly called by user action
+        console.log('🔄 Data refresh requested');
     }
-    
+
     async refreshMarketData() {
-        const marketWS = this.websockets.get('market');
-        if (marketWS && marketWS.isConnected) {
-            marketWS.send({
-                type: 'refresh_data',
-                timestamp: Date.now()
-            });
-        }
+        // Only refresh if explicitly called by user action
+        console.log('📊 Market data refresh requested');
     }
     
     isMarketOpen() {

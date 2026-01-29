@@ -28,120 +28,13 @@ class WebSocketClient {
     }
     
     connect() {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            return Promise.resolve();
-        }
-        
-        return new Promise((resolve, reject) => {
-            try {
-                console.log(`🔌 Connecting to WebSocket: ${this.url}`);
-                this.connectionState = 'connecting';
-                this.emit('connecting');
-                
-                this.ws = new WebSocket(this.url, this.protocols);
-                
-                this.ws.onopen = (event) => {
-                    console.log(`✅ WebSocket connected: ${this.url}`);
-                    this.connectionState = 'connected';
-                    this.reconnectAttempts = 0;
-                    this.reconnectInterval = 1000; // Reset interval
-                    
-                    // Send queued messages
-                    this.flushMessageQueue();
-                    
-                    // Start heartbeat
-                    this.startHeartbeat();
-                    
-                    this.emit('open', event);
-                    resolve();
-                };
-                
-                this.ws.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        
-                        // Handle heartbeat responses
-                        if (data.type === 'pong') {
-                            return;
-                        }
-                        
-                        this.emit('message', data, event);
-                        
-                        // Emit specific message type events
-                        if (data.type) {
-                            this.emit(data.type, data, event);
-                        }
-                        
-                    } catch (error) {
-                        console.error('WebSocket message parse error:', error);
-                        this.emit('error', error);
-                    }
-                };
-                
-                this.ws.onclose = (event) => {
-                    console.log(`🔌 WebSocket disconnected: ${this.url}`);
-                    this.connectionState = 'disconnected';
-                    this.stopHeartbeat();
-                    
-                    this.emit('close', event);
-                    
-                    // Auto-reconnect if enabled and not a clean close
-                    if (this.autoReconnect && !event.wasClean) {
-                        this.scheduleReconnect();
-                    }
-                };
-                
-                this.ws.onerror = (error) => {
-                    console.error(`❌ WebSocket error: ${this.url}`, error);
-                    this.connectionState = 'error';
-                    this.emit('error', error);
-                    reject(error);
-                };
-                
-                // Connection timeout
-                setTimeout(() => {
-                    if (this.connectionState === 'connecting') {
-                        this.ws.close();
-                        reject(new Error('WebSocket connection timeout'));
-                    }
-                }, 10000);
-                
-            } catch (error) {
-                reject(error);
-            }
-        });
-    }
-    
-    disconnect() {
-        this.autoReconnect = false;
-        this.stopHeartbeat();
-        
-        if (this.ws) {
-            this.ws.close();
-            this.ws = null;
-        }
-        
-        this.connectionState = 'disconnected';
-        this.emit('disconnect');
+        console.log('🔌 WebSocket connections are disabled. All requests must be user-driven.');
+        return Promise.reject(new Error('WebSocket connection disabled'));
     }
     
     send(data) {
-        const message = JSON.stringify(data);
-        
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(message);
-            return true;
-        } else {
-            // Queue message for when connection is restored
-            this.messageQueue.push(message);
-            
-            // Attempt to connect if not connecting
-            if (this.connectionState === 'disconnected') {
-                this.connect();
-            }
-            
-            return false;
-        }
+        console.log('📡 Data send requested but connection is disabled:', data);
+        return false;
     }
     
     flushMessageQueue() {
