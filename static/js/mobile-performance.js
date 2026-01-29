@@ -363,20 +363,7 @@ class MobilePerformanceManager {
     }
     
     prefetchPage(url) {
-        if (this.prefetchedUrls?.has(url)) return;
-        
-        if (!this.prefetchedUrls) {
-            this.prefetchedUrls = new Set();
-        }
-        
-        // Create prefetch link
-        const linkElement = document.createElement('link');
-        linkElement.rel = 'prefetch';
-        linkElement.href = url;
-        document.head.appendChild(linkElement);
-        
-        this.prefetchedUrls.add(url);
-        console.log(`🔮 Prefetching: ${url}`);
+        // Prefetching disabled
     }
     
     initPWAFeatures() {

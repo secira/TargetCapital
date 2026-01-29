@@ -336,26 +336,9 @@ class DemoWebSocketSimulator {
     }
 }
 
-// Auto-start demo mode if WebSocket servers are not available
+// Auto-start demo mode disabled - all requests must be user-initiated
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for initial connection attempts
-    setTimeout(() => {
-        const hasWebSocketErrors = document.querySelector('[data-component="realtime-status"] .badge')?.textContent?.includes('Demo') ||
-                                 document.querySelector('[data-component="realtime-status"] .badge')?.classList?.contains('bg-warning');
-        
-        if (hasWebSocketErrors || !window.dashboardApp?.websockets?.size) {
-            console.log('🎭 WebSocket servers not available - starting demo mode');
-            
-            // Initialize demo simulator
-            window.demoSimulator = new DemoWebSocketSimulator();
-            window.demoSimulator.start();
-            
-            // Update portfolio values with demo data
-            setTimeout(() => {
-                updatePortfolioWithDemoData();
-            }, 2000);
-        }
-    }, 5000);
+    console.log('🎭 Demo simulator available but not auto-started');
 });
 
 function updatePortfolioWithDemoData() {

@@ -441,8 +441,7 @@ window.TargetCapitalComponents = window.CapitalComponents;
             lastSync: null
         };
         
-        this.connectPortfolioWebSocket();
-        this.loadPortfolioData();
+        // Auto-loading disabled - all requests must be user-initiated
         this.render();
     }
     
@@ -587,8 +586,7 @@ class AITradingSignals extends Component {
             lastUpdate: null
         };
         
-        this.loadSignals();
-        this.setupAutoRefresh();
+        // Auto-loading disabled - all requests must be user-initiated
         this.render();
     }
     
@@ -610,12 +608,8 @@ class AITradingSignals extends Component {
     }
     
     setupAutoRefresh() {
-        // Auto-refresh every 30 seconds
-        this.refreshInterval = setInterval(() => {
-            if (this.state.autoRefresh) {
-                this.loadSignals();
-            }
-        }, 30000);
+        // Auto-refresh disabled - all requests must be user-initiated
+        console.log('⏱️ Auto-refresh disabled');
     }
     
     render() {

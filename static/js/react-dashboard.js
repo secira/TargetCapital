@@ -111,31 +111,8 @@ class DashboardApp {
     }
     
     async loadInitialData() {
-        try {
-            // Load user data
-            const userResponse = await fetch('/api/user/profile');
-            if (userResponse.ok) {
-                const userData = await userResponse.json();
-                this.setState({ user: userData.user });
-            }
-            
-            // Load portfolio data
-            const portfolioResponse = await fetch('/api/portfolio');
-            if (portfolioResponse.ok) {
-                const portfolioData = await portfolioResponse.json();
-                this.setState({ portfolio: portfolioData.portfolio });
-            }
-            
-            // Load trading signals
-            const signalsResponse = await fetch('/api/trading-signals');
-            if (signalsResponse.ok) {
-                const signalsData = await signalsResponse.json();
-                this.setState({ tradingSignals: signalsData.signals });
-            }
-            
-        } catch (error) {
-            console.error('Initial data load error:', error);
-        }
+        // Data loading disabled - all requests must be user-initiated
+        console.log('📋 Initial data loading disabled - waiting for user interaction');
     }
     
     mountComponents() {
@@ -346,9 +323,7 @@ class RealTimeStatus {
     constructor(element) {
         this.element = element;
         this.render();
-        
-        // Update every second
-        setInterval(() => this.render(), 1000);
+        // Auto-update disabled
     }
     
     render() {
@@ -394,13 +369,7 @@ class PerformanceMetrics {
     }
     
     startMonitoring() {
-        // Monitor performance every 10 seconds
-        setInterval(() => {
-            this.collectMetrics();
-            this.render();
-        }, 10000);
-        
-        // Initial collection
+        // Auto-monitoring disabled
         this.collectMetrics();
         this.render();
     }
@@ -503,19 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
         new PerformanceMetrics(metricsElement);
     }
     
-    // Handle page visibility for performance optimization
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            // Page is hidden, reduce update frequency
-            console.log('📱 Page hidden - reducing update frequency');
-        } else {
-            // Page is visible, resume normal updates
-            console.log('📱 Page visible - resuming normal updates');
-            if (window.dashboardApp) {
-                window.dashboardApp.refreshCriticalData();
-            }
-        }
-    });
+    // Visibility change handling disabled - no auto-refresh
 });
 
 // Cleanup on page unload

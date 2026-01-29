@@ -362,11 +362,9 @@ function usePerformanceMonitor() {
             window.addEventListener('load', monitor);
         }
         
-        // Monitor performance every 30 seconds
-        const interval = setInterval(monitor, 30000);
+        // Performance monitoring interval disabled
         
         return () => {
-            clearInterval(interval);
             window.removeEventListener('load', monitor);
         };
     }, []);
