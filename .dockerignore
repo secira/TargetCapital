@@ -1,0 +1,55 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.err.log
+*.out.log
+
+# Documentation
+README.md
+SETUP_COMPLETE.md
+DEPLOYMENT_READINESS.md
+*.md
+
+# Tests
+tests/
+test_reports/
+.pytest_cache/
+
+# Environment
+.env.local
+.env.*.local
+
+# Misc
+node_modules/
+.cache/
+.emergent/
