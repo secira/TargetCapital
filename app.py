@@ -183,7 +183,9 @@ else:
                 "'self'",
                 'https://*.replit.dev',
                 'https://*.replit.com',
-                'https://replit.com'
+                'https://replit.com',
+                'https://app.emergent.sh',
+                'https://*.emergentagent.com'
             ]
         },
         frame_options='ALLOWALL'  # Allow iframe embedding for Replit preview
