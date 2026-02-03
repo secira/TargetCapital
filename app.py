@@ -367,19 +367,15 @@ def start_all_websocket_servers():
     except Exception as e:
         logging.error(f"❌ Failed to start WebSocket servers: {e}")
 
-def cleanup_websocket_servers():
-    """Cleanup WebSocket servers on app shutdown"""
-    logging.info("🛑 Shutting down WebSocket servers...")
-    websocket_shutdown_event.set()
-    
-    # Wait for threads to complete (with timeout)
-    for thread in websocket_threads:
-        thread.join(timeout=5)
-    
-    logging.info("✅ WebSocket servers shutdown complete")
-
-# Register cleanup handler
-atexit.register(cleanup_websocket_servers)
+# WebSocket cleanup DISABLED - WebSocket servers are not started in user-driven mode
+# def cleanup_websocket_servers():
+#     """Cleanup WebSocket servers on app shutdown"""
+#     logging.info("🛑 Shutting down WebSocket servers...")
+#     websocket_shutdown_event.set()
+#     for thread in websocket_threads:
+#         thread.join(timeout=5)
+#     logging.info("✅ WebSocket servers shutdown complete")
+# atexit.register(cleanup_websocket_servers)
 
 # Register WebSocket API routes
 try:
@@ -388,15 +384,9 @@ try:
 except ImportError as e:
     logging.warning(f"WebSocket API routes not available: {e}")
 
-# Start WebSocket servers on app initialization
-logging.info("🚀 Starting Target Capital application with WebSocket support...")
-try:
-    from start_websockets import start_websockets_in_background
-    websocket_thread = start_websockets_in_background()
-    logging.info("✅ WebSocket servers launched in background")
-except Exception as e:
-    logging.error(f"❌ Failed to start WebSocket servers: {e}")
-    logging.info("🎭 Application will continue with demo mode fallback")
+# WebSocket servers DISABLED - system is strictly user-driven with no automatic background processes
+# Per user requirement: no automatic background polling, demo data generation, or WebSocket connections
+logging.info("🚀 Starting Target Capital application (user-driven mode - no WebSocket servers)")
 
 # Performance optimizations - Caching and security headers
 @app.after_request
