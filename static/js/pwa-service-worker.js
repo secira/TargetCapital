@@ -3,7 +3,7 @@
  * Handles caching, offline functionality, and background sync
  */
 
-const CACHE_NAME = 'target-capital-v1.2.0';
+const CACHE_NAME = 'target-capital-v1.2.1-' + Date.now();
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline functionality
