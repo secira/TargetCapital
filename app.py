@@ -93,10 +93,10 @@ def csrf_token():
 environment = os.environ.get("ENVIRONMENT", "development")
 is_production = environment == "production"
 
-# Initialize rate limiter (require Redis in production)
+# Initialize rate limiter (use Redis if available, fallback to memory)
 redis_url = os.environ.get("REDIS_URL")
 if is_production and not redis_url:
-    raise ValueError("REDIS_URL is required for rate limiting in production")
+    logging.warning("⚠️ REDIS_URL not set - using in-memory rate limiting (not recommended for production with multiple workers)")
 
 limiter = Limiter(
     key_func=get_remote_address,
