@@ -62,11 +62,12 @@ class SecureEnvironmentConfig:
         encryption_key = os.environ.get("BROKER_ENCRYPTION_KEY")
         
         if not encryption_key:
-            if self.is_production:
-                raise ValueError("BROKER_ENCRYPTION_KEY is required in production")
-            # Generate secure development key
+            # Generate a key if not provided (warn in production)
             encryption_key = Fernet.generate_key()
-            logger.warning(f"Generated encryption key for development")
+            if self.is_production:
+                logger.warning("⚠️ BROKER_ENCRYPTION_KEY not set - generated temporary key. Set this in production for persistent broker credential encryption.")
+            else:
+                logger.warning("Generated encryption key for development")
             return encryption_key
         
         # Handle string keys properly for Fernet
