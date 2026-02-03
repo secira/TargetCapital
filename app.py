@@ -289,8 +289,11 @@ with app.app_context():
     else:
         logging.info("⚠️ Skipping db.create_all() in production - use Alembic migrations")
     
-    # Initialize default 'live' tenant (Target Capital)
-    models.Tenant.get_or_create_default()
+    # Initialize default 'live' tenant (Target Capital) - only if tables exist
+    try:
+        models.Tenant.get_or_create_default()
+    except Exception as e:
+        logging.warning(f"⚠️ Could not initialize default tenant (tables may not exist yet): {e}")
     
     # Initialize tenant-aware SQLAlchemy infrastructure
     try:
