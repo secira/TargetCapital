@@ -17,17 +17,17 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-REPLIT_DEV_DOMAIN = os.environ.get("REPLIT_DEV_DOMAIN", "localhost:5000")
-DEV_REDIRECT_URL = f'https://{REPLIT_DEV_DOMAIN}/google_login/callback'
+APP_DOMAIN = os.environ.get("APP_DOMAIN", os.environ.get("REPLIT_DEV_DOMAIN", "localhost:5000"))
+REDIRECT_URL = f'https://{APP_DOMAIN}/google_login/callback'
 
 if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
-    logger.info(f"✅ Google OAuth configured with redirect URI: {DEV_REDIRECT_URL}")
+    logger.info(f"✅ Google OAuth configured with redirect URI: {REDIRECT_URL}")
 else:
     logger.warning(f"⚠️ Google OAuth not configured. Please set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET")
     logger.info(f"""To make Google authentication work:
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Create a new OAuth 2.0 Client ID
-3. Add {DEV_REDIRECT_URL} to Authorized redirect URIs
+3. Add {REDIRECT_URL} to Authorized redirect URIs
 4. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET environment variables
 """)
 

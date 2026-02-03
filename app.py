@@ -149,7 +149,8 @@ if is_production:
         'frame-ancestors': [
             "'self'",
             'https://*.replit.dev',
-            'https://*.replit.com'
+            'https://*.replit.com',
+            'https://*.railway.app'
         ],
     }
     
@@ -183,7 +184,8 @@ else:
                 "'self'",
                 'https://*.replit.dev',
                 'https://*.replit.com',
-                'https://replit.com'
+                'https://replit.com',
+                'https://*.railway.app'
             ]
         },
         frame_options='ALLOWALL'  # Allow iframe embedding for Replit preview
