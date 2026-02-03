@@ -368,8 +368,12 @@ Remember: You provide educational insights with real-time market context, not gu
 
     def initialize_knowledge_base(self):
         """Initialize knowledge base with basic investment concepts"""
-        if ChatbotKnowledgeBase.query.count() > 0:
-            return  # Already initialized
+        try:
+            if ChatbotKnowledgeBase.query.count() > 0:
+                return  # Already initialized
+        except Exception as e:
+            logger.warning(f"Could not check knowledge base (table may not exist): {e}")
+            return  # Skip initialization if table doesn't exist
             
         knowledge_items = [
             {
