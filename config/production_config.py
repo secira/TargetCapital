@@ -94,20 +94,12 @@ class ProductionConfig:
                     'level': level,
                     'formatter': 'detailed',
                     'stream': 'ext://sys.stdout'
-                },
-                'file': {
-                    'class': 'logging.handlers.RotatingFileHandler',
-                    'level': logging.WARNING,
-                    'formatter': 'detailed',
-                    'filename': 'logs/application.log',
-                    'maxBytes': 10485760,  # 10MB
-                    'backupCount': 5
                 }
             },
             'loggers': {
                 '': {  # root logger
                     'level': level,
-                    'handlers': ['console', 'file'],
+                    'handlers': ['console'],
                     'propagate': False
                 },
                 'sqlalchemy.engine': {
@@ -117,7 +109,7 @@ class ProductionConfig:
                 },
                 'celery': {
                     'level': logging.INFO,
-                    'handlers': ['console', 'file'],
+                    'handlers': ['console'],
                     'propagate': False
                 }
             }
