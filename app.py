@@ -156,7 +156,7 @@ if is_production:
     
     Talisman(
         app,
-        force_https=True,
+        force_https=False,  # Railway handles HTTPS at load balancer, internal health checks are HTTP
         strict_transport_security=True,
         content_security_policy=csp_policy,
         content_security_policy_nonce_in=['script-src'],

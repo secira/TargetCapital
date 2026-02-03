@@ -1,0 +1,35 @@
+You reached the start of the range
+Feb 3, 2026, 11:27 PM
+Starting Container
+2026-02-03 18:01:08 - root - INFO - [app.py:29] - ✅ Structured logging configured successfully
+2026-02-03 18:01:08 - security.environment_config - WARNING - [environment_config.py:68] - ⚠️ BROKER_ENCRYPTION_KEY not set - generated temporary key. Set this in production for persistent broker credential encryption.
+2026-02-03 18:01:08 - security.environment_config - WARNING - [environment_config.py:98] - PostgreSQL SSL not explicitly configured
+2026-02-03 18:01:08 - security.environment_config - INFO - [environment_config.py:292] - ✅ Environment configuration validated successfully
+2026-02-03 18:01:08 - root - INFO - [app.py:57] - ✅ Secure environment configuration loaded
+2026-02-03 18:01:08 - root - WARNING - [app.py:99] - ⚠️ REDIS_URL not set - using in-memory rate limiting (not recommended for production with multiple workers)
+2026-02-03 18:01:08 - middleware.tenant_sqlalchemy - INFO - [tenant_sqlalchemy.py:191] - ✅ Tenant-aware SQLAlchemy infrastructure configured
+2026-02-03 18:01:08 - security.environment_config - WARNING - [environment_config.py:126] - Redis SSL connection recommended for production
+2026-02-03 18:01:08 - security.environment_config - INFO - [environment_config.py:222] - ✅ Production security validation passed
+2026-02-03 18:01:08 - root - INFO - [app.py:220] - ✅ Enhanced database configuration loaded
+✅ Twilio client initialized successfully
+2026-02-03 18:01:08 - root - INFO - [app.py:290] - ⚠️ Skipping db.create_all() in production - use Alembic migrations
+2026-02-03 18:01:08 - middleware.tenant_sqlalchemy - INFO - [tenant_sqlalchemy.py:211] - ✅ Registered 50 tenant-scoped tables (total: 50)
+2026-02-03 18:01:08 - root - INFO - [app.py:303] - ✅ Tenant-aware SQLAlchemy infrastructure initialized
+2026-02-03 18:01:08 - google_auth - INFO - [google_auth.py:24] - ✅ Google OAuth configured with redirect URI: https://targetcapital.up.railway.app/google_login/callback
+2026-02-03 18:01:10 - root - INFO - [app.py:389] - 🚀 Starting Target Capital application (user-driven mode - no WebSocket servers)
+2026-02-03 18:01:10 - root - INFO - [routes.py:6257] - Application initialized successfully
+2026-02-03 18:01:10 - services.razorpay_service - INFO - [razorpay_service.py:33] - Razorpay service initialized successfully
+[2026-02-03 18:01:10 +0000] [2] [INFO] Starting gunicorn 25.0.1
+[2026-02-03 18:01:10 +0000] [2] [INFO] Target Capital server ready to accept connections
+[2026-02-03 18:01:10 +0000] [2] [INFO] Listening at:  (2)
+[2026-02-03 18:01:10 +0000] [2] [INFO] Using worker: gthread
+2026-02-03 18:01:10 - root - INFO - [routes.py:41] - ✅ Razorpay client initialized
+[2026-02-03 18:01:10 +0000] [98] [INFO] Booting worker with pid: 98
+[2026-02-03 18:01:10 +0000] [99] [INFO] Booting worker with pid: 99
+100.64.0.2 - - [03/Feb/2026:18:01:10 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 5804
+100.64.0.2 - - [03/Feb/2026:18:01:12 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 5620
+100.64.0.2 - - [03/Feb/2026:18:01:14 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 3300
+100.64.0.2 - - [03/Feb/2026:18:01:18 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 1775
+100.64.0.2 - - [03/Feb/2026:18:01:26 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 1481
+100.64.0.2 - - [03/Feb/2026:18:01:42 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 1479
+100.64.0.2 - - [03/Feb/2026:18:02:12 +0000] "GET /health HTTP/1.1" 302 263 "-" "RailwayHealthCheck/1.0" 1731
