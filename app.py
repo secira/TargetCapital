@@ -149,7 +149,9 @@ if is_production:
         'frame-ancestors': [
             "'self'",
             'https://*.replit.dev',
-            'https://*.replit.com'
+            'https://*.replit.com',
+            'https://app.emergent.sh',
+            'https://*.emergentagent.com'
         ],
     }
     
