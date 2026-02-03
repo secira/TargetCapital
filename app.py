@@ -383,15 +383,10 @@ try:
 except ImportError as e:
     logging.warning(f"WebSocket API routes not available: {e}")
 
-# Start WebSocket servers on app initialization
-logging.info("🚀 Starting Target Capital application with WebSocket support...")
-try:
-    from start_websockets import start_websockets_in_background
-    websocket_thread = start_websockets_in_background()
-    logging.info("✅ WebSocket servers launched in background")
-except Exception as e:
-    logging.error(f"❌ Failed to start WebSocket servers: {e}")
-    logging.info("🎭 Application will continue with demo mode fallback")
+# WebSocket servers disabled for Gunicorn compatibility
+# They conflict with port 8001 binding
+logging.info("🚀 Starting Target Capital application (WebSocket servers disabled for Gunicorn)")
+# WebSockets can be started separately if needed via separate process
 
 # Performance optimizations - Caching and security headers
 @app.after_request
