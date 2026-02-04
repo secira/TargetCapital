@@ -5800,19 +5800,44 @@ def account_profile():
 @app.route('/account/profile', methods=['POST'])
 @login_required
 def update_profile():
-    """Update user profile"""
+    """Update user profile - Only allows specific fields to prevent privilege escalation"""
     try:
-        current_user.first_name = request.form.get('first_name')
-        current_user.last_name = request.form.get('last_name')
-        current_user.email = request.form.get('email')
-        current_user.username = request.form.get('username')
+        # SECURITY: Explicit whitelist of updatable fields
+        # NEVER allow: is_admin, pricing_plan, subscription_status, tenant_id
+        ALLOWED_PROFILE_FIELDS = {'first_name', 'last_name', 'email', 'username'}
+        
+        # Safely update only allowed fields
+        if request.form.get('first_name'):
+            current_user.first_name = request.form.get('first_name')
+        if request.form.get('last_name'):
+            current_user.last_name = request.form.get('last_name')
+        if request.form.get('email'):
+            # Validate email uniqueness within tenant
+            new_email = request.form.get('email')
+            if new_email != current_user.email:
+                existing = TenantQuery(User).filter(User.email == new_email, User.id != current_user.id).first()
+                if existing:
+                    flash('Email already in use by another account.', 'error')
+                    return redirect(url_for('account_profile'))
+            current_user.email = new_email
+        if request.form.get('username'):
+            # Validate username uniqueness within tenant
+            new_username = request.form.get('username')
+            if new_username != current_user.username:
+                existing = TenantQuery(User).filter(User.username == new_username, User.id != current_user.id).first()
+                if existing:
+                    flash('Username already in use by another account.', 'error')
+                    return redirect(url_for('account_profile'))
+            current_user.username = new_username
         
         db.session.commit()
+        logging.info(f"User {current_user.id} updated profile fields: {list(ALLOWED_PROFILE_FIELDS & set(request.form.keys()))}")
         flash('Profile updated successfully!', 'success')
         
     except Exception as e:
         db.session.rollback()
-        flash('Error updating profile: ' + str(e), 'error')
+        logging.error(f"Profile update failed for user {current_user.id}: {str(e)}")
+        flash('Error updating profile. Please try again.', 'error')
         
     return redirect(url_for('account_profile'))
 

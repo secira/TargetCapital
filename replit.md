@@ -52,6 +52,33 @@ Implements defense-in-depth tenant isolation through three layers:
 2.  **PostgreSQL Row-Level Security (RLS)**: Dynamic RLS policy creation for tenant-scoped tables using `current_setting('app.tenant_id')`.
 3.  **Per-Tenant Encryption Service**: Hierarchical key management and Fernet-based field-level encryption for sensitive columns using an `EncryptedColumn Descriptor`.
 
+**Application Security Controls (February 2026)**:
+1.  **User Data Isolation**:
+    - All database queries filter by `user_id=current_user.id` to prevent cross-user data access
+    - Tenant isolation via `TenantAwareQuery` automatically applies tenant_id filters on all SELECT queries
+    - URL manipulation protection: All resource access routes verify user ownership before returning data
+    - Helper functions: `verify_resource_ownership()` and `@require_resource_ownership` decorator in `middleware/tenant_middleware.py`
+
+2.  **API Keys & Secrets Protection**:
+    - All API keys stored as environment variables, never hardcoded
+    - Broker credentials encrypted with per-tenant Fernet encryption (HKDF-derived keys)
+    - ENCRYPTION_MASTER_KEY required in production for persistent encryption
+    - Secrets managed via Replit/Railway secrets management (never in code)
+    - Rate limiting via Flask-Limiter to prevent brute force attacks
+
+3.  **Privilege Escalation Prevention**:
+    - `is_admin` and `pricing_plan` fields cannot be modified via user-facing forms
+    - Profile updates use explicit field whitelist: `ALLOWED_PROFILE_FIELDS = {'first_name', 'last_name', 'email', 'username'}`
+    - `@admin_required` decorator protects all admin routes
+    - Subscription changes only via verified Razorpay payment webhooks
+    - Registration creates users with `is_admin=False` and `pricing_plan=FREE` by default
+
+**Security Files**:
+- `security/tenant_encryption.py`: Per-tenant encryption service with HKDF key derivation
+- `middleware/tenant_middleware.py`: Tenant resolution, `verify_resource_ownership()`, `@require_resource_ownership`
+- `middleware/tenant_sqlalchemy.py`: Automatic tenant filtering for all ORM queries
+- `routes.py`: `@admin_required` decorator, `@login_required` for protected routes
+
 ### External Dependencies
 -   **Python Packages**: Flask, Flask-SQLAlchemy, Werkzeug, NSEPython, Pandas, Requests, LangGraph, LangChain, LangChain-OpenAI, LangChain-Community, cryptography.
 -   **Frontend Libraries**: Bootstrap 5.3.0, Font Awesome 6.4.0, Google Fonts (Inter).

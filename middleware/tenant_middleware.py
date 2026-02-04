@@ -265,3 +265,72 @@ def create_for_tenant(model_class, tenant_id=None, **kwargs):
         kwargs['tenant_id'] = effective_tenant_id
     
     return model_class(**kwargs)
+
+
+def verify_resource_ownership(model_class, resource_id, user_id=None, user_id_field='user_id'):
+    """
+    SECURITY: Verify that a resource belongs to the current user.
+    Returns the resource if owned, None otherwise.
+    
+    This prevents unauthorized access via URL manipulation.
+    
+    Usage:
+        broker = verify_resource_ownership(BrokerAccount, broker_id)
+        if not broker:
+            return jsonify({'error': 'Resource not found'}), 404
+    
+    Args:
+        model_class: The SQLAlchemy model class
+        resource_id: The ID of the resource to verify
+        user_id: Optional user ID (defaults to current_user.id)
+        user_id_field: The field name for user ownership (default: 'user_id')
+    
+    Returns:
+        The resource if owned by the user, None otherwise
+    """
+    from flask_login import current_user
+    
+    if user_id is None:
+        if not current_user.is_authenticated:
+            return None
+        user_id = current_user.id
+    
+    # Build filter criteria
+    filter_kwargs = {'id': resource_id, user_id_field: user_id}
+    
+    # Add tenant filter if model has tenant_id
+    if hasattr(model_class, 'tenant_id'):
+        filter_kwargs['tenant_id'] = get_current_tenant_id()
+    
+    return model_class.query.filter_by(**filter_kwargs).first()
+
+
+def require_resource_ownership(model_class, id_param='id', user_id_field='user_id'):
+    """
+    Decorator to require resource ownership for a route.
+    
+    Usage:
+        @app.route('/api/broker/<int:broker_id>')
+        @login_required
+        @require_resource_ownership(BrokerAccount, id_param='broker_id')
+        def get_broker(broker_id):
+            # g.resource contains the verified resource
+            return jsonify(g.resource.to_dict())
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            from flask import abort
+            
+            resource_id = kwargs.get(id_param)
+            if resource_id is None:
+                abort(400, "Resource ID required")
+            
+            resource = verify_resource_ownership(model_class, resource_id, user_id_field=user_id_field)
+            if resource is None:
+                abort(404, "Resource not found")
+            
+            g.resource = resource
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
