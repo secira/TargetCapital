@@ -2,6 +2,8 @@
  * Mobile Navigation Enhancement
  * Touch-optimized navigation for mobile devices
  */
+(function() {
+'use strict';
 
 class MobileNavigation {
     constructor() {
@@ -505,5 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.mobileNav = new MobileNavigation();
 });
 
-// Export for global access
 window.MobileNavigation = MobileNavigation;
+
+})();

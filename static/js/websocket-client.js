@@ -2,6 +2,8 @@
  * WebSocket Client for Target Capital (Disabled for Production)
  * All data fetching is user-initiated only
  */
+(function() {
+'use strict';
 
 class WebSocketClient {
     constructor(options = {}) {
@@ -48,6 +50,7 @@ function useState(initialValue) {
     return [() => value, setValue];
 }
 
-// Export for global usage
 window.WebSocketClient = WebSocketClient;
-window.TargetCapitalWebSocket = { WebSocketClient, useState };
+window.TargetCapitalWebSocket = { WebSocketClient: WebSocketClient, useState: useState };
+
+})();

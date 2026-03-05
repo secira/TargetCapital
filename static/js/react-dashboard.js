@@ -2,8 +2,9 @@
  * React-style Dashboard Components for Target Capital
  * High-performance real-time dashboard with WebSocket integration
  */
+(function() {
+'use strict';
 
-// Dashboard App - Main React-style component
 class DashboardApp {
     constructor() {
         this.state = {
@@ -332,7 +333,9 @@ window.addEventListener('beforeunload', () => {
 
 // Export for global access
 window.TargetCapitalDashboard = {
-    DashboardApp,
-    RealTimeStatus,
-    PerformanceMetrics
+    DashboardApp: DashboardApp,
+    RealTimeStatus: RealTimeStatus,
+    PerformanceMetrics: PerformanceMetrics
 };
+
+})();

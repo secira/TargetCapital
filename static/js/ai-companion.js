@@ -2,6 +2,8 @@
  * Target Capital AI Companion Mascot
  * Playful financial learning assistant with personality
  */
+(function() {
+'use strict';
 
 class AICompanion {
     constructor() {
@@ -488,7 +490,8 @@ class AICompanion {
     }
 }
 
-// Initialize the AI Companion when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     window.aiCompanion = new AICompanion();
 });
+
+})();

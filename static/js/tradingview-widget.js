@@ -2,6 +2,8 @@
  * TradingView Widget Integration for Target Capital
  * Provides embedded TradingView charts without requiring API credentials
  */
+(function() {
+'use strict';
 
 class TradingViewWidget {
     constructor() {
@@ -739,3 +741,5 @@ window.showTradingViewChart = function(symbol, type = 'stock') {
 if (!window.tradingViewWidget) {
     window.tradingViewWidget = new window.TradingViewWidgetClass();
 }
+
+})();

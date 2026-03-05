@@ -1,0 +1,45 @@
+9a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ 9a9623a3c4063d22.js:14Understand this warning
+ [OrgSwitcher] splitLink routing "preConnect" → org, selectedOrgId=none
+ [OrgSwitcher] org link headers: {"hasAuth":true,"hasCookie":false,"hasOrgHeader":false,"orgId":"none"}
+ createNativeOauthConnect [object Object]
+ Opening OAuth popup window [object Object]
+ adding message event listener
+37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/mobile-performance.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+ ⚡ Performance optimizations initialized
+ 📱 Mobile navigation initialized
+ 📱 Dashboard mobile enhancements initialized
+ targetcapital.ai says: JavaScript error: SyntaxError: Unexpected token '{'
+(anonymous) @ 37403e1a-2e82-46a3-8…ools/injected.js:37Understand this error
+37403e1a-2e82-46a3-8…t-components.js:323 Uncaught SyntaxError: Unexpected token '{'Understand this error
+ targetcapital.ai says: JavaScript error: SyntaxError: Identifier 'StateManager' has already been declared
+(anonymous) @ 37403e1a-2e82-46a3-8…ools/injected.js:37Understand this error
+37403e1a-2e82-46a3-8…js/react-hooks.js:1 Uncaught SyntaxError: Identifier 'StateManager' has already been declaredUnderstand this error
+37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/mobile-performance.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+ 📊 Page Performance Metrics: [object Object]
+ ✅ PWA Service Worker registered: https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/
+37403e1a-2e82-46a3-8….replit.dev/login:1 Uncaught (in promise) InvalidStateError: Failed to update a ServiceWorker for scope ('https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/') with script ('Unknown'): The object is in an invalid state.Understand this error
+error?authError=ChVyZWRpcmVjdF91cmlfbWlzbWF0Y2gSsAEKWW91IGNhbid0IHNpZ24gaW4gdG8gdGhpcyBhcHAgYmVjYXV…:1  Failed to load resource: the server responded with a status of 403 ()Understand this error
+stallwart.build.js:1 stallwart: failed ping 1
+1089a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ 9a9623a3c4063d22.js:14
+(anonymous) @ 249125a3355b8622.js:2
+uI @ 9954129c7dd6dc22.js:2
+oU @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2
+oI @ 9954129c7dd6dc22.js:2
+o_ @ 9954129c7dd6dc22.js:2
+r8 @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2Understand this warning
+stallwart.build.js:1 stallwart: failed ping 2
+4679a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ 9a9623a3c4063d22.js:14
+(anonymous) @ 249125a3355b8622.js:2
+uI @ 9954129c7dd6dc22.js:2
+oU @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2
+oI @ 9954129c7dd6dc22.js:2
+o_ @ 9954129c7dd6dc22.js:2
+r8 @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2Understand this warning
+stallwart.build.js:1 stallwart: failed ping 3

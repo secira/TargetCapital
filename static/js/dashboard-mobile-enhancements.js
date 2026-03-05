@@ -2,6 +2,8 @@
  * Dashboard Mobile Enhancements
  * Specific mobile optimizations for the dashboard interface
  */
+(function() {
+'use strict';
 
 class DashboardMobileEnhancements {
     constructor() {
@@ -700,5 +702,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.dashboardMobile = new DashboardMobileEnhancements();
 });
 
-// Export for global access
 window.DashboardMobileEnhancements = DashboardMobileEnhancements;
+
+})();

@@ -2,6 +2,8 @@
  * Progressive Web App (PWA) Handler for Target Capital
  * Provides app-like experience on mobile devices
  */
+(function() {
+'use strict';
 
 class PWAHandler {
     constructor() {
@@ -31,23 +33,11 @@ class PWAHandler {
     async registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('✅ Service Worker registered:', registration);
-                
-                // Handle service worker updates
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                this.showUpdateAvailable();
-                            }
-                        }
-                    });
-                });
-                
+                var registrations = await navigator.serviceWorker.getRegistrations();
+                for (var reg of registrations) {
+                    await reg.unregister();
+                }
             } catch (error) {
-                console.error('❌ Service Worker registration failed:', error);
             }
         }
     }
@@ -302,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
     new PWAHandler();
 });
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PWAHandler;
-}
+window.PWAHandler = PWAHandler;
+
+})();

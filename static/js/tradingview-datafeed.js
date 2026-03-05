@@ -2,6 +2,8 @@
  * TradingView Datafeed Implementation for Target Capital
  * Connects NSE data to TradingView charts
  */
+(function() {
+'use strict';
 
 class TargetCapitalDatafeed {
     constructor() {
@@ -194,5 +196,6 @@ class TargetCapitalDatafeed {
     }
 }
 
-// Export for use
 window.TargetCapitalDatafeed = TargetCapitalDatafeed;
+
+})();

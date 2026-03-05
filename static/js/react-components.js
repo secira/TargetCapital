@@ -3,10 +3,12 @@
  * Provides React-like component architecture with WebSocket integration
  * Optimized for production scalability and real-time updates
  */
+(function() {
+'use strict';
 
-// Component base class with React-like lifecycle
 class Component {
-    constructor(element, props = {}) {
+    constructor(element, props) {
+        props = props || {};
         this.element = typeof element === 'string' ? document.querySelector(element) : element;
         this.props = props;
         this.state = {};
@@ -674,13 +676,15 @@ window.addEventListener('beforeunload', () => {
 
 // Export for global access
 window.TargetCapitalComponents = {
-    RealTimeMarketData,
-    TradingInterface,
+    RealTimeMarketData: RealTimeMarketData,
+    TradingInterface: TradingInterface,
     Portfolio: PortfolioRealtime,
-    PortfolioRealtime,
-    AITradingSignals,
-    ComponentManager,
-    WebSocketManager,
-    componentManager,
-    wsManager
+    PortfolioRealtime: PortfolioRealtime,
+    AITradingSignals: AITradingSignals,
+    ComponentManager: ComponentManager,
+    WebSocketManager: WebSocketManager,
+    componentManager: componentManager,
+    wsManager: wsManager
 };
+
+})();

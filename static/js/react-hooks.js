@@ -2,30 +2,29 @@
  * React-style Hooks for Target Capital Trading Platform
  * Simplified for production - all data fetching is user-initiated
  */
+(function() {
+'use strict';
 
-// Simple state management
-var StateManager = window.StateManager || {
-    states: new Map(),
-    listeners: new Map(),
-    
-    createState(key, initialValue) {
-        this.states.set(key, initialValue);
-        this.listeners.set(key, new Set());
-        
-        const setState = (newValue) => {
-            const currentValue = this.states.get(key);
-            const nextValue = typeof newValue === 'function' ? newValue(currentValue) : newValue;
-            
-            if (nextValue !== currentValue) {
-                this.states.set(key, nextValue);
-                this.listeners.get(key).forEach(cb => cb(nextValue, currentValue));
-            }
-        };
-        
-        return [() => this.states.get(key), setState];
-    }
-};
-window.StateManager = StateManager;
+if (!window.StateManager) {
+    window.StateManager = {
+        states: new Map(),
+        listeners: new Map(),
+        createState: function(key, initialValue) {
+            this.states.set(key, initialValue);
+            this.listeners.set(key, new Set());
+            var self = this;
+            var setState = function(newValue) {
+                var currentValue = self.states.get(key);
+                var nextValue = typeof newValue === 'function' ? newValue(currentValue) : newValue;
+                if (nextValue !== currentValue) {
+                    self.states.set(key, nextValue);
+                    self.listeners.get(key).forEach(function(cb) { cb(nextValue, currentValue); });
+                }
+            };
+            return [function() { return self.states.get(key); }, setState];
+        }
+    };
+}
 
 // React-style useState hook
 function useState(initialValue) {
@@ -74,6 +73,7 @@ function useNotifications() {
     return { notifications: getNotifications, addNotification, removeNotification };
 }
 
-// Export for global usage
-window.TargetCapitalHooks = { useState, useEffect, useNotifications };
+window.TargetCapitalHooks = { useState: useState, useEffect: useEffect, useNotifications: useNotifications };
 window.CapitalHooks = window.TargetCapitalHooks;
+
+})();
