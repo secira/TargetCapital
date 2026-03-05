@@ -41,9 +41,11 @@
                 '/static/js/mobile-performance.js'
             ];
 
-            // Load after initial page render
+            // Load after initial page render - skip already-loaded scripts
             setTimeout(() => {
                 nonCriticalScripts.forEach(src => {
+                    const alreadyLoaded = document.querySelector(`script[src="${src}"]`);
+                    if (alreadyLoaded) return;
                     const script = document.createElement('script');
                     script.src = src;
                     script.async = true;
