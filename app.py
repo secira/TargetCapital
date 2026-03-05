@@ -393,9 +393,11 @@ logging.info("🚀 Starting Target Capital application (user-driven mode - no We
 def enable_caching_and_security(response):
     """Enable aggressive caching and security headers"""
     
-    # Aggressive caching for static assets
     if request.endpoint == 'static':
-        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'  # 1 year
+        if request.path.endswith('.js'):
+            response.headers['Cache-Control'] = 'no-cache, must-revalidate'
+        else:
+            response.headers['Cache-Control'] = 'public, max-age=86400'
     
     # Security headers for all responses  
     response.headers['X-Content-Type-Options'] = 'nosniff'

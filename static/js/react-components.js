@@ -5,7 +5,6 @@
  */
 
 // Component base class with React-like lifecycle
-if (!window.Component) {
 class Component {
     constructor(element, props = {}) {
         this.element = typeof element === 'string' ? document.querySelector(element) : element;
@@ -24,25 +23,20 @@ class Component {
     }
     
     init() {
-        // Override in child components
     }
     
     render() {
-        // Override in child components
     }
     
     destroy() {
-        // Cleanup method
         if (this.element) {
             this.element.innerHTML = '';
         }
     }
 }
 window.Component = Component;
-}
 
 // WebSocket Manager (disabled for production - user-initiated data only)
-if (!window.WebSocketManager) {
 class WebSocketManager {
     constructor() {
         this.connections = new Map();
@@ -58,7 +52,6 @@ class WebSocketManager {
     disconnectAll() { this.connections.clear(); }
 }
 window.WebSocketManager = WebSocketManager;
-}
 
 if (!window.wsManager) {
     window.wsManager = new WebSocketManager();

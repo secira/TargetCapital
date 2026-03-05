@@ -1,0 +1,46 @@
+Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar2ci%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+injected.js:37 ⚡ Performance optimizations initialized
+injected.js:37 📱 Mobile navigation initialized
+injected.js:37 📱 Dashboard mobile enhancements initialized
+injected.js:37 ✅ PWA Service Worker registered: https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/
+injected.js:37 📊 Page Performance Metrics: Object
+injected.js:37 targetcapital.ai says: JavaScript error: SyntaxError: Unexpected token '{'
+(anonymous) @ injected.js:37Understand this error
+react-components.js:323 Uncaught SyntaxError: Unexpected token '{'Understand this error
+37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/mobile-performance.js:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+(index):1 Refused to execute script from 'https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/mobile-performance.js' because its MIME type ('text/html') is not executable, and strict MIME type checking is enabled.Understand this error
+(index):1 The resource https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/main.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+1399a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ 9a9623a3c4063d22.js:14
+(anonymous) @ 249125a3355b8622.js:2
+uI @ 9954129c7dd6dc22.js:2
+oU @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2
+oI @ 9954129c7dd6dc22.js:2
+o_ @ 9954129c7dd6dc22.js:2
+r8 @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2Understand this warning
+(index):1 The resource https://37403e1a-2e82-46a3-85b8-043df3d84a1e-00-1084bxa2fkbw6.worf.replit.dev/static/js/main.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.Understand this warning
+2379a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ 9a9623a3c4063d22.js:14
+(anonymous) @ 249125a3355b8622.js:2
+uI @ 9954129c7dd6dc22.js:2
+oU @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2
+oI @ 9954129c7dd6dc22.js:2
+o_ @ 9954129c7dd6dc22.js:2
+r8 @ 9954129c7dd6dc22.js:2
+(anonymous) @ 9954129c7dd6dc22.js:2Understand this warning
+stallwart.build.js:1 stallwart: failed ping 3
+2009a9623a3c4063d22.js:14 WARN: A component changed from uncontrolled to controlled.

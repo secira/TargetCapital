@@ -4,8 +4,7 @@
  */
 
 // Simple state management
-if (typeof window.StateManager === 'undefined') {
-const StateManager = {
+var StateManager = window.StateManager || {
     states: new Map(),
     listeners: new Map(),
     
@@ -26,9 +25,7 @@ const StateManager = {
         return [() => this.states.get(key), setState];
     }
 };
-
 window.StateManager = StateManager;
-} // end StateManager guard
 
 // React-style useState hook
 function useState(initialValue) {
