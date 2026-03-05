@@ -3,31 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <!-- Clear stale PWA caches immediately -->
+    <!-- Clear stale PWA caches (runs once, no reload) -->
     <script>
     (function() {
-        var CACHE_CLEARED_KEY = 'tc_cache_v3';
-        if (!sessionStorage.getItem(CACHE_CLEARED_KEY)) {
-            sessionStorage.setItem(CACHE_CLEARED_KEY, '1');
+        var done = localStorage.getItem('tc_cache_v5');
+        if (!done) {
+            localStorage.setItem('tc_cache_v5', '1');
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(function(regs) {
-                    var unregPromises = regs.map(function(r) { return r.unregister(); });
-                    return Promise.all(unregPromises);
-                }).then(function() {
-                    if ('caches' in window) {
-                        return caches.keys().then(function(keys) {
-                            return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-                        });
-                    }
-                }).then(function() {
-                    location.reload(true);
-                }).catch(function() {
-                    location.reload(true);
+                    regs.forEach(function(r) { r.unregister(); });
                 });
-            } else if ('caches' in window) {
+            }
+            if ('caches' in window) {
                 caches.keys().then(function(keys) {
-                    return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-                }).then(function() { location.reload(true); });
+                    keys.forEach(function(k) { caches.delete(k); });
+                });
             }
         }
     })();
@@ -350,7 +340,7 @@
         window.CapitalHooks = window.CapitalHooks || {};
         window.TargetCapitalHooks = window.CapitalHooks;
     </script>
-    <script src="{{ url_for('static', filename='js/react-components.js') }}?v=3"></script>
+    <script src="{{ url_for('static', filename='js/react-components.js') }}?v=5"></script>
     <script src="{{ url_for('static', filename='js/react-dashboard.js') }}?v=3"></script>
     <!-- Mobile Performance & PWA -->
     <script src="{{ url_for('static', filename='js/mobile-navigation.js') }}?v=3"></script>

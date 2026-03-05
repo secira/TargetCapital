@@ -309,16 +309,6 @@ class TradingInterface extends Component {
     }
 }
 
-// Export components - fix for broken naming
-window.CapitalComponents = {
-    RealTimeMarketData,
-    TradingInterface,
-    Portfolio,
-    AITradingSignals
-};
-
-window.TargetCapitalComponents = window.CapitalComponents;
-
 // Portfolio Component with Real-time Updates
 class PortfolioRealtime extends Component {
     init() {
@@ -601,6 +591,16 @@ class AITradingSignals extends Component {
     }
 }
 
+// Export components
+window.CapitalComponents = {
+    RealTimeMarketData,
+    TradingInterface,
+    Portfolio: PortfolioRealtime,
+    PortfolioRealtime,
+    AITradingSignals
+};
+window.TargetCapitalComponents = window.CapitalComponents;
+
 // Component Manager for React-style mounting/unmounting
 class ComponentManager {
     constructor() {
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const portfolioElement = document.querySelector('[data-component="portfolio"]');
     if (portfolioElement) {
-        componentManager.mount('[data-component="portfolio"]', Portfolio);
+        componentManager.mount('[data-component="portfolio"]', PortfolioRealtime);
     }
     
     const signalsElement = document.querySelector('[data-component="ai-signals"]');
@@ -683,7 +683,8 @@ window.addEventListener('beforeunload', () => {
 window.TargetCapitalComponents = {
     RealTimeMarketData,
     TradingInterface,
-    Portfolio,
+    Portfolio: PortfolioRealtime,
+    PortfolioRealtime,
     AITradingSignals,
     ComponentManager,
     WebSocketManager,
