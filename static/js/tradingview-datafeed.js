@@ -3,7 +3,7 @@
  * Connects NSE data to TradingView charts
  */
 
-class Target CapitalDatafeed {
+class TargetCapitalDatafeed {
     constructor() {
         this.baseUrl = '/api/tradingview';
         this.debug = true;
@@ -195,4 +195,4 @@ class Target CapitalDatafeed {
 }
 
 // Export for use
-window.Target CapitalDatafeed = Target CapitalDatafeed;
+window.TargetCapitalDatafeed = TargetCapitalDatafeed;

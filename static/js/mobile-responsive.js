@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // CSS Custom Properties for dynamic viewport will be set via JavaScript
 
 // Utility functions for responsive behavior
-window.Target CapitalMobile = {
+window.TargetCapitalMobile = {
     isMobile: () => window.innerWidth <= 768,
     isTablet: () => window.innerWidth > 768 && window.innerWidth <= 1024,
     isTouch: () => 'ontouchstart' in window || navigator.maxTouchPoints > 0,

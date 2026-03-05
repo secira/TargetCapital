@@ -320,6 +320,7 @@ window.CapitalComponents = {
 window.TargetCapitalComponents = window.CapitalComponents;
 
 // Portfolio Component with Real-time Updates
+class PortfolioRealtime extends Component {
     init() {
         this.state = {
             holdings: {},

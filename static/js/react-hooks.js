@@ -4,6 +4,7 @@
  */
 
 // Simple state management
+if (typeof window.StateManager === 'undefined') {
 const StateManager = {
     states: new Map(),
     listeners: new Map(),
@@ -27,11 +28,12 @@ const StateManager = {
 };
 
 window.StateManager = StateManager;
+} // end StateManager guard
 
 // React-style useState hook
 function useState(initialValue) {
     const stateId = `state_${Date.now()}_${Math.random()}`;
-    return StateManager.createState(stateId, initialValue);
+    return window.StateManager.createState(stateId, initialValue);
 }
 
 // React-style useEffect hook
