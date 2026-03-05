@@ -3,6 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <!-- Clear stale PWA caches immediately -->
+    <script>
+    (function() {
+        var CACHE_CLEARED_KEY = 'tc_cache_v3';
+        if (!sessionStorage.getItem(CACHE_CLEARED_KEY)) {
+            sessionStorage.setItem(CACHE_CLEARED_KEY, '1');
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    var unregPromises = regs.map(function(r) { return r.unregister(); });
+                    return Promise.all(unregPromises);
+                }).then(function() {
+                    if ('caches' in window) {
+                        return caches.keys().then(function(keys) {
+                            return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                        });
+                    }
+                }).then(function() {
+                    location.reload(true);
+                }).catch(function() {
+                    location.reload(true);
+                });
+            } else if ('caches' in window) {
+                caches.keys().then(function(keys) {
+                    return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+                }).then(function() { location.reload(true); });
+            }
+        }
+    })();
+    </script>
     <title>{% block title %}Target Capital - The Intelligent Investing Platform for All
 {% endblock %}</title>
     <meta name="description" content="{% block description %}Professional AI-powered stock trading and portfolio analysis platform with advanced algorithms and real-time market insights.{% endblock %}">
