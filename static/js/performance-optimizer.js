@@ -31,20 +31,16 @@
             });
         },
 
-        // Lazy load non-critical scripts
+        // Lazy load non-critical scripts (only those not already in base template)
         lazyLoadNonCritical() {
             const nonCriticalScripts = [
-                '/static/js/pwa-handler.js',
-                '/static/js/react-components.js', 
-                '/static/js/react-hooks.js',
-                '/static/js/tradingview-widget.js',
-                '/static/js/mobile-performance.js'
+                '/static/js/pwa-handler.js'
             ];
 
             // Load after initial page render - skip already-loaded scripts
             setTimeout(() => {
                 nonCriticalScripts.forEach(src => {
-                    const alreadyLoaded = document.querySelector(`script[src="${src}"]`);
+                    const alreadyLoaded = document.querySelector(`script[src*="${src.split('/').pop()}"]`);
                     if (alreadyLoaded) return;
                     const script = document.createElement('script');
                     script.src = src;

@@ -3,7 +3,7 @@
  * Handles caching, offline functionality, and background sync
  */
 
-const CACHE_NAME = 'target-capital-v1.3.0';
+const CACHE_NAME = 'target-capital-v1.4.0';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline functionality
@@ -88,6 +88,9 @@ self.addEventListener('fetch', (event) => {
     
     // Different strategies for different types of requests
     if (url.pathname === '/' || url.pathname.startsWith('/dashboard')) {
+        event.respondWith(networkFirstStrategy(request));
+    } else if (url.pathname.startsWith('/static/js/')) {
+        // JS files always network-first so fixes are picked up immediately
         event.respondWith(networkFirstStrategy(request));
     } else if (url.pathname.startsWith('/static/')) {
         event.respondWith(cacheFirstStrategy(request));
