@@ -1,0 +1,385 @@
+{% extends "dashboard/dashboard_base.html" %}
+
+{% block title %}AI Workflows - Target Capital{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-1" style="font-family: 'Poppins', sans-serif;">AI Workflow Engine</h4>
+            <p class="text-muted mb-0">Enterprise-grade AI analysis powered by Anthropic Claude</p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">I-Score Analysis</h6>
+                            <small class="text-muted">7-node scoring pipeline</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-3">Multi-dimensional stock analysis: qualitative, quantitative, sentiment, and trend analysis with weighted scoring.</p>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="iscoreSymbol" placeholder="Enter symbol (e.g., RELIANCE)" style="border-radius: 8px 0 0 8px;">
+                            <select class="form-select" id="iscoreAssetType" style="max-width: 130px;">
+                                <option value="stocks">Stocks</option>
+                                <option value="mutual_funds">Mutual Funds</option>
+                                <option value="bonds">Bonds</option>
+                                <option value="commodities">Commodities</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-100" id="runIscoreBtn" onclick="runWorkflow('iscore')" style="border-radius: 8px;">
+                        <i class="fas fa-play me-2"></i>Run I-Score Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="fas fa-search text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Research Assistant</h6>
+                            <small class="text-muted">5-node research pipeline</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-3">AI-powered research with query understanding, context retrieval, market analysis, and trade suggestions.</p>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="researchQuery" rows="2" placeholder="Ask a research question..." style="border-radius: 8px; resize: none;"></textarea>
+                    </div>
+                    <button class="btn btn-primary w-100" id="runResearchBtn" onclick="runWorkflow('research')" style="border-radius: 8px;">
+                        <i class="fas fa-play me-2"></i>Run Research Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                            <i class="fas fa-briefcase text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Portfolio Analysis</h6>
+                            <small class="text-muted">6-node multi-agent pipeline</small>
+                        </div>
+                    </div>
+                    <p class="text-muted small mb-3">Risk analysis, sector evaluation, asset allocation, and opportunity identification for your portfolio.</p>
+                    <div class="mb-3">
+                        <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Analyzes your connected portfolio holdings across all brokers.</p>
+                    </div>
+                    <button class="btn btn-primary w-100" id="runPortfolioBtn" onclick="runWorkflow('portfolio')" style="border-radius: 8px;">
+                        <i class="fas fa-play me-2"></i>Run Portfolio Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;" id="pipelineCard" style="display: none;">
+        <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+            <h6 class="fw-bold mb-0"><i class="fas fa-project-diagram me-2 text-primary"></i>Pipeline Execution</h6>
+        </div>
+        <div class="card-body px-4" id="pipelineView">
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-play-circle fa-2x mb-2 d-block"></i>
+                Run a workflow above to see the pipeline execution.
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+        <div class="card-header bg-white border-0 px-4 pt-4 pb-2 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0"><i class="fas fa-history me-2 text-primary"></i>Recent Executions</h6>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary active" onclick="filterExecutions('')">All</button>
+                <button class="btn btn-outline-secondary" onclick="filterExecutions('iscore')">I-Score</button>
+                <button class="btn btn-outline-secondary" onclick="filterExecutions('research')">Research</button>
+                <button class="btn btn-outline-secondary" onclick="filterExecutions('portfolio')">Portfolio</button>
+            </div>
+        </div>
+        <div class="card-body px-4" id="executionsList">
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading executions...
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pipeline-step {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+.pipeline-step.running {
+    background: #e8f4fd;
+    border-left: 3px solid #0d6efd;
+}
+.pipeline-step.completed {
+    background: #e8f5e9;
+    border-left: 3px solid #198754;
+}
+.pipeline-step.failed {
+    background: #fce4ec;
+    border-left: 3px solid #dc3545;
+}
+.pipeline-step.pending {
+    background: #f5f5f5;
+    border-left: 3px solid #dee2e6;
+}
+.pipeline-connector {
+    width: 2px;
+    height: 16px;
+    background: #dee2e6;
+    margin-left: 24px;
+}
+.step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+.step-icon.pending { background: #e9ecef; color: #6c757d; }
+.step-icon.running { background: #0d6efd; color: white; }
+.step-icon.completed { background: #198754; color: white; }
+.step-icon.failed { background: #dc3545; color: white; }
+.execution-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.execution-row:hover { background: #f8f9fa; }
+.execution-row:last-child { border-bottom: none; }
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.status-badge.completed { background: #e8f5e9; color: #2e7d32; }
+.status-badge.failed { background: #fce4ec; color: #c62828; }
+.status-badge.pending { background: #fff3e0; color: #e65100; }
+.status-badge.running { background: #e3f2fd; color: #1565c0; }
+</style>
+
+<script>
+const csrfToken = "{{ csrf_token() }}";
+
+function runWorkflow(type) {
+    const btn = document.getElementById(`run${type.charAt(0).toUpperCase() + type.slice(1)}Btn`);
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Running...';
+
+    let body = {};
+    if (type === 'iscore') {
+        const symbol = document.getElementById('iscoreSymbol').value.trim();
+        if (!symbol) { alert('Please enter a symbol'); btn.disabled = false; btn.innerHTML = originalText; return; }
+        body = { symbol: symbol, asset_type: document.getElementById('iscoreAssetType').value };
+    } else if (type === 'research') {
+        const query = document.getElementById('researchQuery').value.trim();
+        if (!query) { alert('Please enter a research question'); btn.disabled = false; btn.innerHTML = originalText; return; }
+        body = { query: query };
+    }
+
+    showPipelineRunning(type);
+
+    fetch(`/api/workflow/${type}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        if (data.error) {
+            showPipelineError(type, data.error);
+        } else {
+            showPipelineResult(type, data);
+            loadExecutions();
+        }
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        showPipelineError(type, err.message);
+    });
+}
+
+function showPipelineRunning(type) {
+    const pipelineCard = document.getElementById('pipelineCard');
+    pipelineCard.style.display = 'block';
+    const steps = getPipelineSteps(type);
+    let html = '';
+    steps.forEach((step, i) => {
+        html += `<div class="pipeline-step running">
+            <div class="step-icon running"><i class="fas fa-spinner fa-spin"></i></div>
+            <div>
+                <div class="fw-bold small">${step}</div>
+                <div class="text-muted" style="font-size: 11px;">Processing...</div>
+            </div>
+        </div>`;
+        if (i < steps.length - 1) html += '<div class="pipeline-connector"></div>';
+    });
+    document.getElementById('pipelineView').innerHTML = html;
+}
+
+function showPipelineResult(type, data) {
+    const r = data.result || {};
+    const nodeStatuses = r.node_statuses || (r.execution && r.execution.node_statuses) || {};
+    const steps = Object.entries(nodeStatuses);
+    let html = `<div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="status-badge ${data.status}">${data.status.toUpperCase()}</span>
+        <small class="text-muted">ID: ${data.execution_id}</small>
+    </div>`;
+
+    steps.forEach(([name, status], i) => {
+        const iconClass = status === 'completed' ? 'fa-check' : status === 'failed' ? 'fa-times' : 'fa-clock';
+        html += `<div class="pipeline-step ${status}">
+            <div class="step-icon ${status}"><i class="fas ${iconClass}"></i></div>
+            <div class="flex-grow-1">
+                <div class="fw-bold small">${name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                <div class="text-muted" style="font-size: 11px;">${status}</div>
+            </div>
+        </div>`;
+        if (i < steps.length - 1) html += '<div class="pipeline-connector"></div>';
+    });
+
+    const results = r.results || r;
+    if (type === 'iscore' && results.overall_score !== undefined) {
+        html += `<div class="mt-3 p-3 rounded" style="background: #f8f9fa;">
+            <div class="row text-center">
+                <div class="col-4"><div class="fw-bold text-primary" style="font-size: 24px;">${parseFloat(results.overall_score).toFixed(1)}</div><small class="text-muted">I-Score</small></div>
+                <div class="col-4"><div class="fw-bold">${results.recommendation || 'N/A'}</div><small class="text-muted">Recommendation</small></div>
+                <div class="col-4"><div class="fw-bold">${results.overall_confidence ? (parseFloat(results.overall_confidence) * 100).toFixed(0) + '%' : 'N/A'}</div><small class="text-muted">Confidence</small></div>
+            </div>
+        </div>`;
+    }
+    if (type === 'research' && (r.answer || r.response)) {
+        const answer = r.answer || r.response || '';
+        html += `<div class="mt-3 p-3 rounded" style="background: #f8f9fa; max-height: 300px; overflow-y: auto;">
+            <div class="small">${answer.substring(0, 500)}${answer.length > 500 ? '...' : ''}</div>
+        </div>`;
+    }
+    if (type === 'portfolio' && (results.report || r.report)) {
+        const report = results.report || r.report || '';
+        html += `<div class="mt-3 p-3 rounded" style="background: #f8f9fa; max-height: 300px; overflow-y: auto;">
+            <div class="small">${report.substring(0, 500)}${report.length > 500 ? '...' : ''}</div>
+        </div>`;
+    }
+
+    document.getElementById('pipelineView').innerHTML = html;
+}
+
+function showPipelineError(type, error) {
+    document.getElementById('pipelineView').innerHTML = `
+        <div class="alert alert-danger mb-0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Workflow Failed:</strong> ${error}
+        </div>`;
+}
+
+function getPipelineSteps(type) {
+    const steps = {
+        iscore: ['Data Collection', 'Qualitative Analysis', 'Quantitative Analysis', 'Search Sentiment', 'Trend Analysis', 'Score Aggregation', 'Store Results'],
+        research: ['Query Understanding', 'Context Retrieval', 'Market Analysis', 'Response Generation', 'Trade Suggestions'],
+        portfolio: ['Fetch Portfolio', 'Risk Analysis', 'Sector Analysis', 'Asset Allocation', 'Opportunity Finding', 'Synthesis']
+    };
+    return steps[type] || [];
+}
+
+function loadExecutions(typeFilter) {
+    let url = '/api/workflow/executions?limit=20';
+    if (typeFilter) url += `&type=${typeFilter}`;
+
+    fetch(url)
+    .then(r => r.json())
+    .then(data => {
+        if (!data.executions || data.executions.length === 0) {
+            document.getElementById('executionsList').innerHTML = '<div class="text-center text-muted py-4">No workflow executions yet. Run a workflow above to get started.</div>';
+            return;
+        }
+        let html = '';
+        data.executions.forEach(ex => {
+            const typeIcons = { iscore: 'fa-chart-line', research: 'fa-search', portfolio: 'fa-briefcase' };
+            const icon = typeIcons[ex.workflow_type] || 'fa-cogs';
+            const time = ex.started_at ? new Date(ex.started_at).toLocaleString() : 'N/A';
+            html += `<div class="execution-row d-flex align-items-center" onclick="viewExecution('${ex.execution_id}')">
+                <i class="fas ${icon} me-3 text-primary"></i>
+                <div class="flex-grow-1">
+                    <div class="fw-bold small">${ex.workflow_type.replace(/_/g, ' ').toUpperCase()}</div>
+                    <div class="text-muted" style="font-size: 11px;">${time}</div>
+                </div>
+                <span class="status-badge ${ex.status}">${ex.status}</span>
+                ${ex.duration_ms ? `<small class="text-muted ms-2">${(ex.duration_ms / 1000).toFixed(1)}s</small>` : ''}
+            </div>`;
+        });
+        document.getElementById('executionsList').innerHTML = html;
+    })
+    .catch(() => {
+        document.getElementById('executionsList').innerHTML = '<div class="text-center text-muted py-4">Failed to load executions.</div>';
+    });
+}
+
+function filterExecutions(type) {
+    document.querySelectorAll('.btn-group .btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    loadExecutions(type);
+}
+
+function viewExecution(executionId) {
+    fetch(`/api/workflow/executions/${executionId}`)
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) return;
+        const steps = data.steps || [];
+        let html = `<div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="status-badge ${data.status}">${data.status.toUpperCase()}</span>
+            <small class="text-muted">ID: ${data.execution_id}</small>
+        </div>`;
+        steps.forEach((step, i) => {
+            const iconClass = step.status === 'completed' ? 'fa-check' : step.status === 'failed' ? 'fa-times' : 'fa-clock';
+            html += `<div class="pipeline-step ${step.status}">
+                <div class="step-icon ${step.status}"><i class="fas ${iconClass}"></i></div>
+                <div>
+                    <div class="fw-bold small">${step.step_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+                    <div class="text-muted" style="font-size: 11px;">${step.status}${step.duration_ms ? ` - ${(step.duration_ms / 1000).toFixed(1)}s` : ''}</div>
+                </div>
+            </div>`;
+            if (i < steps.length - 1) html += '<div class="pipeline-connector"></div>';
+        });
+        document.getElementById('pipelineView').innerHTML = html;
+        document.getElementById('pipelineCard').style.display = 'block';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => loadExecutions());
+</script>
+{% endblock %}

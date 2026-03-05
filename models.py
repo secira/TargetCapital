@@ -3031,3 +3031,142 @@ class AccountManager(db.Model):
         return f'<AccountManager {self.name}>'
 
 
+class WorkflowExecution(db.Model):
+    __tablename__ = 'workflow_executions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    execution_id = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    workflow_type = db.Column(db.String(50), nullable=False, index=True)
+    status = db.Column(db.String(20), nullable=False, default='pending')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=True)
+
+    input_params = db.Column(db.JSON, nullable=True)
+    result = db.Column(db.JSON, nullable=True)
+    error_message = db.Column(db.Text, nullable=True)
+
+    connector_type = db.Column(db.String(50), nullable=True)
+    connector_id = db.Column(db.String(100), nullable=True)
+
+    model_used = db.Column(db.String(50), nullable=True)
+    total_tokens = db.Column(db.Integer, default=0)
+    total_cost_usd = db.Column(db.Float, default=0.0)
+
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    completed_at = db.Column(db.DateTime, nullable=True)
+    duration_ms = db.Column(db.Integer, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    steps = db.relationship('WorkflowStep', backref='execution', lazy='dynamic',
+                           order_by='WorkflowStep.step_order')
+
+    def __repr__(self):
+        return f'<WorkflowExecution {self.execution_id} [{self.status}]>'
+
+    @property
+    def step_list(self):
+        return self.steps.all()
+
+    def to_dict(self):
+        return {
+            'execution_id': self.execution_id,
+            'workflow_type': self.workflow_type,
+            'status': self.status,
+            'input_params': self.input_params,
+            'result': self.result,
+            'error_message': self.error_message,
+            'connector_type': self.connector_type,
+            'model_used': self.model_used,
+            'total_tokens': self.total_tokens,
+            'total_cost_usd': self.total_cost_usd,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'duration_ms': self.duration_ms,
+            'steps': [s.to_dict() for s in self.step_list]
+        }
+
+
+class WorkflowStep(db.Model):
+    __tablename__ = 'workflow_steps'
+
+    id = db.Column(db.Integer, primary_key=True)
+    execution_id = db.Column(db.Integer, db.ForeignKey('workflow_executions.id'), nullable=False, index=True)
+    step_order = db.Column(db.Integer, nullable=False)
+    step_name = db.Column(db.String(100), nullable=False)
+    step_type = db.Column(db.String(50), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending')
+
+    input_data = db.Column(db.JSON, nullable=True)
+    output_data = db.Column(db.JSON, nullable=True)
+    error_message = db.Column(db.Text, nullable=True)
+
+    model_used = db.Column(db.String(50), nullable=True)
+    tokens_used = db.Column(db.Integer, default=0)
+    cost_usd = db.Column(db.Float, default=0.0)
+
+    started_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    duration_ms = db.Column(db.Integer, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return f'<WorkflowStep {self.step_name} [{self.status}]>'
+
+    def to_dict(self):
+        return {
+            'step_order': self.step_order,
+            'step_name': self.step_name,
+            'step_type': self.step_type,
+            'status': self.status,
+            'output_data': self.output_data,
+            'error_message': self.error_message,
+            'model_used': self.model_used,
+            'tokens_used': self.tokens_used,
+            'cost_usd': self.cost_usd,
+            'started_at': self.started_at.isoformat() if self.started_at else None,
+            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
+            'duration_ms': self.duration_ms
+        }
+
+
+class DataConnectorConfig(db.Model):
+    __tablename__ = 'data_connector_configs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(50), db.ForeignKey('tenants.id'), nullable=False, index=True)
+    connector_type = db.Column(db.String(50), nullable=False)
+    connector_name = db.Column(db.String(200), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+
+    config = db.Column(db.JSON, nullable=True)
+    credentials_encrypted = db.Column(db.Text, nullable=True)
+
+    data_scope = db.Column(db.String(50), default='portfolio')
+    rate_limit_rpm = db.Column(db.Integer, default=60)
+
+    last_connected_at = db.Column(db.DateTime, nullable=True)
+    last_error = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return f'<DataConnectorConfig {self.connector_name} [{self.connector_type}]>'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'tenant_id': self.tenant_id,
+            'connector_type': self.connector_type,
+            'connector_name': self.connector_name,
+            'is_active': self.is_active,
+            'data_scope': self.data_scope,
+            'rate_limit_rpm': self.rate_limit_rpm,
+            'last_connected_at': self.last_connected_at.isoformat() if self.last_connected_at else None,
+            'last_error': self.last_error,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+

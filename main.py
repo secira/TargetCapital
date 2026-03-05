@@ -9,6 +9,9 @@ import routes_daily_signals  # noqa: F401
 from routes_mobile_api import mobile_api
 app.register_blueprint(mobile_api)
 
+from routes_workflow import workflow_bp
+app.register_blueprint(workflow_bp)
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
