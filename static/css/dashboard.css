@@ -778,9 +778,256 @@
     background: rgba(72, 187, 120, 0.05);
 }
 
-/* Override global h3 styles for sidebar section titles */
+/* ============================================
+   SIDEBAR NAV - Complete Component Styles
+   ============================================ */
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Plan Section */
+.menu-section {
+    padding: 0 16px 8px;
+}
+
+.plan-section {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+}
+
+.section-header {
+    margin-bottom: 8px;
+}
+
 .dashboard-sidebar .section-title {
-    font-size: 14px !important;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.4);
+    margin: 0;
+    padding: 0;
+}
+
+.plan-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.plan-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.plan-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.plan-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.plan-badge.free {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+}
+
+.plan-badge.target_plus {
+    background: rgba(99, 179, 237, 0.2);
+    color: #63b3ed;
+}
+
+.plan-badge.target_pro {
+    background: rgba(154, 117, 245, 0.2);
+    color: #9a75f5;
+}
+
+.plan-badge.hni {
+    background: rgba(246, 173, 85, 0.2);
+    color: #f6ad55;
+}
+
+.upgrade-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #63b3ed;
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid rgba(99, 179, 237, 0.35);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+}
+
+.upgrade-link:hover {
+    background: rgba(99, 179, 237, 0.12);
+    color: #90cdf4;
+    text-decoration: none;
+}
+
+/* Sidebar Menu */
+.sidebar-menu {
+    flex: 1;
+    padding: 4px 0;
+    overflow-y: auto;
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Nav Items */
+.dashboard-sidebar .nav-item {
+    margin: 0;
+    padding: 0 10px 2px;
+}
+
+.dashboard-sidebar .nav-link {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px !important;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.65) !important;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.dashboard-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.07);
+    color: #ffffff !important;
+}
+
+.dashboard-sidebar .nav-link.active {
+    background: rgba(99, 179, 237, 0.15);
+    color: #90cdf4 !important;
+}
+
+.nav-icon {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.nav-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* NEW badge */
+.nav-badge-new {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #38a169;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+/* Count badge (e.g., connected brokers) */
+.nav-count {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    padding: 1px 5px;
+    border-radius: 10px;
+    background: rgba(99, 179, 237, 0.2);
+    color: #90cdf4;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Small badge (e.g., "FD & Cash") */
+.nav-badge-sm {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Collapsible Portfolio Hub header */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-icon {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    opacity: 0.5;
+}
+
+.toggle-icon.open,
+.toggle-icon.expanded {
+    transform: rotate(180deg);
+}
+
+/* Submenu */
+.submenu-list {
+    padding-left: 0;
+    margin-top: 2px;
+}
+
+.dashboard-sidebar .submenu-item {
+    padding: 0 10px 1px 0;
+}
+
+.dashboard-sidebar .submenu-link {
+    padding: 7px 12px 7px 34px !important;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5) !important;
+}
+
+.dashboard-sidebar .submenu-link:hover {
+    color: rgba(255,255,255,0.85) !important;
+    background: rgba(255,255,255,0.05);
+}
+
+.dashboard-sidebar .submenu-link.active {
+    color: #90cdf4 !important;
+    background: rgba(99, 179, 237, 0.1);
 }
 
 /* Compact Alert Styling */
