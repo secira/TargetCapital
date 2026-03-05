@@ -57,7 +57,7 @@
 {% block content %}
 <div class="dashboard-app">
     <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="Toggle navigation">
+    <button class="mobile-menu-toggle d-sm-none" id="mobileMenuToggle" aria-label="Toggle navigation">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -216,7 +216,7 @@ class DashboardLayout {
         const navLinks = this.sidebar?.querySelectorAll('.nav-link');
         navLinks?.forEach(link => {
             link.addEventListener('click', () => {
-                if (window.innerWidth < 992) {
+                if (window.innerWidth < 576) {
                     this.closeMobileSidebar();
                 }
             });
@@ -244,7 +244,7 @@ class DashboardLayout {
     }
 
     handleResize() {
-        if (window.innerWidth >= 992) {
+        if (window.innerWidth >= 576) {
             this.closeMobileSidebar();
         }
     }

@@ -40,6 +40,17 @@
     border-radius: 3px;
 }
 
+/* Force sidebar visible on all non-phone screens (>= 576px).
+   Overrides mobile-first.css which hides it up to 768px. */
+@media (min-width: 576px) {
+    .dashboard-sidebar {
+        transform: none !important;
+    }
+    .dashboard-main {
+        margin-left: 280px;
+    }
+}
+
 /* Main Content Area */
 .dashboard-main {
     flex: 1;
@@ -486,7 +497,7 @@
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 991.98px) {
+@media (max-width: 575.98px) {
     .dashboard-sidebar {
         transform: translateX(-100%);
     }
@@ -594,7 +605,7 @@
     visibility: visible;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 576px) {
     .mobile-sidebar-overlay {
         display: none;
     }
@@ -625,7 +636,7 @@
     box-shadow: 0 6px 20px rgba(0, 9, 26, 0.25);
 }
 
-@media (min-width: 992px) {
+@media (min-width: 576px) {
     .mobile-menu-toggle {
         display: none;
     }
