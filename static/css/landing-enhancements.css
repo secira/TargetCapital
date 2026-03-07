@@ -1,5 +1,11 @@
 /* Landing Page Visual Enhancements */
 
+/* Hero section: ensure content clears the fixed navbar */
+.hero-section {
+    padding-top: 120px;
+    padding-bottom: 80px;
+}
+
 /* Enhanced Hero Section */
 .bg-gradient-light {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
