@@ -48,7 +48,8 @@
                 if (target) {
                     e.preventDefault();
                     
-                    const navHeight = document.querySelector('.navbar').offsetHeight;
+                    const navEl = document.querySelector('.navbar');
+                    const navHeight = navEl ? navEl.offsetHeight : 0;
                     const targetPosition = target.offsetTop - navHeight - 20;
                     
                     window.scrollTo({
@@ -68,25 +69,25 @@
         const navbarCollapse = document.querySelector('.navbar-collapse');
         const navbarToggler = document.querySelector('.navbar-toggler');
         
-        // Add scroll effect to navbar
-        let lastScroll = 0;
-        window.addEventListener('scroll', function() {
-            const currentScroll = window.pageYOffset;
-            
-            if (currentScroll > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-            
-            lastScroll = currentScroll;
-        });
+        // Add scroll effect to navbar (only if navbar exists)
+        if (navbar) {
+            let lastScroll = 0;
+            window.addEventListener('scroll', function() {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll > 100) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+                lastScroll = currentScroll;
+            });
+        }
 
         // Close mobile menu when clicking on links
         const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', function() {
-                if (navbarCollapse.classList.contains('show')) {
+                if (navbarCollapse && navbarCollapse.classList.contains('show') && navbarToggler) {
                     navbarToggler.click();
                 }
             });
