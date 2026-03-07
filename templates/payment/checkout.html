@@ -239,6 +239,7 @@
             formData.append('razorpay_order_id', response.razorpay_order_id);
             formData.append('razorpay_payment_id', response.razorpay_payment_id);
             formData.append('razorpay_signature', response.razorpay_signature);
+            formData.append('plan_type', '{{ plan_type }}');
             
             // Send verification request
             fetch('/payment/verify', {
