@@ -1526,11 +1526,6 @@ def dashboard_trading_signals():
 @app.route('/dashboard/trade-now')
 @login_required  
 def dashboard_trade_now():
-    # Check subscription access - now available for Trader, Trader Plus, and Premium users
-    from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
-        flash('Trade execution is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
-        return redirect(url_for('pricing'))
     """Trade Now page for executing live trades"""
     from datetime import date
     
@@ -1869,10 +1864,6 @@ def detailed_stock_analysis(symbol):
 @app.route('/dashboard/my-portfolio')
 @login_required
 def dashboard_my_portfolio():
-    # Check subscription access
-    if not current_user.can_access_menu('dashboard_my_portfolio'):
-        flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
-        return redirect(url_for('pricing'))
     """Comprehensive Portfolio View with AI Analysis across all asset classes"""
     from datetime import date, datetime
     from services.comprehensive_portfolio_service import get_comprehensive_portfolio_service
