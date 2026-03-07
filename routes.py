@@ -131,6 +131,11 @@ def index():
         testimonials = Testimonial.query.limit(3).all()
     except Exception as e:
         logging.warning(f"Database error loading testimonials: {e}")
+        try:
+            from app import db
+            db.session.rollback()
+        except Exception:
+            pass
         testimonials = []
     return render_template('index.html', testimonials=testimonials)
 

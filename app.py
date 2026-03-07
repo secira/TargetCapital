@@ -471,6 +471,14 @@ import routes
 
 @app.context_processor
 def inject_tenant_config():
-    from models import Tenant
-    tenant = Tenant.query.get('live')
-    return dict(tenant_config=tenant.config if tenant else {})
+    try:
+        from models import Tenant
+        tenant = Tenant.query.get('live')
+        return dict(tenant_config=tenant.config if tenant else {})
+    except Exception as e:
+        logging.warning(f"Tenant config unavailable (DB connection issue): {e}")
+        try:
+            db.session.rollback()
+        except Exception:
+            pass
+        return dict(tenant_config={})
