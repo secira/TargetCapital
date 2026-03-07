@@ -67,31 +67,7 @@ body {
 
 /* ===== DASHBOARD LAYOUT ===== */
 
-.dashboard-container {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f8f9fa;
-}
-
-.dashboard-sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #00091a 0%, #1a1a2e 100%);
-    border-right: 1px solid #495057;
-    z-index: var(--z-sticky);
-    position: fixed;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    overflow-y: auto;
-}
-
-.dashboard-main {
-    flex: 1;
-    margin-left: 280px;
-    padding: var(--space-lg);
-    min-height: 100vh;
-    background-color: #ffffff;
-}
+/* dashboard-sidebar layout is fully defined in dashboard.css */
 
 /* ===== MOBILE NAVIGATION ===== */
 
@@ -155,38 +131,7 @@ body {
     transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* ===== RESPONSIVE DASHBOARD LAYOUT ===== */
-
-.dashboard-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    min-height: 100vh;
-    padding-top: 80px; /* Account for fixed navbar */
-}
-
-.dashboard-sidebar {
-    transform: translateX(-100%);
-    position: fixed;
-    top: 80px;
-    left: 0;
-    width: 280px;
-    height: calc(100vh - 80px);
-    background: white;
-    z-index: var(--z-dropdown);
-    transition: transform var(--transition-base);
-    box-shadow: var(--shadow-lg);
-    overflow-y: auto;
-}
-
-.dashboard-sidebar.open {
-    transform: translateX(0);
-}
-
-.dashboard-main {
-    padding: var(--space-md);
-    max-width: 100%;
-    overflow-x: hidden;
-}
+/* dashboard responsive layout is fully defined in dashboard.css */
 
 /* ===== MOBILE-FIRST CARD SYSTEM ===== */
 
@@ -323,22 +268,6 @@ body {
 @media (min-width: 768px) {
     .mobile-menu-btn {
         display: none;
-    }
-    
-    .dashboard-container {
-        grid-template-columns: 280px 1fr;
-    }
-    
-    .dashboard-sidebar {
-        position: static;
-        transform: none;
-        height: auto;
-        box-shadow: none;
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .dashboard-main {
-        padding: var(--space-xl);
     }
     
     .grid-responsive {
@@ -516,14 +445,6 @@ body {
         display: none !important;
     }
     
-    .dashboard-sidebar {
-        display: none !important;
-    }
-    
-    .dashboard-main {
-        padding: 0 !important;
-    }
-    
     .card-responsive {
         box-shadow: none !important;
         border: 1px solid #000 !important;
@@ -568,19 +489,4 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .dashboard-sidebar {
-        transform: translateX(-100%);
-        transition: transform var(--transition-base);
-        z-index: var(--z-modal);
-    }
-    
-    .dashboard-sidebar.open {
-        transform: translateX(0);
-    }
-    
-    .dashboard-main {
-        margin-left: 0;
-        padding: var(--space-md);
-    }
-}
+/* dashboard mobile layout handled in dashboard.css */
