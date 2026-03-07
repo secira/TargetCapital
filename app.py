@@ -122,13 +122,18 @@ if is_production:
         'default-src': "'self'",
         'script-src': [
             "'self'",
+            "'unsafe-inline'",
             'https://cdn.jsdelivr.net',
             'https://cdnjs.cloudflare.com',
             'https://kit.fontawesome.com',
+            'https://s3.tradingview.com',
+            'https://cdn.razorpay.com',
         ],
         'style-src': [
             "'self'",
+            "'unsafe-inline'",
             'https://cdn.jsdelivr.net',
+            'https://cdnjs.cloudflare.com',
             'https://fonts.googleapis.com',
             'https://kit.fontawesome.com',
         ],
@@ -159,7 +164,6 @@ if is_production:
         force_https=False,  # Railway handles HTTPS at load balancer, internal health checks are HTTP
         strict_transport_security=True,
         content_security_policy=csp_policy,
-        content_security_policy_nonce_in=['script-src'],
         referrer_policy='strict-origin-when-cross-origin',
         feature_policy={
             'camera': "'none'",
