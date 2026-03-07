@@ -1,12 +1,12 @@
-{% extends "account/account_base.html" %}
+{% extends "dashboard/dashboard_base.html" %}
 
-{% block account_title %}Billing & Subscription{% endblock %}
-{% block account_subtitle %}View your current plan, upgrade or downgrade, and manage payment history{% endblock %}
+{% block dashboard_title %}Billing & Subscription{% endblock %}
+{% block dashboard_subtitle %}View your current plan, upgrade or downgrade, and manage payment history{% endblock %}
 
-{% block account_content %}
+{% block dashboard_content %}
 <!-- Current Plan Status -->
-<section class="bg-light" style="padding: 30px 0;">
-    <div class="container-fluid">
+<div class="mb-4">
+    <div>
         <div class="card border-0 shadow-sm" style="border-radius: 16px;">
             <div class="card-body p-4">
                 <div class="row align-items-center">
@@ -61,11 +61,11 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <!-- Available Plans -->
-<section class="bg-white" style="padding: 60px 0;">
-    <div class="container-fluid">
+<div class="mb-5">
+    <div>
         <div class="row text-center mb-5">
             <div class="col-12">
                 <h2 class="fw-bold text-dark mb-3">Available Plans</h2>
@@ -102,7 +102,7 @@
                         {% if current_user.pricing_plan == PricingPlan.TARGET_PLUS %}
                             <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
                         {% else %}
-                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_plus', 1499)">
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_plus')">
                                 {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade Now{% else %}Switch Plan{% endif %}
                             </button>
                         {% endif %}
@@ -144,7 +144,7 @@
                         {% if current_user.pricing_plan == PricingPlan.TARGET_PRO %}
                             <span class="btn btn-success w-100 py-3 rounded-pill fw-semibold disabled">Current Plan</span>
                         {% else %}
-                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_pro', 2499)">
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-semibold" onclick="upgradeToPlan('target_pro')">
                                 {% if current_user.pricing_plan == PricingPlan.FREE %}Upgrade Now{% else %}Switch Plan{% endif %}
                             </button>
                         {% endif %}
@@ -188,11 +188,11 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <!-- Payment History & Billing Summary -->
-<section class="bg-light" style="padding: 60px 0;">
-    <div class="container-fluid">
+<div class="mb-4">
+    <div>
         <div class="row g-4">
             <!-- Payment History -->
             <div class="col-lg-8">
@@ -291,97 +291,11 @@
             </div>
         </div>
     </div>
-</section>
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</div>
 
 <script>
-function upgradeToPlan(planType, amount) {
-    // Prepare Razorpay payment
-    var options = {
-        "key": "{{ razorpay_key_id }}", // Your Razorpay key
-        "amount": amount * 100, // Amount in paise
-        "currency": "INR",
-        "name": "Target Capital",
-        "description": "Subscription - " + planType.replace('_', ' ').toUpperCase(),
-        "image": "/static/images/logo.png",
-        "order_id": "", // This should be generated from backend
-        "handler": function (response){
-            // Payment successful
-            handlePaymentSuccess(response, planType);
-        },
-        "prefill": {
-            "name": "{{ current_user.get_full_name() }}",
-            "email": "{{ current_user.email }}",
-            "contact": "{{ current_user.phone or '' }}"
-        },
-        "theme": {
-            "color": "#0d6efd"
-        }
-    };
-    
-    // Create order from backend first
-    createRazorpayOrder(planType, amount, options);
-}
-
-function createRazorpayOrder(planType, amount, options) {
-    fetch('/api/create-order', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            plan_type: planType,
-            amount: amount
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            options.order_id = data.order_id;
-            var rzp = new Razorpay(options);
-            rzp.open();
-        } else {
-            alert('Error creating order: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error processing request');
-    });
-}
-
-function handlePaymentSuccess(response, planType) {
-    // Send payment details to backend
-    fetch('/api/payment-success', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            payment_id: response.razorpay_payment_id,
-            order_id: response.razorpay_order_id,
-            signature: response.razorpay_signature,
-            plan_type: planType
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Payment successful! Your plan has been upgraded.');
-            location.reload();
-        } else {
-            alert('Payment verification failed: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error verifying payment');
-    });
-}
-
-function contactForHNI() {
-    window.location.href = '{{ url_for("contact") }}?subject=HNI Account Inquiry';
+function upgradeToPlan(planType) {
+    window.location.href = '/subscribe/' + planType;
 }
 </script>
 {% endblock %}
