@@ -28,6 +28,11 @@
 /* ── Layout ── */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Cancel the global body padding-top (added for fixed public navbar) on dashboard pages */
+body:has(.dashboard-app) {
+    padding-top: 0 !important;
+}
+
 .dashboard-app {
     display: flex;
     min-height: 100vh;
