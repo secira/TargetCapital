@@ -139,8 +139,11 @@ if is_production:
         ],
         'font-src': [
             "'self'",
+            'data:',
             'https://fonts.gstatic.com',
             'https://ka-f.fontawesome.com',
+            'https://cdnjs.cloudflare.com',
+            'https://cdn.jsdelivr.net',
         ],
         'img-src': [
             "'self'",
