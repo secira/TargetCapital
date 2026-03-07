@@ -347,7 +347,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 28px 32px 0;
+    padding: 16px 32px 0;
     gap: 16px;
 }
 
@@ -378,7 +378,7 @@
 /* ── Dashboard Content ── */
 .dashboard-content {
     flex: 1;
-    padding: 20px 32px 32px;
+    padding: 12px 32px 32px;
     overflow-x: hidden;
     width: 100%;
 }
