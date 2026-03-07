@@ -20,7 +20,17 @@ The platform features a multi-service backend with Flask for the web interface a
 
 **AI Architecture**:
 Target Capital employs a dual AI engine approach:
--   **Anthropic Workflow Engine**: Utilizes Claude Sonnet/Haiku for enterprise-grade solutions. This includes a robust `Anthropic Service`, a `Workflow Engine Framework` for multi-step pipeline execution with state management, `Data Connector Layer` for B2B/B2C data integration, and specialized workflows like `I-Score Workflow`, `Research Workflow`, and `Portfolio Analysis Workflow`. API routes and UI components (`Workflow Hub UI`) are provided for interaction and visualization.
+-   **Anthropic Workflow Engine** (fully implemented): Uses `claude-sonnet-4-20250514` as primary model and `claude-3-5-haiku-20241022` as fallback. Implementation files:
+    - `services/anthropic_service.py` — Claude API wrapper with retry logic, structured output, and tool-use support
+    - `services/workflow_engine.py` — Base framework: `WorkflowNode`, `WorkflowPipeline`, `WorkflowState`, audit trails
+    - `services/data_connectors.py` — Pluggable `B2CConnector`, `B2BConnector`, `DatabaseConnector` with `ConnectorRegistry`
+    - `services/workflow_iscore.py` — 7-node I-Score pipeline (data collection → qualitative → quantitative → sentiment → trend → aggregation → storage)
+    - `services/workflow_research.py` — 5-step research pipeline (query understanding → context → market analysis → response → trade suggestions)
+    - `services/workflow_portfolio.py` — 6-step portfolio analysis (fetch → risk → sector → allocation → opportunities → report)
+    - `routes_workflow.py` — REST endpoints: `/api/workflow/iscore`, `/api/workflow/research`, `/api/workflow/portfolio`, `/api/workflow/executions`
+    - `templates/dashboard/workflows/workflow_hub.html` — Visual pipeline execution UI with step-by-step progress, results display, and execution history
+    - Database models: `WorkflowExecution`, `WorkflowStep`, `DataConnectorConfig` in `models.py`
+    - Sidebar nav: "Workflow Hub" link at `/dashboard/workflows`
 -   **LangGraph Engine**: The original OpenAI-based system, featuring a `LangGraph Research Assistant`, a `Multi-Agent Portfolio Optimizer`, a `Smart Trading Signal Pipeline`, and a `Trade Plus Pipeline`. Visualizations are provided through a `Visual Agent Workflow System`, with state persistence via PostgreSQL models.
 
 **B2B/B2C Multi-Tenant Data Architecture**: Supports B2C user-connected brokers (Dhan, Zerodha, Angel) via `BrokerService` and B2B partner broker APIs with configurable `B2BConnector`. A database fallback reads from the local `Portfolio` model. Each B2B partner operates as a distinct tenant.
