@@ -4,337 +4,475 @@
 
 {% block content %}
 <style>
-    .auth-container {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        padding-top: 60px;
-        padding-bottom: 40px;
-    }
-    
-    .auth-card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .auth-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .auth-header {
-        background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
-        border-bottom: 1px solid #e5e7eb;
-        padding: 2.5rem 2rem;
-        text-align: center;
-    }
-    
-    .auth-header h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 28px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin-bottom: 0.5rem;
-    }
-    
-    .auth-header p {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #6b7280;
-        margin: 0;
-        font-weight: 400;
-    }
-    
-    .auth-body {
-        padding: 2.5rem 2rem;
-    }
-    
-    .form-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    
-    .form-control {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        height: 48px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 0 16px;
-        transition: all 0.2s ease;
-        background-color: #ffffff;
-    }
-    
-    .form-control:focus {
-        border-color: #00091a;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 3px rgba(0, 9, 26, 0.08);
-    }
-    
-    .form-control::placeholder {
-        color: #d1d5db;
-    }
-    
-    .btn-primary-auth {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        height: 48px;
-        background-color: #00091a;
-        border: none;
-        border-radius: 10px;
-        color: white;
-        transition: all 0.3s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .btn-primary-auth:hover {
-        background-color: #1a1a2e;
-        box-shadow: 0 4px 12px rgba(0, 9, 26, 0.2);
-        transform: translateY(-1px);
-    }
-    
-    .btn-primary-auth:active {
-        transform: translateY(0);
-    }
-    
-    .btn-secondary-auth {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        height: 48px;
-        background-color: white;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        color: #1a1a1a;
-        transition: all 0.3s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .btn-secondary-auth:hover {
-        border-color: #00091a;
-        background-color: #f8f9fb;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    
-    .divider-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        color: #6b7280;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .form-check-input {
-        width: 18px;
-        height: 18px;
-        border: 1.5px solid #d1d5db;
-        border-radius: 5px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    
-    .form-check-input:checked {
-        background-color: #00091a;
-        border-color: #00091a;
-    }
-    
-    .form-check-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #4a4a4a;
-        margin-left: 8px;
-        cursor: pointer;
-        font-weight: 400;
-    }
-    
-    .auth-footer-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #4a4a4a;
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    .auth-footer-text a {
-        color: #00091a;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    
-    .auth-footer-text a:hover {
-        color: #1a1a2e;
-        text-decoration: underline;
-    }
-    
-    .demo-card {
-        background: #f0f4ff;
-        border: 1px solid #ddd6fe;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-top: 2rem;
-        text-align: center;
-    }
-    
-    .demo-card h6 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        color: #00091a;
-        margin-bottom: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    
-    .demo-card p {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        color: #4a4a4a;
-        margin-bottom: 0.5rem;
-    }
-    
-    .alert {
-        font-family: 'Poppins', sans-serif;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 14px;
-        margin-bottom: 1.5rem;
-    }
-    
-    .alert-danger {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .mobile-promo {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    
-    .mobile-promo .btn {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        height: 48px;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .mobile-promo-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 12px;
-        color: #6b7280;
-        margin-top: 0.75rem;
-        font-weight: 500;
-    }
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Left Brand Panel ── */
+.auth-brand-panel {
+    width: 42%;
+    background: #00091a;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 52px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-brand-panel::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.auth-brand-panel::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.auth-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-brand-logo img {
+    height: 36px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.auth-brand-content {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-brand-content h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+}
+
+.auth-brand-content h1 span {
+    color: #3b82f6;
+}
+
+.auth-brand-content p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+    margin-bottom: 36px;
+    font-weight: 400;
+}
+
+.auth-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.auth-features li .feature-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: #3b82f6;
+}
+
+.auth-features li .feature-text strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 2px;
+}
+
+.auth-features li .feature-text span {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+}
+
+.auth-brand-footer {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Right Form Panel ── */
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+.auth-form-inner {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-form-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #171717;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+
+.auth-form-subtitle {
+    font-size: 14px;
+    color: #737373;
+    margin-bottom: 32px;
+}
+
+/* OTP Button */
+.btn-otp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 8px;
+    color: #15803d;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+    margin-bottom: 20px;
+}
+
+.btn-otp:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+    text-decoration: none;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.auth-divider hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 0;
+}
+
+.auth-divider span {
+    font-size: 11.5px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* Form fields */
+.auth-field {
+    margin-bottom: 18px;
+}
+
+.auth-label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.auth-input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: #171717;
+    background: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.auth-input::placeholder {
+    color: #d1d5db;
+}
+
+/* Remember me */
+.auth-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+}
+
+.auth-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.auth-check label {
+    font-size: 13.5px;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+/* Primary button */
+.btn-auth-primary {
+    width: 100%;
+    height: 44px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-auth-primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Google button */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    background: #ffffff;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s;
+    margin-top: 10px;
+    font-family: inherit;
+}
+
+.btn-google:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #111827;
+    text-decoration: none;
+}
+
+.auth-footer-link {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13.5px;
+    color: #6b7280;
+}
+
+.auth-footer-link a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer-link a:hover { text-decoration: underline; }
+
+/* Alerts */
+.auth-alert {
+    padding: 11px 14px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    margin-bottom: 18px;
+}
+
+.auth-alert.danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.auth-alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.auth-alert.info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* Mobile responsive */
+@media (max-width: 767.98px) {
+    .auth-brand-panel { display: none; }
+    .auth-form-panel { padding: 32px 24px; }
+    .auth-form-inner { max-width: 100%; }
+}
 </style>
 
-<section class="auth-container bg-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <!-- Main Auth Card -->
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <h2>Welcome Back</h2>
-                        <p>Sign in to your Target Capital account</p>
-                    </div>
-                    
-                    <div class="auth-body">
-                        <!-- Flash Messages -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+<div class="auth-page">
+    <!-- Left Brand Panel -->
+    <div class="auth-brand-panel">
+        <div class="auth-brand-logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}?v=3" alt="Target Capital">
+        </div>
 
-                        <!-- Quick Mobile Login -->
-                        <div class="mobile-promo">
-                            <div style="font-size: 20px; margin-bottom: 0.75rem;">📱</div>
-                            <a href="{{ url_for('mobile_login') }}" class="btn btn-success w-100" style="font-family: 'Poppins', sans-serif; font-weight: 600; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-mobile-alt me-2"></i>Login with Mobile Number (OTP)
-                            </a>
-                            <div class="mobile-promo-text">Quick & Secure - No password needed</div>
-                        </div>
-                        
-                        <!-- Email Login Form -->
-                        <div style="margin-bottom: 1.5rem;">
-                            <div class="d-flex align-items-center" style="margin-bottom: 1.5rem;">
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                                <span class="px-3 divider-text">Email Login</span>
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                            </div>
+        <div class="auth-brand-content">
+            <h1>Trade Smarter with <span>AI-Powered</span> Insights</h1>
+            <p>India's leading F&O trading platform. Reduce losses, grow your portfolio with real-time signals and deep analytics.</p>
 
-                            <form method="POST" action="{{ url_for('login') }}">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                
-                                <div class="mb-4">
-                                    <label for="username" class="form-label">Username or Email</label>
-                                    <input type="text" class="form-control" id="username" name="username" required 
-                                           placeholder="Enter your username or email">
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" name="password" required 
-                                           placeholder="Enter your password">
-                                </div>
-                                
-                                <div class="mb-4 form-check">
-                                    <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-                                    <label class="form-check-label" for="remember_me">
-                                        Remember me
-                                    </label>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary-auth w-100">
-                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <!-- Google OAuth Login -->
-                        <div style="margin-bottom: 1.5rem;">
-                            <div class="d-flex align-items-center" style="margin-bottom: 1.5rem;">
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                                <span class="px-3 divider-text">Or Continue with</span>
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                            </div>
-                            
-                            <a href="{{ url_for('google_auth.login') }}" class="btn btn-secondary-auth w-100">
-                                <i class="fab fa-google me-2"></i>Continue with Google
-                            </a>
-                        </div>
-                        
-                        <div class="auth-footer-text">
-                            Don't have an account? 
-                            <a href="{{ url_for('register') }}">Create one</a>
-                        </div>
+            <ul class="auth-features">
+                <li>
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="feature-text">
+                        <strong>AI Trading Signals</strong>
+                        <span>High-confidence F&O signals with entry, target & stop-loss</span>
                     </div>
-                </div>
-                
-            </div>
+                </li>
+                <li>
+                    <div class="feature-icon"><i class="fas fa-briefcase"></i></div>
+                    <div class="feature-text">
+                        <strong>Portfolio Analytics</strong>
+                        <span>Multi-broker dashboard with real-time P&L tracking</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                    <div class="feature-text">
+                        <strong>Research Co-Pilot</strong>
+                        <span>Ask anything about stocks, sectors, and market trends</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="auth-brand-footer">
+            &copy; {{ 2026 }} Target Capital. SEBI registered. All rights reserved.
         </div>
     </div>
-</section>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+        <div class="auth-form-inner">
+            <h2 class="auth-form-title">Welcome back</h2>
+            <p class="auth-form-subtitle">Sign in to your Target Capital account</p>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="auth-alert {{ 'danger' if category == 'error' else category }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-1"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Mobile OTP Login -->
+            <a href="{{ url_for('mobile_login') }}" class="btn-otp">
+                <i class="fas fa-mobile-alt"></i>
+                Login with Mobile Number (OTP)
+            </a>
+
+            <div class="auth-divider">
+                <hr><span>or sign in with email</span><hr>
+            </div>
+
+            <!-- Email Form -->
+            <form method="POST" action="{{ url_for('login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="username">Username or Email</label>
+                    <input class="auth-input" type="text" id="username" name="username" required
+                           placeholder="Enter your username or email" autocomplete="username">
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="password">Password</label>
+                    <input class="auth-input" type="password" id="password" name="password" required
+                           placeholder="Enter your password" autocomplete="current-password">
+                </div>
+
+                <div class="auth-check">
+                    <input type="checkbox" id="remember_me" name="remember_me">
+                    <label for="remember_me">Remember me for 30 days</label>
+                </div>
+
+                <button type="submit" class="btn-auth-primary">
+                    <i class="fas fa-arrow-right-to-bracket"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-divider" style="margin-top: 18px;">
+                <hr><span>or continue with</span><hr>
+            </div>
+
+            <a href="{{ url_for('google_auth.login') }}" class="btn-google">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+                    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                </svg>
+                Continue with Google
+            </a>
+
+            <p class="auth-footer-link">
+                Don't have an account? <a href="{{ url_for('register') }}">Create one free</a>
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,374 +1,512 @@
 {% extends "base.html" %}
 
-{% block title %}Register - Target Capital{% endblock %}
+{% block title %}Create Account - Target Capital{% endblock %}
 
 {% block content %}
 <style>
-    .auth-container {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        padding-top: 60px;
-        padding-bottom: 40px;
-    }
-    
-    .auth-card {
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    
-    .auth-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    .auth-header {
-        background: linear-gradient(135deg, #f8f9fb 0%, #ffffff 100%);
-        border-bottom: 1px solid #e5e7eb;
-        padding: 2.5rem 2rem;
-        text-align: center;
-    }
-    
-    .auth-header h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 28px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin-bottom: 0.5rem;
-    }
-    
-    .auth-header p {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #6b7280;
-        margin: 0;
-        font-weight: 400;
-    }
-    
-    .auth-body {
-        padding: 2.5rem 2rem;
-    }
-    
-    .form-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        color: #1a1a1a;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-    }
-    
-    .form-control {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        height: 48px;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 0 16px;
-        transition: all 0.2s ease;
-        background-color: #ffffff;
-    }
-    
-    .form-control:focus {
-        border-color: #00091a;
-        background-color: #ffffff;
-        box-shadow: 0 0 0 3px rgba(0, 9, 26, 0.08);
-    }
-    
-    .form-control::placeholder {
-        color: #d1d5db;
-    }
-    
-    .btn-primary-auth {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        font-weight: 600;
-        height: 48px;
-        background-color: #00091a;
-        border: none;
-        border-radius: 10px;
-        color: white;
-        transition: all 0.3s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .btn-primary-auth:hover {
-        background-color: #1a1a2e;
-        box-shadow: 0 4px 12px rgba(0, 9, 26, 0.2);
-        transform: translateY(-1px);
-    }
-    
-    .btn-primary-auth:active {
-        transform: translateY(0);
-    }
-    
-    .divider-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        color: #6b7280;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .form-check-input {
-        width: 18px;
-        height: 18px;
-        border: 1.5px solid #d1d5db;
-        border-radius: 5px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    
-    .form-check-input:checked {
-        background-color: #00091a;
-        border-color: #00091a;
-    }
-    
-    .form-check-label {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        color: #4a4a4a;
-        margin-left: 8px;
-        cursor: pointer;
-        font-weight: 400;
-        line-height: 1.5;
-    }
-    
-    .form-check-label a {
-        color: #00091a;
-        text-decoration: none;
-        font-weight: 600;
-    }
-    
-    .form-check-label a:hover {
-        text-decoration: underline;
-    }
-    
-    .auth-footer-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        color: #4a4a4a;
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    .auth-footer-text a {
-        color: #00091a;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    
-    .auth-footer-text a:hover {
-        color: #1a1a2e;
-        text-decoration: underline;
-    }
-    
-    .alert {
-        font-family: 'Poppins', sans-serif;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 14px;
-        margin-bottom: 1.5rem;
-    }
-    
-    .alert-danger {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .mobile-promo {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-    
-    .mobile-promo .btn {
-        font-family: 'Poppins', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        height: 48px;
-        border-radius: 10px;
-        transition: all 0.3s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .mobile-promo-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 12px;
-        color: #6b7280;
-        margin-top: 0.75rem;
-        font-weight: 500;
-    }
-    
-    .form-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 12px;
-        color: #6b7280;
-        margin-top: 6px;
-        font-weight: 400;
-    }
-    
-    .security-badge {
-        background: #ecfdf5;
-        border: 1px solid #d1fae5;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    
-    .security-badge span {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        color: #047857;
-        font-weight: 500;
-    }
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Left Brand Panel ── */
+.auth-brand-panel {
+    width: 38%;
+    background: #00091a;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 52px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-brand-panel::before {
+    content: '';
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.auth-brand-panel::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    left: -60px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.auth-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-brand-logo img {
+    height: 36px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.auth-brand-content {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-brand-content h1 {
+    font-size: 30px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+}
+
+.auth-brand-content h1 span { color: #3b82f6; }
+
+.auth-brand-content p {
+    font-size: 14.5px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+    margin-bottom: 32px;
+    font-weight: 400;
+}
+
+.auth-plan-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-plan-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-plan-card .plan-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.auth-plan-card.free .plan-icon  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+.auth-plan-card.plus .plan-icon  { background: rgba(37,99,235,0.25); color: #60a5fa; }
+.auth-plan-card.pro .plan-icon   { background: rgba(124,58,237,0.25); color: #a78bfa; }
+
+.auth-plan-card .plan-info strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.auth-plan-card .plan-info span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+}
+
+.auth-brand-footer {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Right Form Panel ── */
+.auth-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    background: #ffffff;
+    overflow-y: auto;
+}
+
+.auth-form-inner {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-form-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #171717;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+
+.auth-form-subtitle {
+    font-size: 14px;
+    color: #737373;
+    margin-bottom: 28px;
+}
+
+/* OTP Button */
+.btn-otp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 8px;
+    color: #15803d;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s;
+    margin-bottom: 18px;
+}
+
+.btn-otp:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+    text-decoration: none;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.auth-divider hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid #e8e8e8;
+    margin: 0;
+}
+
+.auth-divider span {
+    font-size: 11.5px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+/* Form fields */
+.auth-field   { margin-bottom: 15px; }
+.auth-row     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.auth-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.auth-input {
+    width: 100%;
+    height: 42px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 0 13px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #171717;
+    background: #ffffff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.auth-input::placeholder { color: #d1d5db; }
+
+.auth-hint {
+    font-size: 11.5px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* Terms checkbox */
+.auth-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 20px;
+}
+
+.auth-check input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.auth-check label {
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.auth-check label a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-check label a:hover { text-decoration: underline; }
+
+/* Primary button */
+.btn-auth-primary {
+    width: 100%;
+    height: 44px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-auth-primary:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Security note */
+.auth-security {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.auth-security i { color: #22c55e; }
+
+.auth-footer-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13.5px;
+    color: #6b7280;
+}
+
+.auth-footer-link a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-footer-link a:hover { text-decoration: underline; }
+
+/* Alerts */
+.auth-alert {
+    padding: 11px 14px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+}
+
+.auth-alert.danger  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.auth-alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.auth-alert.info    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* Mobile responsive */
+@media (max-width: 767.98px) {
+    .auth-brand-panel { display: none; }
+    .auth-form-panel  { padding: 28px 20px; }
+    .auth-form-inner  { max-width: 100%; }
+    .auth-row         { grid-template-columns: 1fr; gap: 0; }
+}
 </style>
 
-<section class="auth-container bg-white">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <!-- Main Auth Card -->
-                <div class="auth-card">
-                    <div class="auth-header">
-                        <h2>Create Account</h2>
-                        <p>Join Target Capital and start trading smarter</p>
+<div class="auth-page">
+    <!-- Left Brand Panel -->
+    <div class="auth-brand-panel">
+        <div class="auth-brand-logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}?v=3" alt="Target Capital">
+        </div>
+
+        <div class="auth-brand-content">
+            <h1>Start Your <span>Smart Trading</span> Journey</h1>
+            <p>Join thousands of Indian traders who use AI-powered insights to make better decisions.</p>
+
+            <div class="auth-plan-cards">
+                <div class="auth-plan-card free">
+                    <div class="plan-icon"><i class="fas fa-star"></i></div>
+                    <div class="plan-info">
+                        <strong>Free Plan — Start Today</strong>
+                        <span>Dashboard, basic signals, portfolio tracking</span>
                     </div>
-                    
-                    <div class="auth-body">
-                        <!-- Flash Messages -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-
-                        <!-- Quick Mobile Registration -->
-                        <div class="mobile-promo">
-                            <div style="font-size: 20px; margin-bottom: 0.75rem;">📱</div>
-                            <a href="{{ url_for('mobile_register') }}" class="btn btn-success w-100" style="font-family: 'Poppins', sans-serif; font-weight: 600; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-mobile-alt me-2"></i>Register with Mobile (OTP)
-                            </a>
-                            <div class="mobile-promo-text">Popular in India - Quick & Secure</div>
-                        </div>
-                        
-                        <!-- Email Registration Form -->
-                        <div style="margin-bottom: 1.5rem;">
-                            <div class="d-flex align-items-center" style="margin-bottom: 1.5rem;">
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                                <span class="px-3 divider-text">Email Registration</span>
-                                <hr class="flex-grow-1" style="border-color: #e5e7eb;">
-                            </div>
-
-                            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                
-                                <!-- Name Fields Row -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-4">
-                                            <label for="first_name" class="form-label">First Name</label>
-                                            <input type="text" class="form-control" id="first_name" name="first_name" 
-                                                   placeholder="First name">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-4">
-                                            <label for="last_name" class="form-label">Last Name</label>
-                                            <input type="text" class="form-control" id="last_name" name="last_name" 
-                                                   placeholder="Last name">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" required 
-                                           placeholder="Choose a username">
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required 
-                                           placeholder="your@email.com">
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" name="password" required 
-                                           placeholder="Create a strong password">
-                                    <div class="form-text">At least 6 characters</div>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <label for="confirm_password" class="form-label">Confirm Password</label>
-                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
-                                           placeholder="Confirm your password">
-                                </div>
-                                
-                                <div class="mb-4 form-check">
-                                    <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
-                                    <label class="form-check-label" for="agree_terms">
-                                        I agree to the <a href="{{ url_for('terms_of_service') }}">Terms of Service</a> and 
-                                        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
-                                    </label>
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary-auth w-100">
-                                    <i class="fas fa-user-plus me-2"></i>Create Account
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <!-- Security Badge -->
-                        <div class="security-badge">
-                            <span><i class="fas fa-shield-alt me-1"></i>Bank-grade Encryption</span>
-                        </div>
-                        
-                        <div class="auth-footer-text">
-                            Already have an account? 
-                            <a href="{{ url_for('login') }}">Sign in</a>
-                        </div>
+                </div>
+                <div class="auth-plan-card plus">
+                    <div class="plan-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="plan-info">
+                        <strong>Target Plus — ₹1,499/mo</strong>
+                        <span>AI Research Co-Pilot, daily signals &amp; alerts</span>
+                    </div>
+                </div>
+                <div class="auth-plan-card pro">
+                    <div class="plan-icon"><i class="fas fa-crown"></i></div>
+                    <div class="plan-info">
+                        <strong>Target Pro — ₹2,499/mo</strong>
+                        <span>All features, HNI analytics, priority support</span>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="auth-brand-footer">
+            &copy; {{ 2026 }} Target Capital. SEBI registered. All rights reserved.
+        </div>
     </div>
-</section>
+
+    <!-- Right Form Panel -->
+    <div class="auth-form-panel">
+        <div class="auth-form-inner">
+            <h2 class="auth-form-title">Create your account</h2>
+            <p class="auth-form-subtitle">Get started free — no credit card required</p>
+
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="auth-alert {{ 'danger' if category == 'error' else category }}">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }} me-1"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Mobile OTP Register -->
+            <a href="{{ url_for('mobile_register') }}" class="btn-otp">
+                <i class="fas fa-mobile-alt"></i>
+                Register with Mobile Number (OTP)
+            </a>
+
+            <div class="auth-divider">
+                <hr><span>or register with email</span><hr>
+            </div>
+
+            <!-- Email Registration Form -->
+            <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <div class="auth-row">
+                    <div class="auth-field">
+                        <label class="auth-label" for="first_name">First Name</label>
+                        <input class="auth-input" type="text" id="first_name" name="first_name"
+                               placeholder="First name" autocomplete="given-name">
+                    </div>
+                    <div class="auth-field">
+                        <label class="auth-label" for="last_name">Last Name</label>
+                        <input class="auth-input" type="text" id="last_name" name="last_name"
+                               placeholder="Last name" autocomplete="family-name">
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="username">Username</label>
+                    <input class="auth-input" type="text" id="username" name="username" required
+                           placeholder="Choose a username" autocomplete="username">
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="email">Email Address</label>
+                    <input class="auth-input" type="email" id="email" name="email" required
+                           placeholder="your@email.com" autocomplete="email">
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="password">Password</label>
+                    <input class="auth-input" type="password" id="password" name="password" required
+                           placeholder="Create a strong password" autocomplete="new-password">
+                    <div class="auth-hint">At least 6 characters</div>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="confirm_password">Confirm Password</label>
+                    <input class="auth-input" type="password" id="confirm_password" name="confirm_password" required
+                           placeholder="Confirm your password" autocomplete="new-password">
+                </div>
+
+                <div class="auth-check">
+                    <input type="checkbox" id="agree_terms" name="agree_terms" required>
+                    <label for="agree_terms">
+                        I agree to the <a href="{{ url_for('terms_of_service') }}">Terms of Service</a> and
+                        <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-auth-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-security">
+                <i class="fas fa-lock"></i>
+                Bank-grade encryption. Your data is always secure.
+            </div>
+
+            <p class="auth-footer-link">
+                Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
 
 <script>
-// Password confirmation validation
 document.getElementById('confirm_password').addEventListener('input', function() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = this.value;
-    
-    if (password && password !== confirmPassword) {
-        this.setCustomValidity('Passwords do not match');
-    } else {
-        this.setCustomValidity('');
-    }
+    const pw = document.getElementById('password').value;
+    this.setCustomValidity(pw && pw !== this.value ? 'Passwords do not match' : '');
 });
 
-// Form submission prevention on invalid state
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     if (document.getElementById('password').value !== document.getElementById('confirm_password').value) {
         e.preventDefault();
-        alert('Passwords do not match');
+        document.getElementById('confirm_password').setCustomValidity('Passwords do not match');
+        document.getElementById('confirm_password').reportValidity();
     }
 });
 </script>
