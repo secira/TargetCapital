@@ -1,522 +1,247 @@
-<nav class="sidebar-nav" style="padding-top: 80px;">
-    <!-- User Plan Section -->
-    {% if current_user.is_authenticated %}
-    <div class="menu-section plan-section">
-        <div class="section-header">
-            <h3 class="section-title">
-                <i class="fas fa-crown"></i>
-                Current Plan
-            </h3>
+<nav class="sidebar-nav">
+
+    <!-- Sidebar Header: Logo + Bell -->
+    <div class="sidebar-header">
+        <a href="{{ url_for('index') }}" class="sidebar-brand">
+            <img src="{{ url_for('static', filename='images/logo.png') }}?v=3" alt="Target Capital" height="40">
+        </a>
+        <div class="sidebar-header-actions">
+            <button class="sidebar-icon-btn" title="Signals" onclick="toggleSignalPanel()">
+                <i class="fas fa-bell"></i>
+            </button>
         </div>
-        
-        <div class="plan-info">
-            <div class="plan-details">
-                <span class="plan-name">{{ current_user.get_plan_display_name() }}</span>
-                <span class="plan-badge {{ current_user.pricing_plan.value }}">
-                    {% if current_user.pricing_plan.value == 'free' %}
-                    Free
-                    {% elif current_user.pricing_plan.value == 'target_plus' %}
-                    Target Plus
-                    {% elif current_user.pricing_plan.value == 'target_pro' %}
-                    Target Pro
-                    {% else %}
-                    HNI Account
-                    {% endif %}
-                </span>
+    </div>
+
+    <!-- Scrollable Navigation Area -->
+    <div class="sidebar-scroll">
+
+        <!-- Main Navigation -->
+        <div class="sidebar-menu">
+            <ul class="nav-list">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}"
+                       href="{{ url_for('dashboard') }}">
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+
+                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint in ['dashboard_daily_signals', 'daily_signals_analysis'] else '' }}"
+                       href="{{ url_for('dashboard_daily_signals') }}">
+                        <i class="nav-icon fas fa-bell"></i>
+                        <span class="nav-text">Daily Signals</span>
+                        <span class="nav-badge-new">NEW</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if 'research' in request.endpoint else '' }}"
+                       href="{{ url_for('research_dashboard') }}">
+                        <i class="nav-icon fas fa-search-dollar"></i>
+                        <span class="nav-text">Research Co-Pilot</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}"
+                       href="{{ url_for('dashboard_my_portfolio') }}">
+                        <i class="nav-icon fas fa-briefcase"></i>
+                        <span class="nav-text">Portfolio Analysis</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}"
+                       href="{{ url_for('dashboard_trade_now') }}">
+                        <i class="nav-icon fas fa-exchange-alt"></i>
+                        <span class="nav-text">Trade Assist</span>
+                    </a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </div>
+
+        <!-- Portfolio Hub Section -->
+        <div class="sidebar-section-label">PORTFOLIO HUB</div>
+        <div class="sidebar-menu">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <div class="nav-link collapsible-header" onclick="togglePortfolioHub()">
+                        <i class="nav-icon fas fa-layer-group"></i>
+                        <span class="nav-text">Portfolio Hub</span>
+                        <i class="fas fa-chevron-down toggle-icon" id="portfolioHubToggle"></i>
+                    </div>
+
+                    <ul class="nav-list submenu-list" id="portfolioHubMenu" style="display: none;">
+
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}"
+                               href="{{ url_for('dashboard_broker_accounts') }}">
+                                <i class="nav-icon fas fa-link"></i>
+                                <span class="nav-text">Broker Management</span>
+                                {% set connected_brokers = broker_accounts|selectattr('connection_status', 'equalto', 'connected')|list if broker_accounts else [] %}
+                                {% if connected_brokers %}
+                                <span class="nav-count">{{ connected_brokers|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+
+                        {% set portfolio_flags = tenant_config.get('portfolio_hub', {}) if tenant_config else {} %}
+
+                        {% if portfolio_flags.get('show_banks', false) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_banks' else '' }}"
+                               href="{{ url_for('dashboard_banks') }}">
+                                <i class="nav-icon fas fa-university"></i>
+                                <span class="nav-text">Banks</span>
+                                <span class="nav-badge-sm">FD & Cash</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_insurance', false) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_insurance' else '' }}"
+                               href="{{ url_for('dashboard_insurance') }}">
+                                <i class="nav-icon fas fa-shield-alt"></i>
+                                <span class="nav-text">Insurance</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_equities', true) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}"
+                               href="{{ url_for('dashboard_equities') }}">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <span class="nav-text">Equities</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_mutual_funds', true) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_mutual_funds' else '' }}"
+                               href="{{ url_for('dashboard_mutual_funds') }}">
+                                <i class="nav-icon fas fa-coins"></i>
+                                <span class="nav-text">Mutual Funds</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_fixed_deposits', false) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_fixed_deposits' else '' }}"
+                               href="{{ url_for('dashboard_fixed_deposits') }}">
+                                <i class="nav-icon fas fa-landmark"></i>
+                                <span class="nav-text">Fixed Income</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_futures_options', false) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_futures_options' else '' }}"
+                               href="{{ url_for('dashboard_futures_options') }}">
+                                <i class="nav-icon fas fa-chart-area"></i>
+                                <span class="nav-text">F&O</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_real_estate', false) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}"
+                               href="{{ url_for('dashboard_real_estate') }}">
+                                <i class="nav-icon fas fa-building"></i>
+                                <span class="nav-text">Real Estate</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if portfolio_flags.get('show_commodities', true) %}
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_commodities' else '' }}"
+                               href="{{ url_for('dashboard_commodities') }}">
+                                <i class="nav-icon fas fa-gem"></i>
+                                <span class="nav-text">Gold & Commodities</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="sidebar-section-label">SETTINGS</div>
+        <div class="sidebar-menu">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'account_profile' else '' }}"
+                       href="{{ url_for('account_profile') }}">
+                        <i class="nav-icon fas fa-user"></i>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'account_billing' else '' }}"
+                       href="{{ url_for('account_billing') }}">
+                        <i class="nav-icon fas fa-credit-card"></i>
+                        <span class="nav-text">Subscription</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'pricing' else '' }}"
+                       href="{{ url_for('pricing') }}">
+                        <i class="nav-icon fas fa-tags"></i>
+                        <span class="nav-text">Pricing Plans</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+    </div><!-- end sidebar-scroll -->
+
+    <!-- Sidebar Footer: Plan + User -->
+    {% if current_user.is_authenticated %}
+    <div class="sidebar-footer">
+        <div class="sidebar-plan-chip {{ current_user.pricing_plan.value }}">
+            <i class="fas fa-crown"></i>
+            <span>{{ current_user.get_plan_display_name() }}</span>
+        </div>
+        <div class="sidebar-user-row">
+            <div class="sidebar-user-avatar">
+                {{ current_user.get_full_name()[:1].upper() if current_user.get_full_name() else 'U' }}
             </div>
-            
-            {% if current_user.pricing_plan.value == 'free' %}
-            <a href="{{ url_for('pricing') }}" class="upgrade-link">
-                <i class="fas fa-arrow-up"></i>
-                Upgrade Plan
+            <div class="sidebar-user-info">
+                <span class="sidebar-user-name">{{ current_user.get_full_name() }}</span>
+                <span class="sidebar-user-email">{{ current_user.email }}</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="sidebar-logout-btn" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
             </a>
-            {% endif %}
         </div>
     </div>
     {% endif %}
 
-    <!-- Navigation Menu -->
-    <div class="sidebar-menu">
-        <ul class="nav-list">
-            <!-- 1. Dashboard -->
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' else '' }}" 
-                   href="{{ url_for('dashboard') }}">
-                    <i class="nav-icon fas fa-tachometer-alt"></i>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-            </li>
-
-            <!-- 2. Daily Signals -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_daily_signals' or request.endpoint == 'daily_signals_analysis' else '' }}" 
-                   href="{{ url_for('dashboard_daily_signals') }}">
-                    <i class="nav-icon fas fa-bell"></i>
-                    <span class="nav-text">Daily Signals</span>
-                    <span class="nav-badge-new">NEW</span>
-                </a>
-            </li>
-            {% endif %}
-
-            <!-- 3. Research Co-Pilot (Trader+ only) -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trading_signals') %}
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if 'research' in request.endpoint }}" 
-                   href="{{ url_for('research_dashboard') }}">
-                    <i class="nav-icon fas fa-search-dollar"></i>
-                    <span class="nav-text">Research Co-Pilot</span>
-                </a>
-            </li>
-            {% endif %}
-
-            <!-- 3. Portfolio Analysis (Trader+ only) -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_my_portfolio') %}
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}" 
-                   href="{{ url_for('dashboard_my_portfolio') }}">
-                    <i class="nav-icon fas fa-briefcase"></i>
-                    <span class="nav-text">Portfolio Analysis</span>
-                </a>
-            </li>
-            {% endif %}
-
-            <!-- 4. Trade Assist (Trader only) -->
-            {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_trade_now') %}
-            <li class="nav-item">
-                <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_trade_now' else '' }}" 
-                   href="{{ url_for('dashboard_trade_now') }}">
-                    <i class="nav-icon fas fa-exchange-alt"></i>
-                    <span class="nav-text">Trade Assist</span>
-                </a>
-            </li>
-            {% endif %}
-
-    <!-- 5. Portfolio Hub -->
-    <li class="nav-item">
-        <div class="nav-link collapsible-header" onclick="togglePortfolioHub()">
-            <i class="nav-icon fas fa-layer-group"></i>
-            <span class="nav-text">Portfolio Hub</span>
-            <i class="fas fa-chevron-down toggle-icon ms-auto" id="portfolioHubToggle"></i>
-        </div>
-        
-        <ul class="nav-list submenu-list" id="portfolioHubMenu" style="display: none;">
-            <!-- Broker Management -->
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_broker_accounts' else '' }}" 
-                   href="{{ url_for('dashboard_broker_accounts') }}">
-                    <i class="nav-icon fas fa-link"></i>
-                    <span class="nav-text">Broker Management</span>
-                    {% set connected_brokers = broker_accounts|selectattr('connection_status', 'equalto', 'connected')|list if broker_accounts else [] %}
-                    {% if connected_brokers %}
-                    <span class="nav-count">{{ connected_brokers|length }}</span>
-                    {% endif %}
-                </a>
-            </li>
-            
-            {% set portfolio_flags = tenant_config.get('portfolio_hub', {}) if tenant_config else {} %}
-            
-            <!-- Banks (FDs & Cash) -->
-            {% if portfolio_flags.get('show_banks', false) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_banks' else '' }}" 
-                   href="{{ url_for('dashboard_banks') }}">
-                    <i class="nav-icon fas fa-university"></i>
-                    <span class="nav-text">Banks</span>
-                    <span class="nav-badge-sm">FD & Cash</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Insurance -->
-            {% if portfolio_flags.get('show_insurance', false) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_insurance' else '' }}" 
-                   href="{{ url_for('dashboard_insurance') }}">
-                    <i class="nav-icon fas fa-shield-alt"></i>
-                    <span class="nav-text">Insurance</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Equities -->
-            {% if portfolio_flags.get('show_equities', true) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_equities' else '' }}" 
-                   href="{{ url_for('dashboard_equities') }}">
-                    <i class="nav-icon fas fa-chart-line"></i>
-                    <span class="nav-text">Equities</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Mutual Funds -->
-            {% if portfolio_flags.get('show_mutual_funds', true) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_mutual_funds' else '' }}" 
-                   href="{{ url_for('dashboard_mutual_funds') }}">
-                    <i class="nav-icon fas fa-coins"></i>
-                    <span class="nav-text">Mutual Funds</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Fixed Income -->
-            {% if portfolio_flags.get('show_fixed_deposits', false) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_fixed_deposits' else '' }}" 
-                   href="{{ url_for('dashboard_fixed_deposits') }}">
-                    <i class="nav-icon fas fa-landmark"></i>
-                    <span class="nav-text">Fixed Income</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- F&O -->
-            {% if portfolio_flags.get('show_futures_options', false) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_futures_options' else '' }}" 
-                   href="{{ url_for('dashboard_futures_options') }}">
-                    <i class="nav-icon fas fa-chart-area"></i>
-                    <span class="nav-text">F&O</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Real Estate -->
-            {% if portfolio_flags.get('show_real_estate', false) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_real_estate' else '' }}" 
-                   href="{{ url_for('dashboard_real_estate') }}">
-                    <i class="nav-icon fas fa-building"></i>
-                    <span class="nav-text">Real Estate</span>
-                </a>
-            </li>
-            {% endif %}
-            
-            <!-- Gold & Commodities -->
-            {% if portfolio_flags.get('show_commodities', true) %}
-            <li class="nav-item submenu-item">
-                <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'dashboard_commodities' else '' }}" 
-                   href="{{ url_for('dashboard_commodities') }}">
-                    <i class="nav-icon fas fa-gem"></i>
-                    <span class="nav-text">Gold & Commodities</span>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </li>
-        </ul>
-    </div>
 </nav>
 
-<style>
-/* Sidebar Navigation Styles */
-.sidebar-nav {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    background: inherit;
-}
-
-/* Sidebar Menu */
-.sidebar-menu {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px 0;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
-}
-
-.sidebar-menu::-webkit-scrollbar {
-    width: 4px;
-}
-
-.sidebar-menu::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.sidebar-menu::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 2px;
-}
-
-/* Menu Sections */
-.menu-section {
-    margin-bottom: 24px;
-}
-
-/* Plan section separator */
-.plan-section {
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-}
-
-/* Navigation List */
-.nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-item {
-    margin-bottom: 8px; /* Consistent gap between items */
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: #4a5568;
-    text-decoration: none;
-    border-radius: 0 25px 25px 0;
-    margin-right: 20px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    min-height: 48px;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-.nav-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: #4299e1;
-    transform: scaleY(0);
-    transition: transform 0.3s ease;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    background: #e6f2ff;
-    color: #1a202c;
-    transform: translateX(8px);
-}
-
-.nav-link.active::before {
-    transform: scaleY(1);
-}
-
-.nav-icon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    font-size: 16px;
-    transition: transform 0.3s ease;
-    flex-shrink: 0;
-}
-
-.nav-link:hover .nav-icon {
-    transform: scale(1.1);
-}
-
-.nav-text {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.4;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.toggle-icon {
-    font-size: 10px;
-    transition: transform 0.3s ease;
-}
-
-.toggle-icon.expanded {
-    transform: rotate(180deg);
-}
-
-/* Submenu Styles */
-.submenu-list {
-    padding-left: 0;
-    margin-top: 4px;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-}
-
-.submenu-item {
-    margin-bottom: 2px;
-}
-
-.submenu-link {
-    padding: 10px 20px 10px 44px;
-    min-height: 40px;
-    font-size: 13px;
-    margin-right: 20px;
-}
-
-.submenu-link .nav-icon {
-    font-size: 14px;
-    width: 18px;
-    height: 18px;
-    opacity: 0.8;
-}
-
-.submenu-link .nav-text {
-    font-size: 13px;
-    font-weight: 400;
-}
-
-.submenu-link:hover {
-    background: #f0f4f8;
-    transform: translateX(4px);
-}
-
-.submenu-link.active {
-    background: #e6f2ff;
-    color: #1a202c;
-}
-
-/* Section Headers */
-.section-header {
-    padding: 0 20px 12px;
-}
-
-.section-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: #718096;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.section-title i {
-    font-size: 12px;
-}
-
-/* Plan Information */
-.plan-info {
-    padding: 0 20px;
-}
-
-.plan-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.plan-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #1a202c;
-}
-
-.plan-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.plan-badge.free {
-    background: #cbd5e0;
-    color: #4a5568;
-}
-
-.plan-badge.target_plus {
-    background: #ebf8ff;
-    color: #2b6cb0;
-}
-
-.plan-badge.target_pro {
-    background: #faf5ff;
-    color: #553c9a;
-}
-
-.upgrade-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: #4299e1;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.upgrade-link:hover {
-    color: #2b6cb0;
-    text-decoration: underline;
-}
-
-.nav-badge-sm {
-    background: #e2e8f0;
-    color: #4a5568;
-    font-size: 9px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    margin-left: 8px;
-}
-
-.nav-count {
-    background: #4299e1;
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 8px;
-}
-
-.nav-badge-new {
-    background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
-    color: white;
-    font-size: 9px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    margin-left: 8px;
-    letter-spacing: 0.5px;
-    animation: pulse-new 2s infinite;
-}
-
-@keyframes pulse-new {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 991.98px) {
-    .nav-link {
-        margin-right: 0;
-        border-radius: 0;
-    }
-    
-    .nav-link:hover,
-    .nav-link.active {
-        transform: none;
-    }
-}
-</style>
-
 <script>
-// Portfolio Hub Toggle Function
 function togglePortfolioHub() {
     const menu = document.getElementById('portfolioHubMenu');
     const toggleIcon = document.getElementById('portfolioHubToggle');
-    
     if (menu.style.display === 'none' || menu.style.display === '') {
         menu.style.display = 'block';
         toggleIcon.classList.add('expanded');
@@ -528,52 +253,18 @@ function togglePortfolioHub() {
     }
 }
 
-// Research & Signals Toggle Function
-function toggleResearchSignals() {
-    const menu = document.getElementById('researchSignalsMenu');
-    const toggleIcon = document.getElementById('researchSignalsToggle');
-    
-    if (menu.style.display === 'none' || menu.style.display === '') {
-        menu.style.display = 'block';
-        toggleIcon.classList.add('expanded');
-        localStorage.setItem('researchSignalsExpanded', 'true');
-    } else {
-        menu.style.display = 'none';
-        toggleIcon.classList.remove('expanded');
-        localStorage.setItem('researchSignalsExpanded', 'false');
-    }
-}
-
-// Restore menu states on page load
 document.addEventListener('DOMContentLoaded', function() {
     const currentEndpoint = '{{ request.endpoint }}';
-    
-    // Portfolio Hub state
-    const portfolioHubExpanded = localStorage.getItem('portfolioHubExpanded');
-    const portfolioMenu = document.getElementById('portfolioHubMenu');
-    const portfolioToggle = document.getElementById('portfolioHubToggle');
-    const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks', 'dashboard_insurance', 
+    const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks', 'dashboard_insurance',
                                'dashboard_equities', 'dashboard_mutual_funds', 'dashboard_fixed_deposits',
                                'dashboard_futures_options', 'dashboard_real_estate', 'dashboard_commodities'];
-    
+    const portfolioMenu = document.getElementById('portfolioHubMenu');
+    const portfolioToggle = document.getElementById('portfolioHubToggle');
     if (portfolioMenu && portfolioToggle) {
-        if (portfolioHubExpanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
+        const expanded = localStorage.getItem('portfolioHubExpanded');
+        if (expanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
             portfolioMenu.style.display = 'block';
             portfolioToggle.classList.add('expanded');
-        }
-    }
-    
-    // Research Signals state
-    const researchSignalsExpanded = localStorage.getItem('researchSignalsExpanded');
-    const researchMenu = document.getElementById('researchSignalsMenu');
-    const researchToggle = document.getElementById('researchSignalsToggle');
-    const researchPages = ['research_stocks', 'research_futures', 'research_options', 
-                          'research_commodities', 'research_currency', 'research_bonds', 'research_mutual_funds'];
-    
-    if (researchMenu && researchToggle) {
-        if (researchSignalsExpanded === 'true' || researchPages.includes(currentEndpoint)) {
-            researchMenu.style.display = 'block';
-            researchToggle.classList.add('expanded');
         }
     }
 });
