@@ -50,16 +50,6 @@
 
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link {{ 'active' if request.endpoint == 'workflow.workflow_hub' else '' }}"
-                       href="{{ url_for('workflow.workflow_hub') }}">
-                        <i class="nav-icon fas fa-project-diagram"></i>
-                        <span class="nav-text">Workflow Hub</span>
-                    </a>
-                </li>
-                {% endif %}
-
-                {% if current_user.is_authenticated %}
-                <li class="nav-item">
                     <a class="nav-link {{ 'active' if request.endpoint == 'dashboard_my_portfolio' else '' }}"
                        href="{{ url_for('dashboard_my_portfolio') }}">
                         <i class="nav-icon fas fa-briefcase"></i>
