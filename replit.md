@@ -31,7 +31,7 @@ Target Capital employs a dual AI engine approach:
     - `templates/dashboard/workflows/workflow_hub.html` — Visual pipeline execution UI with step-by-step progress, results display, and execution history
     - Database models: `WorkflowExecution`, `WorkflowStep`, `DataConnectorConfig` in `models.py`
     - Blueprint `workflow_bp` registered in `main.py`
-    - Sidebar nav: "AI Engine" link at `/dashboard/workflows`
+    - Sidebar nav: accessible via Research Co-Pilot (no separate menu item)
 -   **LangGraph Engine**: The original OpenAI-based system, featuring a `LangGraph Research Assistant`, a `Multi-Agent Portfolio Optimizer`, a `Smart Trading Signal Pipeline`, and a `Trade Plus Pipeline`. Visualizations are provided through a `Visual Agent Workflow System`, with state persistence via PostgreSQL models.
 
 **B2B/B2C Multi-Tenant Data Architecture**: Supports B2C user-connected brokers (Dhan, Zerodha, Angel) via `BrokerService` and B2B partner broker APIs with configurable `B2BConnector`. A database fallback reads from the local `Portfolio` model. Each B2B partner operates as a distinct tenant.
