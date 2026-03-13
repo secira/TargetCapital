@@ -27,10 +27,11 @@ Target Capital employs a dual AI engine approach:
     - `services/workflow_iscore.py` — 7-node I-Score pipeline (data collection → qualitative → quantitative → sentiment → trend → aggregation → storage)
     - `services/workflow_research.py` — 5-step research pipeline (query understanding → context → market analysis → response → trade suggestions)
     - `services/workflow_portfolio.py` — 6-step portfolio analysis (fetch → risk → sector → allocation → opportunities → report)
-    - `routes_workflow.py` — REST endpoints: `/api/workflow/iscore`, `/api/workflow/research`, `/api/workflow/portfolio`, `/api/workflow/executions`
+    - `routes_workflow.py` — REST endpoints: `/api/workflow/iscore`, `/api/workflow/research`, `/api/workflow/portfolio`, `/api/workflow/executions`, `/api/workflow/connectors`
     - `templates/dashboard/workflows/workflow_hub.html` — Visual pipeline execution UI with step-by-step progress, results display, and execution history
     - Database models: `WorkflowExecution`, `WorkflowStep`, `DataConnectorConfig` in `models.py`
-    - Sidebar nav: "Workflow Hub" link at `/dashboard/workflows`
+    - Blueprint `workflow_bp` registered in `main.py`
+    - Sidebar nav: "AI Engine" link at `/dashboard/workflows`
 -   **LangGraph Engine**: The original OpenAI-based system, featuring a `LangGraph Research Assistant`, a `Multi-Agent Portfolio Optimizer`, a `Smart Trading Signal Pipeline`, and a `Trade Plus Pipeline`. Visualizations are provided through a `Visual Agent Workflow System`, with state persistence via PostgreSQL models.
 
 **B2B/B2C Multi-Tenant Data Architecture**: Supports B2C user-connected brokers (Dhan, Zerodha, Angel) via `BrokerService` and B2B partner broker APIs with configurable `B2BConnector`. A database fallback reads from the local `Portfolio` model. Each B2B partner operates as a distinct tenant.
@@ -43,6 +44,8 @@ Target Capital employs a dual AI engine approach:
 -   **Multi-Asset Portfolio System**: Supports 11 asset classes across multiple brokers with real-time data and asset-specific filtering.
 -   **Portfolio Asset Vector Embeddings**: Automatic generation for semantic search and AI analysis.
 -   **Unified Portfolio Analyzer System**: AI-powered analysis with multi-agent LangGraph optimization and risk profiling.
+-   **Scentric Risk Engine** (`services/risk_engine.py`): Portfolio Pulse (health score, alerts), Risk Heat Map (per-asset-class risk/weight/PnL grid), Goal-Based Monitoring (progress bars vs financial goals). Displayed on the Portfolio page. `PortfolioEvent` model tracks all events.
+-   **Behavioural Guardrails** (Trade Now page): Live client-side guardrail checks trigger when selecting assets — warns against risk profile violations (conservative user picking derivatives) and concentration risk (>20% portfolio in one trade).
 -   **Comprehensive Trading Signal System**: LangGraph-powered signal pipeline with validation and execution planning.
 -   **Subscription Model**: Tiered access (FREE, TARGET PLUS, TARGET PRO, HNI).
 -   **Knowledge Base**: Educational trading articles.

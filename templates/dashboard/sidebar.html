@@ -68,6 +68,16 @@
                 </li>
                 {% endif %}
 
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link {{ 'active' if request.endpoint == 'workflow.workflow_hub' else '' }}"
+                       href="{{ url_for('workflow.workflow_hub') }}">
+                        <i class="nav-icon fas fa-project-diagram"></i>
+                        <span class="nav-text">AI Engine</span>
+                    </a>
+                </li>
+                {% endif %}
+
             </ul>
         </div>
 

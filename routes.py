@@ -1623,16 +1623,30 @@ def dashboard_trade_now():
     # Get user's current trades
     user_trades = trading_service.get_user_trades(current_user.id)
     
+    # Scentric Guardrails — load portfolio summary + risk profile for Trade Now
+    from services.risk_engine import get_risk_engine
+    from services.comprehensive_portfolio_service import get_comprehensive_portfolio_service
+    from models import RiskProfile
+    risk_engine = get_risk_engine(current_user.id)
+    try:
+        ps = get_comprehensive_portfolio_service(current_user.id)
+        trade_portfolio_summary = ps.get_complete_portfolio_summary()
+    except Exception:
+        trade_portfolio_summary = {'total_current_value': 0, 'asset_classes': []}
+    risk_profile = RiskProfile.query.filter_by(user_id=current_user.id).first()
+
     return render_template('dashboard/trade_now.html',
-                         current_user=current_user,
-                         primary_broker=primary_broker,
-                         assets=assets,
-                         strategies=strategies,
-                         user_trades=user_trades['data'] if user_trades['success'] else {
-                             'active_trades': [],
-                             'recent_history': [],
-                             'recommendations': []
-                         })
+                           current_user=current_user,
+                           primary_broker=primary_broker,
+                           assets=assets,
+                           strategies=strategies,
+                           risk_profile=risk_profile,
+                           trade_portfolio_summary=trade_portfolio_summary,
+                           user_trades=user_trades['data'] if user_trades['success'] else {
+                               'active_trades': [],
+                               'recent_history': [],
+                               'recommendations': []
+                           })
 
 @app.route('/dashboard/trade-assist')
 @login_required  
@@ -1867,22 +1881,37 @@ def dashboard_my_portfolio():
     """Comprehensive Portfolio View with AI Analysis across all asset classes"""
     from datetime import date, datetime
     from services.comprehensive_portfolio_service import get_comprehensive_portfolio_service
-    
+    from services.risk_engine import get_risk_engine
+
     # Get comprehensive portfolio analysis
     portfolio_service = get_comprehensive_portfolio_service(current_user.id)
     portfolio_summary = portfolio_service.get_complete_portfolio_summary()
-    
+
     # Generate AI insights
     ai_insights = portfolio_service.generate_ai_insights(portfolio_summary)
-    
+
     # Get top performers
     top_performers = portfolio_service.get_top_performers(limit=5)
-    
+
+    # Scentric AI Engine — Risk Heat Map, Goal Progress, Portfolio Pulse
+    risk_engine = get_risk_engine(current_user.id)
+    risk_heatmap = risk_engine.get_risk_heatmap(portfolio_summary)
+    goal_progress = risk_engine.get_goal_progress(portfolio_summary)
+    portfolio_pulse = risk_engine.get_portfolio_pulse(portfolio_summary, risk_heatmap)
+    recent_events = risk_engine.get_recent_events(limit=8)
+
+    # Log this analysis visit as a portfolio event
+    risk_engine.log_event('analysis', 'Portfolio viewed', detail=f'Health score: {portfolio_pulse["health_score"]}')
+
     return render_template('dashboard/my_portfolio_comprehensive.html',
-                         portfolio_summary=portfolio_summary,
-                         ai_insights=ai_insights,
-                         top_performers=top_performers,
-                         current_user=current_user)
+                           portfolio_summary=portfolio_summary,
+                           ai_insights=ai_insights,
+                           top_performers=top_performers,
+                           risk_heatmap=risk_heatmap,
+                           goal_progress=goal_progress,
+                           portfolio_pulse=portfolio_pulse,
+                           recent_events=recent_events,
+                           current_user=current_user)
 
 @app.route('/dashboard/my-portfolio-old')
 @login_required

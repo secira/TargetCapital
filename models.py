@@ -3170,3 +3170,33 @@ class DataConnectorConfig(db.Model):
         }
 
 
+class PortfolioEvent(db.Model):
+    """Persistent Portfolio Memory — every decision, trade & alert logged for AI context."""
+    __tablename__ = 'portfolio_events'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tenant_id = db.Column(db.String(255), nullable=True, default='live', index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+
+    event_type = db.Column(db.String(50), nullable=False)   # trade | alert | analysis | rebalance | goal_update
+    event_title = db.Column(db.String(200), nullable=True)
+    event_detail = db.Column(db.Text, nullable=True)
+    symbol = db.Column(db.String(50), nullable=True)
+    amount = db.Column(db.Float, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('portfolio_events', lazy='dynamic'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'event_type': self.event_type,
+            'event_title': self.event_title,
+            'event_detail': self.event_detail,
+            'symbol': self.symbol,
+            'amount': self.amount,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+

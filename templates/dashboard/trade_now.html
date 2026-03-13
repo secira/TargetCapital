@@ -1,10 +1,10 @@
 {% extends "dashboard/dashboard_base.html" %}
 
-{% block title %}Trade Assist - Target Capital{% endblock %}
+{% block title %}Trade Now - Target Capital{% endblock %}
 
-{% block dashboard_title %}Trade Assist{% endblock %}
+{% block dashboard_title %}Trade Now{% endblock %}
 {% block dashboard_subtitle %}
-    AI-powered trade recommendations with seamless broker execution
+    Execute trades with AI-powered recommendations and real-time behavioural guardrails
 {% endblock %}
 
 {% block dashboard_content %}
@@ -31,6 +31,49 @@
             <a href="{{ url_for('dashboard_broker_accounts') }}" class="btn btn-sm ms-auto" style="background: #3182ce; color: white;">Connect Broker</a>
         </div>
         {% endif %}
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCENTRIC BEHAVIOURAL GUARDRAILS
+     ═══════════════════════════════════════════ -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm" style="border-radius:12px; overflow:hidden;">
+            <div class="card-header py-3 px-4 d-flex align-items-center justify-content-between"
+                 style="background:#00091a; color:#fff;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="fw-semibold">Behavioural Guardrails</span>
+                    <span class="badge bg-success rounded-pill" style="font-size:10px;">ACTIVE</span>
+                </div>
+                {% if risk_profile %}
+                <div class="d-flex align-items-center gap-3" style="font-size:13px;">
+                    <span class="opacity-75">Risk Appetite:</span>
+                    <span class="badge rounded-pill px-3
+                        {% if risk_profile.risk_tolerance == 'conservative' %}bg-success
+                        {% elif risk_profile.risk_tolerance == 'aggressive' %}bg-danger
+                        {% else %}bg-warning text-dark{% endif %}">
+                        {{ risk_profile.risk_tolerance | title }}
+                    </span>
+                    <span class="opacity-75 d-none d-md-inline">Goal: {{ risk_profile.investment_goal | replace('_',' ') | title }}</span>
+                    <a href="{{ url_for('portfolio_risk_profile') }}" class="text-white opacity-75" style="font-size:12px;">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </div>
+                {% else %}
+                <a href="{{ url_for('portfolio_risk_profile') }}" class="btn btn-sm btn-outline-light rounded-pill">
+                    <i class="fas fa-plus me-1"></i>Set Risk Profile
+                </a>
+                {% endif %}
+            </div>
+            <!-- Live guardrail alerts — populated by JS when form changes -->
+            <div id="guardrailAlerts" class="d-none">
+                <div class="card-body py-3 px-4" style="background:#fffbeb;">
+                    <div id="guardrailContent"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -589,6 +632,90 @@ function executeTrade() {
         alert('Error executing trade: ' + error.message);
     });
 }
+
+// ─── Scentric Behavioural Guardrails ────────────────────────────────────────
+(function() {
+    var RISK_TOLERANCE = '{{ risk_profile.risk_tolerance if risk_profile else "" }}';
+    var PORTFOLIO_VALUE = {{ trade_portfolio_summary.total_current_value if trade_portfolio_summary else 0 }};
+    var MAX_LOSS_PCT = {{ risk_profile.loss_tolerance if risk_profile and risk_profile.loss_tolerance else 0 }};
+
+    var HIGH_RISK = ['futures','options','f&o','derivatives','crypto','cryptocurrency'];
+
+    function checkGuardrails() {
+        var assetEl = document.getElementById('assetSelect');
+        var qtyEl   = document.getElementById('quantityInput');
+        var priceEl = document.getElementById('entryPriceInput');
+
+        if (!assetEl || !assetEl.value) return clearGuardrails();
+
+        var selectedOpt = assetEl.options[assetEl.selectedIndex];
+        var assetClass  = (selectedOpt ? (selectedOpt.dataset.assetClass || '') : '').toLowerCase();
+        var qty    = parseFloat(qtyEl   ? qtyEl.value   : 0) || 0;
+        var price  = parseFloat(priceEl ? priceEl.value : 0) || 0;
+        var tradeVal = qty * price;
+
+        var alerts = [];
+        var isHighRisk = HIGH_RISK.some(function(r){ return assetClass.includes(r); });
+
+        // Risk tolerance check
+        if (RISK_TOLERANCE === 'conservative' && isHighRisk) {
+            alerts.push({level:'danger', icon:'fa-shield-alt', title:'Risk Profile Violation',
+                msg: 'Your declared risk appetite is <strong>Conservative</strong>. ' + assetClass.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) + ' trading is classified as <strong>High Risk</strong> — this deviates from your strategy.'});
+        } else if (RISK_TOLERANCE === 'moderate' && assetClass.includes('crypto')) {
+            alerts.push({level:'warning', icon:'fa-exclamation-triangle', title:'Strategy Deviation',
+                msg: 'Cryptocurrency may exceed your <strong>Moderate</strong> risk tolerance. Consider reviewing your allocation.'});
+        }
+
+        // Concentration check (only if trade value entered)
+        if (tradeVal > 0 && PORTFOLIO_VALUE > 0) {
+            var conc = (tradeVal / PORTFOLIO_VALUE) * 100;
+            if (conc > 30) {
+                alerts.push({level:'danger', icon:'fa-percentage', title:'High Concentration Risk',
+                    msg: 'This trade is <strong>' + conc.toFixed(1) + '%</strong> of your total portfolio. Target Capital recommends a maximum of 20% per position.'});
+            } else if (conc > 20) {
+                alerts.push({level:'warning', icon:'fa-balance-scale', title:'Concentration Warning',
+                    msg: 'This trade represents <strong>' + conc.toFixed(1) + '%</strong> of your portfolio. Consider sizing down to maintain diversification.'});
+            }
+        }
+
+        renderGuardrails(alerts);
+    }
+
+    function renderGuardrails(alerts) {
+        var panel   = document.getElementById('guardrailAlerts');
+        var content = document.getElementById('guardrailContent');
+        if (!panel || !content) return;
+        if (alerts.length === 0) { panel.classList.add('d-none'); return; }
+
+        var html = '<div class="d-flex flex-wrap gap-2">';
+        alerts.forEach(function(a) {
+            var bg = a.level === 'danger' ? '#fef2f2' : '#fffbeb';
+            var bc = a.level === 'danger' ? '#ef4444' : '#f59e0b';
+            var tc = a.level === 'danger' ? '#b91c1c' : '#92400e';
+            html += '<div class="p-3 rounded-3 flex-fill" style="background:' + bg + ';border-left:4px solid ' + bc + ';min-width:250px;">' +
+                '<div class="d-flex align-items-center gap-2 mb-1" style="color:' + bc + ';">' +
+                '<i class="fas ' + a.icon + '"></i><strong>' + a.title + '</strong></div>' +
+                '<div style="color:' + tc + ';font-size:13px;">' + a.msg + '</div></div>';
+        });
+        html += '</div>';
+        content.innerHTML = html;
+        panel.classList.remove('d-none');
+    }
+
+    function clearGuardrails() {
+        var panel = document.getElementById('guardrailAlerts');
+        if (panel) panel.classList.add('d-none');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var fields = ['assetSelect','quantityInput','entryPriceInput'];
+        fields.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('change', checkGuardrails);
+            if (el) el.addEventListener('input',  checkGuardrails);
+        });
+    });
+}());
 </script>
 
 <style>
