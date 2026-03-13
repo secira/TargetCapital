@@ -1,7 +1,7 @@
 # Target Capital - Flask Web Application
 
 ### Overview
-Target Capital is an AI-powered trading support platform for the Indian market. It aims to reduce losses for individual F&O traders by offering a Portfolio Hub for multi-broker dashboards and risk analytics, an AI Research Assistant for RAG-powered insights, and Trading Support with transparent, experience-gated signals. The platform targets over 15 million Indian investors with a vision for multi-regional expansion.
+Target Capital is an AI-powered trading support platform for the Indian market. It aims to reduce losses for individual F&O traders by offering a Portfolio Hub for multi-broker dashboards and risk analytics, an AI Research Assistant for RAG-powered insights, and Trade Now with transparent, experience-gated signals and behavioural guardrails. The platform is branded as the **Scentric AI Decision Engine** and targets over 15 million Indian investors with a vision for multi-regional expansion.
 
 ### User Preferences
 Preferred communication style: Simple, everyday language.
