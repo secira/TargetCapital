@@ -126,6 +126,27 @@ class BaseDataConnector(ABC):
         }
 
 
+def _fetch_market_quote(symbol: str) -> MarketData:
+    try:
+        from services.market_data_service import MarketDataService
+        mds = MarketDataService()
+        quote = mds.get_stock_quote(symbol, exchange='NSE')
+        if quote:
+            return MarketData(
+                symbol=symbol,
+                current_price=quote.get('current_price', 0),
+                previous_close=quote.get('previous_close', 0),
+                change_pct=quote.get('change_percent', 0),
+                day_high=quote.get('day_high', 0),
+                day_low=quote.get('day_low', 0),
+                volume=quote.get('volume', 0),
+                additional=quote,
+            )
+    except Exception as e:
+        logger.error(f"Market data fetch error for {symbol}: {e}")
+    return MarketData(symbol=symbol)
+
+
 class B2CConnector(BaseDataConnector):
     """
     B2C Connector - Connects to user's personal broker accounts.
@@ -186,25 +207,7 @@ class B2CConnector(BaseDataConnector):
         )
 
     def get_market_data(self, symbol: str) -> MarketData:
-        try:
-            from services.market_data_service import MarketDataService
-            mds = MarketDataService()
-            quote = mds.get_stock_quote(symbol, exchange='NSE')
-            if quote:
-                return MarketData(
-                    symbol=symbol,
-                    current_price=quote.get('current_price', 0),
-                    previous_close=quote.get('previous_close', 0),
-                    change_pct=quote.get('change_percent', 0),
-                    day_high=quote.get('day_high', 0),
-                    day_low=quote.get('day_low', 0),
-                    volume=quote.get('volume', 0),
-                    additional=quote,
-                )
-        except Exception as e:
-            logger.error(f"B2C market data error for {symbol}: {e}")
-
-        return MarketData(symbol=symbol)
+        return _fetch_market_quote(symbol)
 
     def get_holdings(self, user_id: int) -> List[Dict]:
         try:
@@ -469,24 +472,7 @@ class DatabaseConnector(BaseDataConnector):
         )
 
     def get_market_data(self, symbol: str) -> MarketData:
-        try:
-            from services.market_data_service import MarketDataService
-            mds = MarketDataService()
-            quote = mds.get_stock_quote(symbol, exchange='NSE')
-            if quote:
-                return MarketData(
-                    symbol=symbol,
-                    current_price=quote.get('current_price', 0),
-                    previous_close=quote.get('previous_close', 0),
-                    change_pct=quote.get('change_percent', 0),
-                    day_high=quote.get('day_high', 0),
-                    day_low=quote.get('day_low', 0),
-                    volume=quote.get('volume', 0),
-                    additional=quote,
-                )
-        except Exception as e:
-            logger.error(f"Database connector market data error: {e}")
-        return MarketData(symbol=symbol)
+        return _fetch_market_quote(symbol)
 
     def get_holdings(self, user_id: int) -> List[Dict]:
         try:

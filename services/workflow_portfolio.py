@@ -122,9 +122,13 @@ class PortfolioAnalysisWorkflow:
             "risk_tolerance_alignment": "string",
             "mitigation_recommendations": ["string"],
         }
+        trimmed_portfolio = dict(portfolio_data)
+        if trimmed_portfolio.get('holdings') and len(trimmed_portfolio['holdings']) > 30:
+            trimmed_portfolio['holdings'] = trimmed_portfolio['holdings'][:30]
+            trimmed_portfolio['holdings_truncated'] = True
         content = (
             f"Analyze this portfolio for risk:\n\n"
-            f"Portfolio:\n{json.dumps(portfolio_data, indent=2, default=str)}\n\n"
+            f"Portfolio:\n{json.dumps(trimmed_portfolio, indent=2, default=str)}\n\n"
             f"User Preferences:\n{json.dumps(user_preferences, indent=2, default=str)}"
         )
 
@@ -153,9 +157,13 @@ class PortfolioAnalysisWorkflow:
             "sector_risks": ["string"],
             "rebalancing_recommendations": ["string"],
         }
+        trimmed_portfolio = dict(portfolio_data)
+        if trimmed_portfolio.get('holdings') and len(trimmed_portfolio['holdings']) > 30:
+            trimmed_portfolio['holdings'] = trimmed_portfolio['holdings'][:30]
+            trimmed_portfolio['holdings_truncated'] = True
         content = (
             f"Analyze sector allocation for this portfolio:\n\n"
-            f"{json.dumps(portfolio_data, indent=2, default=str)}"
+            f"{json.dumps(trimmed_portfolio, indent=2, default=str)}"
         )
 
         result = self._anthropic.structured_output(
@@ -186,9 +194,13 @@ class PortfolioAnalysisWorkflow:
             "implementation_timeline": "string",
             "expected_risk_return_impact": "string",
         }
+        trimmed_portfolio = dict(portfolio_data)
+        if trimmed_portfolio.get('holdings') and len(trimmed_portfolio['holdings']) > 30:
+            trimmed_portfolio['holdings'] = trimmed_portfolio['holdings'][:30]
+            trimmed_portfolio['holdings_truncated'] = True
         content = (
             f"Recommend asset allocation based on:\n\n"
-            f"Portfolio:\n{json.dumps(portfolio_data, indent=2, default=str)}\n\n"
+            f"Portfolio:\n{json.dumps(trimmed_portfolio, indent=2, default=str)}\n\n"
             f"Risk Analysis:\n{json.dumps(risk_analysis, indent=2, default=str)}\n\n"
             f"Sector Analysis:\n{json.dumps(sector_analysis, indent=2, default=str)}\n\n"
             f"User Preferences:\n{json.dumps(user_preferences, indent=2, default=str)}"
@@ -227,9 +239,13 @@ class PortfolioAnalysisWorkflow:
                 }
             ]
         }
+        trimmed_portfolio = dict(portfolio_data)
+        if trimmed_portfolio.get('holdings') and len(trimmed_portfolio['holdings']) > 30:
+            trimmed_portfolio['holdings'] = trimmed_portfolio['holdings'][:30]
+            trimmed_portfolio['holdings_truncated'] = True
         content = (
             f"Find investment opportunities based on:\n\n"
-            f"Portfolio:\n{json.dumps(portfolio_data, indent=2, default=str)}\n\n"
+            f"Portfolio:\n{json.dumps(trimmed_portfolio, indent=2, default=str)}\n\n"
             f"Allocation Gaps:\n{json.dumps(asset_allocation, indent=2, default=str)}\n\n"
             f"User Preferences:\n{json.dumps(user_preferences, indent=2, default=str)}"
         )

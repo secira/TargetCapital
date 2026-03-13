@@ -1,6 +1,9 @@
 import logging
+import re
 import uuid
+from collections import defaultdict
 from datetime import datetime, timezone
+from functools import wraps
 from flask import Blueprint, request, jsonify, render_template
 from flask_login import login_required, current_user
 
@@ -9,6 +12,36 @@ from app import db
 logger = logging.getLogger(__name__)
 
 workflow_bp = Blueprint('workflow', __name__)
+
+SYMBOL_RE = re.compile(r'^[A-Z0-9&._-]{1,20}$')
+MAX_QUERY_LENGTH = 2000
+RATE_LIMIT_MAX = 10
+RATE_LIMIT_WINDOW = 3600
+
+_rate_counters: dict = defaultdict(list)
+
+
+def _check_rate_limit(user_id: int) -> bool:
+    now = datetime.now(timezone.utc).timestamp()
+    window_start = now - RATE_LIMIT_WINDOW
+    _rate_counters[user_id] = [t for t in _rate_counters[user_id] if t > window_start]
+    if len(_rate_counters[user_id]) >= RATE_LIMIT_MAX:
+        return False
+    _rate_counters[user_id].append(now)
+    if len(_rate_counters) > 1000:
+        stale = [uid for uid, ts in _rate_counters.items() if not ts or ts[-1] < window_start]
+        for uid in stale:
+            del _rate_counters[uid]
+    return True
+
+
+def rate_limited(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not _check_rate_limit(current_user.id):
+            return jsonify({'error': 'Rate limit exceeded. Maximum 10 workflow calls per hour.'}), 429
+        return f(*args, **kwargs)
+    return decorated
 
 
 @workflow_bp.route('/dashboard/workflows')
@@ -96,6 +129,7 @@ def _build_step_list(summary):
 
 @workflow_bp.route('/api/workflow/iscore', methods=['POST'])
 @login_required
+@rate_limited
 def run_iscore_workflow():
     data = request.get_json() or {}
     symbol = data.get('symbol', '').upper().strip()
@@ -103,6 +137,8 @@ def run_iscore_workflow():
 
     if not symbol:
         return jsonify({'error': 'Symbol is required'}), 400
+    if not SYMBOL_RE.match(symbol):
+        return jsonify({'error': 'Invalid symbol format. Use 1-20 uppercase alphanumeric characters.'}), 400
 
     execution_id = str(uuid.uuid4())[:12]
 
@@ -141,12 +177,15 @@ def run_iscore_workflow():
 
 @workflow_bp.route('/api/workflow/research', methods=['POST'])
 @login_required
+@rate_limited
 def run_research_workflow():
     data = request.get_json() or {}
     query = data.get('query', '').strip()
 
     if not query:
         return jsonify({'error': 'Query is required'}), 400
+    if len(query) > MAX_QUERY_LENGTH:
+        return jsonify({'error': f'Query too long. Maximum {MAX_QUERY_LENGTH} characters.'}), 400
 
     execution_id = str(uuid.uuid4())[:12]
 
@@ -170,6 +209,12 @@ def run_research_workflow():
 
         _save_execution(execution_id, 'research', current_user.id, data, result_data, status)
 
+        if status == 'completed':
+            try:
+                pipeline.save_research_results(query, current_user.id, result, _get_tenant_id())
+            except Exception as save_err:
+                logger.warning(f"Research result persistence failed: {save_err}")
+
         return jsonify({
             'execution_id': execution_id,
             'status': status,
@@ -185,6 +230,7 @@ def run_research_workflow():
 
 @workflow_bp.route('/api/workflow/portfolio', methods=['POST'])
 @login_required
+@rate_limited
 def run_portfolio_workflow():
     data = request.get_json() or {}
     execution_id = str(uuid.uuid4())[:12]
@@ -226,7 +272,8 @@ def list_executions():
 
     try:
         from models import WorkflowExecution
-        query = WorkflowExecution.query.filter_by(user_id=current_user.id)
+        tenant_id = _get_tenant_id()
+        query = WorkflowExecution.query.filter_by(user_id=current_user.id, tenant_id=tenant_id)
         if workflow_type:
             query = query.filter_by(workflow_type=workflow_type)
         query = query.order_by(WorkflowExecution.created_at.desc()).limit(limit)

@@ -4,9 +4,13 @@ Calculates Risk Heat Map, Goal Progress, Portfolio Pulse, and Behavioural Guardr
 """
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
+
+_risk_cache: dict = {}
+CACHE_TTL_SECONDS = 300
 
 # Risk configuration per asset class
 ASSET_RISK_CONFIG = {
@@ -28,11 +32,42 @@ class RiskEngine:
     def __init__(self, user_id):
         self.user_id = user_id
 
+    def _cache_key(self, section: str, fingerprint: str = "") -> str:
+        return f"{self.user_id}:{section}:{fingerprint}"
+
+    def _get_cached(self, section: str, fingerprint: str = ""):
+        now = time.time()
+        key = self._cache_key(section, fingerprint)
+        entry = _risk_cache.get(key)
+        if entry and (now - entry['ts']) < CACHE_TTL_SECONDS:
+            return entry['data']
+        if entry:
+            _risk_cache.pop(key, None)
+        if len(_risk_cache) > 500:
+            expired = [k for k, v in _risk_cache.items() if (now - v['ts']) >= CACHE_TTL_SECONDS]
+            for k in expired:
+                _risk_cache.pop(k, None)
+        return None
+
+    def _set_cached(self, section: str, data, fingerprint: str = ""):
+        _risk_cache[self._cache_key(section, fingerprint)] = {'data': data, 'ts': time.time()}
+
     # ─────────────────────────────────────────────────────────────
     # 1. RISK HEAT MAP
     # ─────────────────────────────────────────────────────────────
+    @staticmethod
+    def _portfolio_fingerprint(portfolio_summary: dict) -> str:
+        import hashlib
+        val = portfolio_summary.get('total_current_value', 0)
+        cnt = len(portfolio_summary.get('asset_classes', []))
+        return hashlib.md5(f"{val}:{cnt}".encode()).hexdigest()[:8]
+
     def get_risk_heatmap(self, portfolio_summary: dict) -> list:
         """Build colour-coded risk heat map from portfolio summary."""
+        fp = self._portfolio_fingerprint(portfolio_summary)
+        cached = self._get_cached('heatmap', fp)
+        if cached is not None:
+            return cached
         asset_classes = portfolio_summary.get('asset_classes', [])
         total_value = portfolio_summary.get('total_current_value', 0) or 0.01
 
@@ -67,8 +102,8 @@ class RiskEngine:
                 'count': ac.get('count', 0),
             })
 
-        # Sort: highest risk first
         risk_map.sort(key=lambda x: x['risk_score'], reverse=True)
+        self._set_cached('heatmap', risk_map, fp)
         return risk_map
 
     # ─────────────────────────────────────────────────────────────
@@ -76,6 +111,10 @@ class RiskEngine:
     # ─────────────────────────────────────────────────────────────
     def get_goal_progress(self, portfolio_summary: dict) -> list:
         """Return progress bars for each declared financial goal."""
+        fp = self._portfolio_fingerprint(portfolio_summary)
+        cached = self._get_cached('goals', fp)
+        if cached is not None:
+            return cached
         try:
             from models import PortfolioPreferences
             prefs = PortfolioPreferences.query.filter_by(user_id=self.user_id).first()
@@ -127,6 +166,7 @@ class RiskEngine:
                 'icon': GOAL_ICONS.get(icon_key, 'fa-bullseye'),
             })
 
+        self._set_cached('goals', goals, fp)
         return goals
 
     # ─────────────────────────────────────────────────────────────
@@ -134,6 +174,10 @@ class RiskEngine:
     # ─────────────────────────────────────────────────────────────
     def get_portfolio_pulse(self, portfolio_summary: dict, risk_heatmap: list) -> dict:
         """Generate the Weekly Portfolio Health Pulse."""
+        fp = self._portfolio_fingerprint(portfolio_summary)
+        cached = self._get_cached('pulse', fp)
+        if cached is not None:
+            return cached
         total_value = portfolio_summary.get('total_current_value', 0) or 0
         pnl_pct = portfolio_summary.get('pnl_percentage', 0) or 0
 
@@ -187,7 +231,7 @@ class RiskEngine:
         else:
             health_label, health_color = 'At Risk', 'danger'
 
-        return {
+        result = {
             'health_score': health_score,
             'health_label': health_label,
             'health_color': health_color,
@@ -198,6 +242,8 @@ class RiskEngine:
             'alerts': alerts[:3],
             'generated_at': datetime.utcnow().strftime('%d %b %Y'),
         }
+        self._set_cached('pulse', result, fp)
+        return result
 
     # ─────────────────────────────────────────────────────────────
     # 4. BEHAVIOURAL GUARDRAILS (Trade Now check)

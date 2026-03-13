@@ -433,3 +433,48 @@ class ResearchWorkflowPipeline:
 
         logger.info(f"Trade suggestions generated — {len(suggestions)} suggestions")
         return {"trade_suggestions_list": suggestions}
+
+    @staticmethod
+    def save_research_results(query: str, user_id: int, result: dict, tenant_id: str = "live") -> None:
+        try:
+            import hashlib
+            from datetime import date, timedelta
+            from app import db as app_db
+            from models import ResearchCache
+
+            cache_key = hashlib.md5(
+                f"research:{tenant_id}:{user_id}:{query[:200]}:{date.today().isoformat()}".encode()
+            ).hexdigest()
+
+            payload = {
+                "answer": result.get("answer", ""),
+                "citations": result.get("citations", []),
+                "trade_suggestions": result.get("trade_suggestions", []),
+                "query_analysis": result.get("query_analysis", {}),
+                "pipeline": "anthropic_research",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+            expires = datetime.now(timezone.utc) + timedelta(hours=6)
+
+            existing = ResearchCache.query.filter_by(cache_key=cache_key).first()
+            if existing:
+                existing.result_payload = payload
+                existing.computed_at = datetime.now(timezone.utc)
+                existing.expires_at = expires
+            else:
+                entry = ResearchCache()
+                entry.cache_key = cache_key
+                entry.symbol = (result.get("query_analysis", {}).get("entities") or ["general"])[0][:20]
+                entry.asset_type = "research"
+                entry.result_payload = payload
+                entry.overall_score = 0
+                entry.recommendation = ""
+                entry.analysis_date = date.today()
+                entry.expires_at = expires
+                app_db.session.add(entry)
+
+            app_db.session.commit()
+            logger.info(f"Research results saved for query: {query[:50]}...")
+        except Exception as exc:
+            logger.warning(f"Failed to save research results: {exc}")
