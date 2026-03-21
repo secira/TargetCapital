@@ -20,7 +20,7 @@
                                 {% if current_user.pricing_plan == PricingPlan.FREE %}
                                 <p class="text-muted mb-0">Free plan with access to AI Advisor only</p>
                                 {% elif current_user.pricing_plan == PricingPlan.HNI %}
-                                <p class="text-muted mb-0">₹4,999/month - HNI Account with dedicated support</p>
+                                <p class="text-muted mb-0">₹4999/month - HNI Account with dedicated support</p>
                                 {% else %}
                                 <p class="text-muted mb-0">₹{{ current_user.get_plan_price() }}/month</p>
                                 {% endif %}
