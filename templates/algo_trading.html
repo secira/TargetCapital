@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Algorithmic Trading - AI-Powered Automated Trading | Target Capital{% endblock %}
+{% block title %}Trade Now - AI-Guided Trading with Behavioural Guardrails | Target Capital{% endblock %}
 
-{% block description %}Deploy sophisticated algorithmic trading strategies powered by AI. Automated execution, backtesting, and risk management for professional traders and institutions.{% endblock %}
+{% block description %}Execute trades through your connected broker with AI-powered signals, live behavioural guardrails, and risk validation. Trade smarter with the Scentric AI Decision Engine.{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -12,537 +12,330 @@
             <div class="col-lg-6">
                 <div class="d-inline-flex align-items-center gap-2 mb-4">
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-semibold">
-                        <i class="fas fa-robot me-1"></i>Agentic AI Powered
+                        <i class="fas fa-robot me-1"></i>Scentric AI Decision Engine
                     </span>
                 </div>
                 <h1 class="display-4 fw-bold text-dark mb-4">
-                    Autonomous Algorithmic Trading
+                    Trade Now.<br>
+                    <span class="text-primary">With AI Guidance & Guardrails.</span>
                 </h1>
                 <p class="lead text-muted mb-5" style="font-size: 1.2rem;">
-                    Experience true autonomous trading with Agentic AI that learns market patterns, reasons through complex scenarios, 
-                    acts independently on opportunities, and adapts strategies in real-time—moving beyond static automation to deliver 
-                    smarter, safer, and more profitable algorithmic trading outcomes.
+                    Get AI-powered signals, run your own research, then execute directly through your connected broker — protected at every step by live behavioural guardrails that flag risk violations before you act.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 py-3 rounded-pill">
-                        Start Autonomous Trading
+                        <i class="fas fa-rocket me-2"></i>Get Started Free
                     </a>
-                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
-                        View AI Capabilities
+                    <a href="{{ url_for('pricing') }}" class="btn btn-outline-primary btn-lg px-4 py-3 rounded-pill">
+                        View Pricing
                     </a>
                 </div>
-                <p class="small text-muted mt-3">
-                    <i class="fas fa-brain me-2 text-primary"></i>Learns & Adapts • 
-                    <i class="fas fa-lightning me-2 text-warning"></i>Acts Autonomously • 
-                    <i class="fas fa-shield-alt me-2 text-success"></i>Risk-Aware
+                <p class="small text-muted mt-4">
+                    <i class="fas fa-shield-alt me-2 text-primary"></i>Broker-Confirmed Execution &nbsp;•&nbsp;
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Live Guardrails &nbsp;•&nbsp;
+                    <i class="fas fa-brain me-2 text-success"></i>AI Signals
                 </p>
             </div>
             <div class="col-lg-6">
                 <div class="text-center">
-                    <img src="{{ url_for('static', filename='img/algo-trading.svg') }}" 
-                         alt="Agentic AI Algorithmic Trading" class="img-fluid" style="max-width: 500px;">
+                    <img src="{{ url_for('static', filename='img/trade-execution.svg') }}"
+                         alt="Trade Now with AI Guardrails" class="img-fluid" style="max-width: 500px;">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Agentic AI Capabilities -->
+<!-- How Trade Now Works -->
 <section class="bg-light" style="padding: 80px 0;">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-10 mx-auto text-center mb-5">
-                <h2 class="fw-bold text-dark mb-4">Beyond Traditional Automation: Agentic AI Trading Intelligence</h2>
-                <p class="text-muted mb-4">
-                    Our Agentic AI doesn't just execute pre-programmed rules—it learns, reasons, acts, and adapts autonomously to deliver superior trading outcomes
-                </p>
-                <div class="row g-4 mb-5">
-                    <div class="col-md-3 col-6">
-                        <div class="text-center">
-                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-brain text-primary fa-2x"></i>
-                            </div>
-                            <h6 class="fw-bold">LEARNS</h6>
-                            <small class="text-muted">From market patterns and trading outcomes</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="text-center">
-                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-lightbulb text-success fa-2x"></i>
-                            </div>
-                            <h6 class="fw-bold">REASONS</h6>
-                            <small class="text-muted">Through complex trading scenarios</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="text-center">
-                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-bolt text-warning fa-2x"></i>
-                            </div>
-                            <h6 class="fw-bold">ACTS</h6>
-                            <small class="text-muted">Autonomously on trading opportunities</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <div class="text-center">
-                            <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-sync text-info fa-2x"></i>
-                            </div>
-                            <h6 class="fw-bold">ADAPTS</h6>
-                            <small class="text-muted">To changing market conditions</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-3">How Trade Now Works</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 680px;">
+                From AI research to confirmed execution — every step is guided and guarded.
+            </p>
         </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-brain text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Autonomous Learning</h4>
-                        <p class="text-muted">
-                            Our AI continuously learns from market patterns, trading outcomes, and strategy performance 
-                            to refine and optimize algorithmic approaches without manual intervention.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Pattern recognition</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Strategy optimization</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Performance learning</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-lightbulb text-success" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Intelligent Reasoning</h4>
-                        <p class="text-muted">
-                            Beyond simple rules, our AI reasons through complex market scenarios, correlation analysis, 
-                            and multi-factor conditions to make sophisticated trading decisions.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Scenario analysis</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Risk assessment</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Multi-factor decisions</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-bolt text-warning" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Autonomous Execution</h4>
-                        <p class="text-muted">
-                            When opportunities arise or risks emerge, our AI acts independently within defined parameters—executing 
-                            trades, adjusting strategies, and managing positions in real-time.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Real-time execution</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Strategy adjustment</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Risk management</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-sync text-info" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Continuous Adaptation</h4>
-                        <p class="text-muted">
-                            Market conditions change constantly. Our AI adapts trading strategies, updates risk models, 
-                            and refines algorithms based on new market data and evolving conditions.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Strategy evolution</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Model updates</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Market adaptation</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-shield-alt text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Risk Intelligence</h4>
-                        <p class="text-muted">
-                            Our AI doesn't just manage risk—it predicts and prevents it. Advanced models identify potential 
-                            threats before they materialize and proactively adjust strategies.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Predictive risk models</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Proactive protection</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Dynamic hedging</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-chart-line text-success" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Performance Evolution</h4>
-                        <p class="text-muted">
-                            Track how our AI's autonomous decisions improve trading performance over time. See measurable 
-                            impact of learning, reasoning, and adaptation on your algorithmic trading results.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Performance tracking</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>AI decision analysis</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Improvement metrics</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-network-wired text-primary" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">12-Broker Integration</h4>
-                        <p class="text-muted">
-                            Execute trades across 12 major Indian brokers with unified API interface. Supports Zerodha, Angel One, 
-                            Upstox, FYERS, Dhan, and 7 more with direct order execution and real-time portfolio sync.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Unified broker API</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Direct order execution</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Encrypted credentials</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-4 col-md-6">
-                <div class="card border-0 h-100 shadow-sm hover-lift" style="border-radius: 16px;">
-                    <div class="card-body p-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-project-diagram text-warning" style="font-size: 3rem;"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">n8n Workflow Automation</h4>
-                        <p class="text-muted">
-                            Continuous monitoring and autonomous decision-making through n8n workflow integration. 
-                            AI triggers execute automatically based on market conditions and strategy parameters.
-                        </p>
-                        <div class="text-start mt-3">
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Automated triggers</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>24/7 monitoring</small>
-                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Event-driven execution</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                            <span class="fw-bold text-primary" style="font-size: 1.5rem;">1</span>
+                        </div>
+                        <h5 class="fw-bold mb-2">Get Signals</h5>
+                        <p class="text-muted small">I-Score ratings and daily trading signals across stocks and F&O, generated by our dual AI engine (Claude + GPT-4).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                            <span class="fw-bold text-success" style="font-size: 1.5rem;">2</span>
+                        </div>
+                        <h5 class="fw-bold mb-2">Research</h5>
+                        <p class="text-muted small">Ask the AI Research Co-Pilot questions about any asset. Get sourced answers with citations from real market data.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                            <span class="fw-bold text-warning" style="font-size: 1.5rem;">3</span>
+                        </div>
+                        <h5 class="fw-bold mb-2">Guardrail Check</h5>
+                        <p class="text-muted small">Live checks flag risk profile violations, concentration risk (&gt;20% in one trade), and suitability issues — before you confirm.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100 text-center" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                            <span class="fw-bold text-info" style="font-size: 1.5rem;">4</span>
+                        </div>
+                        <h5 class="fw-bold mb-2">Execute via Broker</h5>
+                        <p class="text-muted small">Confirm and execute through your connected broker (Zerodha, Dhan, Angel One, and more). You stay in control.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Agentic AI vs Traditional Algorithms -->
-<section class="bg-primary bg-opacity-5" style="padding: 80px 0;">
+<!-- Behavioural Guardrails Deep Dive -->
+<section class="bg-white" style="padding: 80px 0;">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center mb-5">
-                <h2 class="fw-bold text-dark mb-4">The Agentic AI Trading Advantage</h2>
-                <p class="text-muted mb-5">
-                    Traditional algorithms follow fixed rules. Agentic AI learns, reasons, and evolves—delivering superior trading outcomes through true autonomous intelligence.
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Behavioural Guardrails</h2>
+                <p class="text-muted mb-4">
+                    91% of F&O traders in India lost money in FY25. Emotional and uninformed decisions are the leading cause. Our live guardrail system intervenes before you make costly mistakes.
                 </p>
+                <div class="mb-4">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 44px; height: 44px;">
+                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Risk Profile Violation Warning</h6>
+                            <p class="text-muted small mb-0">If you're a conservative investor selecting derivatives or high-risk instruments, the system flags it immediately before you place the order.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 44px; height: 44px;">
+                            <i class="fas fa-balance-scale text-warning"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Concentration Risk Alert</h6>
+                            <p class="text-muted small mb-0">Warned if a single trade would exceed 20% of your total portfolio value — protecting against over-concentration in one position.</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 44px; height: 44px;">
+                            <i class="fas fa-shield-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">You Confirm Every Trade</h6>
+                            <p class="text-muted small mb-0">Nothing executes automatically. The AI guides and warns — but you make every decision and confirm with your broker.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px; background: #fff8f0;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-warning text-dark me-2"><i class="fas fa-exclamation-triangle me-1"></i> Guardrail Triggered</span>
+                        </div>
+                        <p class="fw-semibold text-dark mb-1">NIFTY 50 Options — Buy CE 24500</p>
+                        <p class="text-muted small mb-3">Attempting to place ₹1,50,000 order</p>
+                        <div class="alert alert-warning py-2 px-3 mb-2" style="border-radius: 8px; font-size: 0.85rem;">
+                            <i class="fas fa-exclamation-triangle me-2"></i><strong>Risk Profile Mismatch:</strong> Your profile is Conservative. Options are classified as High Risk.
+                        </div>
+                        <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius: 8px; font-size: 0.85rem;">
+                            <i class="fas fa-balance-scale me-2"></i><strong>Concentration Risk:</strong> This trade = 28% of your portfolio. Exceeds 20% threshold.
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm rounded-pill">Reconsider</button>
+                            <button class="btn btn-danger btn-sm rounded-pill">Proceed Anyway</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
+    </div>
+</section>
+
+<!-- AI Signals & I-Score -->
+<section class="bg-light" style="padding: 80px 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-3">AI Signals Powering Your Trades</h2>
+            <p class="lead text-muted mx-auto" style="max-width: 640px;">
+                Every trade you consider is backed by multi-dimensional AI analysis, not guesswork.
+            </p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-star text-warning mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="fw-bold mb-2">I-Score Rating (0–100)</h5>
+                        <p class="text-muted small">7-node AI pipeline scoring each stock across qualitative, quantitative, sentiment, and trend factors. One number to anchor your decision.</p>
+                        <div class="mt-3">
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Qualitative analysis</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Quantitative / technical</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Sentiment & trend</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-bolt text-primary mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="fw-bold mb-2">Daily Trading Signals</h5>
+                        <p class="text-muted small">Curated stock and F&O signals with clear entry, target, and stop-loss levels — refreshed every morning for paid members.</p>
+                        <div class="mt-3">
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>NSE cash market picks</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Options strategies</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Entry / target / SL levels</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-search text-success mb-3" style="font-size: 2.5rem;"></i>
+                        <h5 class="fw-bold mb-2">Research Co-Pilot</h5>
+                        <p class="text-muted small">Ask any question about a stock or your portfolio. The 5-step RAG pipeline returns sourced answers with real market citations.</p>
+                        <div class="mt-3">
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Natural language queries</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Market data citations</small>
+                            <small class="text-muted d-block"><i class="fas fa-check text-success me-2"></i>Trade suggestions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Broker Integration -->
+<section class="bg-white" style="padding: 80px 0;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Connected to Your Broker</h2>
+                <p class="text-muted mb-4">
+                    Target Capital integrates with 12 major Indian brokers via secure OAuth. Connect your existing account and execute trades directly — no separate account needed.
+                </p>
+                <div class="row g-3 mb-4">
+                    {% for broker in ['Zerodha', 'Dhan', 'Angel One', 'Groww', 'Upstox', 'FYERS', '5paisa', 'Kotak', 'IIFL', 'Sharekhan', 'Alice Blue', 'Motilal'] %}
+                    <div class="col-4">
+                        <div class="bg-light rounded-3 py-2 px-3 text-center">
+                            <small class="fw-semibold text-dark">{{ broker }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex align-items-start gap-3">
+                    <i class="fas fa-lock text-success mt-1"></i>
+                    <p class="text-muted small mb-0">Broker credentials are encrypted at rest. Target Capital never stores your broker password — connection uses OAuth or API key with read/trade permissions only.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3"><i class="fas fa-plug text-primary me-2"></i>Broker Connections</h6>
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 mb-2">
+                            <span class="fw-semibold">Zerodha Kite</span>
+                            <span class="badge bg-success">Connected</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3 mb-2">
+                            <span class="fw-semibold">Dhan</span>
+                            <span class="badge bg-secondary">Connect</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                            <span class="fw-semibold">Angel One</span>
+                            <span class="badge bg-secondary">Connect</span>
+                        </div>
+                        <div class="mt-3 pt-3 border-top">
+                            <small class="text-muted"><i class="fas fa-shield-alt text-primary me-2"></i>All credentials encrypted with per-tenant keys</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trade Now vs. DIY Comparison -->
+<section style="padding: 80px 0; background: #f8f9fa;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark mb-3">Why Trade with AI Guidance?</h2>
+            <p class="lead text-muted">The difference between trading blind and trading informed</p>
+        </div>
+
         <div class="row g-4 align-items-center">
             <div class="col-lg-5">
-                <div class="bg-light p-4 rounded-3">
-                    <h5 class="fw-bold text-muted mb-3">
-                        <i class="fas fa-cog me-2"></i>Traditional Algorithms
-                    </h5>
+                <div class="bg-white p-4 rounded-3 shadow-sm">
+                    <h5 class="fw-bold text-muted mb-3"><i class="fas fa-user me-2"></i>Trading Without Guidance</h5>
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Fixed rule-based execution</li>
-                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Static parameters</li>
-                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Limited market adaptation</li>
-                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Requires manual optimization</li>
-                        <li class="mb-0"><i class="fas fa-times text-danger me-2"></i>Performance degrades over time</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>No signal quality benchmark</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Emotional, reactive decisions</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>No visibility into risk profile fit</li>
+                        <li class="mb-2"><i class="fas fa-times text-danger me-2"></i>Over-concentration risk goes unchecked</li>
+                        <li class="mb-0"><i class="fas fa-times text-danger me-2"></i>No research trail or audit history</li>
                     </ul>
                 </div>
             </div>
-            
+
             <div class="col-lg-2 text-center">
-                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                    <i class="fas fa-arrow-right text-primary fa-2x"></i>
+                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                    <i class="fas fa-arrow-right text-primary fa-xl"></i>
                 </div>
                 <p class="small text-muted mt-2 fw-semibold">UPGRADE TO</p>
             </div>
-            
+
             <div class="col-lg-5">
                 <div class="bg-white p-4 rounded-3 shadow-sm border border-primary border-opacity-25">
-                    <h5 class="fw-bold text-primary mb-3">
-                        <i class="fas fa-brain me-2"></i>Agentic AI Trading
-                    </h5>
+                    <h5 class="fw-bold text-primary mb-3"><i class="fas fa-brain me-2"></i>Trade Now with AI Guardrails</h5>
                     <ul class="list-unstyled mb-0">
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Learns from trading outcomes</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dynamic strategy adjustment</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Autonomous market adaptation</li>
-                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Self-optimizing algorithms</li>
-                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Continuously improves performance</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>I-Score rated signals (0–100)</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Structured, research-backed decisions</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Real-time risk profile validation</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Concentration risk alerts before execution</li>
+                        <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Full execution history & audit trail</li>
                     </ul>
                 </div>
             </div>
         </div>
-        
-        <div class="row mt-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <div class="bg-primary bg-opacity-10 p-4 rounded-3">
-                    <h6 class="fw-bold text-primary mb-3">The Result: Smarter, Safer, More Profitable Algorithmic Trading</h6>
-                    <p class="text-muted mb-0">
-                        Agentic AI in algorithmic trading marks a shift from passive automation to true autonomous decision-making—empowering algorithms to learn, reason, act, and adapt in real-market conditions.
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
-
-<!-- Strategy Types -->
-<section class="bg-white" style="padding: 80px 0;">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="fw-bold text-dark mb-3">Agentic AI Trading Strategies</h2>
-                <p class="text-muted">Autonomous algorithms that learn, adapt, and optimize themselves in real-time</p>
-            </div>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-chart-line text-primary me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Momentum Strategies</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Trend-following algorithms that capitalize on price momentum. 
-                            Multiple timeframes and advanced filter combinations for optimal entry timing.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>Moving average crossovers</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Breakout detection</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Relative strength indicators</li>
-                        </ul>
-                        <div class="text-primary small fw-semibold">
-                            Avg. Annual Return: 18.5% • Sharpe Ratio: 1.8
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-balance-scale text-success me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">Mean Reversion</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Statistical arbitrage strategies that profit from price deviations. 
-                            Pairs trading, market neutral, and volatility-based approaches.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>Statistical arbitrage</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Pairs trading</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Volatility targeting</li>
-                        </ul>
-                        <div class="text-success small fw-semibold">
-                            Avg. Annual Return: 14.2% • Max Drawdown: 8.5%
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-clock text-warning me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">High-Frequency Trading</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Ultra-fast execution strategies for market making and arbitrage. 
-                            Microsecond-level decision making with advanced order management.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>Market making algorithms</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Latency arbitrage</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Order flow prediction</li>
-                        </ul>
-                        <div class="text-warning small fw-semibold">
-                            Daily Volume: $10M+ • Win Rate: 78%
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fas fa-brain text-info me-3" style="font-size: 1.5rem;"></i>
-                            <h4 class="fw-bold mb-0">AI-Powered Strategies</h4>
-                        </div>
-                        <p class="text-muted mb-3">
-                            Machine learning algorithms that adapt to changing market conditions. 
-                            Neural networks and ensemble methods for superior performance.
-                        </p>
-                        <ul class="list-unstyled text-muted small">
-                            <li><i class="fas fa-check text-success me-2"></i>Deep learning models</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Sentiment analysis</li>
-                            <li><i class="fas fa-check text-success me-2"></i>Adaptive algorithms</li>
-                        </ul>
-                        <div class="text-info small fw-semibold">
-                            Avg. Annual Return: 24.8% • Information Ratio: 2.1
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Platform Architecture -->
-<section class="bg-light" style="padding: 80px 0;">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="fw-bold text-dark mb-4">Enterprise-Grade Infrastructure</h2>
-                <div class="mb-4">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-server text-primary me-3 mt-1"></i>
-                        <div>
-                            <h5 class="fw-semibold mb-2">Co-Located Servers</h5>
-                            <p class="text-muted">
-                                Our servers are co-located in major financial centers for ultra-low latency execution.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-shield-alt text-success me-3 mt-1"></i>
-                        <div>
-                            <h5 class="fw-semibold mb-2">Risk Controls</h5>
-                            <p class="text-muted">
-                                Multi-layered risk management with real-time monitoring and automatic circuit breakers.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-link text-warning me-3 mt-1"></i>
-                        <div>
-                            <h5 class="fw-semibold mb-2">Direct Market Access</h5>
-                            <p class="text-muted">
-                                Direct connections to major exchanges and dark pools for optimal execution quality.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="d-flex align-items-start">
-                        <i class="fas fa-chart-bar text-info me-3 mt-1"></i>
-                        <div>
-                            <h5 class="fw-semibold mb-2">Real-Time Analytics</h5>
-                            <p class="text-muted">
-                                Comprehensive monitoring and analytics with customizable dashboards and alerts.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="text-center">
-                    <img src="{{ url_for('static', filename='img/trading-infrastructure.svg') }}" 
-                         alt="Trading Infrastructure" class="img-fluid" style="max-width: 450px;">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Performance Stats -->
-<section class="bg-primary text-white" style="padding: 80px 0;">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">&lt;1ms</h2>
-                <p class="mb-0">Average Execution Time</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">99.99%</h2>
-                <p class="mb-0">System Uptime</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">$1M+</h2>
-                <p class="mb-0">Daily Trading Volume</p>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <h2 class="display-5 fw-bold mb-2">20+</h2>
-                <p class="mb-0">Active Algorithms</p>
-            </div>
-        </div>
-    </div>
-</section>
-
 
 <!-- CTA Section -->
-<section class="bg-white" style="padding: 80px 0;">
+<section class="bg-primary text-white" style="padding: 70px 0;">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h2 class="fw-bold text-dark mb-4">Start Algorithmic Trading Today</h2>
-                <p class="lead text-muted mb-5">
-                    Join professional traders and institutions using our algorithmic trading platform to maximize returns.
+                <h2 class="fw-bold mb-3">Start trading with AI guidance today</h2>
+                <p class="lead mb-5 opacity-90">
+                    Trade Now is available on Target Pro and HNI plans. Research and signals are available from Target Plus.
                 </p>
-                
                 <div class="d-flex flex-wrap justify-content-center gap-3">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
-                        Start Free Trial
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-semibold">
+                        Get Started Free
                     </a>
-                    <a href="{{ url_for('contact') }}" class="btn btn-outline-primary btn-lg px-5 py-3 rounded-pill">
-                        Schedule Demo
+                    <a href="{{ url_for('pricing') }}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-semibold">
+                        View Plans
                     </a>
                 </div>
-                
-                <p class="small text-muted mt-4">
-                    <i class="fas fa-shield-alt me-2"></i>Enterprise security • No coding required • 24/7 monitoring
-                </p>
             </div>
         </div>
     </div>
