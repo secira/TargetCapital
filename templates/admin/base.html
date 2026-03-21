@@ -140,7 +140,7 @@
                         <a href="{{ url_for('admin.users') }}" class="nav-link admin-nav-link {{ 'active' if 'users' in request.endpoint else '' }}">
                             <i class="fas fa-users me-2"></i>User Management
                         </a>
-                        <a href="{{ url_for('admin.research_list') }}" class="nav-link admin-nav-link {{ 'active' if 'research' in request.endpoint else '' }}">
+                        <a href="{{ url_for('admin.research_list') }}" class="nav-link admin-nav-link {{ 'active' if 'research_list' in request.endpoint or 'research_stock' in request.endpoint else '' }}">
                             <i class="fas fa-microscope me-2"></i>Research List
                         </a>
                         <a href="{{ url_for('admin.daily_signals') }}" class="nav-link admin-nav-link {{ 'active' if 'daily_signals' in request.endpoint else '' }}">
@@ -151,6 +151,15 @@
                         </a>
                         <a href="{{ url_for('admin.account_handling') }}" class="nav-link admin-nav-link {{ 'active' if 'account_handling' in request.endpoint else '' }}">
                             <i class="fas fa-user-tie me-2"></i>Account Handling
+                        </a>
+                        <a href="{{ url_for('admin.research_config') }}" class="nav-link admin-nav-link {{ 'active' if 'research_config' in request.endpoint else '' }}">
+                            <i class="fas fa-brain me-2"></i>Research Config
+                        </a>
+                        <a href="{{ url_for('admin.contact_messages') }}" class="nav-link admin-nav-link {{ 'active' if 'contact_message' in request.endpoint else '' }}">
+                            <i class="fas fa-envelope me-2"></i>Contact Messages
+                        </a>
+                        <a href="{{ url_for('admin.blog_list') }}" class="nav-link admin-nav-link {{ 'active' if 'blog' in request.endpoint else '' }}">
+                            <i class="fas fa-blog me-2"></i>Blog Management
                         </a>
                         
                         <hr class="my-3" style="border-color: rgba(255,255,255,0.2);">
@@ -240,5 +249,6 @@
     </script>
     
     {% block scripts %}{% endblock %}
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
