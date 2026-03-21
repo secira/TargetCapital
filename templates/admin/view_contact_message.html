@@ -120,7 +120,7 @@
                         <!-- Status Update Form -->
                         <div class="border-top pt-4">
                             <h6 class="text-muted mb-3">Update Status</h6>
-                            <form method="POST" action="{{ url_for('admin_update_contact_status', message_id=message.id) }}" class="d-flex gap-2">
+                            <form method="POST" action="{{ url_for('admin.update_contact_status', message_id=message.id) }}" class="d-flex gap-2">
                                 <select name="status" class="form-select" style="width: auto;">
                                     <option value="new" {{ 'selected' if message.status == 'new' else '' }}>New</option>
                                     <option value="read" {{ 'selected' if message.status == 'read' else '' }}>Read</option>

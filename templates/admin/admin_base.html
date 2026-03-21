@@ -251,26 +251,26 @@
             </div>
             
             <nav class="admin-nav">
-                <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_dashboard' }}">
+                <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin.dashboard' }}">
                     <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                 </a>
-                <a href="{{ url_for('admin_users') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_users' }}">
+                <a href="{{ url_for('admin.users') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin.users' }}">
                     <i class="fas fa-users me-2"></i>Users
                 </a>
-                <a href="{{ url_for('admin_trading_signals') }}" class="admin-nav-item {{ 'active' if 'trading_signals' in request.endpoint }}">
+                <a href="{{ url_for('admin.daily_signals') }}" class="admin-nav-item {{ 'active' if 'daily_signals' in request.endpoint }}">
                     <i class="fas fa-chart-line me-2"></i>Trading Signals
                 </a>
                 <a href="{{ url_for('admin.research_config') }}" class="admin-nav-item {{ 'active' if 'research_config' in request.endpoint }}">
                     <i class="fas fa-brain me-2"></i>AI Research Config
                 </a>
-                <a href="{{ url_for('admin_payments') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_payments' }}">
+                <a href="{{ url_for('admin.payments') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin.payments' }}">
                     <i class="fas fa-credit-card me-2"></i>Payments
                 </a>
-                <a href="{{ url_for('admin_account_handling') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_account_handling' }}">
+                <a href="{{ url_for('admin.account_handling') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin.account_handling' }}">
                     <i class="fas fa-user-cog me-2"></i>Account Handling
                 </a>
                 <hr class="my-3">
-                <a href="{{ url_for('admin_logout') }}" class="admin-nav-item">
+                <a href="{{ url_for('admin.logout') }}" class="admin-nav-item">
                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                 </a>
             </nav>
