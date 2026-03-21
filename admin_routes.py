@@ -1090,6 +1090,65 @@ def delete_contact_message(message_id):
 
 
 # ============================================================================
+# RESEARCH LIST SEEDING
+# ============================================================================
+
+@admin_bp.route('/seed-research-list', methods=['GET', 'POST'])
+@admin_required
+def seed_research_list():
+    """Seed the research list with 501 stocks — safe to run on Railway"""
+    from seed_data import RESEARCH_LIST_STOCKS
+
+    current_count = ResearchList.query.filter_by(is_active=True).count()
+
+    if request.method == 'POST':
+        try:
+            action = request.form.get('action', 'merge')
+
+            if action == 'replace':
+                # Remove all existing records first
+                ResearchList.query.delete()
+                db.session.flush()
+
+            inserted = 0
+            skipped = 0
+            for stock in RESEARCH_LIST_STOCKS:
+                symbol = stock['symbol']
+                existing = ResearchList.query.filter_by(symbol=symbol).first()
+                if existing:
+                    # Update basic fields without touching i_score
+                    existing.company_name = stock['company_name']
+                    existing.asset_type = stock['asset_type']
+                    existing.sector = stock['sector']
+                    existing.is_active = True
+                    existing.tenant_id = 'live'
+                    skipped += 1
+                else:
+                    new_stock = ResearchList(
+                        symbol=symbol,
+                        company_name=stock['company_name'],
+                        asset_type=stock['asset_type'],
+                        sector=stock['sector'],
+                        is_active=True,
+                        tenant_id='live',
+                    )
+                    db.session.add(new_stock)
+                    inserted += 1
+
+            db.session.commit()
+            flash(f'Seed complete — {inserted} inserted, {skipped} updated. Total active: {ResearchList.query.filter_by(is_active=True).count()}', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Seed failed: {str(e)}', 'danger')
+        return redirect(url_for('admin.seed_research_list'))
+
+    return render_template('admin/seed_research_list.html',
+                           current_count=current_count,
+                           seed_count=len(RESEARCH_LIST_STOCKS),
+                           seed_preview=RESEARCH_LIST_STOCKS[:20])
+
+
+# ============================================================================
 # BLOG MANAGEMENT
 # ============================================================================
 

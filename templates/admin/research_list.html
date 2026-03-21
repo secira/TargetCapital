@@ -8,9 +8,14 @@
     <div>
         <p class="text-muted mb-0">Pre-computed I-Score analysis for top 500 stocks. Updated nightly.</p>
     </div>
-    <a href="{{ url_for('admin.add_research_stock') }}" class="btn btn-success admin-btn">
-        <i class="fas fa-plus me-2"></i>Add Stock
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('admin.seed_research_list') }}" class="btn btn-outline-warning admin-btn">
+            <i class="fas fa-file-import me-2"></i>Seed Database
+        </a>
+        <a href="{{ url_for('admin.add_research_stock') }}" class="btn btn-success admin-btn">
+            <i class="fas fa-plus me-2"></i>Add Stock
+        </a>
+    </div>
 </div>
 
 <!-- Statistics Cards -->

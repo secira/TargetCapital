@@ -1,0 +1,139 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Seed Research List | Admin | Target Capital{% endblock %}
+{% block page_title %}Seed Research List{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Research List Database Seed</h4>
+        <small class="text-muted">Copy 501 stocks into this environment's database</small>
+    </div>
+    <a href="{{ url_for('admin.research_list') }}" class="btn btn-outline-secondary admin-btn">
+        <i class="fas fa-arrow-left me-2"></i>Back to Research List
+    </a>
+</div>
+
+<!-- Status Cards -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-database fa-3x text-primary mb-3"></i>
+                <h2 class="mb-1">{{ current_count }}</h2>
+                <p class="text-muted mb-0">Records currently in this database</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card admin-card h-100">
+            <div class="card-body text-center py-4">
+                <i class="fas fa-file-import fa-3x text-success mb-3"></i>
+                <h2 class="mb-1">{{ seed_count }}</h2>
+                <p class="text-muted mb-0">Stocks in the seed file</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_count == seed_count %}
+<div class="alert alert-success">
+    <i class="fas fa-check-circle me-2"></i>
+    The database already has <strong>{{ current_count }}</strong> active stocks — looks like it's already seeded!
+    You can re-run the merge to update any changed company names or sectors.
+</div>
+{% elif current_count == 0 %}
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    The database is empty. Run the seed below to add all <strong>{{ seed_count }}</strong> stocks.
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Database has <strong>{{ current_count }}</strong> stocks. The seed file has <strong>{{ seed_count }}</strong>.
+    Use <strong>Merge</strong> to add missing ones, or <strong>Replace All</strong> to do a clean reset.
+</div>
+{% endif %}
+
+<!-- Seed Options -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Merge (Recommended)</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Adds any missing stocks and updates existing ones.
+                    <strong>Does not remove</strong> any existing records or their I-Score data.
+                </p>
+                <ul class="small text-muted mb-3">
+                    <li>Safe to run multiple times</li>
+                    <li>Preserves existing I-Score values</li>
+                    <li>Adds {{ seed_count - current_count if current_count < seed_count else 0 }} missing stocks</li>
+                </ul>
+                <form method="POST" onsubmit="return confirm('Run seed merge? This is safe and non-destructive.');">
+                    <input type="hidden" name="action" value="merge">
+                    <button type="submit" class="btn btn-primary w-100 admin-btn">
+                        <i class="fas fa-sync-alt me-2"></i>Merge {{ seed_count }} Stocks
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card admin-card">
+            <div class="card-header bg-danger text-white">
+                <h6 class="mb-0"><i class="fas fa-trash-alt me-2"></i>Replace All</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    <strong>Deletes all existing research list records</strong> then inserts all 501 stocks fresh.
+                    I-Score data will be lost.
+                </p>
+                <ul class="small text-muted mb-3">
+                    <li>Destructive — removes all existing data</li>
+                    <li>I-Score values will be cleared</li>
+                    <li>Use only for a clean reset</li>
+                </ul>
+                <form method="POST" onsubmit="return confirm('WARNING: This will DELETE all {{ current_count }} existing research list records and re-insert {{ seed_count }} stocks. I-Score data will be lost. Are you sure?');">
+                    <input type="hidden" name="action" value="replace">
+                    <button type="submit" class="btn btn-danger w-100 admin-btn">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Replace All Records
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Preview -->
+<div class="card admin-card mt-4">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="fas fa-list me-2"></i>Seed File Contents (first 20 of {{ seed_count }})</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table admin-table table-sm mb-0">
+                <thead>
+                    <tr><th>#</th><th>Symbol</th><th>Company</th><th>Type</th><th>Sector</th></tr>
+                </thead>
+                <tbody>
+                    {% for stock in seed_preview %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ stock.symbol }}</strong></td>
+                        <td>{{ stock.company_name }}</td>
+                        <td><span class="badge bg-secondary">{{ stock.asset_type }}</span></td>
+                        <td>{{ stock.sector or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center text-muted py-2 border-top">
+            <small>… and {{ seed_count - 20 }} more stocks in the seed file</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
