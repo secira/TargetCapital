@@ -165,12 +165,15 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1">
-                                    <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-primary admin-btn">
+                                    <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-primary admin-btn" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-outline-info admin-btn" onclick="sendMessage({{ user.id }}, '{{ user.username }}')">
-                                        <i class="fas fa-envelope"></i>
+                                    {% if not user.is_admin %}
+                                    <button class="btn btn-sm btn-outline-danger admin-btn" title="Delete User"
+                                            onclick="confirmDeleteUser({{ user.id }}, '{{ (user.username or user.email)|e }}')">
+                                        <i class="fas fa-trash"></i>
                                     </button>
+                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -227,15 +230,20 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Hidden delete form -->
+<form id="deleteUserForm" method="POST" style="display:none;">
+</form>
+
 <script>
 function exportUsers() {
-    // TODO: Implement user export functionality
-    alert('User export functionality will be implemented soon.');
+    alert('User export will be available soon.');
 }
 
-function sendMessage(userId, username) {
-    // TODO: Implement user messaging functionality
-    alert(`Send message to ${username} (ID: ${userId}) - Feature coming soon.`);
+function confirmDeleteUser(userId, username) {
+    if (!confirm(`Permanently delete user "${username}"?\n\nThis cannot be undone and will remove all their data.`)) return;
+    const form = document.getElementById('deleteUserForm');
+    form.action = `/admin/user/${userId}/delete`;
+    form.submit();
 }
 </script>
 {% endblock %}

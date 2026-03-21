@@ -109,10 +109,16 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ url_for('admin.view_contact_message', message_id=message.id) }}"
-                               class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye me-1"></i>View
-                            </a>
+                            <div class="d-flex gap-1">
+                                <a href="{{ url_for('admin.view_contact_message', message_id=message.id) }}"
+                                   class="btn btn-sm btn-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger" title="Delete"
+                                        onclick="confirmDeleteMsg({{ message.id }}, '{{ message.name|e }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     {% else %}
@@ -156,4 +162,16 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<form id="deleteMsgForm" method="POST" style="display:none;"></form>
+<script>
+function confirmDeleteMsg(msgId, name) {
+    if (!confirm(`Delete message from "${name}"?\n\nThis cannot be undone.`)) return;
+    const form = document.getElementById('deleteMsgForm');
+    form.action = `/admin/contact-message/${msgId}/delete`;
+    form.submit();
+}
+</script>
 {% endblock %}

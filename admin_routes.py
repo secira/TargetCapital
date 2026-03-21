@@ -134,6 +134,48 @@ def user_detail(user_id):
                          executed_trades=executed_trades,
                          brokers=brokers)
 
+@admin_bp.route('/user/<int:user_id>/update-plan', methods=['POST'])
+@admin_required
+def update_user_plan(user_id):
+    """Update a user's subscription plan"""
+    user = User.query.get_or_404(user_id)
+    new_plan = request.form.get('pricing_plan')
+    valid_plans = ['free', 'target_plus', 'target_pro', 'hni']
+    if new_plan and new_plan.lower() in valid_plans:
+        from models import PricingPlan
+        plan_map = {
+            'free': PricingPlan.FREE,
+            'target_plus': PricingPlan.TARGET_PLUS,
+            'target_pro': PricingPlan.TARGET_PRO,
+            'hni': PricingPlan.HNI,
+        }
+        user.pricing_plan = plan_map[new_plan.lower()]
+        db.session.commit()
+        flash(f'Plan updated to {new_plan} for {user.username}.', 'success')
+    else:
+        flash('Invalid plan selected.', 'danger')
+    return redirect(url_for('admin.user_detail', user_id=user_id))
+
+
+@admin_bp.route('/user/<int:user_id>/delete', methods=['POST'])
+@admin_required
+def delete_user(user_id):
+    """Delete a user account permanently"""
+    user = User.query.get_or_404(user_id)
+    if user.is_admin:
+        flash('Admin accounts cannot be deleted.', 'danger')
+        return redirect(url_for('admin.users'))
+    username = user.username or user.email
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User "{username}" has been permanently deleted.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Could not delete user: {str(e)}', 'danger')
+    return redirect(url_for('admin.users'))
+
+
 @admin_bp.route('/research-list')
 @admin_bp.route('/research-list/<int:page>')
 @admin_required
@@ -1029,6 +1071,21 @@ def update_contact_status(message_id):
         db.session.commit()
         flash(f'Message status updated to {new_status}.', 'success')
 
+    return redirect(url_for('admin.contact_messages'))
+
+
+@admin_bp.route('/contact-message/<int:message_id>/delete', methods=['POST'])
+@admin_required
+def delete_contact_message(message_id):
+    """Delete a contact message permanently"""
+    message = ContactMessage.query.get_or_404(message_id)
+    try:
+        db.session.delete(message)
+        db.session.commit()
+        flash('Contact message deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Could not delete message: {str(e)}', 'danger')
     return redirect(url_for('admin.contact_messages'))
 
 
