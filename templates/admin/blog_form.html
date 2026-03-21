@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a class="nav-link" href="{{ url_for('admin_blog_list') }}">
+                    <a class="nav-link" href="{{ url_for('admin.blog_list') }}">
                         <i class="fas fa-blog me-2"></i>Blog Posts
                     </a>
-                    <a class="nav-link active" href="{{ url_for('admin_blog_new') }}">
+                    <a class="nav-link active" href="{{ url_for('admin.blog_new') }}">
                         <i class="fas fa-plus me-2"></i>New Post
                     </a>
                     <a class="nav-link" href="{{ url_for('dashboard') }}">
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="col-md-9 col-lg-10">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>{% if post %}Edit{% else %}New{% endif %} Blog Post</h2>
-                <a href="{{ url_for('admin_blog_list') }}" class="btn btn-outline-secondary">
+                <a href="{{ url_for('admin.blog_list') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Posts
                 </a>
             </div>
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </a>
                                     {% endif %}
                                     {% if post %}
-                                    <a href="{{ url_for('admin_blog_list') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ url_for('admin.blog_list') }}" class="btn btn-outline-secondary">
                                         <i class="fas fa-times me-2"></i>Cancel
                                     </a>
                                     {% endif %}

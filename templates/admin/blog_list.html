@@ -13,10 +13,10 @@
                     <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a class="nav-link active" href="{{ url_for('admin_blog_list') }}">
+                    <a class="nav-link active" href="{{ url_for('admin.blog_list') }}">
                         <i class="fas fa-blog me-2"></i>Blog Posts
                     </a>
-                    <a class="nav-link" href="{{ url_for('admin_blog_new') }}">
+                    <a class="nav-link" href="{{ url_for('admin.blog_new') }}">
                         <i class="fas fa-plus me-2"></i>New Post
                     </a>
                     <a class="nav-link" href="{{ url_for('dashboard') }}">
@@ -30,7 +30,7 @@
         <div class="col-md-9 col-lg-10">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Blog Posts</h2>
-                <a href="{{ url_for('admin_blog_new') }}" class="btn btn-primary">
+                <a href="{{ url_for('admin.blog_new') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>New Blog Post
                 </a>
             </div>
@@ -39,19 +39,19 @@
             <ul class="nav nav-tabs mb-4">
                 <li class="nav-item">
                     <a class="nav-link {% if status_filter == 'all' %}active{% endif %}" 
-                       href="{{ url_for('admin_blog_list', status='all') }}">All Posts</a>
+                       href="{{ url_for('admin.blog_list', status='all') }}">All Posts</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if status_filter == 'published' %}active{% endif %}" 
-                       href="{{ url_for('admin_blog_list', status='published') }}">Published</a>
+                       href="{{ url_for('admin.blog_list', status='published') }}">Published</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if status_filter == 'draft' %}active{% endif %}" 
-                       href="{{ url_for('admin_blog_list', status='draft') }}">Drafts</a>
+                       href="{{ url_for('admin.blog_list', status='draft') }}">Drafts</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if status_filter == 'archived' %}active{% endif %}" 
-                       href="{{ url_for('admin_blog_list', status='archived') }}">Archived</a>
+                       href="{{ url_for('admin.blog_list', status='archived') }}">Archived</a>
                 </li>
             </ul>
 
@@ -113,18 +113,18 @@
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 {% endif %}
-                                                <a href="{{ url_for('admin_blog_edit', post_id=post.id) }}" 
+                                                <a href="{{ url_for('admin.blog_edit', post_id=post.id) }}" 
                                                    class="btn btn-sm btn-outline-primary" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form method="POST" action="{{ url_for('admin_blog_toggle_featured', post_id=post.id) }}" 
+                                                <form method="POST" action="{{ url_for('admin.blog_toggle_featured', post_id=post.id) }}" 
                                                       style="display: inline;">
                                                     <button type="submit" class="btn btn-sm btn-outline-warning" 
                                                             title="{% if post.is_featured %}Remove from featured{% else %}Mark as featured{% endif %}">
                                                         <i class="fas fa-star{% if not post.is_featured %}-o{% endif %}"></i>
                                                     </button>
                                                 </form>
-                                                <form method="POST" action="{{ url_for('admin_blog_delete', post_id=post.id) }}" 
+                                                <form method="POST" action="{{ url_for('admin.blog_delete', post_id=post.id) }}" 
                                                       style="display: inline;" 
                                                       onsubmit="return confirm('Are you sure you want to delete this post?');">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
@@ -145,7 +145,7 @@
                             <ul class="pagination justify-content-center">
                                 {% if posts.has_prev %}
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ url_for('admin_blog_list', page=posts.prev_num, status=status_filter) }}">Previous</a>
+                                        <a class="page-link" href="{{ url_for('admin.blog_list', page=posts.prev_num, status=status_filter) }}">Previous</a>
                                     </li>
                                 {% endif %}
                                 
@@ -153,7 +153,7 @@
                                     {% if page_num %}
                                         {% if page_num != posts.page %}
                                             <li class="page-item">
-                                                <a class="page-link" href="{{ url_for('admin_blog_list', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                                                <a class="page-link" href="{{ url_for('admin.blog_list', page=page_num, status=status_filter) }}">{{ page_num }}</a>
                                             </li>
                                         {% else %}
                                             <li class="page-item active">
@@ -169,7 +169,7 @@
                                 
                                 {% if posts.has_next %}
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ url_for('admin_blog_list', page=posts.next_num, status=status_filter) }}">Next</a>
+                                        <a class="page-link" href="{{ url_for('admin.blog_list', page=posts.next_num, status=status_filter) }}">Next</a>
                                     </li>
                                 {% endif %}
                             </ul>
@@ -186,7 +186,7 @@
                                     No posts with status "{{ status_filter }}" found.
                                 {% endif %}
                             </p>
-                            <a href="{{ url_for('admin_blog_new') }}" class="btn btn-primary">
+                            <a href="{{ url_for('admin.blog_new') }}" class="btn btn-primary">
                                 <i class="fas fa-plus me-2"></i>Create New Post
                             </a>
                         </div>

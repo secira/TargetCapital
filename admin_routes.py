@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
 from app import db
-from models import Admin, User, PricingPlan, DailyTradingSignal, ResearchList
+from models import Admin, User, PricingPlan, DailyTradingSignal, ResearchList, BlogPost, ContactMessage
 from models_broker import BrokerAccount
 # Import with safe fallback for optional models
 try:
@@ -966,3 +966,198 @@ def update_signal_status(signal_id):
         flash(f'Error updating status: {str(e)}', 'error')
     
     return redirect(url_for('admin.daily_signals'))
+
+
+# ============================================================================
+# CONTACT MESSAGES
+# ============================================================================
+
+@admin_bp.route('/contact-messages')
+@admin_required
+def contact_messages():
+    """Admin page to view and manage contact messages"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'all')
+
+    query = ContactMessage.query
+
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+
+    messages = query.order_by(ContactMessage.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+
+    stats = {
+        'total': ContactMessage.query.count(),
+        'new': ContactMessage.query.filter_by(status='new').count(),
+        'read': ContactMessage.query.filter_by(status='read').count(),
+        'replied': ContactMessage.query.filter_by(status='replied').count(),
+        'closed': ContactMessage.query.filter_by(status='closed').count(),
+    }
+
+    return render_template('admin/contact_messages.html',
+                           messages=messages,
+                           stats=stats,
+                           status_filter=status_filter)
+
+
+@admin_bp.route('/contact-message/<int:message_id>')
+@admin_required
+def view_contact_message(message_id):
+    """View individual contact message"""
+    message = ContactMessage.query.get_or_404(message_id)
+
+    if message.status == 'new':
+        message.status = 'read'
+        db.session.commit()
+
+    return render_template('admin/view_contact_message.html', message=message)
+
+
+@admin_bp.route('/contact-message/<int:message_id>/update-status', methods=['POST'])
+@admin_required
+def update_contact_status(message_id):
+    """Update contact message status"""
+    message = ContactMessage.query.get_or_404(message_id)
+    new_status = request.form.get('status')
+
+    if new_status in ['new', 'read', 'replied', 'closed']:
+        message.status = new_status
+        if new_status == 'replied':
+            message.replied_at = datetime.utcnow()
+        db.session.commit()
+        flash(f'Message status updated to {new_status}.', 'success')
+
+    return redirect(url_for('admin.contact_messages'))
+
+
+# ============================================================================
+# BLOG MANAGEMENT
+# ============================================================================
+
+@admin_bp.route('/blog')
+@admin_required
+def blog_list():
+    """Admin blog post list"""
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', 'all')
+
+    query = BlogPost.query
+    if status_filter != 'all':
+        query = query.filter_by(status=status_filter)
+
+    posts = query.order_by(BlogPost.created_at.desc()).paginate(
+        page=page, per_page=20, error_out=False
+    )
+
+    return render_template('admin/blog_list.html', posts=posts, status_filter=status_filter)
+
+
+@admin_bp.route('/blog/new', methods=['GET', 'POST'])
+@admin_required
+def blog_new():
+    """Create new blog post"""
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        excerpt = request.form.get('excerpt')
+        category = request.form.get('category')
+        tags = request.form.get('tags')
+        featured_image = request.form.get('featured_image')
+        meta_description = request.form.get('meta_description')
+        status = request.form.get('status', 'draft')
+        is_featured = request.form.get('is_featured') == 'on'
+
+        if not title or not content:
+            flash('Title and content are required.', 'error')
+            return render_template('admin/blog_form.html')
+
+        post = BlogPost(
+            title=title,
+            content=content,
+            excerpt=excerpt,
+            author_id=current_user.id,
+            author_name=current_user.get_full_name(),
+            category=category,
+            tags=tags,
+            featured_image=featured_image,
+            meta_description=meta_description,
+            status=status,
+            is_featured=is_featured
+        )
+
+        post.slug = post.generate_slug()
+
+        if status == 'published':
+            post.published_at = datetime.utcnow()
+
+        db.session.add(post)
+        db.session.commit()
+
+        flash('Blog post created successfully!', 'success')
+        return redirect(url_for('admin.blog_list'))
+
+    return render_template('admin/blog_form.html', post=None)
+
+
+@admin_bp.route('/blog/<int:post_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def blog_edit(post_id):
+    """Edit blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+
+    if request.method == 'POST':
+        post.title = request.form.get('title')
+        post.content = request.form.get('content')
+        post.excerpt = request.form.get('excerpt')
+        post.category = request.form.get('category')
+        post.tags = request.form.get('tags')
+        post.featured_image = request.form.get('featured_image')
+        post.meta_description = request.form.get('meta_description')
+
+        old_status = post.status
+        post.status = request.form.get('status', 'draft')
+        post.is_featured = request.form.get('is_featured') == 'on'
+
+        new_slug = post.generate_slug()
+        if new_slug != post.slug:
+            post.slug = new_slug
+
+        if old_status != 'published' and post.status == 'published':
+            post.published_at = datetime.utcnow()
+
+        post.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        flash('Blog post updated successfully!', 'success')
+        return redirect(url_for('admin.blog_list'))
+
+    return render_template('admin/blog_form.html', post=post)
+
+
+@admin_bp.route('/blog/<int:post_id>/delete', methods=['POST'])
+@admin_required
+def blog_delete(post_id):
+    """Delete blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+
+    db.session.delete(post)
+    db.session.commit()
+
+    flash('Blog post deleted successfully!', 'success')
+    return redirect(url_for('admin.blog_list'))
+
+
+@admin_bp.route('/blog/<int:post_id>/toggle-featured', methods=['POST'])
+@admin_required
+def blog_toggle_featured(post_id):
+    """Toggle featured status of blog post"""
+    post = BlogPost.query.get_or_404(post_id)
+    post.is_featured = not post.is_featured
+    db.session.commit()
+
+    status_label = 'featured' if post.is_featured else 'unfeatured'
+    flash(f'Post "{post.title}" has been {status_label}.', 'success')
+    return redirect(url_for('admin.blog_list'))
