@@ -125,6 +125,14 @@ def callback():
         else:
             logger.info(f"Existing user logged in via Google OAuth: {users_email}")
 
+        # Auto-promote to admin if email is listed in ADMIN_EMAILS env var
+        admin_emails_raw = os.environ.get('ADMIN_EMAILS', '')
+        admin_emails = [e.strip().lower() for e in admin_emails_raw.split(',') if e.strip()]
+        if users_email.lower() in admin_emails and not user.is_admin:
+            user.is_admin = True
+            db.session.commit()
+            logger.info(f"Auto-promoted {users_email} to admin via ADMIN_EMAILS env var")
+
         login_user(user)
         flash('Successfully logged in with Google!', 'success')
         logger.info(f"User {users_email} logged in successfully via Google OAuth")

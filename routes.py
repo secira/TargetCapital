@@ -54,6 +54,20 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def ensure_admin_status(user):
+    """Auto-promote user to admin if their email is listed in ADMIN_EMAILS env var.
+    This ensures admin access works correctly across all environments (dev, Railway, etc.)
+    without manual database changes.
+    Set ADMIN_EMAILS=email1@example.com,email2@example.com in environment variables.
+    """
+    import os
+    admin_emails_raw = os.environ.get('ADMIN_EMAILS', '')
+    admin_emails = [e.strip().lower() for e in admin_emails_raw.split(',') if e.strip()]
+    if user.email.lower() in admin_emails and not user.is_admin:
+        user.is_admin = True
+        db.session.commit()
+        logging.info(f"Auto-promoted {user.email} to admin via ADMIN_EMAILS env var")
+
 @app.route('/api/test-notifications', methods=['POST'])
 @login_required
 @admin_required
@@ -1025,6 +1039,7 @@ def login():
         ).first()
         
         if user and user.check_password(password):
+            ensure_admin_status(user)
             login_user(user)
             user.last_login = datetime.utcnow()
             db.session.commit()
