@@ -3999,6 +3999,7 @@ def dashboard_ai_advisor():
     """Research Assistant - RAG-powered stock research"""
     try:
         from services.research_assistant_service import ResearchAssistantService
+        from models import ResearchList
         
         research_service = ResearchAssistantService()
         
@@ -4019,6 +4020,11 @@ def dashboard_ai_advisor():
         from models_broker import BrokerAccount
         broker_accounts = BrokerAccount.query.filter_by(user_id=current_user.id).all()
         
+        # Get research watch list — all active entries sorted by I-Score
+        research_list = ResearchList.query.filter_by(is_active=True).order_by(
+            ResearchList.i_score.desc().nullslast()
+        ).all()
+        
         return render_template('dashboard/research_assistant.html',
                              context={
                                  'portfolio_value': user_context['portfolio']['total_value'],
@@ -4028,7 +4034,8 @@ def dashboard_ai_advisor():
                              conversations=conversations,
                              messages=messages,
                              conversation_id=conversation_id,
-                             broker_accounts=broker_accounts)
+                             broker_accounts=broker_accounts,
+                             research_list=research_list)
     except Exception as e:
         logger.error(f"Error loading Research Assistant: {str(e)}")
         flash('Error loading Research Assistant. Please try again.', 'error')
@@ -4207,6 +4214,50 @@ def api_research_query():
             'success': False,
             'error': 'An error occurred. Please try again.'
         }), 500
+
+
+@app.route('/api/research/sync-watchlist', methods=['POST'])
+@login_required
+@csrf.exempt
+def api_research_sync_watchlist():
+    """Add or update a symbol in the Research Watch List after user research"""
+    try:
+        from models import ResearchList
+        data = request.get_json()
+        symbol = data.get('symbol', '').strip().upper()
+        company_name = data.get('company_name', '').strip()
+        asset_type = data.get('asset_type', 'stocks')
+        sector = data.get('sector', '').strip()
+
+        if not symbol:
+            return jsonify({'success': False, 'error': 'Symbol required'}), 400
+
+        stock = ResearchList.query.filter_by(symbol=symbol).first()
+        if stock:
+            stock.last_requested_at = datetime.utcnow()
+            if company_name and not stock.company_name:
+                stock.company_name = company_name
+            is_new = False
+        else:
+            stock = ResearchList(
+                symbol=symbol,
+                company_name=company_name or symbol,
+                asset_type=asset_type,
+                sector=sector or None,
+                is_active=True,
+                last_requested_at=datetime.utcnow(),
+                computation_source='user_research',
+                tenant_id='live'
+            )
+            db.session.add(stock)
+            is_new = True
+
+        db.session.commit()
+        return jsonify({'success': True, 'is_new': is_new, 'symbol': symbol})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"sync-watchlist error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @app.route('/api/ai-research/analyse', methods=['POST'])

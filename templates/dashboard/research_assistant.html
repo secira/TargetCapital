@@ -156,11 +156,207 @@
 
 /* Welcome State - Perplexity Style */
 .welcome-container {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 20px 20px 16px;
+}
+
+/* Research Watch List Panel */
+.research-watchlist-section {
+    flex: 1;
+    overflow-y: auto;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+    padding: 20px 32px 24px;
+}
+
+.watchlist-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.watchlist-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.watchlist-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.watchlist-search {
+    padding: 7px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    width: 200px;
+    color: #2d2d2d;
+}
+
+.watchlist-search:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.watchlist-filter {
+    padding: 7px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    color: #2d2d2d;
+    cursor: pointer;
+}
+
+.watchlist-filter:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.watchlist-table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    background: white;
+}
+
+.watchlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.watchlist-table thead th {
+    padding: 10px 12px;
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    text-align: left;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.watchlist-table tbody tr {
+    border-bottom: 1px solid #f2f2f2;
+    transition: background 0.15s;
+}
+
+.watchlist-table tbody tr:hover {
+    background: #f8f9ff;
+}
+
+.watchlist-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.watchlist-table td {
+    padding: 10px 12px;
+    color: #2d2d2d;
+    vertical-align: middle;
+}
+
+.wl-symbol {
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 13px;
+}
+
+.wl-company {
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.wl-score {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.wl-score.high { color: #059669; }
+.wl-score.medium { color: #d97706; }
+.wl-score.low { color: #dc2626; }
+.wl-score.none { color: #9ca3af; }
+
+.reco-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.reco-badge.STRONG_BUY, .reco-badge.BUY { background: #dcfce7; color: #15803d; }
+.reco-badge.HOLD { background: #fef9c3; color: #92400e; }
+.reco-badge.SELL, .reco-badge.STRONG_SELL { background: #fee2e2; color: #991b1b; }
+.reco-badge.default { background: #f3f4f6; color: #6b7280; }
+
+.asset-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    background: #ede9fe;
+    color: #5b21b6;
+    white-space: nowrap;
+}
+
+.btn-research-now {
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+.btn-research-now:hover {
+    opacity: 0.85;
+}
+
+.watchlist-empty {
+    text-align: center;
+    padding: 24px;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .research-watchlist-section {
+        padding: 16px;
+    }
+    .watchlist-controls {
+        width: 100%;
+    }
+    .watchlist-search {
+        width: 100%;
+    }
 }
 
 .welcome-content {
@@ -909,6 +1105,129 @@
                 </div>
             </div>
         </div>
+
+        <!-- Research Watch List Panel -->
+        {% if research_list %}
+        <div class="research-watchlist-section" id="researchWatchlist">
+            <div class="watchlist-header-row">
+                <div class="watchlist-title">
+                    <i class="fas fa-list-alt" style="color: #667eea;"></i>
+                    Research Watch List
+                    <span style="background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">{{ research_list|length }}</span>
+                </div>
+                <div class="watchlist-controls">
+                    <input type="text" class="watchlist-search" id="watchlistSearch"
+                           placeholder="&#xf002; Search symbol or company..."
+                           oninput="filterWatchlist()" autocomplete="off">
+                    <select class="watchlist-filter" id="watchlistAssetFilter" onchange="filterWatchlist()">
+                        <option value="">All Types</option>
+                        <option value="stocks">Stocks</option>
+                        <option value="mutual_funds">Mutual Funds</option>
+                        <option value="commodities">Commodities</option>
+                        <option value="futures">Futures</option>
+                        <option value="options">Options</option>
+                        <option value="etf">ETF</option>
+                        <option value="bonds">Bonds</option>
+                    </select>
+                    <select class="watchlist-filter" id="watchlistRecoFilter" onchange="filterWatchlist()">
+                        <option value="">All Signals</option>
+                        <option value="STRONG_BUY">Strong Buy</option>
+                        <option value="BUY">Buy</option>
+                        <option value="HOLD">Hold</option>
+                        <option value="SELL">Sell</option>
+                        <option value="STRONG_SELL">Strong Sell</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="watchlist-table-wrapper">
+                <table class="watchlist-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol / Company</th>
+                            <th>Type</th>
+                            <th>Sector</th>
+                            <th>I-Score</th>
+                            <th>Signal</th>
+                            <th>Price</th>
+                            <th>Last Updated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="watchlistTableBody">
+                        {% for stock in research_list %}
+                        <tr class="watchlist-row"
+                            data-symbol="{{ stock.symbol }}"
+                            data-company="{{ (stock.company_name or '') | lower }}"
+                            data-asset="{{ stock.asset_type }}"
+                            data-reco="{{ stock.recommendation or '' }}">
+                            <td>
+                                <div class="wl-symbol">{{ stock.symbol }}</div>
+                                {% if stock.company_name %}
+                                <div class="wl-company">{{ stock.company_name }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="asset-badge">{{ stock.asset_type | replace('_', ' ') | title }}</span>
+                            </td>
+                            <td style="color:#666;font-size:12px;">{{ stock.sector or '—' }}</td>
+                            <td>
+                                {% if stock.i_score is not none %}
+                                    {% set score = stock.i_score | float %}
+                                    <span class="wl-score {% if score >= 65 %}high{% elif score >= 45 %}medium{% else %}low{% endif %}">
+                                        {{ '%.1f' | format(score) }}
+                                    </span>
+                                {% else %}
+                                    <span class="wl-score none">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if stock.recommendation %}
+                                    <span class="reco-badge {{ stock.recommendation }}">
+                                        {{ stock.recommendation | replace('_', ' ') | title }}
+                                    </span>
+                                {% else %}
+                                    <span style="color:#9ca3af;font-size:12px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size:12px;color:#2d2d2d;">
+                                {% if stock.current_price %}
+                                    ₹{{ '%.2f' | format(stock.current_price | float) }}
+                                    {% if stock.price_change_pct %}
+                                        <span style="color:{% if stock.price_change_pct | float >= 0 %}#059669{% else %}#dc2626{% endif %};font-size:11px;margin-left:4px;">
+                                            {{ '%+.2f' | format(stock.price_change_pct | float) }}%
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span style="color:#9ca3af;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size:11px;color:#9ca3af;white-space:nowrap;">
+                                {% if stock.last_computed_at %}
+                                    {{ stock.last_computed_at.strftime('%d %b %H:%M') }}
+                                {% elif stock.last_requested_at %}
+                                    {{ stock.last_requested_at.strftime('%d %b %H:%M') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn-research-now"
+                                    onclick="researchStock('{{ stock.symbol }}', '{{ (stock.company_name or stock.symbol) | replace("'", "\\'") }}', '{{ stock.asset_type }}')">
+                                    <i class="fas fa-search"></i> Research
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="watchlist-empty" id="watchlistEmpty" style="display:none;">
+                    No stocks match your search or filter.
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         {% else %}
         <!-- Chat Messages -->
         <div class="chat-messages" id="chatMessages">
@@ -1013,13 +1332,78 @@ function loadConversation(convId) {
 function fillSuggestion(text) {
     const searchInput = document.getElementById('searchInputLarge');
     if (searchInput) {
-        // Remove the icon from the text
         const cleanText = text.replace(/^\s*[^\w\s]+\s*/, '').trim();
         searchInput.value = cleanText;
         searchInput.focus();
         searchInput.style.height = 'auto';
         searchInput.style.height = Math.min(searchInput.scrollHeight, 600) + 'px';
     }
+}
+
+// Track which stock is being researched (for watchlist sync)
+let _activeResearchSymbol = null;
+let _activeResearchCompany = null;
+let _activeResearchAssetType = null;
+
+// Research a specific stock from the Watch List
+function researchStock(symbol, company, assetType) {
+    _activeResearchSymbol = symbol;
+    _activeResearchCompany = company;
+    _activeResearchAssetType = assetType;
+
+    const query = `Give me a comprehensive analysis of ${symbol} - ${company}. What is the current I-Score, key technical levels, fundamental outlook, and should I buy, sell or hold?`;
+
+    const searchInput = document.getElementById('searchInputLarge');
+    if (searchInput) {
+        searchInput.value = query;
+        searchInput.style.height = 'auto';
+        searchInput.style.height = Math.min(searchInput.scrollHeight, 600) + 'px';
+        searchInput.focus();
+        // Scroll watchlist up slightly so the search box is visible
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Auto-submit after short delay
+        setTimeout(() => {
+            const form = document.getElementById('welcomeForm');
+            if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }, 300);
+    }
+}
+
+// Silently sync symbol to watchlist after research
+async function syncToWatchlist(symbol, company, assetType) {
+    try {
+        await fetch('/api/research/sync-watchlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, company_name: company, asset_type: assetType })
+        });
+    } catch (_) {}
+}
+
+// Client-side filter for the watch list table
+function filterWatchlist() {
+    const search = (document.getElementById('watchlistSearch')?.value || '').toLowerCase();
+    const assetFilter = document.getElementById('watchlistAssetFilter')?.value || '';
+    const recoFilter = document.getElementById('watchlistRecoFilter')?.value || '';
+
+    let visibleCount = 0;
+    document.querySelectorAll('.watchlist-row').forEach(row => {
+        const symbol = (row.dataset.symbol || '').toLowerCase();
+        const company = (row.dataset.company || '').toLowerCase();
+        const asset = row.dataset.asset || '';
+        const reco = row.dataset.reco || '';
+
+        const matchSearch = !search || symbol.includes(search) || company.includes(search);
+        const matchAsset = !assetFilter || asset === assetFilter;
+        const matchReco = !recoFilter || reco === recoFilter;
+
+        const show = matchSearch && matchAsset && matchReco;
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+
+    const emptyEl = document.getElementById('watchlistEmpty');
+    if (emptyEl) emptyEl.style.display = visibleCount === 0 ? '' : 'none';
 }
 
 // Submit research
@@ -1111,6 +1495,14 @@ async function submitResearch(event) {
         document.getElementById('typingIndicator').remove();
 
         if (data.success) {
+            // Sync to watchlist if this was a stock-specific research
+            if (_activeResearchSymbol) {
+                syncToWatchlist(_activeResearchSymbol, _activeResearchCompany, _activeResearchAssetType);
+                _activeResearchSymbol = null;
+                _activeResearchCompany = null;
+                _activeResearchAssetType = null;
+            }
+
             let citationsHtml = '';
             if (data.citations && data.citations.length > 0) {
                 citationsHtml = `
