@@ -480,7 +480,18 @@
 
                     <!-- Action -->
                     <td style="text-align:center;">
-                        <a href="{{ url_for('dashboard_ai_advisor') }}?q={{ s.symbol | urlencode }}&company={{ (s.company_name or s.symbol) | urlencode }}&asset_type={{ s.asset_type | urlencode }}"
+                        {% set _amap = {
+                            'stocks':       '/dashboard/research/stocks',
+                            'mutual_funds': '/dashboard/research/mutual-funds',
+                            'commodities':  '/dashboard/research/commodities',
+                            'futures':      '/dashboard/research/futures',
+                            'options':      '/dashboard/research/options',
+                            'bonds':        '/dashboard/research/bonds',
+                            'currency':     '/dashboard/research/currency',
+                            'etf':          '/dashboard/research/stocks'
+                        } %}
+                        {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
+                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}"
                            class="btn-research">
                             <i class="fas fa-search"></i> Research
                         </a>

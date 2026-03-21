@@ -182,8 +182,10 @@ def research_stocks():
     """Stocks research and signals page"""
     asset = ASSET_TYPES['stocks']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='stocks')
+                          asset=asset, signals=signals, asset_key='stocks',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/futures')
@@ -192,8 +194,10 @@ def research_futures():
     """Futures research and signals page"""
     asset = ASSET_TYPES['futures']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='futures')
+                          asset=asset, signals=signals, asset_key='futures',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/options')
@@ -202,8 +206,10 @@ def research_options():
     """Options research and signals page"""
     asset = ASSET_TYPES['options']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='options')
+                          asset=asset, signals=signals, asset_key='options',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/commodities')
@@ -212,8 +218,10 @@ def research_commodities():
     """Commodities research and signals page"""
     asset = ASSET_TYPES['commodities']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='commodities')
+                          asset=asset, signals=signals, asset_key='commodities',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/currency')
@@ -222,8 +230,10 @@ def research_currency():
     """Currency research and signals page"""
     asset = ASSET_TYPES['currency']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='currency')
+                          asset=asset, signals=signals, asset_key='currency',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/bonds')
@@ -232,8 +242,10 @@ def research_bonds():
     """Bonds research and signals page"""
     asset = ASSET_TYPES['bonds']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='bonds')
+                          asset=asset, signals=signals, asset_key='bonds',
+                          prefill_symbol=prefill_symbol)
 
 
 @app.route('/dashboard/research/mutual-funds')
@@ -242,8 +254,10 @@ def research_mutual_funds():
     """Mutual Funds research and signals page"""
     asset = ASSET_TYPES['mutual_funds']
     signals = get_signals_for_asset(asset['signal_type'])
+    prefill_symbol = request.args.get('symbol', '').strip().upper()
     return render_template('dashboard/research/asset_research.html', 
-                          asset=asset, signals=signals, asset_key='mutual_funds')
+                          asset=asset, signals=signals, asset_key='mutual_funds',
+                          prefill_symbol=prefill_symbol)
 
 
 # ============================================================================

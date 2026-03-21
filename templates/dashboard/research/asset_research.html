@@ -1646,5 +1646,17 @@ function formatDetailValue(value) {
     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
     return String(value);
 }
+
+// Auto-fill and trigger analysis when arriving from the Research Watch List
+(function() {
+    const sym = {{ prefill_symbol | default('') | tojson }};
+    if (sym) {
+        const input = document.getElementById('iscoreSymbol');
+        if (input) {
+            input.value = sym;
+            setTimeout(analyzeSymbol, 300);
+        }
+    }
+})();
 </script>
 {% endblock %}
