@@ -185,6 +185,80 @@
             </ul>
         </div>
 
+        <!-- Administration Section (admin only) -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <div class="sidebar-section-label" style="color: #e07b39;">ADMINISTRATION</div>
+        <div class="sidebar-menu">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <div class="nav-link collapsible-header" onclick="toggleAdminMenu()">
+                        <i class="nav-icon fas fa-shield-alt" style="color: #e07b39;"></i>
+                        <span class="nav-text">Admin Panel</span>
+                        <i class="fas fa-chevron-down toggle-icon" id="adminMenuToggle"></i>
+                    </div>
+                    <ul class="nav-list submenu-list" id="adminMenu" style="display: none;">
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.users' else '' }}"
+                               href="{{ url_for('admin.users') }}">
+                                <i class="nav-icon fas fa-users"></i>
+                                <span class="nav-text">User Management</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.daily_signals' else '' }}"
+                               href="{{ url_for('admin.daily_signals') }}">
+                                <i class="nav-icon fas fa-calendar-day"></i>
+                                <span class="nav-text">Daily Signals</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.research_list' else '' }}"
+                               href="{{ url_for('admin.research_list') }}">
+                                <i class="nav-icon fas fa-microscope"></i>
+                                <span class="nav-text">Research List</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.payments' else '' }}"
+                               href="{{ url_for('admin.payments') }}">
+                                <i class="nav-icon fas fa-credit-card"></i>
+                                <span class="nav-text">Payments</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.account_handling' else '' }}"
+                               href="{{ url_for('admin.account_handling') }}">
+                                <i class="nav-icon fas fa-user-tie"></i>
+                                <span class="nav-text">Account Handling</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin.research_config' else '' }}"
+                               href="{{ url_for('admin.research_config') }}">
+                                <i class="nav-icon fas fa-sliders-h"></i>
+                                <span class="nav-text">Research Config</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin_contact_messages' else '' }}"
+                               href="{{ url_for('admin_contact_messages') }}">
+                                <i class="nav-icon fas fa-envelope"></i>
+                                <span class="nav-text">Contact Messages</span>
+                            </a>
+                        </li>
+                        <li class="nav-item submenu-item">
+                            <a class="nav-link submenu-link {{ 'active' if request.endpoint == 'admin_blog_list' else '' }}"
+                               href="{{ url_for('admin_blog_list') }}">
+                                <i class="nav-icon fas fa-blog"></i>
+                                <span class="nav-text">Blog Management</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+
         <!-- Settings Section -->
         <div class="sidebar-section-label">SETTINGS</div>
         <div class="sidebar-menu">
@@ -254,6 +328,20 @@ function togglePortfolioHub() {
     }
 }
 
+function toggleAdminMenu() {
+    const menu = document.getElementById('adminMenu');
+    const toggleIcon = document.getElementById('adminMenuToggle');
+    if (menu.style.display === 'none' || menu.style.display === '') {
+        menu.style.display = 'block';
+        toggleIcon.classList.add('expanded');
+        localStorage.setItem('adminMenuExpanded', 'true');
+    } else {
+        menu.style.display = 'none';
+        toggleIcon.classList.remove('expanded');
+        localStorage.setItem('adminMenuExpanded', 'false');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const currentEndpoint = '{{ request.endpoint }}';
     const portfolioHubPages = ['dashboard_broker_accounts', 'dashboard_banks', 'dashboard_insurance',
@@ -266,6 +354,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (expanded === 'true' || portfolioHubPages.includes(currentEndpoint)) {
             portfolioMenu.style.display = 'block';
             portfolioToggle.classList.add('expanded');
+        }
+    }
+
+    const adminPages = ['admin.users', 'admin.daily_signals', 'admin.research_list',
+                        'admin.payments', 'admin.account_handling', 'admin.research_config',
+                        'admin_contact_messages', 'admin_blog_list'];
+    const adminMenu = document.getElementById('adminMenu');
+    const adminToggle = document.getElementById('adminMenuToggle');
+    if (adminMenu && adminToggle) {
+        const adminExpanded = localStorage.getItem('adminMenuExpanded');
+        if (adminExpanded === 'true' || adminPages.includes(currentEndpoint)) {
+            adminMenu.style.display = 'block';
+            adminToggle.classList.add('expanded');
         }
     }
 });

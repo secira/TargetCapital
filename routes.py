@@ -1030,9 +1030,9 @@ def login():
             db.session.commit()
             flash('Logged in successfully!', 'success')
             
-            # Redirect admins to admin dashboard
+            # Admins land on the regular dashboard (admin section visible in sidebar)
             if user.is_admin:
-                return redirect(url_for('admin.dashboard'))
+                return redirect(url_for('dashboard'))
                 
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))

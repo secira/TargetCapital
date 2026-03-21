@@ -28,6 +28,8 @@ def admin_required(f):
     from functools import wraps
     @wraps(f)
     def admin_decorated_function(*args, **kwargs):
+        if current_user.is_authenticated and current_user.is_admin:
+            return f(*args, **kwargs)
         if 'admin_id' not in session:
             return redirect(url_for('admin.login'))
         return f(*args, **kwargs)
