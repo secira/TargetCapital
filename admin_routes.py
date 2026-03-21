@@ -254,8 +254,8 @@ def refresh_research_stock(stock_id):
     stock = ResearchList.query.get_or_404(stock_id)
     
     try:
-        from services.langgraph_iscore_engine import IScoreEngine
-        engine = IScoreEngine()
+        from services.langgraph_iscore_engine import LangGraphIScoreEngine
+        engine = LangGraphIScoreEngine()
         
         result = engine.compute_iscore(
             symbol=stock.symbol,
