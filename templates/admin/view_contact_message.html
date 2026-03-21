@@ -73,9 +73,7 @@
                 <!-- Message Content -->
                 <div class="mb-4">
                     <h6 class="text-muted mb-2">Message</h6>
-                    <div class="p-3 bg-light border rounded">
-                        {{ message.message|nl2br|safe }}
-                    </div>
+                    <div class="p-3 bg-light border rounded" style="white-space: pre-wrap;">{{ message.message }}</div>
                 </div>
 
                 <!-- Status Update Form -->

@@ -126,7 +126,7 @@ def user_detail(user_id):
     user = User.query.get_or_404(user_id)
     payments = UserPayment.query.filter_by(user_id=user_id).order_by(desc(UserPayment.created_at)).limit(10).all()
     executed_trades = ExecutedTrade.query.filter_by(user_id=user_id).order_by(desc(ExecutedTrade.executed_at)).limit(10).all()
-    brokers = UserBroker.query.filter_by(user_id=user_id).all()
+    brokers = BrokerAccount.query.filter_by(user_id=user_id).all()
     
     return render_template('admin/user_detail.html',
                          user=user,

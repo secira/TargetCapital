@@ -105,8 +105,8 @@
                             <strong>{{ broker.broker_name }}</strong>
                             {% if broker.is_primary %}<span class="badge bg-primary ms-1">Primary</span>{% endif %}
                         </div>
-                        <span class="badge bg-{{ 'success' if broker.status == 'Connected' else 'secondary' }}">
-                            {{ broker.status }}
+                        <span class="badge bg-{{ 'success' if broker.connection_status == 'connected' else 'secondary' }}">
+                            {{ broker.connection_status | title }}
                         </span>
                     </div>
                     {% endfor %}
