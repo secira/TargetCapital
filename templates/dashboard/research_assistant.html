@@ -1318,6 +1318,31 @@ function setupAutoResize(textarea) {
 setupAutoResize(document.getElementById('searchInputLarge'));
 setupAutoResize(document.getElementById('chatInput'));
 
+// Auto-fill and submit when arriving from the Research Watch List landing page
+(function() {
+    const sym     = {{ prefill_symbol | tojson }};
+    const company = {{ prefill_company | tojson }};
+    const asset   = {{ (prefill_asset or 'stocks') | tojson }};
+
+    if (sym) {
+        const query = `Give me a comprehensive analysis of ${sym}${company ? ' - ' + company : ''}. What is the current I-Score, key technical levels, fundamental outlook, and should I buy, sell or hold?`;
+        _activeResearchSymbol  = sym;
+        _activeResearchCompany = company || sym;
+        _activeResearchAssetType = asset;
+
+        const searchInput = document.getElementById('searchInputLarge');
+        if (searchInput) {
+            searchInput.value = query;
+            searchInput.style.height = 'auto';
+            searchInput.style.height = Math.min(searchInput.scrollHeight, 600) + 'px';
+            setTimeout(() => {
+                const form = document.getElementById('welcomeForm');
+                if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }, 400);
+        }
+    }
+})();
+
 // Start new chat
 function startNewChat() {
     window.location.href = '{{ url_for("dashboard_ai_advisor") }}';

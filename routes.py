@@ -4015,6 +4015,11 @@ def dashboard_ai_advisor():
         
         if conversation_id:
             messages = research_service.get_conversation_history(conversation_id)
+
+        # Pre-fill query from landing page "Research" button
+        prefill_symbol = request.args.get('q', '').strip().upper()
+        prefill_company = request.args.get('company', '').strip()
+        prefill_asset = request.args.get('asset_type', 'stocks').strip()
         
         # Get broker accounts for context
         from models_broker import BrokerAccount
@@ -4035,7 +4040,10 @@ def dashboard_ai_advisor():
                              messages=messages,
                              conversation_id=conversation_id,
                              broker_accounts=broker_accounts,
-                             research_list=research_list)
+                             research_list=research_list,
+                             prefill_symbol=prefill_symbol,
+                             prefill_company=prefill_company,
+                             prefill_asset=prefill_asset)
     except Exception as e:
         logger.error(f"Error loading Research Assistant: {str(e)}")
         flash('Error loading Research Assistant. Please try again.', 'error')

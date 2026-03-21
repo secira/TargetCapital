@@ -166,9 +166,15 @@ def research_dashboard():
     if not allowed_keys:
         allowed_keys = ['stocks']
         
+    from models import ResearchList
+    research_list = ResearchList.query.filter_by(is_active=True).order_by(
+        ResearchList.i_score.desc().nullslast()
+    ).all()
+
     return render_template('dashboard/research/index.html', 
                          asset_types=ASSET_TYPES,
-                         allowed_assets=allowed_keys)
+                         allowed_assets=allowed_keys,
+                         research_list=research_list)
 
 @app.route('/dashboard/research/stocks')
 @login_required
