@@ -1,0 +1,36 @@
+bc805d86821c922e.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+c71aecbc4bfec953.js:2 WebSocket connection to 'wss://eval.worf.platform.replit.com/wsv2/v2.public.Q2dZSXk1SDV6UVlTQmdqcXJmbk5CaUlFZDI5eVpqQUFPcGNDQ2lRek56UXdNMlV4WVMweVpUZ3lMVFEyWVRNdE9EVmlPQzB3TkROa1pqTmtPRFJoTVdVU0EyNXBlQm9XY21Wd2JHbDBMWEpsY0d3dFptbHNaWE10ZDI5eVppSU9WR0Z5WjJWMExVTmhjR2wwWVd3cUJuVmtZWGxwWkVKT0NoZHlaWEJzYVhRdGNtVndiQzFpYkc5amEzTXRkMjl5WmhJVmNtVndiR2wwTFhKbGNHd3RiV1YwWVMxM2IzSm1HaHh5WlhCc2FYUXRiV0Z5WjJGeWFXNWxMV0pzYjJOcmN5MTNiM0ptU2djSTZyV2ZFQkFCVUFCYUdXOXVZbTloY21ScGJtZGZaWGh3WlhKcFpXNWpaVjlzYjNkYUQybHVkR1Z1ZEY5aWRYTnBibVZ6YzNnQWdnRVZZ...bE1rSklVekJxTWlVeVFpVXlSbFZCWWlVeVFtMUVha3R4ZGpkeVRDVXlSa3BQZVhWVE5tOUhiSEozWjA5WGR5VXlSbE42YjNwb1lYQm9TamxIUVc1WWFsWlhVMjlZWm5FeE1FSlNSVElsTWtKdmJtdFlOMDgyUjFoM2FuSjBOMjB4YVV4MWFVZFZUVXhRYUVOTFJtazVabWcxU1U5YWJuazNRa1lsTWtaT1duTmhaR3BNYVhaSlZtdzBXRzFLUjNscVIwaHJXbTkyYzBVbE1rWXhabmhSVjJsb2NVZHhURFJPZUVaTU9GWkNTSHBNTjNGTE56ZEZKVEpDUW1WemRWVmlKVEpHVjBGREpUSkNWbkJ0ZW5SUVVTVXpSQ1V6UkE9PZogLWXIwIRS8SbA5KZFHqjmd6mO1WZ3gT3sCaYT2AU49j0vDeDM3wsfFyQPI3fXMGKMA8LUqlOLNeaS9DlApgc.Q2dad2NtOWtPak1pQ25KbGNHeHBkQzVqYjIwPQ' failed: 
+connect @ c71aecbc4bfec953.js:2Understand this error
+bc805d86821c922e.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+34177974a7816baf.js:13 WebSocket connection to 'wss://production-taskman.replit.com/api/river' failed: 
+(anonymous) @ 34177974a7816baf.js:13Understand this error
+/public/sounds/Achievement_Bell_Replit.wav:1  Failed to load resource: net::ERR_CACHE_OPERATION_NOT_SUPPORTEDUnderstand this error
+3bc805d86821c922e.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+bc805d86821c922e.js:21 WARN: A component changed from uncontrolled to controlled.
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+39bc805d86821c922e.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+2bc805d86821c922e.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ bc805d86821c922e.js:21Understand this warning
+576bc805d86821c922e.js:21 WARN: A component changed from uncontrolled to controlled.

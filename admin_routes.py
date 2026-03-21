@@ -257,18 +257,40 @@ def refresh_research_stock(stock_id):
         from services.langgraph_iscore_engine import LangGraphIScoreEngine
         engine = LangGraphIScoreEngine()
         
-        result = engine.compute_iscore(
+        result = engine.analyze(
+            asset_type=stock.asset_type,
             symbol=stock.symbol,
-            asset_type=stock.asset_type
+            user_id=1,
+            asset_name=stock.company_name or stock.symbol
         )
         
-        if result and result.get('overall_score') is not None:
-            stock.update_from_iscore_result(result)
+        if result and result.get('success'):
+            components = result.get('components', {})
+            market = result.get('market_data', {})
+            mapped = {
+                'overall_score': result.get('iscore', 0),
+                'overall_confidence': result.get('confidence', 0),
+                'recommendation': result.get('recommendation', 'HOLD'),
+                'recommendation_summary': result.get('summary', ''),
+                'qualitative_score': components.get('qualitative', {}).get('score', 0),
+                'quantitative_score': components.get('quantitative', {}).get('score', 0),
+                'search_score': components.get('search', {}).get('score', 0),
+                'trend_score': components.get('trend', {}).get('score', 0),
+                'qualitative_details': components.get('qualitative', {}).get('details', {}),
+                'quantitative_details': components.get('quantitative', {}).get('details', {}),
+                'search_details': components.get('search', {}).get('details', {}),
+                'trend_details': components.get('trend', {}).get('details', {}),
+                'current_price': market.get('current_price'),
+                'previous_close': market.get('previous_close'),
+                'price_change_pct': market.get('change_pct'),
+            }
+            stock.update_from_iscore_result(mapped)
             stock.computation_source = 'manual'
             db.session.commit()
-            flash(f'I-Score updated for {stock.symbol}: {result.get("overall_score", 0):.1f}', 'success')
+            flash(f'I-Score updated for {stock.symbol}: {result.get("iscore", 0):.1f}', 'success')
         else:
-            flash(f'Could not compute I-Score for {stock.symbol}', 'warning')
+            error_msg = result.get('error', 'Analysis returned no data') if result else 'Engine returned no result'
+            flash(f'Could not compute I-Score for {stock.symbol}: {error_msg}', 'warning')
             
     except Exception as e:
         db.session.rollback()
