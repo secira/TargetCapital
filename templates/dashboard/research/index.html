@@ -7,342 +7,519 @@
 
 {% block extra_css %}
 <style>
+/* ── Asset Cards ─────────────────────────────────────── */
 .hover-shadow:hover {
     transform: translateY(-4px);
     box-shadow: 0 0.5rem 1.2rem rgba(0,0,0,0.12) !important;
 }
 .transition { transition: all 0.25s ease; }
 
-/* Research Watch List */
-.watchlist-section {
-    margin-top: 36px;
-}
+/* ── Watch List shell ────────────────────────────────── */
+.wl-section { margin-top: 38px; }
 
-.watchlist-section-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a1a;
+.wl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.wl-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0d0d1a;
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 14px;
+}
+.wl-count-pill {
+    background: #ede9fe;
+    color: #5b21b6;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
 }
 
-.watchlist-controls {
+/* ── Filter bar ──────────────────────────────────────── */
+.wl-filters {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    align-items: center;
     margin-bottom: 14px;
 }
-
 .wl-search {
     padding: 8px 14px;
-    border: 1px solid #dee2e6;
+    border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: 13px;
-    width: 220px;
+    width: 230px;
     background: #fff;
-    color: #2d2d2d;
+    color: #1a1a1a;
+    transition: border-color .15s;
 }
-.wl-search:focus { outline: none; border-color: #6f42c1; box-shadow: 0 0 0 2px rgba(111,66,193,0.1); }
-
-.wl-filter {
+.wl-search:focus { outline: none; border-color: #6f42c1; box-shadow: 0 0 0 3px rgba(111,66,193,.1); }
+.wl-select {
     padding: 8px 12px;
-    border: 1px solid #dee2e6;
+    border: 1.5px solid #e2e8f0;
     border-radius: 8px;
     font-size: 13px;
     background: #fff;
-    color: #2d2d2d;
+    color: #1a1a1a;
     cursor: pointer;
+    transition: border-color .15s;
 }
-.wl-filter:focus { outline: none; border-color: #6f42c1; }
+.wl-select:focus { outline: none; border-color: #6f42c1; }
 
-.wl-table-wrap {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #e9ecef;
+/* ── Table wrapper ───────────────────────────────────── */
+.wl-card {
     background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
     overflow-x: auto;
 }
 
+/* ── Table ───────────────────────────────────────────── */
 .wl-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
-    min-width: 700px;
+    min-width: 900px;
 }
 
-.wl-table thead th {
-    padding: 10px 14px;
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #6c757d;
-    font-size: 11px;
+/* head */
+.wl-table thead tr:first-child th {
+    background: #f0edf9;
+    padding: 9px 12px 0;
+    font-size: 10px;
+    font-weight: 700;
+    color: #7c3aed;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #e9ecef;
+    letter-spacing: .6px;
+    border-bottom: none;
+}
+.wl-table thead tr:last-child th {
+    background: #f7f5ff;
+    padding: 5px 12px 9px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #6b7280;
+    letter-spacing: .4px;
     white-space: nowrap;
+    border-bottom: 1.5px solid #e5e0f5;
 }
 
+/* body */
 .wl-table tbody tr {
     border-bottom: 1px solid #f3f4f6;
-    transition: background 0.15s;
+    transition: background .15s;
 }
-.wl-table tbody tr:hover { background: #f8f5ff; }
+.wl-table tbody tr:hover { background: #faf8ff; }
 .wl-table tbody tr:last-child { border-bottom: none; }
+.wl-table td { padding: 11px 12px; vertical-align: middle; }
 
-.wl-table td { padding: 10px 14px; vertical-align: middle; }
+/* ── Symbol cell ─────────────────────────────────────── */
+.sym-wrap  { display: flex; flex-direction: column; }
+.sym-name  { font-weight: 800; font-size: 13px; color: #111; }
+.sym-co    { font-size: 11px; color: #9ca3af; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
 
-.wl-sym { font-weight: 700; color: #1a1a1a; }
-.wl-co  { font-size: 11px; color: #888; margin-top: 2px; }
-
-.wl-score { font-weight: 800; font-size: 15px; }
-.wl-score.high   { color: #16a34a; }
-.wl-score.medium { color: #d97706; }
-.wl-score.low    { color: #dc2626; }
-.wl-score.none   { color: #9ca3af; font-size: 13px; }
-
-.reco-pill {
+/* ── Type pill ───────────────────────────────────────── */
+.type-pill {
     display: inline-block;
-    padding: 3px 9px;
+    padding: 2px 9px;
     border-radius: 20px;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-.reco-pill.STRONG_BUY, .reco-pill.BUY { background: #dcfce7; color: #15803d; }
-.reco-pill.HOLD { background: #fef9c3; color: #854d0e; }
-.reco-pill.SELL, .reco-pill.STRONG_SELL { background: #fee2e2; color: #991b1b; }
-.reco-pill.none { background: #f3f4f6; color: #6b7280; }
-
-.asset-pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 600;
     background: #ede9fe;
     color: #5b21b6;
     white-space: nowrap;
+    text-transform: capitalize;
 }
 
-.btn-wl-research {
-    padding: 5px 13px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
+/* ── Score cells ─────────────────────────────────────── */
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+.score-val {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+}
+.score-bar-track {
+    width: 44px;
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+.score-na { font-size: 12px; color: #d1d5db; }
+
+/* score colours */
+.sc-high   { color: #16a34a; }
+.sc-mid    { color: #d97706; }
+.sc-low    { color: #dc2626; }
+.sc-bar-high   { background: #16a34a; }
+.sc-bar-mid    { background: #f59e0b; }
+.sc-bar-low    { background: #ef4444; }
+
+/* ── Overall I-Score ─────────────────────────────────── */
+.iscore-big {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2.5px solid;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+.iscore-label { font-size: 8px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; }
+.iscore-big.sc-high  { border-color: #16a34a; color: #15803d; background: #f0fdf4; }
+.iscore-big.sc-mid   { border-color: #f59e0b; color: #b45309; background: #fffbeb; }
+.iscore-big.sc-low   { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+.iscore-big.sc-none  { border-color: #d1d5db; color: #9ca3af; background: #f9fafb; }
+
+/* ── Reco pill ───────────────────────────────────────── */
+.reco-pill {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.reco-STRONG_BUY { background: #bbf7d0; color: #065f46; }
+.reco-BUY        { background: #dcfce7; color: #15803d; }
+.reco-HOLD       { background: #fef9c3; color: #854d0e; }
+.reco-SELL       { background: #fee2e2; color: #991b1b; }
+.reco-STRONG_SELL{ background: #fecaca; color: #7f1d1d; }
+.reco-none       { background: #f3f4f6; color: #9ca3af; }
+
+/* ── Price cell ──────────────────────────────────────── */
+.price-val  { font-size: 13px; font-weight: 700; color: #111; }
+.price-chg  { font-size: 11px; font-weight: 600; }
+.chg-up   { color: #16a34a; }
+.chg-dn   { color: #dc2626; }
+
+/* ── Research button ─────────────────────────────────── */
+.btn-research {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    transition: opacity 0.2s;
+    padding: 6px 13px;
+    border-radius: 7px;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
     white-space: nowrap;
+    transition: opacity .2s;
 }
-.btn-wl-research:hover { opacity: 0.85; color: #fff; }
+.btn-research:hover { opacity: .85; color: #fff; }
 
+/* ── Empty state ─────────────────────────────────────── */
 .wl-empty {
     text-align: center;
-    padding: 32px;
+    padding: 36px;
     color: #9ca3af;
     font-size: 13px;
 }
 
+/* ── Timestamp ───────────────────────────────────────── */
+.ts-cell { font-size: 10.5px; color: #b0b7c3; white-space: nowrap; }
+
 @media (max-width: 576px) {
     .wl-search { width: 100%; }
-    .watchlist-controls { flex-direction: column; }
+    .wl-filters { flex-direction: column; }
 }
 </style>
 {% endblock %}
 
 {% block dashboard_content %}
-<!-- Asset Type Cards -->
-<div class="research-dashboard">
-    <div class="row g-4">
-        {% for key in allowed_assets %}
-            {% if key in asset_types %}
-                {% set asset = asset_types[key] %}
-                <div class="col-md-6 col-lg-4">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="asset-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
-                                    <i class="{{ asset.icon }} fa-2x"></i>
-                                </div>
-                                <h5 class="card-title mb-0 fw-bold">{{ asset.name }}</h5>
+
+<!-- ── Asset Type Cards ─────────────────────────────── -->
+<div class="row g-4">
+    {% for key in allowed_assets %}
+        {% if key in asset_types %}
+            {% set asset = asset_types[key] %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="asset-icon bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                                <i class="{{ asset.icon }} fa-2x"></i>
                             </div>
-                            <p class="card-text text-muted small mb-4">{{ asset.description }}</p>
-                            <div class="features-list mb-4">
-                                {% for feature in asset.features[:2] %}
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="{{ feature.icon }} text-primary me-2" style="font-size: 0.8rem;"></i>
-                                        <span class="small text-muted">{{ feature.title }}</span>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <a href="{{ url_for('research_' ~ key.replace('-', '_')) }}" class="btn btn-primary w-100">
-                                Start Research
-                            </a>
+                            <h5 class="card-title mb-0 fw-bold">{{ asset.name }}</h5>
                         </div>
+                        <p class="card-text text-muted small mb-4">{{ asset.description }}</p>
+                        <div class="features-list mb-4">
+                            {% for feature in asset.features[:2] %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="{{ feature.icon }} text-primary me-2" style="font-size:.8rem;"></i>
+                                    <span class="small text-muted">{{ feature.title }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ url_for('research_' ~ key.replace('-', '_')) }}" class="btn btn-primary w-100">
+                            Start Research
+                        </a>
                     </div>
                 </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-
-    <!-- Research Watch List -->
-    {% if research_list %}
-    <div class="watchlist-section">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-            <div class="watchlist-section-title">
-                <i class="fas fa-list-alt" style="color:#6f42c1;"></i>
-                Research Watch List
-                <span style="background:#ede9fe;color:#5b21b6;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;">{{ research_list|length }}</span>
             </div>
-            <a href="{{ url_for('dashboard_ai_advisor') }}" class="btn btn-sm btn-outline-primary">
-                <i class="fas fa-robot me-1"></i> Open AI Co-Pilot
-            </a>
-        </div>
-
-        <!-- Filters -->
-        <div class="watchlist-controls">
-            <input type="text" class="wl-search" id="wlSearch"
-                   placeholder="Search symbol or company..." oninput="filterWL()" autocomplete="off">
-            <select class="wl-filter" id="wlAsset" onchange="filterWL()">
-                <option value="">All Asset Types</option>
-                <option value="stocks">Stocks</option>
-                <option value="mutual_funds">Mutual Funds</option>
-                <option value="commodities">Commodities</option>
-                <option value="futures">Futures</option>
-                <option value="options">Options</option>
-                <option value="etf">ETF</option>
-                <option value="bonds">Bonds</option>
-            </select>
-            <select class="wl-filter" id="wlReco" onchange="filterWL()">
-                <option value="">All Signals</option>
-                <option value="STRONG_BUY">Strong Buy</option>
-                <option value="BUY">Buy</option>
-                <option value="HOLD">Hold</option>
-                <option value="SELL">Sell</option>
-                <option value="STRONG_SELL">Strong Sell</option>
-            </select>
-        </div>
-
-        <div class="wl-table-wrap">
-            <table class="wl-table">
-                <thead>
-                    <tr>
-                        <th>Symbol / Company</th>
-                        <th>Type</th>
-                        <th>Sector</th>
-                        <th>I-Score</th>
-                        <th>Signal</th>
-                        <th>Price</th>
-                        <th>Updated</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="wlBody">
-                    {% for s in research_list %}
-                    <tr class="wl-row"
-                        data-symbol="{{ s.symbol }}"
-                        data-company="{{ (s.company_name or '') | lower }}"
-                        data-asset="{{ s.asset_type }}"
-                        data-reco="{{ s.recommendation or '' }}">
-                        <td>
-                            <div class="wl-sym">{{ s.symbol }}</div>
-                            {% if s.company_name %}<div class="wl-co">{{ s.company_name }}</div>{% endif %}
-                        </td>
-                        <td><span class="asset-pill">{{ s.asset_type | replace('_',' ') | title }}</span></td>
-                        <td style="color:#666;font-size:12px;">{{ s.sector or '—' }}</td>
-                        <td>
-                            {% if s.i_score is not none %}
-                                {% set sc = s.i_score | float %}
-                                <span class="wl-score {% if sc >= 65 %}high{% elif sc >= 45 %}medium{% else %}low{% endif %}">
-                                    {{ '%.1f'|format(sc) }}
-                                </span>
-                            {% else %}
-                                <span class="wl-score none">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if s.recommendation %}
-                                <span class="reco-pill {{ s.recommendation }}">
-                                    {{ s.recommendation | replace('_',' ') | title }}
-                                </span>
-                            {% else %}
-                                <span class="reco-pill none">—</span>
-                            {% endif %}
-                        </td>
-                        <td style="font-size:12px;">
-                            {% if s.current_price %}
-                                ₹{{ '%.2f'|format(s.current_price|float) }}
-                                {% if s.price_change_pct %}
-                                    <span style="font-size:11px;color:{% if s.price_change_pct|float >= 0 %}#16a34a{% else %}#dc2626{% endif %};">
-                                        {{ '%+.2f'|format(s.price_change_pct|float) }}%
-                                    </span>
-                                {% endif %}
-                            {% else %}
-                                <span style="color:#9ca3af;">—</span>
-                            {% endif %}
-                        </td>
-                        <td style="font-size:11px;color:#9ca3af;white-space:nowrap;">
-                            {% if s.last_computed_at %}{{ s.last_computed_at.strftime('%d %b %H:%M') }}
-                            {% elif s.last_requested_at %}{{ s.last_requested_at.strftime('%d %b %H:%M') }}
-                            {% else %}—{% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('dashboard_ai_advisor') }}?q={{ s.symbol | urlencode }}&company={{ (s.company_name or s.symbol) | urlencode }}&asset_type={{ s.asset_type | urlencode }}"
-                               class="btn-wl-research">
-                                <i class="fas fa-search"></i> Research
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <div class="wl-empty" id="wlEmpty" style="display:none;">
-                No stocks match your search or filter.
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="watchlist-section text-center py-4 text-muted" style="font-size:14px;">
-        <i class="fas fa-list-alt me-2"></i>
-        No stocks in the Research Watch List yet. Add some via the <a href="{{ url_for('admin.research_list') }}">Admin Panel</a>.
-    </div>
-    {% endif %}
+        {% endif %}
+    {% endfor %}
 </div>
+
+<!-- ── Research Watch List ─────────────────────────── -->
+{% if research_list %}
+<div class="wl-section">
+
+    <!-- header row -->
+    <div class="wl-header">
+        <div class="wl-title">
+            <i class="fas fa-chart-bar" style="color:#7c3aed;"></i>
+            Research Watch List
+            <span class="wl-count-pill">{{ research_list|length }} stocks</span>
+        </div>
+    </div>
+
+    <!-- filters -->
+    <div class="wl-filters">
+        <input type="text" class="wl-search" id="wlSearch"
+               placeholder="&#128269; Search symbol or company…"
+               oninput="filterWL()" autocomplete="off">
+        <select class="wl-select" id="wlAsset" onchange="filterWL()">
+            <option value="">All Asset Types</option>
+            <option value="stocks">Stocks</option>
+            <option value="mutual_funds">Mutual Funds</option>
+            <option value="commodities">Commodities</option>
+            <option value="futures">Futures</option>
+            <option value="options">Options</option>
+            <option value="etf">ETF</option>
+            <option value="bonds">Bonds</option>
+        </select>
+        <select class="wl-select" id="wlReco" onchange="filterWL()">
+            <option value="">All Signals</option>
+            <option value="STRONG_BUY">Strong Buy</option>
+            <option value="BUY">Buy</option>
+            <option value="HOLD">Hold</option>
+            <option value="SELL">Sell</option>
+            <option value="STRONG_SELL">Strong Sell</option>
+        </select>
+    </div>
+
+    <!-- table -->
+    <div class="wl-card">
+        <table class="wl-table">
+            <thead>
+                <!-- group row -->
+                <tr>
+                    <th colspan="3"></th>
+                    <th colspan="4" style="text-align:center;border-left:2px solid #ddd6fe;border-right:2px solid #ddd6fe;background:#f3f0ff;">
+                        Component Scores
+                    </th>
+                    <th colspan="4"></th>
+                </tr>
+                <!-- column labels -->
+                <tr>
+                    <th style="min-width:140px;">Symbol</th>
+                    <th>Type</th>
+                    <th>Sector</th>
+
+                    <th style="text-align:center;border-left:2px solid #ddd6fe;background:#f7f5ff;">
+                        Qualitative<br><span style="font-size:9px;color:#a78bfa;font-weight:500;">(15%)</span>
+                    </th>
+                    <th style="text-align:center;background:#f7f5ff;">
+                        Quantitative<br><span style="font-size:9px;color:#a78bfa;font-weight:500;">(50%)</span>
+                    </th>
+                    <th style="text-align:center;background:#f7f5ff;">
+                        Search<br><span style="font-size:9px;color:#a78bfa;font-weight:500;">(10%)</span>
+                    </th>
+                    <th style="text-align:center;border-right:2px solid #ddd6fe;background:#f7f5ff;">
+                        Trend<br><span style="font-size:9px;color:#a78bfa;font-weight:500;">(25%)</span>
+                    </th>
+
+                    <th style="text-align:center;">I-Score</th>
+                    <th style="text-align:center;">Signal</th>
+                    <th style="text-align:right;">Price</th>
+                    <th style="text-align:center;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="wlBody">
+                {% for s in research_list %}
+                {# helpers #}
+                {% set overall = s.i_score | float if s.i_score is not none else none %}
+                {% set qual    = s.qualitative_score  | float if s.qualitative_score  is not none else none %}
+                {% set quant   = s.quantitative_score | float if s.quantitative_score is not none else none %}
+                {% set srch    = s.search_score       | float if s.search_score       is not none else none %}
+                {% set trnd    = s.trend_score        | float if s.trend_score        is not none else none %}
+
+                <tr class="wl-row"
+                    data-symbol="{{ s.symbol }}"
+                    data-company="{{ (s.company_name or '') | lower }}"
+                    data-asset="{{ s.asset_type }}"
+                    data-reco="{{ s.recommendation or '' }}">
+
+                    <!-- Symbol -->
+                    <td>
+                        <div class="sym-wrap">
+                            <span class="sym-name">{{ s.symbol }}</span>
+                            {% if s.company_name %}<span class="sym-co" title="{{ s.company_name }}">{{ s.company_name }}</span>{% endif %}
+                        </div>
+                    </td>
+
+                    <!-- Type -->
+                    <td><span class="type-pill">{{ s.asset_type | replace('_',' ') }}</span></td>
+
+                    <!-- Sector -->
+                    <td style="font-size:11.5px;color:#6b7280;">{{ s.sector or '—' }}</td>
+
+                    <!-- Qualitative -->
+                    <td style="text-align:center;border-left:2px solid #ede9fe;background:#fdfcff;">
+                        {% if qual is not none %}
+                            {% set qc = 'sc-high' if qual >= 65 else ('sc-mid' if qual >= 45 else 'sc-low') %}
+                            {% set qbc = 'sc-bar-high' if qual >= 65 else ('sc-bar-mid' if qual >= 45 else 'sc-bar-low') %}
+                            <div class="score-box">
+                                <span class="score-val {{ qc }}">{{ '%.0f'|format(qual) }}</span>
+                                <div class="score-bar-track"><div class="score-bar-fill {{ qbc }}" style="width:{{ [qual,100]|min }}%;"></div></div>
+                            </div>
+                        {% else %}<span class="score-na">—</span>{% endif %}
+                    </td>
+
+                    <!-- Quantitative -->
+                    <td style="text-align:center;background:#fdfcff;">
+                        {% if quant is not none %}
+                            {% set qtc = 'sc-high' if quant >= 65 else ('sc-mid' if quant >= 45 else 'sc-low') %}
+                            {% set qtbc = 'sc-bar-high' if quant >= 65 else ('sc-bar-mid' if quant >= 45 else 'sc-bar-low') %}
+                            <div class="score-box">
+                                <span class="score-val {{ qtc }}">{{ '%.0f'|format(quant) }}</span>
+                                <div class="score-bar-track"><div class="score-bar-fill {{ qtbc }}" style="width:{{ [quant,100]|min }}%;"></div></div>
+                            </div>
+                        {% else %}<span class="score-na">—</span>{% endif %}
+                    </td>
+
+                    <!-- Search -->
+                    <td style="text-align:center;background:#fdfcff;">
+                        {% if srch is not none %}
+                            {% set sc2 = 'sc-high' if srch >= 65 else ('sc-mid' if srch >= 45 else 'sc-low') %}
+                            {% set sb2 = 'sc-bar-high' if srch >= 65 else ('sc-bar-mid' if srch >= 45 else 'sc-bar-low') %}
+                            <div class="score-box">
+                                <span class="score-val {{ sc2 }}">{{ '%.0f'|format(srch) }}</span>
+                                <div class="score-bar-track"><div class="score-bar-fill {{ sb2 }}" style="width:{{ [srch,100]|min }}%;"></div></div>
+                            </div>
+                        {% else %}<span class="score-na">—</span>{% endif %}
+                    </td>
+
+                    <!-- Trend -->
+                    <td style="text-align:center;border-right:2px solid #ede9fe;background:#fdfcff;">
+                        {% if trnd is not none %}
+                            {% set tc = 'sc-high' if trnd >= 65 else ('sc-mid' if trnd >= 45 else 'sc-low') %}
+                            {% set tbc = 'sc-bar-high' if trnd >= 65 else ('sc-bar-mid' if trnd >= 45 else 'sc-bar-low') %}
+                            <div class="score-box">
+                                <span class="score-val {{ tc }}">{{ '%.0f'|format(trnd) }}</span>
+                                <div class="score-bar-track"><div class="score-bar-fill {{ tbc }}" style="width:{{ [trnd,100]|min }}%;"></div></div>
+                            </div>
+                        {% else %}<span class="score-na">—</span>{% endif %}
+                    </td>
+
+                    <!-- Overall I-Score -->
+                    <td style="text-align:center;">
+                        {% if overall is not none %}
+                            {% set oc = 'sc-high' if overall >= 65 else ('sc-mid' if overall >= 45 else 'sc-low') %}
+                            <div class="iscore-big {{ oc }}">
+                                {{ '%.0f'|format(overall) }}
+                                <span class="iscore-label">I-Score</span>
+                            </div>
+                        {% else %}
+                            <div class="iscore-big sc-none">—<span class="iscore-label">I-Score</span></div>
+                        {% endif %}
+                    </td>
+
+                    <!-- Signal -->
+                    <td style="text-align:center;">
+                        {% if s.recommendation %}
+                            <span class="reco-pill reco-{{ s.recommendation }}">
+                                {{ s.recommendation | replace('_', ' ') | title }}
+                            </span>
+                        {% else %}
+                            <span class="reco-pill reco-none">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Price -->
+                    <td style="text-align:right;">
+                        {% if s.current_price %}
+                            <div class="price-val">₹{{ '%.2f'|format(s.current_price|float) }}</div>
+                            {% if s.price_change_pct %}
+                                {% set pct = s.price_change_pct | float %}
+                                <div class="price-chg {% if pct >= 0 %}chg-up{% else %}chg-dn{% endif %}">
+                                    {{ '%+.2f'|format(pct) }}%
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <span style="color:#d1d5db;font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Action -->
+                    <td style="text-align:center;">
+                        <a href="{{ url_for('dashboard_ai_advisor') }}?q={{ s.symbol | urlencode }}&company={{ (s.company_name or s.symbol) | urlencode }}&asset_type={{ s.asset_type | urlencode }}"
+                           class="btn-research">
+                            <i class="fas fa-search"></i> Research
+                        </a>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="wl-empty" id="wlEmpty" style="display:none;">
+            No stocks match your search or filter.
+        </div>
+    </div>
+
+</div><!-- /wl-section -->
+
+{% else %}
+<div class="mt-5 text-center text-muted" style="font-size:14px;">
+    <i class="fas fa-chart-bar me-2"></i>
+    No stocks in the Research Watch List yet.
+</div>
+{% endif %}
 
 <script>
 function filterWL() {
-    const search = (document.getElementById('wlSearch')?.value || '').toLowerCase();
-    const asset  = document.getElementById('wlAsset')?.value || '';
-    const reco   = document.getElementById('wlReco')?.value || '';
-    let visible  = 0;
+    const q    = (document.getElementById('wlSearch').value || '').toLowerCase();
+    const at   = document.getElementById('wlAsset').value  || '';
+    const rc   = document.getElementById('wlReco').value   || '';
+    let vis = 0;
 
-    document.querySelectorAll('.wl-row').forEach(row => {
-        const sym  = (row.dataset.symbol || '').toLowerCase();
-        const co   = (row.dataset.company || '').toLowerCase();
-        const a    = row.dataset.asset || '';
-        const r    = row.dataset.reco || '';
-
-        const ok = (!search || sym.includes(search) || co.includes(search))
-                && (!asset  || a === asset)
-                && (!reco   || r === reco);
-
-        row.style.display = ok ? '' : 'none';
-        if (ok) visible++;
+    document.querySelectorAll('.wl-row').forEach(r => {
+        const ok = (!q  || r.dataset.symbol.toLowerCase().includes(q) || r.dataset.company.includes(q))
+                && (!at || r.dataset.asset === at)
+                && (!rc || r.dataset.reco  === rc);
+        r.style.display = ok ? '' : 'none';
+        if (ok) vis++;
     });
 
-    const empty = document.getElementById('wlEmpty');
-    if (empty) empty.style.display = visible === 0 ? '' : 'none';
+    document.getElementById('wlEmpty').style.display = vis === 0 ? '' : 'none';
 }
 </script>
 {% endblock %}
