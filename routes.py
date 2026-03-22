@@ -1854,7 +1854,8 @@ def dashboard_my_portfolio():
     recent_events = risk_engine.get_recent_events(limit=8)
 
     # Log this analysis visit as a portfolio event
-    risk_engine.log_event('analysis', 'Portfolio viewed', detail=f'Health score: {portfolio_pulse["health_score"]}')
+    health_score_log = portfolio_pulse["health_score"] if portfolio_pulse else "—"
+    risk_engine.log_event('analysis', 'Portfolio viewed', detail=f'Health score: {health_score_log}')
 
     # Fetch most recent LangGraph optimization report (if any)
     latest_optimization = None

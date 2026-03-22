@@ -172,13 +172,20 @@ class RiskEngine:
     # ─────────────────────────────────────────────────────────────
     # 3. PORTFOLIO PULSE (weekly health summary)
     # ─────────────────────────────────────────────────────────────
-    def get_portfolio_pulse(self, portfolio_summary: dict, risk_heatmap: list) -> dict:
-        """Generate the Weekly Portfolio Health Pulse."""
+    def get_portfolio_pulse(self, portfolio_summary: dict, risk_heatmap: list):
+        """Generate the Weekly Portfolio Health Pulse.
+        Returns None when the portfolio is empty so the UI can hide the widget."""
+        total_value = portfolio_summary.get('total_current_value', 0) or 0
+        asset_classes = portfolio_summary.get('asset_classes', [])
+
+        # Nothing to score — return None so the template hides the pulse block
+        if total_value == 0 and not asset_classes:
+            return None
+
         fp = self._portfolio_fingerprint(portfolio_summary)
         cached = self._get_cached('pulse', fp)
         if cached is not None:
             return cached
-        total_value = portfolio_summary.get('total_current_value', 0) or 0
         pnl_pct = portfolio_summary.get('pnl_percentage', 0) or 0
 
         # Weighted portfolio risk score (0–10)
