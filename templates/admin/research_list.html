@@ -186,8 +186,8 @@
                                     <button type="button" class="btn btn-outline-info" onclick="showDetails({{ stock.id }})" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <form method="POST" action="{{ url_for('admin.refresh_research_stock', stock_id=stock.id) }}" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-primary" title="Compute I-Score">
+                                    <form method="POST" action="{{ url_for('admin.refresh_research_stock', stock_id=stock.id) }}" class="d-inline iscore-form">
+                                        <button type="submit" class="btn btn-outline-primary btn-compute" title="Compute I-Score">
                                             <i class="fas fa-sync"></i>
                                         </button>
                                     </form>
@@ -266,6 +266,25 @@
 
 {% block scripts %}
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.iscore-form').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            const row = form.closest('tr');
+            const symbol = row ? row.querySelector('td strong') : null;
+            const label = symbol ? symbol.textContent.trim() : 'this stock';
+            if (!confirm('Run I-Score analysis for ' + label + '?\n\nThis may take 30–60 seconds.')) {
+                e.preventDefault();
+                return;
+            }
+            const btn = form.querySelector('.btn-compute');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Computing…';
+            }
+        });
+    });
+});
+
 function showDetails(stockId) {
     const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
     const content = document.getElementById('detailsContent');
