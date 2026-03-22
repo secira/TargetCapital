@@ -318,35 +318,84 @@
                             </small>
                         </div>
 
-                        {% if latest_optimization.allocation_recommendations %}
-                        <div class="row g-3 mb-3">
-                            {% for asset, pct in (latest_optimization.allocation_recommendations or {}).items() %}
-                            <div class="col-6 col-md-3">
+                        {# ── Allocation tiles ── #}
+                        {# The optimizer returns a nested JSON; extract the flat allocation sub-dict #}
+                        {% set alloc_raw = latest_optimization.allocation_recommendations or {} %}
+                        {% set alloc_flat = alloc_raw.get('optimal_asset_class_allocation') or alloc_raw %}
+                        {% if alloc_flat and alloc_flat is mapping %}
+                        <div class="row g-2 mb-3">
+                            {% for asset, pct in alloc_flat.items() %}
+                            {# pct is either "20%" string or a numeric — normalise for display #}
+                            {% set pct_display = pct if pct is string else (pct|string + '%') %}
+                            <div class="col-6 col-sm-3">
                                 <div class="p-3 rounded text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                                    <div class="fw-bold fs-5 text-primary">{{ pct }}%</div>
+                                    <div class="fw-bold fs-5 text-primary">{{ pct_display }}</div>
                                     <small class="text-muted">{{ asset }}</small>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
+
+                        {# Specific descriptions (if available) #}
+                        {% set spec = alloc_raw.get('specific_allocation_percentages') %}
+                        {% if spec and spec is mapping %}
+                        <div class="mb-3">
+                            {% for asset, info in spec.items() %}
+                            {% if info is mapping and info.get('description') %}
+                            <div class="d-flex gap-2 align-items-start mb-1" style="font-size:13px;">
+                                <span class="badge rounded-pill text-bg-secondary" style="min-width:48px;">{{ info.get('percentage', '') }}</span>
+                                <span class="text-muted"><strong>{{ asset }}</strong> — {{ info.description }}</span>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
                         {% endif %}
 
-                        <div id="optimizationReport" style="line-height: 1.8; white-space: pre-line;">{{ (latest_optimization.report_data or {}).get('report', '') }}</div>
+                        {# Rebalancing strategy summary #}
+                        {% set rb = alloc_raw.get('rebalancing_strategy') %}
+                        {% if rb and rb is mapping %}
+                        <div class="alert alert-light border mb-3 p-2" style="font-size:13px;">
+                            <i class="fas fa-sync-alt text-primary me-1"></i>
+                            <strong>Rebalance:</strong> {{ rb.get('frequency', '') }}
+                            {% if rb.get('method') %} — {{ rb.method }}{% endif %}
+                        </div>
+                        {% endif %}
+                        {% endif %}
 
-                        {% if latest_optimization.opportunities %}
+                        {# ── Full narrative report ── #}
+                        {% set report_text = (latest_optimization.report_data or {}).get('report', '') %}
+                        {% if report_text %}
+                        <div id="optimizationReport" style="line-height: 1.8; white-space: pre-line;">{{ report_text }}</div>
+                        {% else %}
+                        <div id="optimizationReport" style="line-height: 1.8; white-space: pre-line;"></div>
+                        {% endif %}
+
+                        {# ── Opportunities ── #}
+                        {% set opps = latest_optimization.opportunities or [] %}
+                        {% if opps %}
                         <div class="mt-3">
                             <h6 class="mb-2"><i class="fas fa-lightbulb text-warning me-2"></i>AI Opportunities</h6>
+                            {# Check if opportunities are structured or raw fallback #}
+                            {% if opps[0] is mapping and opps[0].get('raw_opportunities') %}
+                            <div class="p-3 rounded" style="background:#fffbeb; border:1px solid #fde68a; font-size:13px; white-space:pre-line;">{{ opps[0].raw_opportunities }}</div>
+                            {% else %}
                             <div class="row g-2">
-                                {% for opp in (latest_optimization.opportunities or [])[:6] %}
+                                {% for opp in opps[:6] %}
+                                {% if opp is mapping %}
                                 <div class="col-md-4">
                                     <div class="p-2 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0; font-size:13px;">
-                                        <strong>{{ opp.get('symbol', opp.get('name', '—')) }}</strong>
-                                        {% if opp.get('action') %}<span class="badge bg-success ms-1">{{ opp.action }}</span>{% endif %}
-                                        {% if opp.get('rationale') %}<div class="text-muted mt-1">{{ opp.rationale[:80] }}…</div>{% endif %}
+                                        <strong>{{ opp.get('symbol', opp.get('name', opp.get('asset', '—'))) }}</strong>
+                                        {% if opp.get('action') or opp.get('recommendation') %}
+                                        <span class="badge bg-success ms-1">{{ opp.get('action') or opp.get('recommendation') }}</span>
+                                        {% endif %}
+                                        {% set reason = opp.get('rationale') or opp.get('reason') or opp.get('description') or '' %}
+                                        {% if reason %}<div class="text-muted mt-1">{{ reason[:90] }}{% if reason|length > 90 %}…{% endif %}</div>{% endif %}
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
+                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
