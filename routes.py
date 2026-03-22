@@ -1856,6 +1856,16 @@ def dashboard_my_portfolio():
     # Log this analysis visit as a portfolio event
     risk_engine.log_event('analysis', 'Portfolio viewed', detail=f'Health score: {portfolio_pulse["health_score"]}')
 
+    # Fetch most recent LangGraph optimization report (if any)
+    latest_optimization = None
+    try:
+        from models import PortfolioOptimizationReport
+        latest_optimization = PortfolioOptimizationReport.query.filter_by(
+            user_id=current_user.id
+        ).order_by(PortfolioOptimizationReport.created_at.desc()).first()
+    except Exception as _opt_err:
+        logging.warning(f"Could not load latest optimization: {_opt_err}")
+
     return render_template('dashboard/my_portfolio_comprehensive.html',
                            portfolio_summary=portfolio_summary,
                            ai_insights=ai_insights,
@@ -1864,6 +1874,7 @@ def dashboard_my_portfolio():
                            goal_progress=goal_progress,
                            portfolio_pulse=portfolio_pulse,
                            recent_events=recent_events,
+                           latest_optimization=latest_optimization,
                            current_user=current_user)
 
 @app.route('/dashboard/my-portfolio-old')

@@ -306,10 +306,57 @@
                 </div>
                 <div class="card-body">
                     <div id="portfolioAgentWorkflow"></div>
+
+                    {% if latest_optimization %}
+                    <!-- Last saved optimization result -->
+                    <div id="optimizationResults" class="mt-3">
+                        <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                            <h6 class="mb-0"><i class="fas fa-file-alt me-2 text-primary"></i>Last Optimization Report</h6>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ latest_optimization.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                            </small>
+                        </div>
+
+                        {% if latest_optimization.allocation_recommendations %}
+                        <div class="row g-3 mb-3">
+                            {% for asset, pct in (latest_optimization.allocation_recommendations or {}).items() %}
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 rounded text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                                    <div class="fw-bold fs-5 text-primary">{{ pct }}%</div>
+                                    <small class="text-muted">{{ asset }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div id="optimizationReport" style="line-height: 1.8; white-space: pre-line;">{{ (latest_optimization.report_data or {}).get('report', '') }}</div>
+
+                        {% if latest_optimization.opportunities %}
+                        <div class="mt-3">
+                            <h6 class="mb-2"><i class="fas fa-lightbulb text-warning me-2"></i>AI Opportunities</h6>
+                            <div class="row g-2">
+                                {% for opp in (latest_optimization.opportunities or [])[:6] %}
+                                <div class="col-md-4">
+                                    <div class="p-2 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0; font-size:13px;">
+                                        <strong>{{ opp.get('symbol', opp.get('name', '—')) }}</strong>
+                                        {% if opp.get('action') %}<span class="badge bg-success ms-1">{{ opp.action }}</span>{% endif %}
+                                        {% if opp.get('rationale') %}<div class="text-muted mt-1">{{ opp.rationale[:80] }}…</div>{% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
                     <div id="optimizationResults" class="mt-4" style="display: none;">
                         <h6 class="border-bottom pb-2 mb-3"><i class="fas fa-file-alt me-2"></i>Optimization Report</h6>
                         <div id="optimizationReport" style="line-height: 1.8; white-space: pre-line;"></div>
                     </div>
+                    <p class="text-muted small mb-0">Run the AI optimizer to get personalized rebalancing recommendations based on your current holdings.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -165,7 +165,44 @@ class ComprehensivePortfolioService:
                 'risk_level': 'Protection',
                 'color': '#607D8B'
             })
-        
+
+        # 9. Broker-synced holdings (Dhan, Zerodha, Angel, etc.)
+        try:
+            from models_broker import BrokerHolding, BrokerAccount
+            broker_accounts = BrokerAccount.query.filter_by(
+                user_id=self.user_id, is_active=True
+            ).all()
+            broker_account_ids = [a.id for a in broker_accounts]
+            if broker_account_ids:
+                broker_holdings = BrokerHolding.query.filter(
+                    BrokerHolding.broker_account_id.in_(broker_account_ids)
+                ).all()
+                if broker_holdings:
+                    bh_investment = sum(
+                        (h.avg_cost_price or 0) * (h.available_quantity or h.total_quantity or 0)
+                        for h in broker_holdings
+                    )
+                    bh_value = sum(
+                        (h.current_price or 0) * (h.available_quantity or h.total_quantity or 0)
+                        for h in broker_holdings
+                    )
+                    if bh_investment > 0 or bh_value > 0:
+                        broker_names = list({a.broker_name or a.broker_type for a in broker_accounts})
+                        label = f"Broker Equities ({', '.join(broker_names)})"
+                        summary['asset_classes'].append({
+                            'name': label,
+                            'count': len(broker_holdings),
+                            'investment': bh_investment,
+                            'current_value': bh_value,
+                            'pnl': bh_value - bh_investment,
+                            'pnl_percentage': ((bh_value - bh_investment) / bh_investment * 100) if bh_investment > 0 else 0,
+                            'risk_level': 'High',
+                            'color': '#4CAF50',
+                            'broker_synced': True
+                        })
+        except Exception as e:
+            logger.warning(f"Could not load broker holdings for portfolio summary: {e}")
+
         # Calculate totals
         summary['total_investment'] = sum(ac['investment'] for ac in summary['asset_classes'])
         summary['total_current_value'] = sum(ac['current_value'] for ac in summary['asset_classes'])
