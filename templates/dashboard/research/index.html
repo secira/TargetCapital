@@ -74,11 +74,7 @@
 }
 .wl-select:focus { outline: none; border-color: #7c3aed; }
 
-.wl-info {
-    font-size: 12px;
-    color: #9ca3af;
-    white-space: nowrap;
-}
+.wl-info { font-size: 12px; color: #9ca3af; white-space: nowrap; }
 
 /* ── Card shell ─────────────────────────────────────── */
 .wl-card {
@@ -94,88 +90,65 @@
 .wl-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 920px;
+    min-width: 700px;
 }
-
-.wl-table thead tr.wl-group th {
-    background: #f3f0ff;
-    padding: 8px 12px 0;
-    font-size: 10px;
-    font-weight: 700;
-    color: #7c3aed;
-    text-transform: uppercase;
-    letter-spacing: .7px;
-    border-bottom: none;
-}
-.wl-table thead tr.wl-cols th {
-    background: #faf9ff;
-    padding: 6px 12px 10px;
-    font-size: 10.5px;
+.wl-table thead th {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 12px 14px;
+    font-size: 11px;
     font-weight: 600;
-    color: #6b7280;
-    letter-spacing: .3px;
+    letter-spacing: .4px;
     white-space: nowrap;
-    border-bottom: 2px solid #ede9fe;
+    border: none;
 }
-
 .wl-table tbody tr {
     border-bottom: 1px solid #f3f4f6;
     transition: background .12s;
 }
 .wl-table tbody tr:hover { background: #faf8ff; }
 .wl-table tbody tr:last-child { border-bottom: none; }
-.wl-table td { padding: 12px; vertical-align: middle; }
+.wl-table td { padding: 12px 14px; vertical-align: middle; font-size: 13px; }
 
 /* ── Symbol ─────────────────────────────────────────── */
-.sym-name { font-weight: 800; font-size: 13px; color: #111; display: block; }
-.sym-co   { font-size: 11px; color: #9ca3af; display: block; margin-top: 1px;
-             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+.sym-link {
+    font-weight: 800;
+    font-size: 13.5px;
+    color: #3b82f6;
+    text-decoration: none;
+}
+.sym-link:hover { text-decoration: underline; color: #2563eb; }
+.sym-company { font-size: 11.5px; color: #64748b; margin-top: 1px; }
+.sym-sector  { font-size: 10.5px; color: #94a3b8; }
 
-/* ── Type pill ───────────────────────────────────────── */
-.type-pill {
+/* ── Type badge ──────────────────────────────────────── */
+.type-badge {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 9px;
     border-radius: 20px;
     font-size: 10px;
     font-weight: 700;
-    background: #ede9fe;
-    color: #5b21b6;
-    white-space: nowrap;
+    background: #dbeafe;
+    color: #1d4ed8;
     text-transform: capitalize;
+    white-space: nowrap;
 }
 
-/* ── Score cells ─────────────────────────────────────── */
-.score-box { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-.score-num { font-size: 14px; font-weight: 800; line-height: 1; }
-.score-bar { width: 46px; height: 4px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
-.score-fill { height: 100%; border-radius: 4px; }
-.score-na { font-size: 12px; color: #d1d5db; }
-
-.c-high { color: #16a34a; } .b-high { background: #16a34a; }
-.c-mid  { color: #d97706; } .b-mid  { background: #f59e0b; }
-.c-low  { color: #dc2626; } .b-low  { background: #ef4444; }
-
-/* ── I-Score circle ─────────────────────────────────── */
-.iscore-circle {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 2.5px solid;
-    font-size: 15px;
-    font-weight: 900;
-    line-height: 1.1;
+/* ── I-Score badge ───────────────────────────────────── */
+.iscore-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
 }
-.iscore-label { font-size: 7.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
-.iscore-circle.c-high { border-color: #16a34a; color: #15803d; background: #f0fdf4; }
-.iscore-circle.c-mid  { border-color: #f59e0b; color: #b45309; background: #fffbeb; }
-.iscore-circle.c-low  { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
-.iscore-circle.c-none { border-color: #d1d5db; color: #9ca3af; background: #f9fafb; }
+.iscore-high { background: #dcfce7; color: #15803d; }
+.iscore-mid  { background: #fef9c3; color: #854d0e; }
+.iscore-low  { background: #fee2e2; color: #991b1b; }
+.iscore-none { background: #f3f4f6; color: #9ca3af; font-size: 12px; }
 
-/* ── Reco pills ─────────────────────────────────────── */
+/* ── Recommendation badge ────────────────────────────── */
 .reco {
     display: inline-block;
     padding: 4px 9px;
@@ -194,11 +167,15 @@
 .reco-none       { background: #f3f4f6; color: #9ca3af; }
 
 /* ── Price ───────────────────────────────────────────── */
-.price-val { font-size: 13px; font-weight: 700; color: #111; }
+.price-val { font-weight: 700; color: #111; }
 .price-chg { font-size: 11px; font-weight: 600; }
 .up { color: #16a34a; } .dn { color: #dc2626; }
 
-/* ── Research btn ────────────────────────────────────── */
+/* ── Updated ─────────────────────────────────────────── */
+.upd-date { font-size: 11px; color: #64748b; }
+.upd-ago  { font-size: 10px; color: #94a3b8; }
+
+/* ── Analyze btn ─────────────────────────────────────── */
 .btn-analyze {
     display: inline-flex;
     align-items: center;
@@ -239,11 +216,7 @@
 }
 .wl-page-info { font-size: 12px; color: #6b7280; }
 
-.wl-pages {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
+.wl-pages { display: flex; align-items: center; gap: 4px; }
 .pg-btn {
     min-width: 32px;
     height: 32px;
@@ -265,7 +238,6 @@
 .pg-btn:disabled { opacity: .38; cursor: default; }
 .pg-ellipsis { font-size: 12px; color: #9ca3af; padding: 0 4px; }
 
-/* ── Per-page selector ──────────────────────────────── */
 .per-page-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7280; }
 .per-page-select {
     padding: 4px 8px;
@@ -371,43 +343,16 @@
     <div class="wl-card">
         <table class="wl-table">
             <thead>
-                <tr class="wl-group">
-                    <th colspan="3"></th>
-                    <th colspan="4"
-                        style="text-align:center;
-                               border-left:2px solid #ddd6fe;
-                               border-right:2px solid #ddd6fe;">
-                        Component Scores
-                    </th>
-                    <th colspan="5"></th>
-                </tr>
-                <tr class="wl-cols">
-                    <th style="min-width:150px;padding-left:16px;">Symbol</th>
+                <tr>
+                    <th style="padding-left:18px;">Symbol</th>
                     <th>Type</th>
                     <th>Sector</th>
-
-                    <th style="text-align:center;border-left:2px solid #ede9fe;">
-                        Qualitative
-                        <div style="font-size:9px;color:#a78bfa;font-weight:500;margin-top:1px;">15%</div>
-                    </th>
-                    <th style="text-align:center;">
-                        Quantitative
-                        <div style="font-size:9px;color:#a78bfa;font-weight:500;margin-top:1px;">50%</div>
-                    </th>
-                    <th style="text-align:center;">
-                        Search
-                        <div style="font-size:9px;color:#a78bfa;font-weight:500;margin-top:1px;">10%</div>
-                    </th>
-                    <th style="text-align:center;border-right:2px solid #ede9fe;">
-                        Trend
-                        <div style="font-size:9px;color:#a78bfa;font-weight:500;margin-top:1px;">25%</div>
-                    </th>
-
                     <th style="text-align:center;">I-Score</th>
-                    <th style="text-align:center;">Signal</th>
-                    <th style="text-align:right;padding-right:16px;">Price</th>
+                    <th style="text-align:center;">Recommendation</th>
+                    <th style="text-align:center;">Confidence</th>
+                    <th style="text-align:right;">Price</th>
                     <th style="text-align:center;">Updated</th>
-                    <th style="text-align:center;padding-right:16px;">Action</th>
+                    <th style="text-align:center;padding-right:18px;">Action</th>
                 </tr>
             </thead>
             <tbody id="wlBody">
@@ -423,11 +368,7 @@
                 } %}
 
                 {% for s in research_list %}
-                {% set overall = s.i_score            | float if s.i_score            is not none else none %}
-                {% set qual    = s.qualitative_score  | float if s.qualitative_score  is not none else none %}
-                {% set quant   = s.quantitative_score | float if s.quantitative_score is not none else none %}
-                {% set srch    = s.search_score       | float if s.search_score       is not none else none %}
-                {% set trnd    = s.trend_score        | float if s.trend_score        is not none else none %}
+                {% set overall = s.i_score | float if s.i_score is not none else none %}
 
                 <tr class="wl-row"
                     data-symbol="{{ s.symbol }}"
@@ -435,67 +376,57 @@
                     data-asset="{{ s.asset_type }}"
                     data-reco="{{ s.recommendation or '' }}">
 
-                    <!-- Symbol -->
-                    <td style="padding-left:16px;">
-                        <span class="sym-name">{{ s.symbol }}</span>
+                    <!-- Symbol + Company -->
+                    <td style="padding-left:18px;">
+                        {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
+                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}" class="sym-link">
+                            {{ s.symbol }}
+                        </a>
                         {% if s.company_name %}
-                        <span class="sym-co" title="{{ s.company_name }}">{{ s.company_name }}</span>
+                        <div class="sym-company">{{ s.company_name }}</div>
                         {% endif %}
                     </td>
 
                     <!-- Type -->
-                    <td><span class="type-pill">{{ s.asset_type | replace('_',' ') }}</span></td>
+                    <td>
+                        <span class="type-badge">{{ s.asset_type | replace('_',' ') | title }}</span>
+                    </td>
 
                     <!-- Sector -->
-                    <td style="font-size:11.5px;color:#6b7280;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                        {{ s.sector or '—' }}
+                    <td>
+                        <span class="sym-sector">{{ s.sector or '—' }}</span>
                     </td>
-
-                    <!-- Component scores helper macro -->
-                    {% macro score_cell(val, left_border=false, right_border=false) %}
-                    <td style="text-align:center;background:#fdfcff;
-                               {% if left_border %}border-left:2px solid #ede9fe;{% endif %}
-                               {% if right_border %}border-right:2px solid #ede9fe;{% endif %}">
-                        {% if val is not none %}
-                            {% set cc = 'c-high' if val >= 65 else ('c-mid' if val >= 45 else 'c-low') %}
-                            {% set bc = 'b-high' if val >= 65 else ('b-mid' if val >= 45 else 'b-low') %}
-                            <div class="score-box">
-                                <span class="score-num {{ cc }}">{{ '%.0f'|format(val) }}</span>
-                                <div class="score-bar">
-                                    <div class="score-fill {{ bc }}" style="width:{{ [val,100]|min }}%;"></div>
-                                </div>
-                            </div>
-                        {% else %}<span class="score-na">—</span>{% endif %}
-                    </td>
-                    {% endmacro %}
-
-                    {{ score_cell(qual,  left_border=true) }}
-                    {{ score_cell(quant) }}
-                    {{ score_cell(srch) }}
-                    {{ score_cell(trnd,  right_border=true) }}
 
                     <!-- I-Score -->
                     <td style="text-align:center;">
                         {% if overall is not none %}
-                            {% set oc = 'c-high' if overall >= 65 else ('c-mid' if overall >= 45 else 'c-low') %}
-                            <div class="iscore-circle {{ oc }}">
-                                {{ '%.0f'|format(overall) }}
-                                <span class="iscore-label">score</span>
-                            </div>
+                            {% set ic = 'iscore-high' if overall >= 65 else ('iscore-mid' if overall >= 45 else 'iscore-low') %}
+                            <span class="iscore-badge {{ ic }}">{{ '%.1f'|format(overall) }}</span>
                         {% else %}
-                            <div class="iscore-circle c-none">—<span class="iscore-label">score</span></div>
+                            <span class="iscore-badge iscore-none">—</span>
                         {% endif %}
                     </td>
 
-                    <!-- Signal -->
+                    <!-- Recommendation -->
                     <td style="text-align:center;">
                         <span class="reco reco-{{ s.recommendation or 'none' }}">
                             {{ (s.recommendation or '—') | replace('_',' ') | title }}
                         </span>
                     </td>
 
+                    <!-- Confidence -->
+                    <td style="text-align:center;">
+                        {% if s.confidence is not none %}
+                            <span style="font-size:13px;font-weight:600;color:#374151;">
+                                {{ '%.0f'|format(s.confidence|float) }}%
+                            </span>
+                        {% else %}
+                            <span style="color:#d1d5db;">—</span>
+                        {% endif %}
+                    </td>
+
                     <!-- Price -->
-                    <td style="text-align:right;padding-right:16px;">
+                    <td style="text-align:right;">
                         {% if s.current_price %}
                             <div class="price-val">₹{{ '%.2f'|format(s.current_price|float) }}</div>
                             {% if s.price_change_pct %}
@@ -505,29 +436,24 @@
                                 </div>
                             {% endif %}
                         {% else %}
-                            <span style="color:#d1d5db;font-size:12px;">—</span>
+                            <span style="color:#d1d5db;">—</span>
                         {% endif %}
                     </td>
 
                     <!-- Updated -->
                     <td style="text-align:center;">
                         {% if s.last_computed_at %}
-                            <div style="font-size:11px;color:#6b7280;white-space:nowrap;">
-                                {{ s.last_computed_at.strftime('%d %b') }}
-                            </div>
-                            <div style="font-size:10px;color:#9ca3af;">
-                                {{ s.last_computed_at.strftime('%H:%M') }}
-                            </div>
+                            <div class="upd-date">{{ s.last_computed_at.strftime('%d %b %Y') }}</div>
+                            <div class="upd-ago">{{ s.score_age_hours }}h ago</div>
                         {% else %}
-                            <span style="font-size:11px;color:#d1d5db;">—</span>
+                            <span class="upd-ago">Never</span>
                         {% endif %}
                     </td>
 
                     <!-- Action -->
-                    <td style="text-align:center;padding-right:16px;">
+                    <td style="text-align:center;padding-right:18px;">
                         {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
-                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}"
-                           class="btn-analyze">
+                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}" class="btn-analyze">
                             <i class="fas fa-search"></i> Analyze
                         </a>
                     </td>
@@ -563,123 +489,109 @@
 
 {% else %}
 <div class="mt-5 text-center py-5" style="color:#9ca3af;font-size:14px;">
-    <i class="fas fa-chart-bar fa-2x mb-3 d-block" style="color:#d1d5db;"></i>
-    No stocks in the Research Watch List yet.
+    <i class="fas fa-chart-bar fa-3x mb-3 d-block" style="color:#e5e7eb;"></i>
+    No stocks in the watch list yet.<br>
+    <small>Run an I-Score analysis to add stocks here.</small>
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-const wl = (() => {
-    let allRows    = [];
-    let filtered   = [];
-    let page       = 1;
-    let perPage    = 10;
+(function () {
+    const rows     = Array.from(document.querySelectorAll('#wlBody .wl-row'));
+    const noRes    = document.getElementById('wlNoResults');
+    const pageInfo = document.getElementById('wlPageInfo');
+    const pageBtns = document.getElementById('wlPageBtns');
+    const badge    = document.getElementById('wlTotalBadge');
 
-    function init() {
-        allRows = Array.from(document.querySelectorAll('.wl-row'));
-        filter();
-    }
+    let filtered = rows.slice();
+    let perPage  = 10;
+    let page     = 1;
 
-    function filter() {
-        const q  = (document.getElementById('wlSearch').value || '').toLowerCase().trim();
-        const at = document.getElementById('wlAsset').value  || '';
-        const rc = document.getElementById('wlReco').value   || '';
+    const wl = {
+        filter() {
+            const q  = (document.getElementById('wlSearch').value  || '').toLowerCase();
+            const at = (document.getElementById('wlAsset').value   || '').toLowerCase();
+            const rc = (document.getElementById('wlReco').value    || '').toUpperCase();
 
-        filtered = allRows.filter(r => {
-            const sym = r.dataset.symbol.toLowerCase();
-            const co  = r.dataset.company || '';
-            return (!q  || sym.includes(q) || co.includes(q))
-                && (!at || r.dataset.asset === at)
-                && (!rc || r.dataset.reco  === rc);
-        });
+            filtered = rows.filter(r => {
+                const sym  = (r.dataset.symbol  || '').toLowerCase();
+                const co   = (r.dataset.company || '').toLowerCase();
+                const ast  = (r.dataset.asset   || '').toLowerCase();
+                const reco = (r.dataset.reco    || '').toUpperCase();
+                if (q  && !sym.includes(q) && !co.includes(q)) return false;
+                if (at && ast !== at)  return false;
+                if (rc && reco !== rc) return false;
+                return true;
+            });
 
-        page = 1;
-        render();
-    }
+            page = 1;
+            badge.textContent = filtered.length + ' stocks';
+            this.render();
+        },
 
-    function setPerPage(n) {
-        perPage = n;
-        page    = 1;
-        render();
-    }
+        setPerPage(n) { perPage = n; page = 1; this.render(); },
 
-    function goTo(p) {
-        page = p;
-        render();
-    }
+        render() {
+            rows.forEach(r => r.style.display = 'none');
 
-    function render() {
-        // hide all rows first
-        allRows.forEach(r => r.style.display = 'none');
+            if (!filtered.length) {
+                noRes.style.display = 'block';
+                pageInfo.textContent = '';
+                pageBtns.innerHTML  = '';
+                document.getElementById('wlPagination').style.display = 'none';
+                return;
+            }
 
-        const total     = filtered.length;
-        const pageCount = Math.max(1, Math.ceil(total / perPage));
-        page = Math.min(Math.max(1, page), pageCount);
+            noRes.style.display = 'none';
+            document.getElementById('wlPagination').style.display = 'flex';
 
-        const start = (page - 1) * perPage;
-        const end   = Math.min(start + perPage, total);
+            const totalPages = Math.ceil(filtered.length / perPage);
+            if (page > totalPages) page = totalPages;
 
-        if (total === 0) {
-            document.getElementById('wlNoResults').style.display  = '';
-            document.getElementById('wlPagination').style.display = 'none';
-        } else {
-            document.getElementById('wlNoResults').style.display  = 'none';
-            document.getElementById('wlPagination').style.display = '';
-            filtered.slice(start, end).forEach(r => r.style.display = '');
+            const start = (page - 1) * perPage;
+            filtered.slice(start, start + perPage).forEach(r => r.style.display = '');
+
+            const end = Math.min(start + perPage, filtered.length);
+            pageInfo.textContent = `${start + 1}–${end} of ${filtered.length}`;
+
+            /* Smart page buttons: prev, 1 … cur-1 cur cur+1 … last, next */
+            const btns = [];
+            const mk = (label, pg, disabled, active) => {
+                const b = document.createElement('button');
+                b.className = 'pg-btn' + (active ? ' active' : '');
+                b.textContent = label;
+                b.disabled = disabled;
+                if (!disabled && !active) b.onclick = () => { page = pg; wl.render(); };
+                return b;
+            };
+
+            btns.push(mk('‹', page - 1, page === 1, false));
+
+            const range = new Set([1, totalPages, page - 1, page, page + 1].filter(p => p >= 1 && p <= totalPages));
+            let prev = 0;
+            Array.from(range).sort((a, b) => a - b).forEach(p => {
+                if (prev && p - prev > 1) {
+                    const e = document.createElement('span');
+                    e.className = 'pg-ellipsis';
+                    e.textContent = '…';
+                    btns.push(e);
+                }
+                btns.push(mk(p, p, false, p === page));
+                prev = p;
+            });
+
+            btns.push(mk('›', page + 1, page === totalPages, false));
+
+            pageBtns.innerHTML = '';
+            btns.forEach(b => pageBtns.appendChild(b));
         }
+    };
 
-        // info text
-        const badge = document.getElementById('wlTotalBadge');
-        if (badge) badge.textContent = total + ' stock' + (total !== 1 ? 's' : '');
-
-        document.getElementById('wlPageInfo').textContent =
-            total === 0 ? '' : `${start + 1}–${end} of ${total}`;
-
-        // page buttons
-        renderPager(pageCount);
-    }
-
-    function renderPager(pageCount) {
-        const wrap = document.getElementById('wlPageBtns');
-        wrap.innerHTML = '';
-
-        const mkBtn = (label, pg, active, disabled) => {
-            const b = document.createElement('button');
-            b.className = 'pg-btn' + (active ? ' active' : '');
-            b.textContent = label;
-            b.disabled = disabled;
-            if (!active && !disabled) b.onclick = () => goTo(pg);
-            return b;
-        };
-
-        const mkEllipsis = () => {
-            const s = document.createElement('span');
-            s.className = 'pg-ellipsis';
-            s.textContent = '…';
-            return s;
-        };
-
-        // prev
-        wrap.appendChild(mkBtn('‹', page - 1, false, page === 1));
-
-        // page numbers — show window of 5 around current
-        const pages = new Set([1, pageCount]);
-        for (let i = Math.max(1, page - 2); i <= Math.min(pageCount, page + 2); i++) pages.add(i);
-
-        let prev = 0;
-        Array.from(pages).sort((a,b) => a-b).forEach(p => {
-            if (p - prev > 1) wrap.appendChild(mkEllipsis());
-            wrap.appendChild(mkBtn(p, p, p === page, false));
-            prev = p;
-        });
-
-        // next
-        wrap.appendChild(mkBtn('›', page + 1, false, page === pageCount));
-    }
-
-    return { filter, setPerPage, goTo, init };
+    window.wl = wl;
+    wl.render();
 })();
-
-document.addEventListener('DOMContentLoaded', wl.init);
 </script>
 {% endblock %}
