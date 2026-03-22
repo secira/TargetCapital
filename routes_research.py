@@ -5,7 +5,7 @@ Provides in-depth research pages for each asset class with I-Score analysis
 from flask import render_template, jsonify, request
 from flask_login import login_required, current_user
 from app import app, db
-from models import TradingSignal, ResearchCache, ResearchRun
+from models import TradingSignal, ResearchCache, ResearchRun, ResearchList
 from datetime import datetime, timezone, date
 import logging
 
@@ -310,7 +310,52 @@ def api_research_analyze():
             user_id=current_user.id,
             asset_name=symbol
         )
-        
+
+        # ── Persist result to ResearchList so the Watch List stays fresh ──
+        if result and result.get('success'):
+            try:
+                components = result.get('components', {})
+                market     = result.get('market_data', {})
+
+                mapped = {
+                    'overall_score':        result.get('iscore', 0),
+                    'overall_confidence':   result.get('confidence', 0),
+                    'recommendation':       result.get('recommendation', 'HOLD'),
+                    'recommendation_summary': result.get('summary', ''),
+                    'qualitative_score':    components.get('qualitative', {}).get('score', 0),
+                    'quantitative_score':   components.get('quantitative', {}).get('score', 0),
+                    'search_score':         components.get('search',       {}).get('score', 0),
+                    'trend_score':          components.get('trend',        {}).get('score', 0),
+                    'qualitative_details':  components.get('qualitative', {}).get('details', {}),
+                    'quantitative_details': components.get('quantitative', {}).get('details', {}),
+                    'search_details':       components.get('search',       {}).get('details', {}),
+                    'trend_details':        components.get('trend',        {}).get('details', {}),
+                    'current_price':        market.get('current_price'),
+                    'previous_close':       market.get('previous_close'),
+                    'price_change_pct':     market.get('change_pct'),
+                }
+
+                entry = ResearchList.query.filter_by(symbol=symbol).first()
+                if entry is None:
+                    entry = ResearchList(
+                        symbol=symbol,
+                        asset_type=asset_type,
+                        tenant_id='live',
+                        is_active=True,
+                    )
+                    db.session.add(entry)
+
+                entry.update_from_iscore_result(mapped)
+                entry.computation_source  = 'real_time'
+                entry.last_requested_at   = datetime.utcnow()
+                db.session.commit()
+                logger.info(f"ResearchList upserted for {symbol}: I-Score={mapped['overall_score']}")
+
+            except Exception as save_err:
+                db.session.rollback()
+                logger.warning(f"Could not persist ResearchList for {symbol}: {save_err}")
+                # Non-fatal — still return result to user
+
         return jsonify(result)
         
     except Exception as e:

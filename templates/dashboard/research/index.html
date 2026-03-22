@@ -379,7 +379,7 @@
                                border-right:2px solid #ddd6fe;">
                         Component Scores
                     </th>
-                    <th colspan="4"></th>
+                    <th colspan="5"></th>
                 </tr>
                 <tr class="wl-cols">
                     <th style="min-width:150px;padding-left:16px;">Symbol</th>
@@ -406,6 +406,7 @@
                     <th style="text-align:center;">I-Score</th>
                     <th style="text-align:center;">Signal</th>
                     <th style="text-align:right;padding-right:16px;">Price</th>
+                    <th style="text-align:center;">Updated</th>
                     <th style="text-align:center;padding-right:16px;">Action</th>
                 </tr>
             </thead>
@@ -505,6 +506,20 @@
                             {% endif %}
                         {% else %}
                             <span style="color:#d1d5db;font-size:12px;">—</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Updated -->
+                    <td style="text-align:center;">
+                        {% if s.last_computed_at %}
+                            <div style="font-size:11px;color:#6b7280;white-space:nowrap;">
+                                {{ s.last_computed_at.strftime('%d %b') }}
+                            </div>
+                            <div style="font-size:10px;color:#9ca3af;">
+                                {{ s.last_computed_at.strftime('%H:%M') }}
+                            </div>
+                        {% else %}
+                            <span style="font-size:11px;color:#d1d5db;">—</span>
                         {% endif %}
                     </td>
 
