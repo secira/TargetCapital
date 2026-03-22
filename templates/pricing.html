@@ -47,7 +47,7 @@
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
                                     <span class="price-amount monthly-price">1499</span>
-                                    <span class="price-amount annual-price" style="display: none;">14390</span>
+                                    <span class="price-amount annual-price">14390</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -94,7 +94,7 @@
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
                                     <span class="price-amount monthly-price">2499</span>
-                                    <span class="price-amount annual-price" style="display: none;">23990</span>
+                                    <span class="price-amount annual-price">23990</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -137,7 +137,7 @@
                             <div class="pricing-display d-flex align-items-baseline justify-content-center">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
                                     <span class="price-amount monthly-price">4999</span>
-                                    <span class="price-amount annual-price" style="display: none;">47990</span>
+                                    <span class="price-amount annual-price">47990</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -298,47 +298,32 @@
     </div>
 </section>
 
+<style>
+    .popular-card { border: 2px solid #0d6efd !important; }
+    @media (min-width: 992px) { .popular-card { transform: scale(1.03); } }
+    .price-amount { min-width: 120px; display: inline-block; text-align: center; }
+    .annual-price { display: none; }
+</style>
+
 <script>
 // Billing toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
     const billingToggle = document.getElementById('billingToggle');
-    const monthlyPrices = document.querySelectorAll('.monthly-price');
-    const annualPrices = document.querySelectorAll('.annual-price');
     const billingPeriods = document.querySelectorAll('.billing-period');
-    
+
     billingToggle.addEventListener('change', function() {
-        if (this.checked) {
-            // Show annual prices and update text
-            monthlyPrices.forEach(el => el.style.display = 'none');
-            annualPrices.forEach(el => el.style.display = 'inline');
-            billingPeriods.forEach(el => el.textContent = '/year');
-        } else {
-            // Show monthly prices and update text
-            monthlyPrices.forEach(el => el.style.display = 'inline');
-            annualPrices.forEach(el => el.style.display = 'none');
-            billingPeriods.forEach(el => el.textContent = '/month');
-        }
+        const showAnnual = this.checked;
+        document.querySelectorAll('.monthly-price').forEach(el => {
+            el.style.display = showAnnual ? 'none' : 'inline-block';
+        });
+        document.querySelectorAll('.annual-price').forEach(el => {
+            el.style.display = showAnnual ? 'inline-block' : 'none';
+        });
+        billingPeriods.forEach(el => {
+            el.textContent = showAnnual ? '/year' : '/month';
+        });
     });
 });
-
-// Add responsive popular card styling
-const style = document.createElement('style');
-style.textContent = `
-    .popular-card {
-        border: 2px solid #0d6efd !important;
-    }
-    @media (min-width: 992px) {
-        .popular-card {
-            transform: scale(1.03);
-        }
-    }
-    .price-amount {
-        min-width: 120px;
-        display: inline-block;
-        text-align: center;
-    }
-`;
-document.head.appendChild(style);
 </script>
 
 {% endblock %}
