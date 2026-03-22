@@ -13,249 +13,6 @@
     box-shadow: 0 8px 24px rgba(0,0,0,.10) !important;
 }
 
-/* ── Watch List section ────────────────────────────── */
-.wl-section { margin-top: 40px; }
-
-.wl-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-}
-.wl-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #0d0d1a;
-    margin: 0;
-}
-.wl-badge {
-    background: #ede9fe;
-    color: #5b21b6;
-    padding: 3px 11px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-/* ── Toolbar ────────────────────────────────────────── */
-.wl-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-    justify-content: space-between;
-}
-.wl-toolbar-left  { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.wl-toolbar-right { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-
-.wl-search {
-    padding: 8px 14px 8px 36px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 13px;
-    width: 220px;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 11px center no-repeat;
-    transition: border-color .15s, box-shadow .15s;
-}
-.wl-search:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
-
-.wl-select {
-    padding: 8px 12px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 13px;
-    background: #fff;
-    color: #374151;
-    cursor: pointer;
-    transition: border-color .15s;
-}
-.wl-select:focus { outline: none; border-color: #7c3aed; }
-
-.wl-info { font-size: 12px; color: #9ca3af; white-space: nowrap; }
-
-/* ── Card shell ─────────────────────────────────────── */
-.wl-card {
-    background: #fff;
-    border-radius: 14px;
-    border: 1px solid #e9ecef;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,.05);
-    overflow-x: auto;
-}
-
-/* ── Table ───────────────────────────────────────────── */
-.wl-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 700px;
-}
-.wl-table thead th {
-    background: #1e293b;
-    color: #e2e8f0;
-    padding: 12px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .4px;
-    white-space: nowrap;
-    border: none;
-}
-.wl-table tbody tr {
-    border-bottom: 1px solid #f3f4f6;
-    transition: background .12s;
-}
-.wl-table tbody tr:hover { background: #faf8ff; }
-.wl-table tbody tr:last-child { border-bottom: none; }
-.wl-table td { padding: 12px 14px; vertical-align: middle; font-size: 13px; }
-
-/* ── Symbol ─────────────────────────────────────────── */
-.sym-link {
-    font-weight: 800;
-    font-size: 13.5px;
-    color: #3b82f6;
-    text-decoration: none;
-}
-.sym-link:hover { text-decoration: underline; color: #2563eb; }
-.sym-company { font-size: 11.5px; color: #64748b; margin-top: 1px; }
-.sym-sector  { font-size: 10.5px; color: #94a3b8; }
-
-/* ── Type badge ──────────────────────────────────────── */
-.type-badge {
-    display: inline-block;
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 700;
-    background: #dbeafe;
-    color: #1d4ed8;
-    text-transform: capitalize;
-    white-space: nowrap;
-}
-
-/* ── I-Score badge ───────────────────────────────────── */
-.iscore-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 800;
-    line-height: 1.2;
-}
-.iscore-high { background: #dcfce7; color: #15803d; }
-.iscore-mid  { background: #fef9c3; color: #854d0e; }
-.iscore-low  { background: #fee2e2; color: #991b1b; }
-.iscore-none { background: #f3f4f6; color: #9ca3af; font-size: 12px; }
-
-/* ── Recommendation badge ────────────────────────────── */
-.reco {
-    display: inline-block;
-    padding: 4px 9px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: .3px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-.reco-STRONG_BUY { background: #bbf7d0; color: #065f46; }
-.reco-BUY        { background: #dcfce7; color: #15803d; }
-.reco-HOLD       { background: #fef9c3; color: #854d0e; }
-.reco-SELL       { background: #fee2e2; color: #991b1b; }
-.reco-STRONG_SELL{ background: #fecaca; color: #7f1d1d; }
-.reco-none       { background: #f3f4f6; color: #9ca3af; }
-
-/* ── Price ───────────────────────────────────────────── */
-.price-val { font-weight: 700; color: #111; }
-.price-chg { font-size: 11px; font-weight: 600; }
-.up { color: #16a34a; } .dn { color: #dc2626; }
-
-/* ── Updated ─────────────────────────────────────────── */
-.upd-date { font-size: 11px; color: #64748b; }
-.upd-ago  { font-size: 10px; color: #94a3b8; }
-
-/* ── Analyze btn ─────────────────────────────────────── */
-.btn-analyze {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border-radius: 7px;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    color: #fff;
-    font-size: 11.5px;
-    font-weight: 700;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity .18s;
-}
-.btn-analyze:hover { opacity: .82; color: #fff; }
-
-/* ── Empty / no results ─────────────────────────────── */
-.wl-no-results {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    color: #9ca3af;
-    font-size: 13px;
-}
-
-/* ── Pagination ─────────────────────────────────────── */
-.wl-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-top: 1px solid #f0f0f5;
-    background: #faf9ff;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.wl-page-info { font-size: 12px; color: #6b7280; }
-
-.wl-pages { display: flex; align-items: center; gap: 4px; }
-.pg-btn {
-    min-width: 32px;
-    height: 32px;
-    padding: 0 8px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 7px;
-    background: #fff;
-    color: #374151;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-.pg-btn:hover:not(:disabled) { border-color: #7c3aed; color: #7c3aed; background: #f5f3ff; }
-.pg-btn.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
-.pg-btn:disabled { opacity: .38; cursor: default; }
-.pg-ellipsis { font-size: 12px; color: #9ca3af; padding: 0 4px; }
-
-.per-page-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6b7280; }
-.per-page-select {
-    padding: 4px 8px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 12px;
-    background: #fff;
-    color: #374151;
-    cursor: pointer;
-}
-.per-page-select:focus { outline: none; border-color: #7c3aed; }
-
-@media (max-width: 576px) {
-    .wl-search { width: 100%; }
-    .wl-toolbar { flex-direction: column; align-items: stretch; }
-    .wl-toolbar-left, .wl-toolbar-right { width: 100%; }
-}
-
 /* ── Full-width override (match admin container-fluid) ── */
 .dashboard-content {
     padding-left: 12px !important;
@@ -271,7 +28,7 @@
 {% block dashboard_content %}
 
 <!-- ── Asset Type Cards ──────────────────────────────── -->
-<div class="row g-4 mb-2">
+<div class="row g-4 mb-4">
     {% for key in allowed_assets %}
         {% if key in asset_types %}
             {% set asset = asset_types[key] %}
@@ -307,201 +64,210 @@
 
 <!-- ── Research Watch List ──────────────────────────── -->
 {% if research_list %}
-<div class="wl-section">
 
-    <!-- title -->
-    <div class="wl-header">
-        <h2 class="wl-title">
-            <i class="fas fa-chart-bar me-2" style="color:#7c3aed;font-size:16px;"></i>
-            Research Watch List
-        </h2>
-        <span class="wl-badge" id="wlTotalBadge">{{ research_list|length }} stocks</span>
-    </div>
-
-    <!-- toolbar -->
-    <div class="wl-toolbar">
-        <div class="wl-toolbar-left">
-            <input type="text" class="wl-search" id="wlSearch"
-                   placeholder="Search symbol or company…"
-                   oninput="wl.filter()" autocomplete="off">
-            <select class="wl-select" id="wlAsset" onchange="wl.filter()">
-                <option value="">All Types</option>
-                <option value="stocks">Stocks</option>
-                <option value="mutual_funds">Mutual Funds</option>
-                <option value="commodities">Commodities</option>
-                <option value="futures">Futures</option>
-                <option value="options">Options</option>
-                <option value="etf">ETF</option>
-                <option value="bonds">Bonds</option>
-                <option value="currency">Currency</option>
-            </select>
-            <select class="wl-select" id="wlReco" onchange="wl.filter()">
-                <option value="">All Signals</option>
-                <option value="STRONG_BUY">Strong Buy</option>
-                <option value="BUY">Buy</option>
-                <option value="HOLD">Hold</option>
-                <option value="SELL">Sell</option>
-                <option value="STRONG_SELL">Strong Sell</option>
-            </select>
-        </div>
-        <div class="wl-toolbar-right">
-            <span class="wl-info" id="wlInfo"></span>
-        </div>
-    </div>
-
-    <!-- table card -->
-    <div class="wl-card">
-        <table class="wl-table">
-            <thead>
-                <tr>
-                    <th style="padding-left:18px;">Symbol</th>
-                    <th>Type</th>
-                    <th>Sector</th>
-                    <th style="text-align:center;">I-Score</th>
-                    <th style="text-align:center;">Recommendation</th>
-                    <th style="text-align:center;">Confidence</th>
-                    <th style="text-align:right;">Price</th>
-                    <th style="text-align:center;">Updated</th>
-                    <th style="text-align:center;padding-right:18px;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="wlBody">
-                {% set _amap = {
-                    'stocks':       '/dashboard/research/stocks',
-                    'mutual_funds': '/dashboard/research/mutual-funds',
-                    'commodities':  '/dashboard/research/commodities',
-                    'futures':      '/dashboard/research/futures',
-                    'options':      '/dashboard/research/options',
-                    'bonds':        '/dashboard/research/bonds',
-                    'currency':     '/dashboard/research/currency',
-                    'etf':          '/dashboard/research/stocks'
-                } %}
-
-                {% for s in research_list %}
-                {% set overall = s.i_score | float if s.i_score is not none else none %}
-
-                <tr class="wl-row"
-                    data-symbol="{{ s.symbol }}"
-                    data-company="{{ (s.company_name or '') | lower }}"
-                    data-asset="{{ s.asset_type }}"
-                    data-reco="{{ s.recommendation or '' }}">
-
-                    <!-- Symbol + Company -->
-                    <td style="padding-left:18px;">
-                        {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
-                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}" class="sym-link">
-                            {{ s.symbol }}
-                        </a>
-                        {% if s.company_name %}
-                        <div class="sym-company">{{ s.company_name }}</div>
-                        {% endif %}
-                    </td>
-
-                    <!-- Type -->
-                    <td>
-                        <span class="type-badge">{{ s.asset_type | replace('_',' ') | title }}</span>
-                    </td>
-
-                    <!-- Sector -->
-                    <td>
-                        <span class="sym-sector">{{ s.sector or '—' }}</span>
-                    </td>
-
-                    <!-- I-Score -->
-                    <td style="text-align:center;">
-                        {% if overall is not none %}
-                            {% set ic = 'iscore-high' if overall >= 65 else ('iscore-mid' if overall >= 45 else 'iscore-low') %}
-                            <span class="iscore-badge {{ ic }}">{{ '%.1f'|format(overall) }}</span>
-                        {% else %}
-                            <span class="iscore-badge iscore-none">—</span>
-                        {% endif %}
-                    </td>
-
-                    <!-- Recommendation -->
-                    <td style="text-align:center;">
-                        <span class="reco reco-{{ s.recommendation or 'none' }}">
-                            {{ (s.recommendation or '—') | replace('_',' ') | title }}
-                        </span>
-                    </td>
-
-                    <!-- Confidence -->
-                    <td style="text-align:center;">
-                        {% if s.confidence is not none %}
-                            <span style="font-size:13px;font-weight:600;color:#374151;">
-                                {{ '%.0f'|format(s.confidence|float) }}%
-                            </span>
-                        {% else %}
-                            <span style="color:#d1d5db;">—</span>
-                        {% endif %}
-                    </td>
-
-                    <!-- Price -->
-                    <td style="text-align:right;">
-                        {% if s.current_price %}
-                            <div class="price-val">₹{{ '%.2f'|format(s.current_price|float) }}</div>
-                            {% if s.price_change_pct %}
-                                {% set pct = s.price_change_pct | float %}
-                                <div class="price-chg {{ 'up' if pct >= 0 else 'dn' }}">
-                                    {{ '%+.2f'|format(pct) }}%
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            <span style="color:#d1d5db;">—</span>
-                        {% endif %}
-                    </td>
-
-                    <!-- Updated -->
-                    <td style="text-align:center;">
-                        {% if s.last_computed_at %}
-                            <div class="upd-date">{{ s.last_computed_at.strftime('%d %b %Y') }}</div>
-                            <div class="upd-ago">{{ s.score_age_hours }}h ago</div>
-                        {% else %}
-                            <span class="upd-ago">Never</span>
-                        {% endif %}
-                    </td>
-
-                    <!-- Action -->
-                    <td style="text-align:center;padding-right:18px;">
-                        {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
-                        <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}" class="btn-analyze">
-                            <i class="fas fa-search"></i> Analyze
-                        </a>
-                    </td>
-
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- No-results row -->
-        <div class="wl-no-results" id="wlNoResults">
-            <i class="fas fa-search fa-lg mb-2 d-block" style="color:#d1d5db;"></i>
-            No stocks match your search or filter.
-        </div>
-
-        <!-- Pagination footer -->
-        <div class="wl-pagination" id="wlPagination">
-            <div class="per-page-wrap">
-                Show
-                <select class="per-page-select" id="wlPerPage" onchange="wl.setPerPage(+this.value)">
-                    <option value="10" selected>10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                </select>
-                per page
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body py-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-1">Search</label>
+                <input type="text" class="form-control form-control-sm" id="wlSearch"
+                       placeholder="Symbol or company…" oninput="wl.filter()" autocomplete="off">
             </div>
-            <div class="wl-pages" id="wlPageBtns"></div>
-            <div class="wl-page-info" id="wlPageInfo"></div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Asset Type</label>
+                <select class="form-select form-select-sm" id="wlAsset" onchange="wl.filter()">
+                    <option value="">All Types</option>
+                    <option value="stocks">Stocks</option>
+                    <option value="mutual_funds">Mutual Funds</option>
+                    <option value="commodities">Commodities</option>
+                    <option value="futures">Futures</option>
+                    <option value="options">Options</option>
+                    <option value="etf">ETF</option>
+                    <option value="bonds">Bonds</option>
+                    <option value="currency">Currency</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1">Recommendation</label>
+                <select class="form-select form-select-sm" id="wlReco" onchange="wl.filter()">
+                    <option value="">All Signals</option>
+                    <option value="STRONG_BUY">Strong Buy</option>
+                    <option value="BUY">Buy</option>
+                    <option value="HOLD">Hold</option>
+                    <option value="SELL">Sell</option>
+                    <option value="STRONG_SELL">Strong Sell</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary btn-sm w-100" onclick="wl.filter()">
+                    <i class="fas fa-filter me-1"></i>Filter
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="wl.clear()">Clear</button>
+            </div>
         </div>
     </div>
+</div>
 
+<!-- Table Card -->
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Research Watch List
+            (<span id="wlTotalBadge">{{ research_list|length }}</span> stocks)
+        </h5>
+        <div class="d-flex align-items-center gap-2">
+            <small class="opacity-75">Show</small>
+            <select class="form-select form-select-sm" id="wlPerPage"
+                    style="width:70px;" onchange="wl.setPerPage(+this.value)">
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+            <small class="opacity-75">per page</small>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Company</th>
+                        <th>Type</th>
+                        <th class="text-center">I-Score</th>
+                        <th>Recommendation</th>
+                        <th>Confidence</th>
+                        <th>Last Updated</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="wlBody">
+                    {% set _amap = {
+                        'stocks':       '/dashboard/research/stocks',
+                        'mutual_funds': '/dashboard/research/mutual-funds',
+                        'commodities':  '/dashboard/research/commodities',
+                        'futures':      '/dashboard/research/futures',
+                        'options':      '/dashboard/research/options',
+                        'bonds':        '/dashboard/research/bonds',
+                        'currency':     '/dashboard/research/currency',
+                        'etf':          '/dashboard/research/stocks'
+                    } %}
+
+                    {% for s in research_list %}
+                    {% set overall = s.i_score | float if s.i_score is not none else none %}
+                    {% set _base = _amap.get(s.asset_type, '/dashboard/research/stocks') %}
+
+                    <tr class="wl-row"
+                        data-symbol="{{ s.symbol }}"
+                        data-company="{{ (s.company_name or '') | lower }}"
+                        data-asset="{{ s.asset_type }}"
+                        data-reco="{{ s.recommendation or '' }}">
+
+                        <!-- Symbol -->
+                        <td>
+                            <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}"
+                               class="fw-bold text-primary text-decoration-none">
+                                {{ s.symbol }}
+                            </a>
+                        </td>
+
+                        <!-- Company + Sector -->
+                        <td>
+                            {{ s.company_name or '—' }}
+                            {% if s.sector %}
+                                <br><small class="text-muted">{{ s.sector }}</small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Type -->
+                        <td>
+                            <span class="badge bg-info">
+                                {{ s.asset_type | replace('_',' ') | title }}
+                            </span>
+                        </td>
+
+                        <!-- I-Score -->
+                        <td class="text-center">
+                            {% if overall is not none %}
+                                <span class="badge fs-6 bg-{{ 'success' if overall >= 65 else ('warning' if overall >= 45 else 'danger') }}">
+                                    {{ '%.1f'|format(overall) }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Recommendation -->
+                        <td>
+                            {% if s.recommendation %}
+                                <span class="badge bg-{{ s.recommendation_badge_class }}">
+                                    {{ s.recommendation | replace('_', ' ') }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Not analyzed</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Confidence -->
+                        <td>
+                            {% if s.confidence is not none %}
+                                {{ '%.0f'|format(s.confidence|float) }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <!-- Last Updated -->
+                        <td>
+                            {% if s.last_computed_at %}
+                                <small>
+                                    {{ s.last_computed_at.strftime('%d %b %Y') }}<br>
+                                    <span class="{{ 'text-danger' if s.is_stale else 'text-success' }}">
+                                        {{ s.score_age_hours }}h ago
+                                    </span>
+                                </small>
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Action -->
+                        <td class="text-center">
+                            <a href="{{ _base }}?symbol={{ s.symbol | urlencode }}"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-search me-1"></i>Analyze
+                            </a>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No results -->
+        <div id="wlNoResults" class="text-center py-5" style="display:none;">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No stocks match your filter</h5>
+            <p class="text-muted small">Try adjusting your search or clearing filters.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div id="wlPagination" class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+            <small class="text-muted" id="wlPageInfo"></small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="wlPageBtns"></ul>
+            </nav>
+        </div>
+    </div>
 </div>
 
 {% else %}
-<div class="mt-5 text-center py-5" style="color:#9ca3af;font-size:14px;">
-    <i class="fas fa-chart-bar fa-3x mb-3 d-block" style="color:#e5e7eb;"></i>
-    No stocks in the watch list yet.<br>
-    <small>Run an I-Score analysis to add stocks here.</small>
+<div class="text-center py-5">
+    <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">No stocks in your Watch List yet</h4>
+    <p class="text-muted">Run an I-Score analysis on any stock to add it here automatically.</p>
 </div>
 {% endif %}
 
@@ -515,12 +281,13 @@
     const pageInfo = document.getElementById('wlPageInfo');
     const pageBtns = document.getElementById('wlPageBtns');
     const badge    = document.getElementById('wlTotalBadge');
+    const paginationBar = document.getElementById('wlPagination');
 
     let filtered = rows.slice();
     let perPage  = 10;
     let page     = 1;
 
-    const wl = {
+    window.wl = {
         filter() {
             const q  = (document.getElementById('wlSearch').value  || '').toLowerCase();
             const at = (document.getElementById('wlAsset').value   || '').toLowerCase();
@@ -538,8 +305,15 @@
             });
 
             page = 1;
-            badge.textContent = filtered.length + ' stocks';
+            badge.textContent = filtered.length;
             this.render();
+        },
+
+        clear() {
+            document.getElementById('wlSearch').value = '';
+            document.getElementById('wlAsset').value  = '';
+            document.getElementById('wlReco').value   = '';
+            this.filter();
         },
 
         setPerPage(n) { perPage = n; page = 1; this.render(); },
@@ -551,56 +325,60 @@
                 noRes.style.display = 'block';
                 pageInfo.textContent = '';
                 pageBtns.innerHTML  = '';
-                document.getElementById('wlPagination').style.display = 'none';
+                if (paginationBar) paginationBar.style.display = 'none';
                 return;
             }
 
             noRes.style.display = 'none';
-            document.getElementById('wlPagination').style.display = 'flex';
+            if (paginationBar) paginationBar.style.display = 'flex';
 
             const totalPages = Math.ceil(filtered.length / perPage);
             if (page > totalPages) page = totalPages;
 
             const start = (page - 1) * perPage;
-            filtered.slice(start, start + perPage).forEach(r => r.style.display = '');
+            const end   = Math.min(start + perPage, filtered.length);
+            filtered.slice(start, end).forEach(r => r.style.display = '');
 
-            const end = Math.min(start + perPage, filtered.length);
-            pageInfo.textContent = `${start + 1}–${end} of ${filtered.length}`;
+            pageInfo.textContent = `Showing ${start + 1}–${end} of ${filtered.length} stocks`;
 
-            /* Smart page buttons: prev, 1 … cur-1 cur cur+1 … last, next */
-            const btns = [];
-            const mk = (label, pg, disabled, active) => {
-                const b = document.createElement('button');
-                b.className = 'pg-btn' + (active ? ' active' : '');
-                b.textContent = label;
-                b.disabled = disabled;
-                if (!disabled && !active) b.onclick = () => { page = pg; wl.render(); };
-                return b;
+            /* Bootstrap pagination */
+            const items = [];
+            const mkLi = (label, pg, disabled, active) => {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+                const a = document.createElement(disabled || active ? 'span' : 'a');
+                a.className = 'page-link';
+                a.innerHTML = label;
+                if (!disabled && !active) {
+                    a.href = '#';
+                    a.onclick = e => { e.preventDefault(); page = pg; wl.render(); };
+                }
+                li.appendChild(a);
+                return li;
             };
 
-            btns.push(mk('‹', page - 1, page === 1, false));
+            pageBtns.innerHTML = '';
+            pageBtns.appendChild(mkLi('&laquo;', page - 1, page === 1, false));
 
-            const range = new Set([1, totalPages, page - 1, page, page + 1].filter(p => p >= 1 && p <= totalPages));
+            const range = new Set([1, totalPages, page - 1, page, page + 1]
+                .filter(p => p >= 1 && p <= totalPages));
             let prev = 0;
             Array.from(range).sort((a, b) => a - b).forEach(p => {
                 if (prev && p - prev > 1) {
-                    const e = document.createElement('span');
-                    e.className = 'pg-ellipsis';
-                    e.textContent = '…';
-                    btns.push(e);
+                    const li = document.createElement('li');
+                    li.className = 'page-item disabled';
+                    li.innerHTML = '<span class="page-link">…</span>';
+                    pageBtns.appendChild(li);
                 }
-                btns.push(mk(p, p, false, p === page));
+                pageBtns.appendChild(mkLi(p, p, false, p === page));
                 prev = p;
             });
 
-            btns.push(mk('›', page + 1, page === totalPages, false));
-
-            pageBtns.innerHTML = '';
-            btns.forEach(b => pageBtns.appendChild(b));
+            pageBtns.appendChild(mkLi('&raquo;', page + 1, page === totalPages, false));
         }
     };
 
-    window.wl = wl;
+    /* Initial render */
     wl.render();
 })();
 </script>
