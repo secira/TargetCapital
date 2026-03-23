@@ -8,7 +8,6 @@
 <style>
     .popular-card { border: 2px solid #0d6efd !important; }
     @media (min-width: 992px) { .popular-card { transform: scale(1.03); } }
-    .annual-price { display: none !important; }
 </style>
 {% endblock %}
 
@@ -52,10 +51,10 @@
                             <h4 class="fw-bold text-dark mb-2">Target Plus</h4>
                             <p class="text-muted mb-4">For portfolio analysis</p>
                             
-                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center"
+                                 data-monthly="1499" data-annual="14390">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price">1499</span>
-                                    <span class="price-amount annual-price" style="display:none;">14390</span>
+                                    <span class="current-price">1499</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -99,10 +98,10 @@
                             <h4 class="fw-bold text-dark mb-2">Target Pro</h4>
                             <p class="text-muted mb-4">For active traders</p>
                             
-                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center"
+                                 data-monthly="2499" data-annual="23990">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price">2499</span>
-                                    <span class="price-amount annual-price" style="display:none;">23990</span>
+                                    <span class="current-price">2499</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -142,10 +141,10 @@
                             <h4 class="fw-bold text-dark mb-2">HNI Account</h4>
                             <p class="text-muted mb-4">For busy HNI investors</p>
                             
-                            <div class="pricing-display d-flex align-items-baseline justify-content-center">
+                            <div class="pricing-display d-flex align-items-baseline justify-content-center"
+                                 data-monthly="4999" data-annual="47990">
                                 <h2 class="display-4 fw-bold text-primary mb-0 me-2">
-                                    <span class="price-amount monthly-price">4999</span>
-                                    <span class="price-amount annual-price" style="display:none;">47990</span>
+                                    <span class="current-price">4999</span>
                                 </h2>
                                 <small class="text-muted billing-period">/month</small>
                             </div>
@@ -307,21 +306,15 @@
 </section>
 
 <script>
-// Billing toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
     const billingToggle = document.getElementById('billingToggle');
-    const billingPeriods = document.querySelectorAll('.billing-period');
 
     billingToggle.addEventListener('change', function() {
         const showAnnual = this.checked;
-        document.querySelectorAll('.monthly-price').forEach(el => {
-            el.style.display = showAnnual ? 'none' : 'inline-block';
-        });
-        document.querySelectorAll('.annual-price').forEach(el => {
-            el.style.display = showAnnual ? 'inline-block' : 'none';
-        });
-        billingPeriods.forEach(el => {
-            el.textContent = showAnnual ? '/year' : '/month';
+        document.querySelectorAll('.pricing-display').forEach(function(el) {
+            var price = showAnnual ? el.getAttribute('data-annual') : el.getAttribute('data-monthly');
+            el.querySelector('.current-price').textContent = parseInt(price, 10);
+            el.querySelector('.billing-period').textContent = showAnnual ? '/year' : '/month';
         });
     });
 });
