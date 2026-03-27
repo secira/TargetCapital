@@ -55,18 +55,27 @@ def admin_required(f):
     return decorated_function
 
 def ensure_admin_status(user):
-    """Auto-promote user to admin if their email is listed in ADMIN_EMAILS env var.
-    This ensures admin access works correctly across all environments (dev, Railway, etc.)
-    without manual database changes.
+    """Auto-promote user to admin if their email is in ADMIN_EMAILS env var,
+    and ensure all admin users always have HNI (full access) plan.
+    Runs on login and on every request via the context processor so it
+    self-heals across all environments (dev, Railway, etc.) without manual DB edits.
     Set ADMIN_EMAILS=email1@example.com,email2@example.com in environment variables.
     """
     import os
+    changed = False
     admin_emails_raw = os.environ.get('ADMIN_EMAILS', '')
     admin_emails = [e.strip().lower() for e in admin_emails_raw.split(',') if e.strip()]
     if user.email.lower() in admin_emails and not user.is_admin:
         user.is_admin = True
-        db.session.commit()
+        changed = True
         logging.info(f"Auto-promoted {user.email} to admin via ADMIN_EMAILS env var")
+    # Ensure any admin user always has full HNI access in the database
+    if user.is_admin and user.pricing_plan != PricingPlan.HNI:
+        user.pricing_plan = PricingPlan.HNI
+        changed = True
+        logging.info(f"Auto-upgraded admin {user.email} to HNI plan")
+    if changed:
+        db.session.commit()
 
 @app.route('/api/test-notifications', methods=['POST'])
 @login_required
@@ -90,7 +99,14 @@ def inject_pricing_plans():
         'PricingPlan': PricingPlan,
         'SubscriptionStatus': SubscriptionStatus
     }
-    
+
+    # Auto-upgrade admin plan on every request so production DB self-heals
+    if current_user.is_authenticated and current_user.is_admin:
+        try:
+            ensure_admin_status(current_user)
+        except Exception:
+            pass
+
     # Add broker accounts for authenticated users (for sidebar display)
     if current_user.is_authenticated:
         try:
@@ -122,17 +138,19 @@ def admin_required(f):
     return decorated_function
 
 def plan_required(*allowed_plans):
-    """Decorator to require specific pricing plan access"""
+    """Decorator to require specific pricing plan access.
+    Admin users always bypass plan checks regardless of their stored plan."""
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return redirect(url_for('login'))
-            
+            # Admins always have full access
+            if current_user.is_admin:
+                return f(*args, **kwargs)
             if current_user.pricing_plan not in allowed_plans:
                 flash('This feature requires a higher subscription plan. Please upgrade your account.', 'warning')
                 return redirect(url_for('account_billing'))
-                
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -1421,9 +1439,9 @@ def get_market_overview():
 @login_required
 def dashboard_trading_signals():
     """Trading signals page for paid users only"""
-    # Check if user has paid subscription
+    # Check if user has paid subscription (admins always have full access)
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+    if not current_user.is_admin and current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
         flash('Trading signals are available for Target Plus, Target Pro, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
@@ -1605,9 +1623,9 @@ def dashboard_trade_now():
 @login_required  
 def trade_assist():
     """Trade Assist page - helps users execute trades based on signals"""
-    # Check subscription access
+    # Check subscription access (admins always have full access)
     from models import PricingPlan
-    if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+    if not current_user.is_admin and current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
         flash('Trade Assist is available for Trader, Trader Plus, and HNI subscribers only.', 'warning')
         return redirect(url_for('pricing'))
     
@@ -3554,7 +3572,7 @@ def api_deploy_trade(recommendation_id):
                 'error': 'Target Plus plan allows portfolio analysis only. Upgrade to Target Pro for trade execution.'
             }), 403
         
-        if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        if not current_user.is_admin and current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': False, 
                 'error': 'Trade execution requires Target Pro subscription or higher.'
@@ -4614,8 +4632,8 @@ def api_trade_execute_signal():
         from models_broker import BrokerAccount, BrokerOrder
         from models import PricingPlan
         
-        # Check subscription access
-        if current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        # Check subscription access (admins always have full access)
+        if not current_user.is_admin and current_user.pricing_plan not in [PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': False, 
                 'error': 'Trade execution requires TARGET PRO or HNI subscription'
@@ -5072,8 +5090,8 @@ def api_trading_signals():
         from sqlalchemy import desc
         from services.nse_service import NSEService
         
-        # Check if user has paid subscription
-        if current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
+        # Check if user has paid subscription (admins always have full access)
+        if not current_user.is_admin and current_user.pricing_plan not in [PricingPlan.TARGET_PLUS, PricingPlan.TARGET_PRO, PricingPlan.HNI]:
             return jsonify({
                 'success': True,
                 'signals': [],

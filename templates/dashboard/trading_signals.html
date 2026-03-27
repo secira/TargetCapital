@@ -557,7 +557,7 @@ h5, h6 {
                             </td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    {% if current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
+                                    {% if current_user.is_admin or current_user.pricing_plan in [PricingPlan.TARGET_PRO, PricingPlan.HNI] %}
                                     <button class="btn btn-success btn-sm" 
                                             onclick="tradeSignal('{{ signal.symbol }}', '{{ signal.action }}', {{ signal.entry_price }}, {{ signal.quantity or 100 }}, '{{ signal.signal_type }}', {{ signal.id }}, '{{ signal.strategy_name or 'Trend Following' }}')"
                                             title="Execute Trade">

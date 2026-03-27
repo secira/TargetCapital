@@ -21,7 +21,7 @@
                 </div>
                 <div class="card-body p-4">
                     {% set plan_value = current_user.pricing_plan.value if current_user.pricing_plan.value is defined else current_user.pricing_plan %}
-                    {% if plan_value == 'free' %}
+                    {% if plan_value == 'free' and not current_user.is_admin %}
                     <div class="text-center py-4">
                         <i class="fas fa-lock fa-2x text-muted mb-3"></i>
                         <h6 class="fw-semibold">Upgrade for I-Score Analysis</h6>
@@ -231,7 +231,7 @@
                 </div>
                 <div class="card-body p-0">
                     {% set plan_value = current_user.pricing_plan.value if current_user.pricing_plan.value is defined else current_user.pricing_plan %}
-                    {% if plan_value == 'free' %}
+                    {% if plan_value == 'free' and not current_user.is_admin %}
                     <div class="text-center py-5">
                         <i class="fas fa-lock fa-3x text-muted mb-3"></i>
                         <h5 class="fw-semibold">Upgrade to Access Trading Signals</h5>
