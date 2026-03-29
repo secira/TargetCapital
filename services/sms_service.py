@@ -65,21 +65,24 @@ class SMSService:
         except Exception as e:
             error_str = str(e)
             print(f"❌ Failed to send OTP: {error_str}")
-            
-            # In development, still return True and log the OTP
-            if not self.client:
-                print(f"📱 DEV MODE - OTP for {mobile_number}: {otp}")
+
+            # In non-production, fall back to dev mode: OTP stored in DB, shown on screen
+            environment = os.environ.get("ENVIRONMENT", "development")
+            if environment != "production":
+                print(f"📱 DEV FALLBACK - OTP for {mobile_number}: {otp}")
                 return True, None
-            
-            # Check for common Twilio errors
-            if "21266" in error_str or "cannot be the same" in error_str.lower():
+
+            # Production: surface a specific error message
+            if "21659" in error_str or "country mismatch" in error_str.lower() or "not a Twilio phone number" in error_str:
+                return False, "SMS sender configuration error. Please contact support."
+            elif "21266" in error_str or "cannot be the same" in error_str.lower():
                 return False, "Cannot send OTP to the Twilio sender number. Please use a different mobile number."
             elif "21211" in error_str:
                 return False, "Invalid mobile number format. Please enter a valid phone number."
             elif "21608" in error_str:
-                return False, "This phone number is not verified for Twilio trial account. Please verify it or upgrade your account."
+                return False, "This phone number is not verified. Please contact support."
             else:
-                return False, "Failed to send OTP. Please check your mobile number and try again."
+                return False, "Failed to send OTP. Please try again later."
     
     def format_mobile_number(self, mobile_number: str) -> str:
         """Format mobile number to standard format"""

@@ -26,11 +26,15 @@ def mobile_register():
         
         # Send OTP
         success, message = otp_service.send_otp_to_mobile(mobile_number, "registration")
-        
+
         if success:
             session['mobile_number'] = sms_service.format_mobile_number(mobile_number)
             session['otp_purpose'] = 'registration'
-            flash('OTP sent to your mobile number. Please verify to continue.', 'info')
+            if message and message.startswith('DEV_OTP:'):
+                dev_otp = message.split(':', 1)[1]
+                flash(f'SMS not available in dev mode — your OTP is: {dev_otp}', 'warning')
+            else:
+                flash('OTP sent to your mobile number. Please verify to continue.', 'info')
             return redirect(url_for('verify_mobile_otp'))
         else:
             flash(message, 'error')
@@ -68,8 +72,12 @@ def mobile_login():
                 session['otp_purpose'] = 'login'
             else:
                 session['otp_purpose'] = 'registration'
-            
-            flash('OTP sent to your mobile number. Please verify to continue.', 'info')
+
+            if message and message.startswith('DEV_OTP:'):
+                dev_otp = message.split(':', 1)[1]
+                flash(f'SMS not available in dev mode — your OTP is: {dev_otp}', 'warning')
+            else:
+                flash('OTP sent to your mobile number. Please verify to continue.', 'info')
             return redirect(url_for('verify_mobile_otp'))
         else:
             flash(message, 'error')
@@ -130,8 +138,14 @@ def resend_otp():
     
     # Send OTP
     success, message = otp_service.send_otp_to_mobile(mobile_number, otp_purpose)
-    
-    return jsonify({'success': success, 'message': message})
+
+    if success and message and message.startswith('DEV_OTP:'):
+        dev_otp = message.split(':', 1)[1]
+        display_message = f'SMS not available in dev mode — your OTP is: {dev_otp}'
+    else:
+        display_message = message
+
+    return jsonify({'success': success, 'message': display_message})
 
 @app.route('/complete-profile', methods=['GET', 'POST'])
 @login_required

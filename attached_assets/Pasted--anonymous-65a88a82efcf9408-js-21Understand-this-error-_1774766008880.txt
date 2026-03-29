@@ -1,0 +1,151 @@
+
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutomatedTesting' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutoCheckpointing' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autoApprovePlan' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'webSearchEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'imageGenerationEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'chatMode' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autonomyLevel' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'maxAutonomyEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'thinkingEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutomatedTesting' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutoCheckpointing' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autoApprovePlan' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'webSearchEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'imageGenerationEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'chatMode' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autonomyLevel' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'maxAutonomyEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'thinkingEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutomatedTesting' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'enableAutoCheckpointing' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autoApprovePlan' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'webSearchEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'imageGenerationEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'chatMode' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'autonomyLevel' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+65a88a82efcf9408.js:21 Missing field 'maxAutonomyEnabled' while writing result {
+  "__typename": "AgentSettings",
+  "modelProfile": "MODEL_PROFILE_ADVANCED"
+}
+(anonymous) @ 65a88a82efcf9408.js:21Understand this error
+t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://5173-iuu03ksrj0hojjyz0spfy.e2b.app/&size=32:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://5173-iuu03ksrj0hojjyz0spfy.e2b.app&size=32:1  Failed to load resource: the server responded with a status of 404 ()Understand this error
+65a88a82efcf9408.js:21 Haven't heard from the server in a while, resetting connection...
+(anonymous) @ 65a88a82efcf9408.js:21Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=default-start-application:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+stallwart.build.js:1 stallwart: failed ping 1

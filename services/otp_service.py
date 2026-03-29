@@ -1,4 +1,5 @@
 # OTP Service for mobile verification
+import os
 from datetime import datetime, timedelta
 import random
 import string
@@ -54,13 +55,16 @@ class OTPService:
         
         # Send OTP via SMS
         success, error_msg = sms_service.send_otp(formatted_mobile, otp)
-        
+
         if success:
             db.session.commit()
+            # In non-production, surface the OTP so users can complete the flow
+            # without a working SMS sender (Twilio dev limitation)
+            if os.environ.get("ENVIRONMENT", "development") != "production":
+                return True, f"DEV_OTP:{otp}"
             return True, "OTP sent successfully"
         else:
             db.session.rollback()
-            # Return specific error message from SMS service
             return False, error_msg or "Failed to send OTP. Please try again."
     
     @staticmethod
