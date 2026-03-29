@@ -75,21 +75,19 @@
 </section>
 
 <script>
-// Mobile number validation
 document.getElementById('mobile_number').addEventListener('input', function() {
-    let value = this.value.replace(/\D/g, ''); // Remove non-digits
-    this.value = value;
-    
-    // Validate Indian mobile number
-    if (value.length === 10) {
-        if (!['6', '7', '8', '9'].includes(value[0])) {
-            this.setCustomValidity('Indian mobile numbers should start with 6, 7, 8, or 9');
-        } else {
-            this.setCustomValidity('');
-        }
-    } else {
-        this.setCustomValidity('Mobile number should be 10 digits');
+    let value = this.value.replace(/\D/g, '');
+    // Handle autofill with country code: strip leading 91 if 12 digits
+    if (value.length === 12 && value.startsWith('91')) {
+        value = value.slice(2);
     }
+    // Limit to 10 digits
+    if (value.length > 10) {
+        value = value.slice(0, 10);
+    }
+    this.value = value;
+    // Clear any custom validity so browser pattern handles validation at submit
+    this.setCustomValidity('');
 });
 </script>
 {% endblock %}
