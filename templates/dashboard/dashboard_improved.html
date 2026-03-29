@@ -94,6 +94,67 @@
     }
     .tp-positive { color: #16a34a; }
     .tp-negative { color: #dc2626; }
+
+    /* Account Manager Card */
+    .am-card { border-top: 3px solid #f59e0b; }
+    .am-layout {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        flex-wrap: wrap;
+    }
+    .am-profile {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+    }
+    .am-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #fef3c7;
+        flex-shrink: 0;
+    }
+    .am-identity { display: flex; flex-direction: column; gap: 3px; }
+    .am-name { font-size: 16px; font-weight: 700; color: #1e293b; }
+    .am-title { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .am-exp { font-size: 12px; color: #92400e; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+    .am-divider {
+        width: 1px;
+        height: 80px;
+        background: #e2e8f0;
+        flex-shrink: 0;
+    }
+    .am-right { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 16px; }
+    .am-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+    .am-stat { display: flex; flex-direction: column; gap: 2px; }
+    .am-stat-value { font-size: 20px; font-weight: 700; color: #1e293b; line-height: 1; }
+    .am-stat-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+    .am-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .am-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    .am-btn-primary { background: #00091a; color: #fff; }
+    .am-btn-primary:hover { background: #001a3d; color: #fff; }
+    .am-btn-outline { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; }
+    .am-btn-outline:hover { background: #f8fafc; color: #1e293b; }
+    .am-btn-whatsapp { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .am-btn-whatsapp:hover { background: #bbf7d0; color: #15803d; }
+    @media (max-width: 640px) {
+        .am-divider { display: none; }
+        .am-layout { gap: 20px; }
+    }
 </style>
 
 <!-- Portfolio Overview Cards -->
@@ -315,79 +376,71 @@
 
 {% if current_user.is_authenticated and current_user.can_access_menu('dashboard_account_handling') and account_manager %}
 <!-- HNI Account Manager Section -->
-<div class="dashboard-grid cols-1" style="margin-top: 24px;">
-    <div class="dashboard-card account-manager-card">
+<div style="margin-top: 24px;">
+    <div class="dashboard-card am-card">
         <div class="card-header">
-            <h3><i class="fas fa-crown me-2"></i>Your Dedicated Account Manager</h3>
-            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.location.href='tel:{{ account_manager.phone|replace(' ', '') }}'">
-                <i class="fas fa-phone me-1"></i>Contact Manager
-            </button>
+            <h3><i class="fas fa-crown text-warning me-2"></i>Your Dedicated Account Manager</h3>
+            {% if account_manager.working_hours %}
+            <span class="badge text-bg-light border" style="font-size:11px; font-weight:500;">
+                <i class="fas fa-clock me-1 text-muted"></i>{{ account_manager.working_hours }}
+            </span>
+            {% endif %}
         </div>
         <div class="card-body">
-            <div class="account-manager-content">
-                <div class="manager-profile">
-                    <img src="{{ account_manager.avatar_svg }}" 
-                         alt="Account Manager" class="manager-avatar">
-                    <div class="manager-info">
-                        <h4 class="manager-name">{{ account_manager.name }}</h4>
-                        <p class="manager-title">{{ account_manager.title }}</p>
+            <div class="am-layout">
+
+                {# ── Left: Avatar + Identity ── #}
+                <div class="am-profile">
+                    <img src="{{ account_manager.avatar_svg }}" alt="Account Manager" class="am-avatar">
+                    <div class="am-identity">
+                        <div class="am-name">{{ account_manager.name }}</div>
+                        <div class="am-title">{{ account_manager.title }}</div>
                         {% if account_manager.display_experience %}
-                        <div class="manager-experience">
-                            <i class="fas fa-award text-warning me-1"></i>
-                            <span>{{ account_manager.display_experience }}</span>
+                        <div class="am-exp">
+                            <i class="fas fa-award text-warning"></i>
+                            {{ account_manager.display_experience }}
                         </div>
                         {% endif %}
                     </div>
                 </div>
-                
-                <div class="manager-stats">
-                    {% if account_manager.display_success_rate %}
-                    <div class="stat-item">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
+
+                {# ── Divider ── #}
+                <div class="am-divider"></div>
+
+                {# ── Right: Stats + Actions ── #}
+                <div class="am-right">
+                    {# Stats row #}
+                    <div class="am-stats">
+                        {% if account_manager.display_success_rate %}
+                        <div class="am-stat">
+                            <div class="am-stat-value">{{ account_manager.display_success_rate }}</div>
+                            <div class="am-stat-label">Success Rate</div>
                         </div>
-                        <div class="stat-details">
-                            <div class="stat-label">Success Rate</div>
-                            <div class="stat-value">{{ account_manager.display_success_rate }}</div>
+                        {% endif %}
+                        {% if account_manager.display_average_return %}
+                        <div class="am-stat">
+                            <div class="am-stat-value text-success">{{ account_manager.display_average_return }}</div>
+                            <div class="am-stat-label">Avg. Return</div>
                         </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                    
-                    {% if account_manager.display_average_return %}
-                    <div class="stat-item">
-                        <div class="stat-icon">
-                            <i class="fas fa-percentage"></i>
-                        </div>
-                        <div class="stat-details">
-                            <div class="stat-label">Average Return</div>
-                            <div class="stat-value text-success">{{ account_manager.display_average_return }}</div>
-                        </div>
+
+                    {# Action buttons #}
+                    <div class="am-actions">
+                        <a href="tel:{{ account_manager.phone|replace(' ', '') }}" class="am-btn am-btn-primary">
+                            <i class="fas fa-phone"></i> {{ account_manager.phone }}
+                        </a>
+                        <a href="mailto:{{ account_manager.email }}" class="am-btn am-btn-outline">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                        {% if account_manager.whatsapp %}
+                        <a href="https://wa.me/{{ account_manager.whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" class="am-btn am-btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
-                
-                <div class="manager-contact">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <a href="mailto:{{ account_manager.email }}">{{ account_manager.email }}</a>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:{{ account_manager.phone|replace(' ', '') }}">{{ account_manager.phone }}</a>
-                    </div>
-                    {% if account_manager.whatsapp %}
-                    <div class="contact-item">
-                        <i class="fab fa-whatsapp"></i>
-                        <a href="https://wa.me/{{ account_manager.whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank">WhatsApp Chat</a>
-                    </div>
-                    {% endif %}
-                    {% if account_manager.working_hours %}
-                    <div class="contact-item">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ account_manager.working_hours }}</span>
-                    </div>
-                    {% endif %}
-                </div>
+
             </div>
         </div>
     </div>
