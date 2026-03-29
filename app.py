@@ -152,7 +152,10 @@ if is_production:
         ],
         'connect-src': [
             "'self'",
-            'wss:',  # Only secure WebSocket in production
+            'wss:',
+            'https://cdn.jsdelivr.net',
+            'https://cdnjs.cloudflare.com',
+            'https://ka-f.fontawesome.com',
         ],
         'frame-ancestors': [
             "'self'",

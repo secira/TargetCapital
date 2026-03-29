@@ -196,7 +196,7 @@ class SecureEnvironmentConfig:
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
                 "font-src 'self' https://fonts.gstatic.com; "
                 "img-src 'self' data: https:; "
-                "connect-src 'self' ws: wss:; "
+                "connect-src 'self' wss: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://ka-f.fontawesome.com; "
                 "frame-ancestors 'none';"
             )
         else:
