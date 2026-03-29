@@ -32,7 +32,7 @@ def mobile_register():
             session['otp_purpose'] = 'registration'
             if message and message.startswith('DEV_OTP:'):
                 dev_otp = message.split(':', 1)[1]
-                flash(f'SMS not available in dev mode — your OTP is: {dev_otp}', 'warning')
+                flash(f'OTP: {dev_otp} (SMS delivery unavailable — use this code to continue)', 'warning')
             else:
                 flash('OTP sent to your mobile number. Please verify to continue.', 'info')
             return redirect(url_for('verify_mobile_otp'))
@@ -75,7 +75,7 @@ def mobile_login():
 
             if message and message.startswith('DEV_OTP:'):
                 dev_otp = message.split(':', 1)[1]
-                flash(f'SMS not available in dev mode — your OTP is: {dev_otp}', 'warning')
+                flash(f'OTP: {dev_otp} (SMS delivery unavailable — use this code to continue)', 'warning')
             else:
                 flash('OTP sent to your mobile number. Please verify to continue.', 'info')
             return redirect(url_for('verify_mobile_otp'))
@@ -141,7 +141,7 @@ def resend_otp():
 
     if success and message and message.startswith('DEV_OTP:'):
         dev_otp = message.split(':', 1)[1]
-        display_message = f'SMS not available in dev mode — your OTP is: {dev_otp}'
+        display_message = f'OTP: {dev_otp} (SMS delivery unavailable — use this code to continue)'
     else:
         display_message = message
 

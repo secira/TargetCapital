@@ -58,9 +58,9 @@ class OTPService:
 
         if success:
             db.session.commit()
-            # In non-production, surface the OTP so users can complete the flow
-            # without a working SMS sender (Twilio dev limitation)
-            if os.environ.get("ENVIRONMENT", "development") != "production":
+            # SMS_UNAVAILABLE means SMS couldn't be sent (sender misconfigured, dev mode, etc.)
+            # Surface the OTP on-screen so users can still complete the flow
+            if error_msg == "SMS_UNAVAILABLE" or os.environ.get("ENVIRONMENT", "development") != "production":
                 return True, f"DEV_OTP:{otp}"
             return True, "OTP sent successfully"
         else:

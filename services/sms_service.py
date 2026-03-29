@@ -66,18 +66,24 @@ class SMSService:
             error_str = str(e)
             print(f"❌ Failed to send OTP: {error_str}")
 
-            # In non-production, fall back to dev mode: OTP stored in DB, shown on screen
+            # Sender misconfigured (21659 = not a Twilio number / country mismatch)
+            # Fall back in ALL environments — OTP is saved to DB and surfaced on screen
+            if "21659" in error_str or "country mismatch" in error_str.lower() or "not a Twilio phone number" in error_str:
+                print(f"📱 SENDER FALLBACK (21659) - OTP for {mobile_number}: {otp}")
+                return True, "SMS_UNAVAILABLE"
+
+            # Same-number error — can't send to your own Twilio sender
+            if "21266" in error_str or "cannot be the same" in error_str.lower():
+                return False, "Cannot send OTP to the Twilio sender number. Please use a different mobile number."
+
+            # In non-production, fall back to dev mode for any other error
             environment = os.environ.get("ENVIRONMENT", "development")
             if environment != "production":
                 print(f"📱 DEV FALLBACK - OTP for {mobile_number}: {otp}")
-                return True, None
+                return True, "SMS_UNAVAILABLE"
 
-            # Production: surface a specific error message
-            if "21659" in error_str or "country mismatch" in error_str.lower() or "not a Twilio phone number" in error_str:
-                return False, "SMS sender configuration error. Please contact support."
-            elif "21266" in error_str or "cannot be the same" in error_str.lower():
-                return False, "Cannot send OTP to the Twilio sender number. Please use a different mobile number."
-            elif "21211" in error_str:
+            # Production: surface specific error messages
+            if "21211" in error_str:
                 return False, "Invalid mobile number format. Please enter a valid phone number."
             elif "21608" in error_str:
                 return False, "This phone number is not verified. Please contact support."
