@@ -151,10 +151,10 @@
                             <i class="fas fa-circle me-2" style="color: {{ asset.color }};"></i>
                             <span class="asset-name">{{ asset.name }}</span>
                         </div>
-                        <span class="allocation-percentage">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100) }}%</span>
+                        <span class="allocation-percentage">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100 if portfolio_summary.total_current_value else 0) }}%</span>
                     </div>
                     <div class="progress" style="height: 8px; margin-top: 8px;">
-                        <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 }}%; background-color: {{ asset.color }};"></div>
+                        <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 if portfolio_summary.total_current_value else 0 }}%; background-color: {{ asset.color }};"></div>
                     </div>
                     <small class="text-muted">₹{{ "{:,.0f}".format(asset.current_value) }} | {{ asset.count }} holdings | <span class="{% if asset.pnl >= 0 %}text-success{% else %}text-danger{% endif %}">{{ "%.1f"|format(asset.pnl_percentage) }}%</span></small>
                 </div>

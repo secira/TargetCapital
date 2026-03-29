@@ -2162,10 +2162,11 @@ def dashboard_equities():
                 gst=float(request.form.get('gst') or 0),
                 stamp_duty=float(request.form.get('stamp_duty') or 0),
                 portfolio_name=request.form.get('portfolio_name', 'Default'),
-                notes=request.form.get('notes')
+                notes=request.form.get('notes'),
+                current_price=float(request.form.get('current_price')) if request.form.get('current_price') else None
             )
             
-            # Calculate totals
+            # Calculate totals (also computes current_value / pnl if current_price is set)
             new_holding.calculate_totals()
             
             db.session.add(new_holding)
@@ -2351,6 +2352,40 @@ def delete_equity_holding(holding_id):
     except Exception as e:
         logger.error(f"Error deleting equity holding: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/equities/refresh-prices', methods=['POST'])
+@login_required
+def refresh_equity_prices():
+    """Refresh current market prices for all manual equity holdings"""
+    from models import ManualEquityHolding
+    from services.nse_realtime_service import get_stock_quote
+
+    holdings = ManualEquityHolding.query.filter_by(
+        user_id=current_user.id,
+        is_active=True
+    ).all()
+
+    updated = 0
+    total = len(holdings)
+    for holding in holdings:
+        try:
+            data = get_stock_quote(holding.symbol)
+            price = data.get('price') or data.get('current_price') or data.get('lastPrice')
+            if price and float(price) > 0:
+                holding.current_price = float(price)
+                holding.calculate_totals()
+                updated += 1
+        except Exception as e:
+            logger.warning(f"Could not refresh price for {holding.symbol}: {e}")
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error committing refreshed prices: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    return jsonify({'success': True, 'updated': updated, 'total': total})
 
 @app.route('/dashboard/mutual-funds', methods=['GET', 'POST'])
 @login_required

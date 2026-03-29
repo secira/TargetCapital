@@ -12,6 +12,9 @@
     <a href="{{ url_for('import_holdings', asset_class='equities') }}" class="btn btn-sm btn-success">
         <i class="fas fa-file-import me-1"></i>Import
     </a>
+    <button type="button" class="btn btn-sm btn-outline-info" onclick="refreshAllPrices(this)" title="Update current market prices for all holdings">
+        <i class="fas fa-chart-line me-1"></i>Refresh Prices
+    </button>
     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
         <i class="fas fa-sync me-1"></i>Refresh
     </button>
@@ -64,6 +67,16 @@
                 <div class="col-md-6 mb-3">
                     <label for="purchase_price" class="form-label">Purchase Price (₹) <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" id="purchase_price" name="purchase_price" step="0.01" required placeholder="2500.00">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="current_price" class="form-label">Current Market Price (₹)</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="current_price" name="current_price" step="0.01" placeholder="Auto-fetched from NSE">
+                        <button class="btn btn-outline-secondary" type="button" id="fetchPriceBtn" onclick="fetchMarketPrice()" title="Fetch live price from NSE">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div id="priceStatus" class="form-text"></div>
                 </div>
                 
                 <!-- Charges (Optional) -->
@@ -245,7 +258,46 @@ document.addEventListener('DOMContentLoaded', function() {
     if (purchaseDateInput) {
         purchaseDateInput.max = new Date().toISOString().split('T')[0];
     }
+    // Auto-fetch price when symbol field loses focus
+    const symbolInput = document.getElementById('symbol');
+    if (symbolInput) {
+        symbolInput.addEventListener('blur', function() {
+            if (this.value.trim()) fetchMarketPrice();
+        });
+    }
 });
+
+async function fetchMarketPrice() {
+    const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+    if (!symbol) {
+        document.getElementById('priceStatus').textContent = 'Enter a symbol first.';
+        return;
+    }
+    const btn = document.getElementById('fetchPriceBtn');
+    const statusEl = document.getElementById('priceStatus');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    statusEl.textContent = 'Fetching live price from NSE...';
+    statusEl.className = 'form-text text-muted';
+    try {
+        const resp = await fetch(`/api/realtime/stock/${encodeURIComponent(symbol)}`);
+        const data = await resp.json();
+        const price = data.price || data.current_price || data.lastPrice || null;
+        if (price && price > 0) {
+            document.getElementById('current_price').value = parseFloat(price).toFixed(2);
+            statusEl.textContent = `✓ Live price fetched: ₹${parseFloat(price).toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+            statusEl.className = 'form-text text-success';
+        } else {
+            statusEl.textContent = 'Price not available — enter manually.';
+            statusEl.className = 'form-text text-warning';
+        }
+    } catch (e) {
+        statusEl.textContent = 'Could not fetch price — enter manually.';
+        statusEl.className = 'form-text text-danger';
+    }
+    btn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+    btn.disabled = false;
+}
 
 function toggleAddEquityForm() {
     const formCard = document.getElementById('addEquityFormCard');
@@ -376,6 +428,29 @@ function deleteHolding(id) {
                 alert('Error deleting holding: ' + data.error);
             }
         });
+    }
+}
+
+async function refreshAllPrices(btn) {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+    btn.disabled = true;
+    try {
+        const resp = await fetch('/api/equities/refresh-prices', { method: 'POST' });
+        const data = await resp.json();
+        if (data.success) {
+            const msg = `Updated ${data.updated} of ${data.total} holdings.`;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>' + msg;
+            setTimeout(() => { location.reload(); }, 1500);
+        } else {
+            btn.innerHTML = original;
+            btn.disabled = false;
+            alert('Could not refresh prices: ' + (data.error || 'Unknown error'));
+        }
+    } catch (e) {
+        btn.innerHTML = original;
+        btn.disabled = false;
+        alert('Network error while refreshing prices.');
     }
 }
 </script>

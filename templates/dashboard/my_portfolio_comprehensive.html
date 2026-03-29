@@ -176,7 +176,7 @@
                     <i class="fas fa-heartbeat fa-2x text-muted mb-2"></i>
                     <h6 class="text-muted mb-1">Portfolio Health Pulse</h6>
                     <p class="text-muted small mb-3">Add your first holding to see your health score, risk rating, and personalised alerts.</p>
-                    <a href="/dashboard/portfolio/equities" class="btn btn-sm btn-primary px-4">
+                    <a href="{{ url_for('dashboard_equities') }}" class="btn btn-sm btn-primary px-4">
                         <i class="fas fa-plus me-1"></i>Add Holdings
                     </a>
                 </div>
@@ -572,7 +572,7 @@
                             </div>
                             <div class="col-md-2 text-end">
                                 <strong>₹{{ "{:,.0f}".format(asset.current_value) }}</strong>
-                                <br><small class="text-muted">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100) }}%</small>
+                                <br><small class="text-muted">{{ "%.1f"|format(asset.current_value / portfolio_summary.total_current_value * 100 if portfolio_summary.total_current_value else 0) }}%</small>
                             </div>
                             <div class="col-md-2 text-end">
                                 <span class="{% if asset.pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
@@ -584,7 +584,7 @@
                             </div>
                             <div class="col-md-5">
                                 <div class="progress progress-bar-custom">
-                                    <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 }}%; background-color: {{ asset.color }};"></div>
+                                    <div class="progress-bar" style="width: {{ asset.current_value / portfolio_summary.total_current_value * 100 if portfolio_summary.total_current_value else 0 }}%; background-color: {{ asset.color }};"></div>
                                 </div>
                             </div>
                         </div>

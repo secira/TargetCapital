@@ -307,8 +307,9 @@ Portfolio Summary:
 
 Asset Allocation:
 """
+            total_val = portfolio_summary['total_current_value'] or 1
             for ac in portfolio_summary['asset_classes']:
-                portfolio_text += f"- {ac['name']}: ₹{ac['current_value']:,.0f} ({ac['current_value']/portfolio_summary['total_current_value']*100:.1f}%) | P&L: {ac['pnl_percentage']:.1f}% | Risk: {ac['risk_level']}\n"
+                portfolio_text += f"- {ac['name']}: ₹{ac['current_value']:,.0f} ({ac['current_value']/total_val*100:.1f}%) | P&L: {ac['pnl_percentage']:.1f}% | Risk: {ac['risk_level']}\n"
             
             prompt = f"""As a financial advisor, analyze this Indian investor's portfolio and provide PERSONALIZED recommendations:
 1. Overall portfolio health assessment (aligned with investor's goals and risk tolerance)
