@@ -32,6 +32,68 @@
     .allocation-item-clickable:hover {
         background: #f0f7ff !important;
     }
+    /* Top Performers */
+    .top-performers-list { display: flex; flex-direction: column; }
+    .tp-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.15s;
+    }
+    .tp-row:last-child { border-bottom: none; }
+    .tp-row:hover { background: #f8fafc; }
+    .tp-rank {
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    .tp-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .tp-avatar-up   { background: #dcfce7; color: #16a34a; }
+    .tp-avatar-down { background: #fee2e2; color: #dc2626; }
+    .tp-info { flex: 1; min-width: 0; }
+    .tp-symbol {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tp-type {
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-top: 1px;
+    }
+    .tp-metrics { text-align: right; flex-shrink: 0; }
+    .tp-value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .tp-return {
+        font-size: 11px;
+        font-weight: 600;
+        margin-top: 2px;
+    }
+    .tp-positive { color: #16a34a; }
+    .tp-negative { color: #dc2626; }
 </style>
 
 <!-- Portfolio Overview Cards -->
@@ -164,31 +226,38 @@
     <div class="dashboard-card">
         <div class="card-header">
             <h3>Top Performers</h3>
-            <a href="{{ url_for('dashboard_my_portfolio') }}" class="view-all">
-                View All
-            </a>
+            <a href="{{ url_for('dashboard_my_portfolio') }}" class="view-all">View All</a>
         </div>
-        <div class="card-body">
-            <div class="holdings-list">
-                {% if top_performers %}
-                    {% for performer in top_performers %}
-                    <div class="holding-item">
-                        <div class="holding-info">
-                            <span class="stock-symbol">{{ performer.name[:15] }}</span>
-                            <span class="stock-name">{{ performer.type }}</span>
-                        </div>
-                        <div class="holding-metrics">
-                            <span class="holding-value">₹{{ "{:,.0f}".format(performer.value) }}</span>
-                            <span class="holding-change {% if performer.return >= 0 %}positive{% else %}negative{% endif %}">
-                                {{ "+" if performer.return >= 0 else "" }}{{ "%.1f"|format(performer.return) }}%
-                            </span>
+        <div class="card-body p-0">
+            {% if top_performers %}
+            <div class="top-performers-list">
+                {% for performer in top_performers %}
+                {% set is_positive = performer.return >= 0 %}
+                <div class="tp-row">
+                    <div class="tp-rank">{{ loop.index }}</div>
+                    <div class="tp-avatar {% if is_positive %}tp-avatar-up{% else %}tp-avatar-down{% endif %}">
+                        {{ performer.name[0] | upper }}
+                    </div>
+                    <div class="tp-info">
+                        <div class="tp-symbol">{{ performer.name[:18] }}{% if performer.name|length > 18 %}…{% endif %}</div>
+                        <div class="tp-type">{{ performer.type }}</div>
+                    </div>
+                    <div class="tp-metrics">
+                        <div class="tp-value">₹{{ "{:,.0f}".format(performer.value) }}</div>
+                        <div class="tp-return {% if is_positive %}tp-positive{% else %}tp-negative{% endif %}">
+                            <i class="fas fa-arrow-{% if is_positive %}up{% else %}down{% endif %}" style="font-size:9px;"></i>
+                            {{ "%.2f"|format(performer.return | abs) }}%
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted text-center py-3">No holdings yet</p>
-                {% endif %}
+                </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-chart-line fa-2x mb-2 d-block opacity-25"></i>
+                No holdings yet
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
