@@ -1882,6 +1882,32 @@ def dashboard_my_portfolio():
         latest_optimization = PortfolioOptimizationReport.query.filter_by(
             user_id=current_user.id
         ).order_by(PortfolioOptimizationReport.created_at.desc()).first()
+
+        # Normalize allocation_recommendations — the optimizer may have stored a
+        # raw markdown string from the LLM inside {"raw_recommendations": "```json\n{...}\n```"}.
+        # Parse it so the template always receives a proper dict.
+        if latest_optimization and isinstance(latest_optimization.allocation_recommendations, dict):
+            alloc = latest_optimization.allocation_recommendations
+            if 'raw_recommendations' in alloc and 'optimal_asset_class_allocation' not in alloc:
+                import re as _re, json as _json
+                raw_str = alloc['raw_recommendations']
+                parsed = None
+                # Try to extract JSON from inside code fences
+                m = _re.search(r'```(?:json)?\s*(\{.*\})\s*```', raw_str, _re.DOTALL)
+                if m:
+                    try:
+                        parsed = _json.loads(m.group(1))
+                    except Exception:
+                        pass
+                if parsed is None:
+                    # Try parsing the whole string as JSON
+                    try:
+                        parsed = _json.loads(raw_str)
+                    except Exception:
+                        pass
+                if parsed:
+                    # Update in-memory only (no DB write) so the template gets clean data
+                    latest_optimization.allocation_recommendations = parsed
     except Exception as _opt_err:
         logging.warning(f"Could not load latest optimization: {_opt_err}")
 

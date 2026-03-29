@@ -301,8 +301,14 @@ User Preferences: {preferences_summary}"""
         
         try:
             content = response.content if isinstance(response.content, str) else str(response.content)
+            # Strip markdown code fences the LLM often wraps JSON in
+            import re as _re
+            code_block = _re.search(r'```(?:json)?\s*(\{.*\})\s*```', content, _re.DOTALL)
+            if code_block:
+                content = code_block.group(1)
             allocation_recs = json.loads(content)
         except:
+            # Last-resort fallback – still try to strip fences before giving up
             allocation_recs = {"raw_recommendations": str(response.content)}
         
         return {

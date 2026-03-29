@@ -364,45 +364,53 @@
                         {# ── Allocation tiles ── #}
                         {# The optimizer returns a nested JSON; extract the flat allocation sub-dict #}
                         {% set alloc_raw = latest_optimization.allocation_recommendations or {} %}
-                        {% set alloc_flat = alloc_raw.get('optimal_asset_class_allocation') or alloc_raw %}
-                        {% if alloc_flat and alloc_flat is mapping %}
-                        <div class="row g-2 mb-3">
-                            {% for asset, pct in alloc_flat.items() %}
-                            {# pct is either "20%" string or a numeric — normalise for display #}
-                            {% set pct_display = pct if pct is string else (pct|string + '%') %}
-                            <div class="col-6 col-sm-3">
-                                <div class="p-3 rounded text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                                    <div class="fw-bold fs-5 text-primary">{{ pct_display }}</div>
-                                    <small class="text-muted">{{ asset }}</small>
+                        {# Only treat as tiles if it's a proper allocation dict (not a fallback raw_recommendations wrapper) #}
+                        {% if alloc_raw and alloc_raw is mapping and 'raw_recommendations' not in alloc_raw %}
+                            {% set alloc_flat = alloc_raw.get('optimal_asset_class_allocation') or alloc_raw %}
+                            {% if alloc_flat and alloc_flat is mapping %}
+                            <div class="row g-2 mb-3">
+                                {% for asset, pct in alloc_flat.items() %}
+                                {# pct is either "20%" string or a numeric — normalise for display #}
+                                {% set pct_display = pct if pct is string else (pct|string + '%') %}
+                                <div class="col-6 col-sm-3">
+                                    <div class="p-3 rounded text-center" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                                        <div class="fw-bold fs-5 text-primary">{{ pct_display }}</div>
+                                        <small class="text-muted">{{ asset }}</small>
+                                    </div>
                                 </div>
+                                {% endfor %}
                             </div>
-                            {% endfor %}
-                        </div>
 
-                        {# Specific descriptions (if available) #}
-                        {% set spec = alloc_raw.get('specific_allocation_percentages') %}
-                        {% if spec and spec is mapping %}
-                        <div class="mb-3">
-                            {% for asset, info in spec.items() %}
-                            {% if info is mapping and info.get('description') %}
-                            <div class="d-flex gap-2 align-items-start mb-1" style="font-size:13px;">
-                                <span class="badge rounded-pill text-bg-secondary" style="min-width:48px;">{{ info.get('percentage', '') }}</span>
-                                <span class="text-muted"><strong>{{ asset }}</strong> — {{ info.description }}</span>
+                            {# Specific descriptions (if available) #}
+                            {% set spec = alloc_raw.get('specific_allocation_percentages') %}
+                            {% if spec and spec is mapping %}
+                            <div class="mb-3">
+                                {% for asset, info in spec.items() %}
+                                {% if info is mapping and info.get('description') %}
+                                <div class="d-flex gap-2 align-items-start mb-1" style="font-size:13px;">
+                                    <span class="badge rounded-pill text-bg-secondary" style="min-width:48px;">{{ info.get('percentage', '') }}</span>
+                                    <span class="text-muted"><strong>{{ asset }}</strong> — {{ info.description }}</span>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
                             </div>
                             {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
 
-                        {# Rebalancing strategy summary #}
-                        {% set rb = alloc_raw.get('rebalancing_strategy') %}
-                        {% if rb and rb is mapping %}
-                        <div class="alert alert-light border mb-3 p-2" style="font-size:13px;">
-                            <i class="fas fa-sync-alt text-primary me-1"></i>
-                            <strong>Rebalance:</strong> {{ rb.get('frequency', '') }}
-                            {% if rb.get('method') %} — {{ rb.method }}{% endif %}
-                        </div>
-                        {% endif %}
+                            {# Rebalancing strategy summary #}
+                            {% set rb = alloc_raw.get('rebalancing_strategy') %}
+                            {% if rb and rb is mapping %}
+                            <div class="alert alert-light border mb-3 p-2" style="font-size:13px;">
+                                <i class="fas fa-sync-alt text-primary me-1"></i>
+                                <strong>Rebalance:</strong> {{ rb.get('frequency', '') }}
+                                {% if rb.get('method') %} — {{ rb.method }}{% endif %}
+                            </div>
+                            {% endif %}
+                            {% endif %}
+                        {% elif alloc_raw and alloc_raw is mapping and 'raw_recommendations' in alloc_raw %}
+                            {# Fallback: raw text stored — display in a clean pre block, not as tiles #}
+                            <div class="alert alert-secondary p-3 mb-3" style="font-size:12px; white-space:pre-wrap; max-height:200px; overflow-y:auto;">
+                                <strong><i class="fas fa-info-circle me-1"></i>Allocation data could not be parsed — re-run optimizer to refresh.</strong>
+                            </div>
                         {% endif %}
 
                         {# ── Full narrative report ── #}
