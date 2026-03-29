@@ -1908,6 +1908,30 @@ def dashboard_my_portfolio():
                 if parsed:
                     # Update in-memory only (no DB write) so the template gets clean data
                     latest_optimization.allocation_recommendations = parsed
+
+        # Normalize opportunities — optimizer may store [{"raw_opportunities": "```json\n[...]\n```"}]
+        if latest_optimization and isinstance(latest_optimization.opportunities, list):
+            opps = latest_optimization.opportunities
+            if len(opps) == 1 and isinstance(opps[0], dict) and 'raw_opportunities' in opps[0]:
+                import re as _re2, json as _json2
+                raw_str = opps[0]['raw_opportunities']
+                parsed_opps = None
+                # Strip code fences and trailing commas then parse
+                clean = _re2.sub(r'^```(?:json)?\s*', '', raw_str.strip(), flags=_re2.IGNORECASE)
+                clean = _re2.sub(r'\s*```$', '', clean.strip())
+                clean = _re2.sub(r',\s*([}\]])', r'\1', clean)
+                try:
+                    parsed_opps = _json2.loads(clean)
+                except Exception:
+                    # Try extracting JSON array from inside the string
+                    m2 = _re2.search(r'(\[.*\])', clean, _re2.DOTALL)
+                    if m2:
+                        try:
+                            parsed_opps = _json2.loads(m2.group(1))
+                        except Exception:
+                            pass
+                if parsed_opps and isinstance(parsed_opps, list):
+                    latest_optimization.opportunities = parsed_opps
     except Exception as _opt_err:
         logging.warning(f"Could not load latest optimization: {_opt_err}")
 

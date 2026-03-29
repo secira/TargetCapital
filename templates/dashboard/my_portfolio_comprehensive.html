@@ -425,19 +425,38 @@
                             <h6 class="mb-2"><i class="fas fa-lightbulb text-warning me-2"></i>AI Opportunities</h6>
                             {# Check if opportunities are structured or raw fallback #}
                             {% if opps[0] is mapping and opps[0].get('raw_opportunities') %}
-                            <div class="p-3 rounded" style="background:#fffbeb; border:1px solid #fde68a; font-size:13px; white-space:pre-line;">{{ opps[0].raw_opportunities }}</div>
+                            <div class="alert alert-secondary p-3 mb-0" style="font-size:13px;">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Opportunity data could not be parsed — re-run the optimizer to refresh.</strong>
+                            </div>
                             {% else %}
                             <div class="row g-2">
                                 {% for opp in opps[:6] %}
                                 {% if opp is mapping %}
                                 <div class="col-md-4">
-                                    <div class="p-2 rounded" style="background:#f0fdf4; border:1px solid #bbf7d0; font-size:13px;">
-                                        <strong>{{ opp.get('symbol', opp.get('name', opp.get('asset', '—'))) }}</strong>
-                                        {% if opp.get('action') or opp.get('recommendation') %}
-                                        <span class="badge bg-success ms-1">{{ opp.get('action') or opp.get('recommendation') }}</span>
+                                    <div class="p-2 rounded h-100" style="background:#f0fdf4; border:1px solid #bbf7d0; font-size:13px;">
+                                        <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                                            <strong>{{ opp.get('symbol', opp.get('name', opp.get('asset', '—'))) }}</strong>
+                                            <span class="d-flex gap-1 flex-wrap justify-content-end">
+                                                {% if opp.get('sector') %}
+                                                <span class="badge text-bg-secondary" style="font-size:10px;">{{ opp.get('sector') }}</span>
+                                                {% endif %}
+                                                {% if opp.get('risk_level') %}
+                                                <span class="badge text-bg-light border" style="font-size:10px;">{{ opp.get('risk_level') }}</span>
+                                                {% endif %}
+                                                {% if opp.get('action') or opp.get('recommendation') %}
+                                                <span class="badge bg-success" style="font-size:10px;">{{ opp.get('action') or opp.get('recommendation') }}</span>
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% if opp.get('stock_name') and opp.get('stock_name') != opp.get('symbol') %}
+                                        <div class="text-muted mb-1" style="font-size:11px;">{{ opp.get('stock_name') }}</div>
                                         {% endif %}
                                         {% set reason = opp.get('rationale') or opp.get('reason') or opp.get('description') or '' %}
-                                        {% if reason %}<div class="text-muted mt-1">{{ reason[:90] }}{% if reason|length > 90 %}…{% endif %}</div>{% endif %}
+                                        {% if reason %}<div class="text-muted">{{ reason[:100] }}{% if reason|length > 100 %}…{% endif %}</div>{% endif %}
+                                        {% if opp.get('expected_allocation') %}
+                                        <div class="mt-1 fw-semibold text-success" style="font-size:11px;">Allocation: {{ opp.get('expected_allocation') }}</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {% endif %}

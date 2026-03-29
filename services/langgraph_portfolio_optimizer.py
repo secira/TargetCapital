@@ -361,7 +361,13 @@ User Preferences: {preferences_summary}"""
         
         try:
             content = response.content if isinstance(response.content, str) else str(response.content)
-            opportunities = json.loads(content)
+            # Strip markdown code fences before parsing
+            import re as _re
+            clean = _re.sub(r'^```(?:json)?\s*', '', content.strip(), flags=_re.IGNORECASE)
+            clean = _re.sub(r'\s*```$', '', clean.strip())
+            # Remove trailing commas before ] or } (common LLM mistake)
+            clean = _re.sub(r',\s*([}\]])', r'\1', clean)
+            opportunities = json.loads(clean)
             if not isinstance(opportunities, list):
                 opportunities = [opportunities]
         except:
