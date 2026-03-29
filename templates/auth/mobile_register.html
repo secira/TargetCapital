@@ -41,8 +41,8 @@
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="agree_terms" name="agree_terms" required>
                                 <label class="form-check-label" for="agree_terms">
-                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and 
-                                    <a href="#" class="text-primary">Privacy Policy</a>
+                                    I agree to the <a href="{{ url_for('terms_of_service') }}" class="text-primary" target="_blank">Terms of Service</a> and 
+                                    <a href="{{ url_for('privacy_policy') }}" class="text-primary" target="_blank">Privacy Policy</a>
                                 </label>
                             </div>
                             
