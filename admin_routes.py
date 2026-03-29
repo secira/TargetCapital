@@ -694,7 +694,7 @@ def admin_save_threshold_config():
         hold_low = int(request.form.get('hold_low', 45))
         hold_high = int(request.form.get('hold_high', 64))
         sell = int(request.form.get('sell_threshold', 30))
-        min_confidence = float(request.form.get('min_confidence', 0.6))
+        min_confidence = float(request.form.get('min_confidence', 60)) / 100.0
         
         existing = ResearchThresholdConfig.get_active_config()
         if existing:
