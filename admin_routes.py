@@ -507,6 +507,10 @@ def research_config():
         'glassdoor': True
     }
     
+    config_history = ResearchWeightConfig.query.order_by(
+        ResearchWeightConfig.created_at.desc()
+    ).limit(10).all()
+
     return render_template('admin/research_config.html',
                           weight_config=weight_config,
                           threshold_config=threshold_config,
@@ -516,7 +520,8 @@ def research_config():
                           research_flags=research_flags,
                           portfolio_flags=portfolio_flags,
                           portfolio_sections=portfolio_sections,
-                          all_asset_keys=all_asset_keys)
+                          all_asset_keys=all_asset_keys,
+                          config_history=config_history)
 
 @admin_bp.route('/save-portfolio-flags', methods=['POST'])
 @admin_required
@@ -641,6 +646,7 @@ def admin_save_research_weights():
 def admin_save_tech_params():
     """Save technical indicator parameters"""
     from models import ResearchWeightConfig
+    from sqlalchemy.orm.attributes import flag_modified
     
     try:
         tech_params = {
@@ -656,6 +662,7 @@ def admin_save_tech_params():
         config = ResearchWeightConfig.get_active_config()
         if config:
             config.tech_params = tech_params
+            flag_modified(config, 'tech_params')
             config.updated_at = datetime.utcnow()
             db.session.commit()
             flash('Technical indicator parameters saved!', 'success')
@@ -745,9 +752,11 @@ def admin_save_qualitative_sources():
             'angelone': 'angelone' in request.form
         }
         
+        from sqlalchemy.orm.attributes import flag_modified
         config = ResearchWeightConfig.get_active_config()
         if config:
             config.qualitative_sources = sources
+            flag_modified(config, 'qualitative_sources')
             config.updated_at = datetime.utcnow()
             db.session.commit()
             flash('Qualitative data sources saved!', 'success')
@@ -782,9 +791,11 @@ def admin_save_trend_params():
             'vix_high': float(request.form.get('vix_high', 25))
         }
         
+        from sqlalchemy.orm.attributes import flag_modified
         config = ResearchWeightConfig.get_active_config()
         if config:
             config.trend_params = trend_params
+            flag_modified(config, 'trend_params')
             config.updated_at = datetime.utcnow()
             db.session.commit()
             flash('Trend analysis parameters saved!', 'success')
